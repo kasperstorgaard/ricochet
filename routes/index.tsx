@@ -9,12 +9,33 @@ export default function Home() {
     x: 6,
     y: 4,
     orientation: "horizontal",
+  }, {
+    x: 6,
+    y: 4,
+    orientation: "vertical",
+  }, {
+    x: 2,
+    y: 3,
+    orientation: "horizontal",
+  }, {
+    x: 6,
+    y: 1,
+    orientation: "vertical",
+  }, {
+    x: 3,
+    y: 4,
+    orientation: "vertical",
   }]);
 
   return (
     <div class="p-3 bg-gray-10">
       <div class="max-w-screen-md mx-auto flex flex-col items-center justify-center">
-        <Board active={active} walls={walls} cols={7} rows={11} />
+        <Board
+          active={active}
+          walls={walls}
+          cols={7}
+          rows={11}
+        />
       </div>
     </div>
   );
