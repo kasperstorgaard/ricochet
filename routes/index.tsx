@@ -1,40 +1,29 @@
 import { useSignal } from "@preact/signals";
 import Board from "../islands/board.tsx";
-import { Wall } from "../util/board.ts";
+import { Piece, Wall } from "../util/board.ts";
 
 export default function Home() {
-  const active = useSignal({ x: 6, y: 8 });
+  const walls = useSignal<Wall[]>([
+    { x: 3, y: 7, orientation: "horizontal" },
+    { x: 3, y: 4, orientation: "horizontal" },
+    { x: 6, y: 6, orientation: "vertical" },
+  ]);
 
-  const walls = useSignal<Wall[]>([{
-    x: 6,
-    y: 4,
-    orientation: "horizontal",
-  }, {
-    x: 6,
-    y: 4,
-    orientation: "vertical",
-  }, {
-    x: 2,
-    y: 3,
-    orientation: "horizontal",
-  }, {
-    x: 6,
-    y: 1,
-    orientation: "vertical",
-  }, {
-    x: 3,
-    y: 4,
-    orientation: "vertical",
-  }]);
+  const pieces = useSignal<Piece[]>([
+    { x: 3, y: 6, type: "main" },
+    { x: 3, y: 4, type: "bouncer" },
+    { x: 3, y: 2, type: "bouncer" },
+    { x: 0, y: 6, type: "bouncer" },
+  ]);
 
   return (
     <div class="p-3 bg-gray-10">
       <div class="max-w-screen-md mx-auto flex flex-col items-center justify-center">
         <Board
-          active={active}
           walls={walls}
           cols={7}
           rows={11}
+          pieces={pieces}
         />
       </div>
     </div>
@@ -56,4 +45,7 @@ export default function Home() {
  * - start of simple by click interactions, not swiping
  * - enlarge valid click target
  * - replay button
+ * - add "disable animations" button, for the fast players
+ * - send game state changes sequence to server, and let the piece "catch up" slower, even if the user is 2-3 steps ahead.
+ * - redirect to game id of the day when landing on home
  */

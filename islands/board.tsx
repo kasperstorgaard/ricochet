@@ -1,42 +1,77 @@
 import type { Signal } from "@preact/signals";
-import { useCallback, useMemo } from "preact/hooks";
+import { useCallback, useMemo, useState } from "preact/hooks";
 
 import { cn } from "../lib/style.ts";
-import { getDestinations, isPositionSame, Wall } from "../util/board.ts";
-
-type Position = {
-  x: number;
-  y: number;
-};
+import {
+  getTargets,
+  isPositionSame,
+  Piece,
+  Position,
+  Wall,
+} from "../util/board.ts";
 
 interface GridProps {
-  active: Signal<Position | null>;
+  pieces: Signal<Piece[]>;
   walls: Signal<Wall[]>;
   cols: number;
   rows: number;
 }
 
 export default function Board(
-  { active, walls, cols, rows }: GridProps,
+  { pieces, walls, cols, rows }: GridProps,
 ) {
   const config = { cols, rows };
 
-  const spaces: Position[][] = [];
-  const destinations = useMemo(
+  const [active, setActive] = useState<Position | null>(null);
+
+  const nonActivePieces = useMemo(
     () =>
-      active.value
-        ? getDestinations(active.value, { ...config, walls: walls.value })
-        : null,
-    [active.value],
+      active
+        ? pieces.value.filter((piece) => !isPositionSame(piece, active))
+        : pieces.value,
+    [pieces.value, active],
   );
 
-  for (let y = 0; y < rows; y++) {
-    spaces[y] = [];
+  const targets = useMemo(
+    () =>
+      active
+        ? getTargets(active, {
+          ...config,
+          walls: walls.value,
+          pieces: nonActivePieces,
+        })
+        : null,
+    [active],
+  );
 
-    for (let x = 0; x < cols; x++) {
-      spaces[y].push({ x, y });
+  const spaces = useMemo(() => {
+    const positions: Position[][] = [];
+
+    for (let y = 0; y < rows; y++) {
+      positions[y] = [];
+
+      for (let x = 0; x < cols; x++) {
+        positions[y].push({ x, y });
+      }
     }
-  }
+
+    return positions;
+  }, []);
+
+  const movePiece = useCallback((position: Position) => {
+    if (!active) return;
+
+    pieces.value = pieces.value.map((piece) =>
+      isPositionSame(piece, active)
+        ? {
+          ...piece,
+          ...position,
+        }
+        : piece
+    );
+
+    setActive(position);
+  }, [active, pieces.value]);
 
   return (
     <div
@@ -49,7 +84,7 @@ export default function Board(
           <div
             key={`${space.x}-${space.y}`}
             className={cn(
-              "grid place-content-center items-center content-center border-b-1 border-r-1 border-gray-7 aspect-square rounded-1",
+              "grid border-b-1 border-r-1 border-gray-7 aspect-square rounded-1",
             )}
             style={{
               gridColumn: `${space.x + 1}`,
@@ -60,15 +95,15 @@ export default function Board(
       )}
 
       {/* If we have an active space/piece, draw the possible destinations  */}
-      {destinations && (
+      {targets && (
         <>
           {/* Backgrounds between src and destinations */}
           <div
             className="bg-blue-3 opacity-10 pointer-events-none"
             style={{
-              gridColumnStart: destinations.top.x + 1,
-              gridRowStart: destinations.top.y + 1,
-              gridRowEnd: destinations.bottom.y + 2,
+              gridColumnStart: targets.top.x + 1,
+              gridRowStart: targets.top.y + 1,
+              gridRowEnd: targets.bottom.y + 2,
             }}
           />
 
@@ -76,53 +111,57 @@ export default function Board(
           <div
             className="bg-blue-3 opacity-10 pointer-events-none"
             style={{
-              gridColumnStart: destinations.left.x + 1,
-              gridColumnEnd: destinations.right.x + 2,
-              gridRowStart: destinations.left.y + 1,
+              gridColumnStart: targets.left.x + 1,
+              gridColumnEnd: targets.right.x + 2,
+              gridRowStart: targets.left.y + 1,
             }}
           />
 
-          {destinations.top.y !== active.value?.y && (
+          {targets.top.y !== active?.y && (
             <div
-              className="m-2 border-2 border-blue-3 opacity-10 rounded-round"
+              className="w-[80%] aspect-square -ml-1 -mt-1 border-2 border-blue-3 opacity-10 rounded-round place-self-center"
               style={{
-                gridColumnStart: destinations.top.x + 1,
-                gridRowStart: destinations.top.y + 1,
+                gridColumnStart: targets.top.x + 1,
+                gridRowStart: targets.top.y + 1,
               }}
-              onClick={() => active.value = destinations.top}
+              // TODO: move
+              onClick={() => movePiece(targets.top)}
             />
           )}
 
-          {destinations.bottom.y !== active.value?.y && (
+          {targets.bottom.y !== active?.y && (
             <div
-              className="m-2 border-2 border-blue-3 opacity-10 rounded-round"
+              className="w-[80%] aspect-square -ml-1 -mt-1 border-2 border-blue-3 opacity-10 rounded-round place-self-center"
               style={{
-                gridColumnStart: destinations.bottom.x + 1,
-                gridRowStart: destinations.bottom.y + 1,
+                gridColumnStart: targets.bottom.x + 1,
+                gridRowStart: targets.bottom.y + 1,
               }}
-              onClick={() => active.value = destinations.bottom}
+              // TODO: move
+              onClick={() => movePiece(targets.bottom)}
             />
           )}
 
-          {destinations.left.x !== active.value?.x && (
+          {targets.left.x !== active?.x && (
             <div
-              className="m-2 border-2 border-blue-3 opacity-10 rounded-round"
+              className="w-[80%] aspect-square -ml-1 -mt-1 border-2 border-blue-3 opacity-10 rounded-round place-self-center"
               style={{
-                gridColumnStart: destinations.left.x + 1,
-                gridRowStart: destinations.left.y + 1,
+                gridColumnStart: targets.left.x + 1,
+                gridRowStart: targets.left.y + 1,
               }}
-              onClick={() => active.value = destinations.left}
+              // TODO: move
+              onClick={() => movePiece(targets.left)}
             />
           )}
 
-          {destinations.right.x !== active.value?.x && (
+          {targets.right.x !== active?.x && (
             <div
-              className="m-2 border-2 border-blue-3 opacity-10 rounded-round"
+              className="w-[80%] aspect-square -ml-1 -mt-1 border-2 border-blue-3 opacity-10 rounded-round place-self-center"
               style={{
-                gridColumnStart: destinations.right.x + 1,
-                gridRowStart: destinations.right.y + 1,
+                gridColumnStart: targets.right.x + 1,
+                gridRowStart: targets.right.y + 1,
               }}
-              onClick={() => active.value = destinations.right}
+              // TODO: move
+              onClick={() => movePiece(targets.right)}
             />
           )}
         </>
@@ -143,7 +182,20 @@ export default function Board(
         />
       ))}
 
-      {/* TODO: draw pieces */}
+      {pieces.value.map((piece) => (
+        <div
+          className={cn(
+            "rounded-round -ml-1 -mt-1 p-2 w-[80%] aspect-square place-self-center",
+            piece.type === "main" && "bg-yellow-3",
+            piece.type === "bouncer" && "bg-green-3",
+          )}
+          style={{
+            gridColumn: piece.x + 1,
+            gridRow: piece.y + 1,
+          }}
+          onClick={() => setActive(piece)}
+        />
+      ))}
     </div>
   );
 }
