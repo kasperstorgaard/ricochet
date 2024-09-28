@@ -10,21 +10,22 @@ import {
   Wall,
 } from "../util/board.ts";
 
-interface GridProps {
+interface BoardProps {
   pieces: Signal<Piece[]>;
   walls: Signal<Wall[]>;
+  destination: Signal<Position>;
   cols: number;
   rows: number;
 }
 
 export default function Board(
-  { pieces, walls, cols, rows }: GridProps,
+  { pieces, walls, cols, rows, destination }: BoardProps,
 ) {
   const config = { cols, rows };
 
   const [active, setActive] = useState<Position | null>(null);
 
-  const nonActivePieces = useMemo(
+  const inactivePieces = useMemo(
     () =>
       active
         ? pieces.value.filter((piece) => !isPositionSame(piece, active))
@@ -38,7 +39,7 @@ export default function Board(
         ? getTargets(active, {
           ...config,
           walls: walls.value,
-          pieces: nonActivePieces,
+          pieces: inactivePieces,
         })
         : null,
     [active],
@@ -124,7 +125,6 @@ export default function Board(
                 gridColumnStart: targets.top.x + 1,
                 gridRowStart: targets.top.y + 1,
               }}
-              // TODO: move
               onClick={() => movePiece(targets.top)}
             />
           )}
@@ -136,7 +136,6 @@ export default function Board(
                 gridColumnStart: targets.bottom.x + 1,
                 gridRowStart: targets.bottom.y + 1,
               }}
-              // TODO: move
               onClick={() => movePiece(targets.bottom)}
             />
           )}
@@ -148,7 +147,6 @@ export default function Board(
                 gridColumnStart: targets.left.x + 1,
                 gridRowStart: targets.left.y + 1,
               }}
-              // TODO: move
               onClick={() => movePiece(targets.left)}
             />
           )}
@@ -160,7 +158,6 @@ export default function Board(
                 gridColumnStart: targets.right.x + 1,
                 gridRowStart: targets.right.y + 1,
               }}
-              // TODO: move
               onClick={() => movePiece(targets.right)}
             />
           )}
@@ -185,13 +182,13 @@ export default function Board(
       {pieces.value.map((piece) => (
         <div
           className={cn(
-            "rounded-round -ml-1 -mt-1 p-2 w-[80%] aspect-square place-self-center",
-            piece.type === "main" && "bg-yellow-3",
+            "rounded-round col-start-1 row-start-1 -ml-1 -mt-1 p-2 w-[80%] aspect-square place-self-center",
+            piece.type === "rook" && "bg-yellow-3",
             piece.type === "bouncer" && "bg-green-3",
           )}
           style={{
-            gridColumn: piece.x + 1,
-            gridRow: piece.y + 1,
+            "--piece-x": piece.x,
+            "--piece-y": piece.y,
           }}
           onClick={() => setActive(piece)}
         />

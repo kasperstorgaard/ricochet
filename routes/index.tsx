@@ -1,8 +1,10 @@
 import { useSignal } from "@preact/signals";
 import Board from "../islands/board.tsx";
-import { Piece, Wall } from "../util/board.ts";
+import { Piece, Position, Wall } from "../util/board.ts";
 
 export default function Home() {
+  const destination = useSignal<Position>({ x: 2, y: 5 });
+
   const walls = useSignal<Wall[]>([
     { x: 3, y: 7, orientation: "horizontal" },
     { x: 3, y: 4, orientation: "horizontal" },
@@ -10,7 +12,7 @@ export default function Home() {
   ]);
 
   const pieces = useSignal<Piece[]>([
-    { x: 3, y: 6, type: "main" },
+    { x: 3, y: 6, type: "rook" },
     { x: 3, y: 4, type: "bouncer" },
     { x: 3, y: 2, type: "bouncer" },
     { x: 0, y: 6, type: "bouncer" },
@@ -20,9 +22,10 @@ export default function Home() {
     <div class="p-3 bg-gray-10">
       <div class="max-w-screen-md mx-auto flex flex-col items-center justify-center">
         <Board
-          walls={walls}
           cols={7}
           rows={11}
+          destination={destination}
+          walls={walls}
           pieces={pieces}
         />
       </div>

@@ -3,15 +3,14 @@ import { Piece, Wall } from "../../util/board.ts";
 
 /**
  * Required data:
- * - puzzle id
- * - current board state (stringified)
- * - desired move
+ * - current board state
+ * - desired board state
  *
  * Returns:
- * - puzzle id
- * - updated board state
- * - number of moves
+ * - original board state
+ * - new board state
  * - if the puzzle is solved
+ * - if the move is valid
  */
 export const handler = async (
   req: Request,

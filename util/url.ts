@@ -1,5 +1,18 @@
 import { join } from "$std/path/join.ts";
-import { BoardState, Piece, Wall } from "./board.ts";
+import { BoardState, Piece, Position, Wall } from "./board.ts";
+
+function stringifyPosition(position: Position) {
+  return `${position.x}_${position.y}`;
+}
+
+function parsePosition(position: string): Position {
+  const [, x, y] = position.match(/(\d+)_(\d+)/) ?? [];
+
+  return {
+    x: parseInt(x),
+    y: parseInt(y),
+  };
+}
 
 function stringifyWall(wall: Wall) {
   return wall.orientation === "horizontal"
@@ -18,7 +31,7 @@ function parseWall(wall: string): Wall {
 }
 
 function stringifyPiece(piece: Piece) {
-  return piece.type === "main"
+  return piece.type === "rook"
     ? `m${piece.x}_${piece.y}`
     : `b${piece.x}_${piece.y}`;
 }
@@ -27,13 +40,17 @@ function parsePiece(piece: string): Piece {
   const [, type, x, y] = piece.match(/(m|b)(\d+)_(\d+)/) ?? [];
 
   return {
-    type: type === "m" ? "main" : "bouncer",
+    type: type === "r" ? "rook" : "bouncer",
     x: parseInt(x),
     y: parseInt(y),
   };
 }
 
 export function stringifyBoard(state: BoardState) {
+  const colsPart = `c:${state.cols}`;
+  const rowsPart = `r:${state.cols}`;
+  const destinationPart = `d:${stringifyPosition(state.destination)}`;
+
   const wallsPart = state.walls.length
     ? `w:${state.walls.map(stringifyWall).join(",")}`
     : "";
@@ -41,16 +58,24 @@ export function stringifyBoard(state: BoardState) {
     ? `p:${state.pieces.map(stringifyPiece), join(",")}`
     : "";
 
-  return [wallsPart, piecesPart].join(",");
+  return [colsPart, rowsPart, destinationPart, wallsPart, piecesPart].join(",");
 }
 
-export function parseBoard(state: string): BoardState {
-  const [, walls, pieces] =
-    state.match(/(w:(?:[hv]\d+_\d+,?)+)?(p:(?:[mb]\d+_\d+,?)*)?/) ??
-      [];
+export function parseBoard(state: string | null | undefined): BoardState {
+  if (state == null || state.length === 0) {
+    throw new Error("Board is empty");
+  }
+
+  const [, colStr, rowStr, destinationStr, wallsStr, piecesStr] = state.match(
+    /(c:\d+)(r:\d+)(d:(\d+_\d+))(w:([hv]\d+_\d+,?)+)?(?:p:([rb]\d+_\d+,?)*)?/,
+  ) ??
+    [];
 
   return {
-    walls: walls.slice(2).split(",").map(parseWall),
-    pieces: pieces.slice(2).split(",").map(parsePiece),
+    cols: parseInt(colStr.slice(2)),
+    rows: parseInt(rowStr.slice(2)),
+    destination: parsePosition(destinationStr.slice(2)),
+    walls: wallsStr.split(",").map(parseWall),
+    pieces: piecesStr.split(",").map(parsePiece),
   };
 }
