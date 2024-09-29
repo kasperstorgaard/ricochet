@@ -1,9 +1,13 @@
 import { assertEquals } from "jsr:@std/assert";
 
 import {
+  BoardError,
   getTargets,
+  isGameWon,
   isPositionAligned,
   isPositionSame,
+  isValidMove,
+  Piece,
   Position,
   validateBoard,
 } from "./board.ts";
@@ -58,6 +62,25 @@ Deno.test("getTargets() should get 4 positions for a center source", () => {
     rows: 11,
     walls: [],
     pieces: [],
+  });
+
+  assertEquals(
+    targets,
+    {
+      top: { x: 3, y: 0 },
+      right: { x: 6, y: 5 },
+      bottom: { x: 3, y: 10 },
+      left: { x: 0, y: 5 },
+    },
+  );
+});
+
+Deno.test("getTargets() should ignore itself", () => {
+  const targets = getTargets({ x: 3, y: 5 }, {
+    cols: 7,
+    rows: 11,
+    walls: [],
+    pieces: [{ x: 3, y: 5, type: "rook" }],
   });
 
   assertEquals(
@@ -167,7 +190,7 @@ Deno.test("getTargets() pieces should end targets", () => {
     rows: 11,
     walls: [],
     pieces: [
-      { x: 6, y: 4 },
+      { x: 6, y: 4, type: "rook" },
     ],
   });
 
@@ -188,11 +211,11 @@ Deno.test("getTargets() is not affected by non-aligned pieces", () => {
     rows: 11,
     walls: [],
     pieces: [
-      { x: 5, y: 6 },
-      { x: 1, y: 3 },
-      { x: 5, y: 2 },
-      { x: 1, y: 3 },
-      { x: 2, y: 4 },
+      { x: 5, y: 6, type: "rook" },
+      { x: 1, y: 3, type: "bouncer" },
+      { x: 5, y: 2, type: "bouncer" },
+      { x: 1, y: 3, type: "bouncer" },
+      { x: 2, y: 4, type: "bouncer" },
     ],
   });
 
@@ -217,9 +240,9 @@ Deno.test("getTargets() should respect both pieces and walls", () => {
       { x: 6, y: 6, orientation: "vertical" },
     ],
     pieces: [
-      { x: 3, y: 4 },
-      { x: 3, y: 2 },
-      { x: 0, y: 6 },
+      { x: 3, y: 4, type: "bouncer" },
+      { x: 3, y: 2, type: "rook" },
+      { x: 0, y: 6, type: "bouncer" },
     ],
   });
 
@@ -240,7 +263,7 @@ Deno.test("validateBoard() should throw with an empty board", () => {
       pieces: [],
       walls: [],
     });
-  });
+  }, BoardError);
 });
 
 Deno.test("validateBoard() should throw with no cols", () => {
@@ -252,7 +275,7 @@ Deno.test("validateBoard() should throw with no cols", () => {
       pieces: [{ x: 0, y: 4, type: "rook" }],
       walls: [{ x: 1, y: 1, orientation: "horizontal" }],
     });
-  });
+  }, BoardError);
 });
 
 Deno.test("validateBoard() should throw with no rows", () => {
@@ -264,7 +287,7 @@ Deno.test("validateBoard() should throw with no rows", () => {
       pieces: [{ x: 0, y: 4, type: "rook" }],
       walls: [{ x: 1, y: 1, orientation: "horizontal" }],
     });
-  });
+  }, BoardError);
 });
 
 Deno.test("validateBoard() should throw with no pieces", () => {
@@ -276,7 +299,19 @@ Deno.test("validateBoard() should throw with no pieces", () => {
       pieces: [],
       walls: [{ x: 1, y: 2, orientation: "horizontal" }],
     });
-  });
+  }, BoardError);
+});
+
+Deno.test("validateBoard() should throw with invalid pieces", () => {
+  assertThrows(() => {
+    validateBoard({
+      cols: 7,
+      rows: 7,
+      destination: { x: 0, y: 3 },
+      pieces: [{ x: 2, y: 4 } as unknown as Piece],
+      walls: [{ x: 1, y: 2, orientation: "horizontal" }],
+    });
+  }, BoardError);
 });
 
 Deno.test("validateBoard() should throw with no rooks", () => {
@@ -288,7 +323,7 @@ Deno.test("validateBoard() should throw with no rooks", () => {
       pieces: [{ x: 4, y: 1, type: "bouncer" }],
       walls: [{ x: 1, y: 2, orientation: "horizontal" }],
     });
-  });
+  }, BoardError);
 });
 
 Deno.test("validateBoard() should throw with destination out of bounds", () => {
@@ -300,7 +335,7 @@ Deno.test("validateBoard() should throw with destination out of bounds", () => {
       pieces: [{ x: 4, y: 1, type: "rook" }],
       walls: [{ x: 1, y: 2, orientation: "horizontal" }],
     });
-  });
+  }, BoardError);
 });
 
 Deno.test("validateBoard() should throw with piece out of bounds", () => {
@@ -312,7 +347,7 @@ Deno.test("validateBoard() should throw with piece out of bounds", () => {
       pieces: [{ x: 12, y: 1, type: "rook" }],
       walls: [{ x: 1, y: 2, orientation: "horizontal" }],
     });
-  });
+  }, BoardError);
 });
 
 Deno.test("validateBoard() should throw with wall out of bounds", () => {
@@ -324,7 +359,7 @@ Deno.test("validateBoard() should throw with wall out of bounds", () => {
       pieces: [{ x: 0, y: 1, type: "rook" }],
       walls: [{ x: 1, y: 90, orientation: "horizontal" }],
     });
-  });
+  }, BoardError);
 });
 
 Deno.test("validateBoard() should throw with identical pieces", () => {
@@ -336,7 +371,7 @@ Deno.test("validateBoard() should throw with identical pieces", () => {
       pieces: [{ x: 4, y: 1, type: "rook" }, { x: 4, y: 1, type: "rook" }],
       walls: [{ x: 1, y: 2, orientation: "horizontal" }],
     });
-  });
+  }, BoardError);
 });
 
 Deno.test("validateBoard() should throw with identical piece positions", () => {
@@ -348,7 +383,7 @@ Deno.test("validateBoard() should throw with identical piece positions", () => {
       pieces: [{ x: 4, y: 1, type: "bouncer" }, { x: 4, y: 1, type: "rook" }],
       walls: [{ x: 1, y: 2, orientation: "horizontal" }],
     });
-  });
+  }, BoardError);
 });
 
 Deno.test("validateBoard() should throw with identical walls", () => {
@@ -363,10 +398,10 @@ Deno.test("validateBoard() should throw with identical walls", () => {
         { x: 1, y: 2, orientation: "horizontal" },
       ],
     });
-  });
+  }, BoardError);
 });
 
-Deno.test("validateBoard() should return true for valid simple board", () => {
+Deno.test("validateBoard() should return board for valid simple board", () => {
   const result = validateBoard({
     cols: 7,
     rows: 7,
@@ -375,10 +410,16 @@ Deno.test("validateBoard() should return true for valid simple board", () => {
     walls: [{ x: 1, y: 2, orientation: "horizontal" }],
   });
 
-  assertEquals(result, true);
+  assertEquals(result, {
+    cols: 7,
+    rows: 7,
+    destination: { x: 0, y: 3 },
+    pieces: [{ x: 4, y: 1, type: "rook" }],
+    walls: [{ x: 1, y: 2, orientation: "horizontal" }],
+  });
 });
 
-Deno.test("validateBoard() should return true for valid complex board", () => {
+Deno.test("validateBoard() should return board for valid complex board", () => {
   const result = validateBoard({
     cols: 7,
     rows: 7,
@@ -400,6 +441,108 @@ Deno.test("validateBoard() should return true for valid complex board", () => {
       { x: 1, y: 6, orientation: "horizontal" },
     ],
   });
+
+  assertEquals(result, {
+    cols: 7,
+    rows: 7,
+    destination: { x: 2, y: 3 },
+    pieces: [
+      { x: 4, y: 1, type: "rook" },
+      { x: 2, y: 1, type: "bouncer" },
+      { x: 3, y: 2, type: "bouncer" },
+      { x: 2, y: 5, type: "bouncer" },
+      { x: 3, y: 6, type: "bouncer" },
+      { x: 4, y: 4, type: "bouncer" },
+    ],
+    walls: [
+      { x: 1, y: 2, orientation: "horizontal" },
+      { x: 1, y: 2, orientation: "vertical" },
+      { x: 4, y: 3, orientation: "horizontal" },
+      { x: 0, y: 6, orientation: "horizontal" },
+      { x: 5, y: 1, orientation: "vertical" },
+      { x: 1, y: 6, orientation: "horizontal" },
+    ],
+  });
+});
+
+Deno.test("isValidMove() should return false for move not matching a piece", () => {
+  const result = isValidMove(
+    { x: 3, y: 1 },
+    { x: 6, y: 3 },
+    {
+      cols: 7,
+      rows: 7,
+      pieces: [
+        { x: 4, y: 1, type: "rook" },
+      ],
+      walls: [],
+    },
+  );
+
+  assertEquals(result, false);
+});
+
+Deno.test("isValidMove() should return false for diagonal move", () => {
+  const result = isValidMove(
+    { x: 4, y: 1 },
+    { x: 6, y: 3 },
+    {
+      cols: 7,
+      rows: 7,
+      pieces: [
+        { x: 4, y: 1, type: "rook" },
+      ],
+      walls: [],
+    },
+  );
+
+  assertEquals(result, false);
+});
+
+Deno.test("isValidMove() should return false for blocked move", () => {
+  const result = isValidMove(
+    { x: 4, y: 1 },
+    { x: 6, y: 1 },
+    {
+      cols: 7,
+      rows: 7,
+      pieces: [{ x: 4, y: 1, type: "rook" }],
+      walls: [{ x: 5, y: 1, orientation: "vertical" }],
+    },
+  );
+
+  assertEquals(result, false);
+});
+
+Deno.test("isGameWon() should return false for non matching position", () => {
+  const result = isGameWon(
+    {
+      destination: { x: 0, y: 2 },
+      pieces: [{ x: 4, y: 1, type: "rook" }],
+    },
+  );
+
+  assertEquals(result, false);
+});
+
+Deno.test("isGameWon() should return false for bouncer", () => {
+  const result = isGameWon(
+    {
+      destination: { x: 0, y: 2 },
+      pieces: [{ type: "bouncer", x: 0, y: 2 }],
+    },
+  );
+
+  assertEquals(result, false);
+});
+
+Deno.test("isGameWon() should return true for winning position", () => {
+  const result = isGameWon(
+    {
+      destination: { x: 0, y: 2 },
+      pieces: [{ type: "rook", x: 0, y: 2 }],
+    },
+  );
 
   assertEquals(result, true);
 });

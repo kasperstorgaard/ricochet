@@ -1,28 +1,28 @@
 import type { Signal } from "@preact/signals";
-import { useCallback, useMemo, useState } from "preact/hooks";
+import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 
 import { cn } from "../lib/style.ts";
 import {
+  BoardState,
   getTargets,
   isPositionSame,
   Piece,
   Position,
   Wall,
 } from "../util/board.ts";
+import { parseBoard, stringifyBoard } from "../util/url.ts";
 
 interface BoardProps {
+  cols: Signal<number>;
+  rows: Signal<number>;
+  destination: Signal<Position>;
   pieces: Signal<Piece[]>;
   walls: Signal<Wall[]>;
-  destination: Signal<Position>;
-  cols: number;
-  rows: number;
 }
 
 export default function Board(
-  { pieces, walls, cols, rows, destination }: BoardProps,
+  { cols, rows, destination, pieces, walls }: BoardProps,
 ) {
-  const config = { cols, rows };
-
   const [active, setActive] = useState<Position | null>(null);
 
   const inactivePieces = useMemo(
@@ -37,7 +37,8 @@ export default function Board(
     () =>
       active
         ? getTargets(active, {
-          ...config,
+          cols: cols.value,
+          rows: rows.value,
           walls: walls.value,
           pieces: inactivePieces,
         })
@@ -48,10 +49,10 @@ export default function Board(
   const spaces = useMemo(() => {
     const positions: Position[][] = [];
 
-    for (let y = 0; y < rows; y++) {
+    for (let y = 0; y < rows.value; y++) {
       positions[y] = [];
 
-      for (let x = 0; x < cols; x++) {
+      for (let x = 0; x < cols.value; x++) {
         positions[y].push({ x, y });
       }
     }
@@ -62,7 +63,7 @@ export default function Board(
   const movePiece = useCallback((position: Position) => {
     if (!active) return;
 
-    pieces.value = pieces.value.map((piece) =>
+    const updatedPieces = pieces.value.map((piece) =>
       isPositionSame(piece, active)
         ? {
           ...piece,
@@ -71,13 +72,54 @@ export default function Board(
         : piece
     );
 
+    const url = new URL(window.location.href);
+
+    const state: BoardState = {
+      cols: cols.value,
+      rows: rows.value,
+      destination: destination.value,
+      pieces: updatedPieces,
+      walls: walls.value,
+    };
+
+    url.search = new URLSearchParams(stringifyBoard(state)).toString();
+    self.history.pushState({}, "", url);
+    self.dispatchEvent(new CustomEvent("board-change"));
+
     setActive(position);
   }, [active, pieces.value]);
 
+  useEffect(() => {
+    const onBoardChange = () => {
+      const state = parseBoard(self.location.search);
+
+      cols.value = state.cols;
+      rows.value = state.rows;
+      destination.value = state.destination;
+      pieces.value = state.pieces;
+      walls.value = state.walls;
+    };
+
+    self.addEventListener("popstate", onBoardChange);
+    self.addEventListener("board-change", onBoardChange);
+
+    return () => {
+      self.removeEventListener("popstate", onBoardChange);
+      self.removeEventListener("board-change", onBoardChange);
+    };
+  }, []);
+
   return (
     <div
-      className="grid gap-1 max-w-sm w-full border-t-1 border-l-1 border-gray-7 rounded-2"
-      style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+      className={cn(
+        "grid gap-[var(--gap)] w-full border-t-1 border-l-1 border-gray-7 rounded-2",
+      )}
+      style={{
+        "--gap": "var(--size-1)",
+        "--space-w": "clamp(40px, (100vw / 7 / 2), 120px)",
+        gridTemplateColumns: `repeat(${cols.value},var(--space-w))`,
+        gridTemplateRows: `repeat(${rows.value},var(--space-w))`,
+      }}
     >
       {/* Drawing the spaces */}
       {spaces.map((row) =>
@@ -94,6 +136,18 @@ export default function Board(
           />
         ))
       )}
+
+      <div
+        className={cn(
+          "rounded-round col-start-[var(--destination-x)] row-start-[var(--destination-y)]",
+          "-ml-1 -mt-1 p-2 w-[80%] aspect-square place-self-center animate-blink",
+          "outline outline-teal-2",
+        )}
+        style={{
+          "--destination-x": destination.value.x,
+          "--destination-y": destination.value.y,
+        }}
+      />
 
       {/* If we have an active space/piece, draw the possible destinations  */}
       {targets && (
@@ -182,13 +236,17 @@ export default function Board(
       {pieces.value.map((piece) => (
         <div
           className={cn(
-            "rounded-round col-start-1 row-start-1 -ml-1 -mt-1 p-2 w-[80%] aspect-square place-self-center",
+            "rounded-round col-start-1 row-start-1 -ml-1 -mt-1 p-[var(--pad)] w-[80%] aspect-square place-self-center",
+            "translate-x-[calc((var(--space-w)+var(--gap))*var(--piece-x))]",
+            "translate-y-[calc((var(--space-w)+var(--gap))*var(--piece-y))]",
+            "transition-transform duration-200 ease-out",
             piece.type === "rook" && "bg-yellow-3",
-            piece.type === "bouncer" && "bg-green-3",
+            piece.type === "bouncer" && "bg-cyan-7",
           )}
           style={{
             "--piece-x": piece.x,
             "--piece-y": piece.y,
+            "--pad": "var(--size-2)",
           }}
           onClick={() => setActive(piece)}
         />

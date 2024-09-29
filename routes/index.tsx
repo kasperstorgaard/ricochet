@@ -1,29 +1,42 @@
 import { useSignal } from "@preact/signals";
 import Board from "../islands/board.tsx";
-import { Piece, Position, Wall } from "../util/board.ts";
+import { BoardState, Piece, Position, Wall } from "../util/board.ts";
+import { parseBoard } from "../util/url.ts";
+import { PageProps } from "$fresh/server.ts";
 
-export default function Home() {
-  const destination = useSignal<Position>({ x: 2, y: 5 });
-
-  const walls = useSignal<Wall[]>([
-    { x: 3, y: 7, orientation: "horizontal" },
-    { x: 3, y: 4, orientation: "horizontal" },
-    { x: 6, y: 6, orientation: "vertical" },
-  ]);
-
-  const pieces = useSignal<Piece[]>([
+// TODO: move to db/session
+const initialState: BoardState = {
+  cols: 7,
+  rows: 11,
+  destination: { x: 2, y: 5 },
+  pieces: [
     { x: 3, y: 6, type: "rook" },
     { x: 3, y: 4, type: "bouncer" },
     { x: 3, y: 2, type: "bouncer" },
     { x: 0, y: 6, type: "bouncer" },
-  ]);
+  ],
+  walls: [
+    { x: 3, y: 7, orientation: "horizontal" },
+    { x: 3, y: 4, orientation: "horizontal" },
+    { x: 6, y: 6, orientation: "vertical" },
+  ],
+};
+
+export default function Home(props: PageProps) {
+  const state = props.url.search ? parseBoard(props.url.search) : initialState;
+
+  const cols = useSignal<number>(state.cols);
+  const rows = useSignal<number>(state.rows);
+  const destination = useSignal<Position>(state.destination);
+  const walls = useSignal<Wall[]>(state.walls);
+  const pieces = useSignal<Piece[]>(state.pieces);
 
   return (
-    <div class="p-3 bg-gray-10">
-      <div class="max-w-screen-md mx-auto flex flex-col items-center justify-center">
+    <div class="flex flex-col place-items-center p-3 bg-gray-10">
+      <div class="max-w-screen-md">
         <Board
-          cols={7}
-          rows={11}
+          cols={cols}
+          rows={rows}
           destination={destination}
           walls={walls}
           pieces={pieces}

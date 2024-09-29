@@ -1,12 +1,13 @@
-import { join } from "$std/path/join.ts";
-import { BoardState, Piece, Position, Wall } from "./board.ts";
+import { BoardState, Piece, Position, validateBoard, Wall } from "./board.ts";
 
 function stringifyPosition(position: Position) {
   return `${position.x}_${position.y}`;
 }
 
-function parsePosition(position: string): Position {
+function parsePosition(position: string): Position | null {
   const [, x, y] = position.match(/(\d+)_(\d+)/) ?? [];
+
+  if (x == null || x === "" || y == null || y === "") return null;
 
   return {
     x: parseInt(x),
@@ -17,11 +18,13 @@ function parsePosition(position: string): Position {
 function stringifyWall(wall: Wall) {
   return wall.orientation === "horizontal"
     ? `h${wall.x}_${wall.y}`
-    : `w${wall.x}_${wall.y}`;
+    : `v${wall.x}_${wall.y}`;
 }
 
-function parseWall(wall: string): Wall {
+function parseWall(wall: string): Wall | null {
   const [, orientation, x, y] = wall.match(/(h|v)(\d+)_(\d+)/) ?? [];
+
+  if (!orientation || x == null || y == null) return null;
 
   return {
     orientation: orientation === "h" ? "horizontal" : "vertical",
@@ -32,12 +35,23 @@ function parseWall(wall: string): Wall {
 
 function stringifyPiece(piece: Piece) {
   return piece.type === "rook"
-    ? `m${piece.x}_${piece.y}`
+    ? `r${piece.x}_${piece.y}`
     : `b${piece.x}_${piece.y}`;
 }
 
-function parsePiece(piece: string): Piece {
-  const [, type, x, y] = piece.match(/(m|b)(\d+)_(\d+)/) ?? [];
+function parsePiece(piece: string): Piece | null {
+  const [, type, x, y] = piece.match(/(r|b)(\d+)_(\d+)/) ?? [];
+
+  if (
+    type == null ||
+    type === "" ||
+    x == null ||
+    x === "" ||
+    y == null ||
+    y === ""
+  ) {
+    return null;
+  }
 
   return {
     type: type === "r" ? "rook" : "bouncer",
@@ -47,35 +61,39 @@ function parsePiece(piece: string): Piece {
 }
 
 export function stringifyBoard(state: BoardState) {
-  const colsPart = `c:${state.cols}`;
-  const rowsPart = `r:${state.cols}`;
-  const destinationPart = `d:${stringifyPosition(state.destination)}`;
+  const params = new URLSearchParams();
 
-  const wallsPart = state.walls.length
-    ? `w:${state.walls.map(stringifyWall).join(",")}`
-    : "";
-  const piecesPart = state.pieces.length
-    ? `p:${state.pieces.map(stringifyPiece), join(",")}`
-    : "";
+  params.set("c", state.cols.toString());
+  params.set("r", state.rows.toString());
+  params.set("d", stringifyPosition(state.destination));
 
-  return [colsPart, rowsPart, destinationPart, wallsPart, piecesPart].join(",");
-}
+  params.set("p", state.pieces.map(stringifyPiece).join("+"));
 
-export function parseBoard(state: string | null | undefined): BoardState {
-  if (state == null || state.length === 0) {
-    throw new Error("Board is empty");
+  if (state.walls.length) {
+    params.set("w", state.walls.map(stringifyWall).join("+"));
   }
 
-  const [, colStr, rowStr, destinationStr, wallsStr, piecesStr] = state.match(
-    /(c:\d+)(r:\d+)(d:(\d+_\d+))(w:([hv]\d+_\d+,?)+)?(?:p:([rb]\d+_\d+,?)*)?/,
-  ) ??
-    [];
+  return params.toString();
+}
 
-  return {
-    cols: parseInt(colStr.slice(2)),
-    rows: parseInt(rowStr.slice(2)),
-    destination: parsePosition(destinationStr.slice(2)),
-    walls: wallsStr.split(",").map(parseWall),
-    pieces: piecesStr.split(",").map(parsePiece),
-  };
+export function parseBoard(value: string | null | undefined): BoardState {
+  if (!value) throw new Error("Invalid board params string");
+
+  const params = new URLSearchParams(value);
+
+  const cols = parseInt(params.get("c") ?? "", 10);
+  const rows = parseInt(params.get("r") ?? "", 10);
+  const destination = params.has("d")
+    ? parsePosition(params.get("d") ?? "")
+    : null;
+  const pieces = params.has("p")
+    ? (params.get("p")?.split("+") ?? []).map(parsePiece)
+    : [];
+
+  const walls = params.has("w")
+    ? (params.get("w")?.split("+") ?? []).map(parseWall)
+    : [];
+
+  const board = validateBoard({ cols, rows, destination, pieces, walls });
+  return board;
 }

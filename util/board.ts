@@ -11,47 +11,19 @@ export type Wall = Position & {
   orientation: "horizontal" | "vertical";
 };
 
-class BoardError extends Error {
-  constructor(msg: string) {
-    super(msg);
-  }
-}
-
-export class EmptyBoardError extends BoardError {
+export class BoardError extends Error {
   constructor() {
-    super("Board is empty");
+    super("Board is invalid");
   }
 }
 
-export class NoRooksError extends BoardError {
-  constructor() {
-    super("Board contains no rooks");
-  }
-}
-
-export class NoDestinationError extends BoardError {
-  constructor() {
-    super("Board has no destination");
-  }
-}
-
-export class PiecesWithSamePositionError extends BoardError {
-  constructor() {
-    super("Board has two pieces in the same position");
-  }
-}
-
-export class OutOfBoundsError extends BoardError {
-  constructor(public readonly position: Position) {
-    super("Position is out of bounds");
-  }
-}
-
-export class DuplicateWallsError extends BoardError {
-  constructor() {
-    super("Board has two walls with the same position");
-  }
-}
+export type BoardLike = {
+  cols: number | null | undefined;
+  rows: number | null | undefined;
+  destination: Position | null | undefined;
+  walls: (Wall | null | undefined)[] | undefined | null;
+  pieces: (Piece | null | undefined)[] | undefined | null;
+};
 
 export type BoardState = {
   cols: number;
@@ -81,33 +53,55 @@ export function isPositionSame(src: Position, target: Position) {
   return src.x === target.x && src.y === target.y;
 }
 
-export function validateBoard(src: BoardState) {
-  if (!src.pieces.length) throw new EmptyBoardError();
+export function validateBoard(board: BoardLike): BoardState {
+  if (!board) throw new BoardError();
 
-  if (!src.pieces.some((piece) => piece.type === "rook")) {
-    throw new NoRooksError();
+  const { cols, rows, destination, pieces, walls } = board;
+  if (!pieces?.length) throw new BoardError();
+
+  if (cols == null || cols === 0) throw new BoardError();
+  if (rows == null || rows === 0) throw new BoardError();
+
+  if (!destination) throw new BoardError();
+
+  if (isPositionOutOfBounds(destination, { cols, rows })) {
+    throw new BoardError();
   }
 
-  if (!src.destination) throw new NoDestinationError();
+  const checkedPieces: Piece[] = [];
+  for (const piece of pieces) {
+    if (piece == null || !piece.type || piece.x == null || piece.y == null) {
+      throw new BoardError();
+    }
 
-  const checkedPieces: Position[] = [];
-  for (const piece of src.pieces) {
-    if (isPositionOutOfBounds(piece, src)) throw new OutOfBoundsError(piece);
+    if (isPositionOutOfBounds(piece, { cols, rows })) {
+      throw new BoardError();
+    }
 
     // Check for identical piece positions
-    if (
-      checkedPieces.some((checkedPiece) => isPositionSame(piece, checkedPiece))
-    ) {
-      throw new PiecesWithSamePositionError();
+    const match = checkedPieces.find((checkedPiece) =>
+      isPositionSame(piece, checkedPiece)
+    );
+    if (match) {
+      throw new BoardError();
     }
 
     checkedPieces.push(piece);
   }
 
+  if (!pieces.some((piece) => piece?.type === "rook")) {
+    throw new BoardError();
+  }
+
   // Check for duplicate walls
   const checkedWalls: Wall[] = [];
-  for (const wall of src.walls) {
-    if (isPositionOutOfBounds(wall, src)) throw new OutOfBoundsError(wall);
+  for (const wall of walls ?? []) {
+    if (wall == null || !wall.orientation || wall.x == null || wall.y == null) {
+      throw new BoardError();
+    }
+    if (isPositionOutOfBounds(wall, { cols, rows })) {
+      throw new BoardError();
+    }
 
     if (
       checkedWalls.some((checkedWall) =>
@@ -115,25 +109,27 @@ export function validateBoard(src: BoardState) {
         wall.orientation === checkedWall.orientation
       )
     ) {
-      throw new DuplicateWallsError();
+      throw new BoardError();
     }
 
     checkedWalls.push(wall);
   }
 
-  return true;
+  return {
+    cols,
+    rows,
+    destination,
+    pieces: checkedPieces,
+    walls: checkedWalls,
+  };
 }
-
-type AllowedTargetOptions = {
-  walls: Wall[];
-  pieces: Position[];
-  rows: number;
-  cols: number;
-};
 
 export function getTargets(
   src: Position,
-  { walls, pieces, rows, cols }: AllowedTargetOptions,
+  { walls, pieces, rows, cols }: Pick<
+    BoardState,
+    "cols" | "rows" | "pieces" | "walls"
+  >,
 ) {
   const top = { x: src.x, y: 0 };
   const right = { x: cols - 1, y: src.y };
@@ -165,6 +161,8 @@ export function getTargets(
   }
 
   for (const piece of pieces) {
+    if (piece.y === src.y && piece.x === src.x) continue;
+
     if (piece.y === src.y) {
       if (piece.x <= src.x && piece.x >= left.x) {
         left.x = piece.x + 1;
@@ -185,4 +183,34 @@ export function getTargets(
   }
 
   return { top, right, bottom, left };
+}
+
+export function isValidMove(
+  src: Position,
+  target: Position,
+  board: Pick<BoardState, "cols" | "rows" | "pieces" | "walls">,
+) {
+  const matchingPiece = board.pieces.find((piece) =>
+    isPositionSame(piece, src)
+  );
+
+  if (!matchingPiece) return false;
+
+  const targets = getTargets(src, board);
+
+  for (const possibleTarget of Object.values(targets)) {
+    if (isPositionSame(possibleTarget, target)) return true;
+  }
+
+  return false;
+}
+
+export function isGameWon(board: Pick<BoardState, "destination" | "pieces">) {
+  for (const piece of board.pieces) {
+    if (piece.type === "bouncer") continue;
+
+    if (isPositionSame(piece, board.destination)) return true;
+  }
+
+  return false;
 }
