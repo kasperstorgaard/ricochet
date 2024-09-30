@@ -124,13 +124,20 @@ export function validateBoard(board: BoardLike): BoardState {
   };
 }
 
+export type Targets = {
+  top?: Position;
+  right?: Position;
+  bottom?: Position;
+  left?: Position;
+};
+
 export function getTargets(
   src: Position,
   { walls, pieces, rows, cols }: Pick<
     BoardState,
     "cols" | "rows" | "pieces" | "walls"
   >,
-) {
+): Targets {
   const top = { x: src.x, y: 0 };
   const right = { x: cols - 1, y: src.y };
   const bottom = { x: src.x, y: rows - 1 };
@@ -182,7 +189,17 @@ export function getTargets(
     }
   }
 
-  return { top, right, bottom, left };
+  // Check for overlaps, and only add targets where not found
+  const lookup: Targets = {};
+  for (const [key, target] of Object.entries({ top, right, bottom, left })) {
+    const hasOverlap = pieces.some((piece) => isPositionSame(piece, target));
+
+    if (!hasOverlap) {
+      lookup[key as keyof Targets] = target;
+    }
+  }
+
+  return lookup;
 }
 
 export function isValidMove(

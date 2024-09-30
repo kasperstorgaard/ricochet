@@ -10,6 +10,7 @@ import * as $api_move_spec from "./routes/api/move_spec.ts";
 import * as $greet_name_ from "./routes/greet/[name].tsx";
 import * as $index from "./routes/index.tsx";
 import * as $Counter from "./islands/Counter.tsx";
+import * as $board_piece from "./islands/board-piece.tsx";
 import * as $board from "./islands/board.tsx";
 import { type Manifest } from "$fresh/server.ts";
 
@@ -25,6 +26,7 @@ const manifest = {
   },
   islands: {
     "./islands/Counter.tsx": $Counter,
+    "./islands/board-piece.tsx": $board_piece,
     "./islands/board.tsx": $board,
   },
   baseUrl: import.meta.url,

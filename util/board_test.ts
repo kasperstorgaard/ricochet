@@ -254,6 +254,48 @@ Deno.test("getTargets() should respect both pieces and walls", () => {
   });
 });
 
+Deno.test("getTargets() should not overlap with pieces a)", () => {
+  const targets = getTargets({ x: 3, y: 4 }, {
+    cols: 7,
+    rows: 11,
+    pieces: [
+      { x: 3, y: 4, type: "rook" },
+    ],
+    walls: [
+      { x: 3, y: 4, orientation: "vertical" },
+      { x: 3, y: 4, orientation: "horizontal" },
+    ],
+  });
+
+  assertEquals(
+    targets,
+    {
+      right: { x: 6, y: 4 },
+      bottom: { x: 3, y: 10 },
+    },
+  );
+});
+
+Deno.test("getTargets() should not overlap with pieces b)", () => {
+  const targets = getTargets({ x: 6, y: 7 }, {
+    cols: 7,
+    rows: 11,
+    pieces: [
+      { x: 6, y: 7, type: "rook" },
+      { x: 6, y: 8, type: "bouncer" },
+    ],
+    walls: [],
+  });
+
+  assertEquals(
+    targets,
+    {
+      top: { x: 6, y: 0 },
+      left: { x: 0, y: 7 },
+    },
+  );
+});
+
 Deno.test("validateBoard() should throw with an empty board", () => {
   assertThrows(() => {
     validateBoard({

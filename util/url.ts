@@ -1,10 +1,12 @@
 import { BoardState, Piece, Position, validateBoard, Wall } from "./board.ts";
 
-function stringifyPosition(position: Position) {
+export function stringifyPosition(position: Position) {
   return `${position.x}_${position.y}`;
 }
 
-function parsePosition(position: string): Position | null {
+export function parsePosition(position: string | null): Position | null {
+  if (position == null || position === "") return null;
+
   const [, x, y] = position.match(/(\d+)_(\d+)/) ?? [];
 
   if (x == null || x === "" || y == null || y === "") return null;

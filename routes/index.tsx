@@ -1,7 +1,7 @@
 import { useSignal } from "@preact/signals";
 import Board from "../islands/board.tsx";
 import { BoardState, Piece, Position, Wall } from "../util/board.ts";
-import { parseBoard } from "../util/url.ts";
+import { parseBoard, stringifyBoard } from "../util/url.ts";
 import { PageProps } from "$fresh/server.ts";
 
 // TODO: move to db/session
@@ -23,8 +23,14 @@ const initialState: BoardState = {
 };
 
 export default function Home(props: PageProps) {
-  const state = props.url.search ? parseBoard(props.url.search) : initialState;
+  const url = props.url;
+  if (!props.url.search) {
+    url.search = stringifyBoard(initialState);
+  }
 
+  const state = parseBoard(url.search);
+
+  const href = useSignal<string>(url.toString());
   const cols = useSignal<number>(state.cols);
   const rows = useSignal<number>(state.rows);
   const destination = useSignal<Position>(state.destination);
@@ -35,6 +41,7 @@ export default function Home(props: PageProps) {
     <div class="flex flex-col place-items-center p-3 bg-gray-10">
       <div class="max-w-screen-md">
         <Board
+          href={href}
           cols={cols}
           rows={rows}
           destination={destination}
