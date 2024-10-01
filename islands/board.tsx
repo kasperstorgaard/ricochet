@@ -25,6 +25,7 @@ import {
   stringifyPosition,
 } from "../util/url.ts";
 import { Direction, useFlick } from "../lib/touch.ts";
+import { useArrowKeys } from "../lib/keyboard.ts";
 
 interface BoardProps {
   href: Signal<string>;
@@ -165,11 +166,11 @@ export default function Board(
 
   useEffect(() => {
     const onBoardChange = () => {
-      const state = parseBoard(self.location.search);
+      const board = parseBoard(self.location.search);
 
-      destination.value = state.destination;
-      pieces.value = state.pieces;
-      walls.value = state.walls;
+      destination.value = board.destination;
+      pieces.value = board.pieces;
+      walls.value = board.walls;
     };
 
     self.addEventListener("popstate", onBoardChange);
@@ -181,34 +182,18 @@ export default function Board(
     };
   }, []);
 
-  useEffect(() => {
-    const onKeyUp = (event: KeyboardEvent) => {
-      if (!active) return;
+  const onKeyUp = useCallback(
+    (direction: Direction) => active && onFlick(active, direction),
+    [active],
+  );
 
-      switch (event.key) {
-        case "ArrowUp":
-          return onFlick(active, "up");
-        case "ArrowRight":
-          return onFlick(active, "right");
-        case "ArrowDown":
-          return onFlick(active, "down");
-        case "ArrowLeft":
-          return onFlick(active, "left");
-      }
-    };
-
-    self.addEventListener("keyup", onKeyUp);
-
-    return () => {
-      self.removeEventListener("keyup", onKeyUp);
-    };
-  }, [active]);
+  useArrowKeys({ onKeyUp });
 
   return (
     <div
       ref={ref}
       className={cn(
-        "grid gap-[var(--gap)] w-full border-t-1 border-l-1 border-gray-7 rounded-2",
+        "grid gap-[var(--gap)] w-full",
       )}
       style={{
         "--active-bg": activePiece
@@ -262,7 +247,8 @@ function BoardWall({ x, y, orientation }: Wall) {
   return (
     <div
       className={cn(
-        "place-self-start col-[calc(var(--x)+1)] row-[calc(var(--y)+1)] w-full border-orange-5 aspect-square pointer-events-none",
+        "place-self-start col-[calc(var(--x)+1)] row-[calc(var(--y)+1)] w-full",
+        "border-orange-6 aspect-square pointer-events-none",
         orientation === "vertical" ? "border-l-2" : "border-t-2",
       )}
       style={{
@@ -277,8 +263,8 @@ function BoardSpace({ x, y }: Position) {
   return (
     <div
       className={cn(
-        "grid col-[calc(var(--x)+1)] row-[calc(var(--y)+1)]",
-        "border-1 border-gray-9 border-b-1 border-r-1 border-r-gray-6 border-b-gray-6 aspect-square rounded-1",
+        "grid col-[calc(var(--x)+1)] row-[calc(var(--y)+1)] aspect-square rounded-1",
+        "border-1 border-stone-9 border-b-1 border-r-1 border-r-stone-7 border-b-stone-7",
       )}
       style={{
         "--x": x,
@@ -401,17 +387,18 @@ function BoardPiece(
       ref={ref}
       href={href}
       className={cn(
-        "flex place-content-center col-start-1 row-start-1 p-[var(--pad)] w-full aspect-square place-self-center",
+        "flex place-content-center col-start-1 row-start-1 p-[var(--pad)]",
+        "w-full aspect-square place-self-center ml-[var(--ml)] mt-[var(--mt)]",
         "translate-x-[calc((var(--space-w)+var(--gap))*var(--x))]",
         "translate-y-[calc((var(--space-w)+var(--gap))*var(--y))]",
         "transition-transform duration-200 ease-out",
-        x > 0 && "-ml-[1px]",
-        y > 0 && "-mt-[1px]",
       )}
       autoFocus={isActive}
       style={{
         "--x": x,
         "--y": y,
+        "--ml": x > 0 ? "-1px" : "0px",
+        "--mt": x > 0 ? "-1px" : "0px",
         "--pad": "var(--size-2)",
       }}
       onFocus={() => onActivate()}
