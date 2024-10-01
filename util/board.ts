@@ -1,3 +1,7 @@
+// 8 rows and cols align well with hex and comp-science, so a useful/fun limit.
+const COLS = 8;
+const ROWS = 8;
+
 export type Position = {
   x: number;
   y: number;
@@ -18,16 +22,12 @@ export class BoardError extends Error {
 }
 
 export type BoardLike = {
-  cols: number | null | undefined;
-  rows: number | null | undefined;
   destination: Position | null | undefined;
   walls: (Wall | null | undefined)[] | undefined | null;
   pieces: (Piece | null | undefined)[] | undefined | null;
 };
 
 export type BoardState = {
-  cols: number;
-  rows: number;
   destination: Position;
   walls: Wall[];
   pieces: Piece[];
@@ -39,13 +39,12 @@ export function isPositionAligned(src: Position, target: Position) {
 
 export function isPositionOutOfBounds(
   src: Position,
-  board: { cols: number; rows: number },
 ) {
   return (
     src.x < 0 ||
-    src.x >= board.cols ||
+    src.x >= COLS ||
     src.y < 0 ||
-    src.y >= board.rows
+    src.y >= ROWS
   );
 }
 
@@ -56,15 +55,12 @@ export function isPositionSame(src: Position, target: Position) {
 export function validateBoard(board: BoardLike): BoardState {
   if (!board) throw new BoardError();
 
-  const { cols, rows, destination, pieces, walls } = board;
+  const { destination, pieces, walls } = board;
   if (!pieces?.length) throw new BoardError();
-
-  if (cols == null || cols === 0) throw new BoardError();
-  if (rows == null || rows === 0) throw new BoardError();
 
   if (!destination) throw new BoardError();
 
-  if (isPositionOutOfBounds(destination, { cols, rows })) {
+  if (isPositionOutOfBounds(destination)) {
     throw new BoardError();
   }
 
@@ -74,7 +70,7 @@ export function validateBoard(board: BoardLike): BoardState {
       throw new BoardError();
     }
 
-    if (isPositionOutOfBounds(piece, { cols, rows })) {
+    if (isPositionOutOfBounds(piece)) {
       throw new BoardError();
     }
 
@@ -99,7 +95,7 @@ export function validateBoard(board: BoardLike): BoardState {
     if (wall == null || !wall.orientation || wall.x == null || wall.y == null) {
       throw new BoardError();
     }
-    if (isPositionOutOfBounds(wall, { cols, rows })) {
+    if (isPositionOutOfBounds(wall)) {
       throw new BoardError();
     }
 
@@ -116,8 +112,6 @@ export function validateBoard(board: BoardLike): BoardState {
   }
 
   return {
-    cols,
-    rows,
     destination,
     pieces: checkedPieces,
     walls: checkedWalls,
@@ -125,23 +119,23 @@ export function validateBoard(board: BoardLike): BoardState {
 }
 
 export type Targets = {
-  top?: Position;
+  up?: Position;
   right?: Position;
-  bottom?: Position;
+  down?: Position;
   left?: Position;
 };
 
 export function getTargets(
   src: Position,
-  { walls, pieces, rows, cols }: Pick<
-    BoardState,
-    "cols" | "rows" | "pieces" | "walls"
-  >,
+  { walls, pieces }: Pick<BoardState, "pieces" | "walls">,
 ): Targets {
-  const top = { x: src.x, y: 0 };
-  const right = { x: cols - 1, y: src.y };
-  const bottom = { x: src.x, y: rows - 1 };
+  const up = { x: src.x, y: 0 };
+  const right = { x: COLS - 1, y: src.y };
+  const down = { x: src.x, y: ROWS - 1 };
   const left = { x: 0, y: src.y };
+
+  const targetPiece = pieces.find((piece) => isPositionSame(piece, src));
+  if (!targetPiece) throw new Error("Must target a space containing a piece");
 
   /**
    * Determine if any walls are in between src position and current targets
@@ -157,12 +151,12 @@ export function getTargets(
         right.x = wall.x - 1;
       }
     } else if (wall.x === src.x && wall.orientation === "horizontal") {
-      if (wall.y <= src.y && wall.y > top.y) {
-        top.y = wall.y;
+      if (wall.y <= src.y && wall.y > up.y) {
+        up.y = wall.y;
       }
 
-      if (wall.y > src.y && wall.y <= bottom.y) {
-        bottom.y = wall.y - 1;
+      if (wall.y > src.y && wall.y <= down.y) {
+        down.y = wall.y - 1;
       }
     }
   }
@@ -179,19 +173,19 @@ export function getTargets(
         right.x = piece.x - 1;
       }
     } else if (piece.x === src.x) {
-      if (piece.y <= src.y && piece.y >= top.y) {
-        top.y = piece.y + 1;
+      if (piece.y <= src.y && piece.y >= up.y) {
+        up.y = piece.y + 1;
       }
 
-      if (piece.y >= src.y && piece.y <= bottom.y) {
-        bottom.y = piece.y - 1;
+      if (piece.y >= src.y && piece.y <= down.y) {
+        down.y = piece.y - 1;
       }
     }
   }
 
   // Check for overlaps, and only add targets where not found
   const lookup: Targets = {};
-  for (const [key, target] of Object.entries({ top, right, bottom, left })) {
+  for (const [key, target] of Object.entries({ up, right, down, left })) {
     const hasOverlap = pieces.some((piece) => isPositionSame(piece, target));
 
     if (!hasOverlap) {
@@ -205,7 +199,7 @@ export function getTargets(
 export function isValidMove(
   src: Position,
   target: Position,
-  board: Pick<BoardState, "cols" | "rows" | "pieces" | "walls">,
+  board: Pick<BoardState, "pieces" | "walls">,
 ) {
   const matchingPiece = board.pieces.find((piece) =>
     isPositionSame(piece, src)

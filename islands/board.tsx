@@ -28,15 +28,29 @@ import {
 
 interface BoardProps {
   href: Signal<string>;
-  cols: Signal<number>;
-  rows: Signal<number>;
   destination: Signal<Position>;
   pieces: Signal<Piece[]>;
   walls: Signal<Wall[]>;
 }
 
+/**
+ * Ideas:
+ * - board state is not all in the url, only pieces
+ * - you get the board state from a gameid
+ * - the piece moves are stored client side in a session or idb
+ * - the moves are validated on the server
+ * - add a tutorial, which plays out moves on an interval in front of you interval played out in front of you,
+ *   but can be undo/redo'ed to make you understand
+ * - add a keyboard navigation hint for desktop
+ * - add a touch navigation hint for mobile
+ * - ripple fade in of board and pieces, from the outside in, or top to bottom
+ * - can't get enough, buy the boardgame (ask for forgiveness, not permission)
+ * - extract touch detection to own hook (to make the code cleaner)
+ * - undo/redo is just history navigation (is this a good thing even?)
+ * - use 2 digit hex to store piece state, eg. 7_0 is 07, 1_2 is 09, 1_5 is 0C etc.
+ */
 export default function Board(
-  { href, cols, rows, destination, pieces, walls }: BoardProps,
+  { href, destination, pieces, walls }: BoardProps,
 ) {
   const url = new URL(href.value);
   const [active, setActive] = useState<Position | null>(
@@ -45,12 +59,10 @@ export default function Board(
   const ref = useRef<HTMLDivElement>(null);
 
   const board = useMemo(() => ({
-    cols: cols.value,
-    rows: rows.value,
     destination: destination.value,
     pieces: pieces.value,
     walls: walls.value,
-  }), [cols.value, rows.value, destination.value, pieces.value, walls.value]);
+  }), [destination.value, pieces.value, walls.value]);
 
   const targets = useMemo(
     () => active ? getTargets(active, board) : null,
@@ -60,10 +72,10 @@ export default function Board(
   const spaces = useMemo(() => {
     const positions: Position[][] = [];
 
-    for (let y = 0; y < rows.value; y++) {
+    for (let y = 0; y < 8; y++) {
       positions[y] = [];
 
-      for (let x = 0; x < cols.value; x++) {
+      for (let x = 0; x < 8; x++) {
         positions[y].push({ x, y });
       }
     }
@@ -101,14 +113,14 @@ export default function Board(
     return board.pieces.find((piece) => isPositionSame(piece, active));
   }, [active]);
 
-  const movePiece = useCallback((src: Position, position: Position) => {
+  const movePiece = useCallback((src: Position, target: Position) => {
     if (!src) return;
 
-    const updatedPieces = pieces.value.map((piece) =>
+    const updatedPieces = board.pieces.map((piece) =>
       isPositionSame(piece, src)
         ? {
           ...piece,
-          ...position,
+          ...target,
         }
         : piece
     );
@@ -116,56 +128,45 @@ export default function Board(
     const url = new URL(href.value);
 
     const state: BoardState = {
-      cols: cols.value,
-      rows: rows.value,
-      destination: destination.value,
+      ...board,
       pieces: updatedPieces,
-      walls: walls.value,
     };
+
+    setActive(target);
 
     url.search = new URLSearchParams(stringifyBoard(state)).toString();
     self.history.pushState({}, "", url);
     href.value = url.toString();
+
     self.dispatchEvent(new CustomEvent("board-change"));
 
-    setActive(position);
-  }, [active, pieces.value]);
+    setActive(target);
+  }, [active, board]);
 
   const onFlick = useCallback(
     (src: Position, direction: "up" | "right" | "down" | "left") => {
+      if (!src) return;
+
       const possibleTargets = getTargets(src, {
-        cols: cols.value,
-        rows: rows.value,
         pieces: pieces.value,
         walls: walls.value,
       });
 
-      const targetKeyMatcher: Record<
-        typeof direction,
-        keyof typeof possibleTargets
-      > = {
-        up: "top",
-        right: "right",
-        down: "bottom",
-        left: "left",
-      };
-      const targetKey = targetKeyMatcher[direction];
-      const possibleTarget = possibleTargets[targetKey];
+      const possibleTarget = possibleTargets[direction];
+
+      setActive(src);
 
       if (possibleTarget) {
-        setActive(src);
         movePiece(src, possibleTarget);
       }
     },
-    [],
+    [movePiece],
   );
 
   useEffect(() => {
     const onBoardChange = () => {
       const state = parseBoard(self.location.search);
 
-      cols.value = state.cols;
-      rows.value = state.rows;
       destination.value = state.destination;
       pieces.value = state.pieces;
       walls.value = state.walls;
@@ -183,8 +184,6 @@ export default function Board(
   useEffect(() => {
     const onKeyUp = (event: KeyboardEvent) => {
       if (!active) return;
-
-      console.log("event.key", event.key);
 
       switch (event.key) {
         case "ArrowUp":
@@ -216,9 +215,9 @@ export default function Board(
           ? activePiece.type === "rook" ? "var(--yellow-3)" : "var(--cyan-7)"
           : null,
         "--gap": "var(--size-1)",
-        "--space-w": "clamp(40px, 5vw, 64px)",
-        gridTemplateColumns: `repeat(${cols},var(--space-w))`,
-        gridTemplateRows: `repeat(${rows},var(--space-w))`,
+        "--space-w": "clamp(46px - var(--gap), 4vw, 64px)",
+        gridTemplateColumns: `repeat(8,var(--space-w))`,
+        gridTemplateRows: `repeat(8,var(--space-w))`,
       }}
     >
       {spaces.map((row) => row.map((space) => <BoardSpace {...space} />))}
@@ -247,12 +246,13 @@ export default function Board(
         </>
       )}
 
-      {pieces.value.map((piece) => (
+      {pieces.value.map((piece, idx) => (
         <BoardPiece
+          key={piece.type + idx}
           href={getPieceHref(piece)}
           {...piece}
-          onActivate={setActive}
-          onFlick={onFlick}
+          onActivate={() => setActive(piece)}
+          onFlick={(dir) => onFlick(piece, dir)}
         />
       ))}
     </div>
@@ -352,9 +352,9 @@ type BoardTargetShadersProps = {
 };
 
 function BoardTargetShaders({ active, targets }: BoardTargetShadersProps) {
-  const top = targets.top ?? active;
+  const up = targets.up ?? active;
   const right = targets.right ?? active;
-  const bottom = targets.bottom ?? active;
+  const down = targets.down ?? active;
   const left = targets.left ?? active;
 
   return (
@@ -362,9 +362,9 @@ function BoardTargetShaders({ active, targets }: BoardTargetShadersProps) {
       <div
         className="bg-[var(--active-bg)] opacity-5 pointer-events-none"
         style={{
-          gridColumnStart: `${top.x + 1}`,
-          gridRowStart: `${top.y + 1}`,
-          gridRowEnd: `${bottom.y + 2}`,
+          gridColumnStart: `${up.x + 1}`,
+          gridRowStart: `${up.y + 1}`,
+          gridRowEnd: `${down.y + 2}`,
         }}
       />
 

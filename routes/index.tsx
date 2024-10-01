@@ -6,8 +6,6 @@ import { PageProps } from "$fresh/server.ts";
 
 // TODO: move to db/session
 const initialState: BoardState = {
-  cols: 7,
-  rows: 11,
   destination: { x: 2, y: 5 },
   pieces: [
     { x: 3, y: 6, type: "rook" },
@@ -31,19 +29,15 @@ export default function Home(props: PageProps) {
   const state = parseBoard(url.search);
 
   const href = useSignal<string>(url.toString());
-  const cols = useSignal<number>(state.cols);
-  const rows = useSignal<number>(state.rows);
   const destination = useSignal<Position>(state.destination);
   const walls = useSignal<Wall[]>(state.walls);
   const pieces = useSignal<Piece[]>(state.pieces);
 
   return (
-    <div class="flex flex-col place-items-center p-3 bg-gray-10">
-      <div class="max-w-screen-md">
+    <div class="flex flex-col place-items-center bg-gray-10">
+      <div class="max-w-screen-md py-1">
         <Board
           href={href}
-          cols={cols}
-          rows={rows}
           destination={destination}
           walls={walls}
           pieces={pieces}

@@ -65,8 +65,6 @@ function parsePiece(piece: string): Piece | null {
 export function stringifyBoard(state: BoardState) {
   const params = new URLSearchParams();
 
-  params.set("c", state.cols.toString());
-  params.set("r", state.rows.toString());
   params.set("d", stringifyPosition(state.destination));
 
   params.set("p", state.pieces.map(stringifyPiece).join("+"));
@@ -83,8 +81,6 @@ export function parseBoard(value: string | null | undefined): BoardState {
 
   const params = new URLSearchParams(value);
 
-  const cols = parseInt(params.get("c") ?? "", 10);
-  const rows = parseInt(params.get("r") ?? "", 10);
   const destination = params.has("d")
     ? parsePosition(params.get("d") ?? "")
     : null;
@@ -96,6 +92,6 @@ export function parseBoard(value: string | null | undefined): BoardState {
     ? (params.get("w")?.split("+") ?? []).map(parseWall)
     : [];
 
-  const board = validateBoard({ cols, rows, destination, pieces, walls });
+  const board = validateBoard({ destination, pieces, walls });
   return board;
 }
