@@ -4,10 +4,10 @@
 
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
-import * as $api_move from "./routes/api/move.ts";
-import * as $greet_name_ from "./routes/greet/[name].tsx";
+import * as $api_puzzle_id_index from "./routes/api/puzzle/[id]/index.ts";
+import * as $api_puzzle_id_solve from "./routes/api/puzzle/[id]/solve.ts";
+import * as $api_puzzle_index from "./routes/api/puzzle/index.ts";
 import * as $index from "./routes/index.tsx";
-import * as $board_piece from "./islands/board-piece.tsx";
 import * as $board from "./islands/board.tsx";
 import { type Manifest } from "$fresh/server.ts";
 
@@ -15,12 +15,12 @@ const manifest = {
   routes: {
     "./routes/_404.tsx": $_404,
     "./routes/_app.tsx": $_app,
-    "./routes/api/move.ts": $api_move,
-    "./routes/greet/[name].tsx": $greet_name_,
+    "./routes/api/puzzle/[id]/index.ts": $api_puzzle_id_index,
+    "./routes/api/puzzle/[id]/solve.ts": $api_puzzle_id_solve,
+    "./routes/api/puzzle/index.ts": $api_puzzle_index,
     "./routes/index.tsx": $index,
   },
   islands: {
-    "./islands/board-piece.tsx": $board_piece,
     "./islands/board.tsx": $board,
   },
   baseUrl: import.meta.url,

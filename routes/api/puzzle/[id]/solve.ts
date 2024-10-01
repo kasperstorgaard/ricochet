@@ -1,5 +1,5 @@
 import { FreshContext } from "$fresh/server.ts";
-import { Piece, Wall } from "../../util/board.ts";
+import { Piece, Wall } from "../../../../util/board.ts";
 
 /**
  * Required data:
