@@ -17,7 +17,6 @@ import {
   Targets,
   Wall,
 } from "../util/board.ts";
-import { BoardPiece } from "./board-piece.tsx";
 
 import {
   parseBoard,
@@ -25,6 +24,7 @@ import {
   stringifyBoard,
   stringifyPosition,
 } from "../util/url.ts";
+import { Direction, useFlick } from "../lib/touch.ts";
 
 interface BoardProps {
   href: Signal<string>;
@@ -246,9 +246,8 @@ export default function Board(
         </>
       )}
 
-      {pieces.value.map((piece, idx) => (
+      {pieces.value.map((piece) => (
         <BoardPiece
-          key={piece.type + idx}
           href={getPieceHref(piece)}
           {...piece}
           onActivate={() => setActive(piece)}
@@ -261,16 +260,14 @@ export default function Board(
 
 function BoardWall({ x, y, orientation }: Wall) {
   return (
-    <span
+    <div
       className={cn(
-        "place-self-start border-orange-5",
-        orientation === "vertical"
-          ? "h-full border-r-2 -ml-[5px]"
-          : "w-full border-t-2 -mt-[5px]",
+        "place-self-start col-[calc(var(--x)+1)] row-[calc(var(--y)+1)] w-full border-orange-5 aspect-square pointer-events-none",
+        orientation === "vertical" ? "border-l-2" : "border-t-2",
       )}
       style={{
-        gridColumnStart: `${x + 1}`,
-        gridRowStart: `${y + 1}`,
+        "--x": x,
+        "--y": y,
       }}
     />
   );
@@ -280,11 +277,12 @@ function BoardSpace({ x, y }: Position) {
   return (
     <div
       className={cn(
-        "grid border-1 border-gray-9 border-b-1 border-r-1 border-r-gray-6 border-b-gray-6 aspect-square rounded-1",
+        "grid col-[calc(var(--x)+1)] row-[calc(var(--y)+1)]",
+        "border-1 border-gray-9 border-b-1 border-r-1 border-r-gray-6 border-b-gray-6 aspect-square rounded-1",
       )}
       style={{
-        gridColumn: `${x + 1}`,
-        gridRow: `${y + 1}`,
+        "--x": x,
+        "--y": y,
       }}
     />
   );
@@ -294,13 +292,13 @@ function BoardDestination({ x, y }: Position) {
   return (
     <div
       className={cn(
-        "col-start-[var(--destination-x)] w-full row-start-[var(--destination-y)]",
+        "col-[calc(var(--x)+1)] w-full row-[calc(var(--y)+1)]",
         "aspect-square place-self-center",
         "border border-1 border-teal-2",
       )}
       style={{
-        "--destination-x": x,
-        "--destination-y": y,
+        "--x": x,
+        "--y": y,
       }}
     >
       <svg className="text-teal-2" viewBox="0 0 100 100">
@@ -332,10 +330,13 @@ function BoardTarget({ href, x, y, onClick }: TargetProps) {
   return (
     <a
       href={href}
-      className="w-full aspect-square border-1 place-self-center border-[var(--active-bg)]"
+      className={cn(
+        "w-full aspect-square border-1 place-self-center col-[calc(var(--x)+1)] row-[calc(var(--y)+1)]",
+        "border-[var(--active-bg)]",
+      )}
       style={{
-        gridColumnStart: `${x + 1}`,
-        gridRowStart: `${y + 1}`,
+        "--x": x,
+        "--y": y,
       }}
       tabIndex={-1}
       onClick={(event) => {
@@ -377,5 +378,55 @@ function BoardTargetShaders({ active, targets }: BoardTargetShadersProps) {
         }}
       />
     </>
+  );
+}
+
+type BoardPieceProps = {
+  href: string;
+  x: number;
+  y: number;
+  type: "rook" | "bouncer";
+  isActive?: boolean;
+  onFlick: (direction: Direction) => void;
+  onActivate: () => void;
+};
+
+function BoardPiece(
+  { href, isActive, x, y, type, onActivate, onFlick }: BoardPieceProps,
+) {
+  const { ref } = useFlick<HTMLAnchorElement>({ onFlick });
+
+  return (
+    <a
+      ref={ref}
+      href={href}
+      className={cn(
+        "flex place-content-center col-start-1 row-start-1 p-[var(--pad)] w-full aspect-square place-self-center",
+        "translate-x-[calc((var(--space-w)+var(--gap))*var(--x))]",
+        "translate-y-[calc((var(--space-w)+var(--gap))*var(--y))]",
+        "transition-transform duration-200 ease-out",
+        x > 0 && "-ml-[1px]",
+        y > 0 && "-mt-[1px]",
+      )}
+      autoFocus={isActive}
+      style={{
+        "--x": x,
+        "--y": y,
+        "--pad": "var(--size-2)",
+      }}
+      onFocus={() => onActivate()}
+      onClick={(event) => {
+        event.preventDefault();
+        onActivate();
+      }}
+    >
+      <div
+        className={cn(
+          "w-full",
+          type === "rook" && "bg-yellow-3 rounded-round",
+          type === "bouncer" && "bg-cyan-7 rounded-2",
+        )}
+      />
+    </a>
   );
 }
