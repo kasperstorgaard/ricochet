@@ -1,10 +1,12 @@
-import Board from "../islands/board.tsx";
-import { Puzzle } from "../db/types.ts";
+import { Puzzle } from "#/db/types.ts";
 import { Handlers, PageProps } from "$fresh/server.ts";
 
 export const handler: Handlers<Puzzle[]> = {
-  async GET(_req, ctx) {
-    const response = await fetch("http://localhost:8000/api/puzzles");
+  async GET(req, ctx) {
+    const apiUrl = new URL(req.url);
+    apiUrl.pathname = "api/puzzles";
+
+    const response = await fetch(apiUrl);
     const puzzles = await response.json() as Puzzle[];
     return ctx.render(puzzles);
   },

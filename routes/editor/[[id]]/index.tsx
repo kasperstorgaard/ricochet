@@ -5,11 +5,14 @@ import { Handlers, PageProps } from "$fresh/server.ts";
 import { EditorPanel } from "#/islands/editor-panel.tsx";
 
 export const handler: Handlers<Puzzle> = {
-  async GET(_req, ctx) {
+  async GET(req, ctx) {
     const id = ctx.params.id;
 
     if (id) {
-      const response = await fetch(`http://localhost:8000/api/puzzles/${id}`);
+      const apiUrl = new URL(req.url);
+      apiUrl.pathname = `api/puzzles/${id}`;
+
+      const response = await fetch(apiUrl);
       const puzzle = await response.json() as Puzzle;
       return ctx.render(puzzle);
     }
@@ -31,7 +34,10 @@ export const handler: Handlers<Puzzle> = {
     const rawBoard = form.get("board")?.toString() ?? "";
     const board = JSON.parse(rawBoard);
 
-    const response = await fetch("http://localhost:8000/api/puzzles", {
+    const apiUrl = new URL(req.url);
+    apiUrl.pathname = "api/puzzles";
+
+    const response = await fetch(apiUrl, {
       method: "POST",
       body: JSON.stringify({ name, board }),
     });
