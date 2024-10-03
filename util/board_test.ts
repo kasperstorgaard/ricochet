@@ -7,11 +7,11 @@ import {
   isPositionAligned,
   isPositionSame,
   isValidMove,
-  Piece,
-  Position,
+  resolveMoves,
   validateBoard,
 } from "./board.ts";
 import { assertThrows } from "$std/assert/assert_throws.ts";
+import { Piece, Position } from "../db/types.ts";
 
 Deno.test("isPositionSame() should be true for identical positions", () => {
   assertEquals(
@@ -442,46 +442,111 @@ Deno.test("validateBoard() should return board for valid complex board", () => {
 });
 
 Deno.test("isValidMove() should return false for move not matching a piece", () => {
-  const result = isValidMove(
+  const result = isValidMove([
     { x: 3, y: 1 },
     { x: 6, y: 3 },
-    {
-      pieces: [
-        { x: 4, y: 1, type: "rook" },
-      ],
-      walls: [],
-    },
-  );
+  ], {
+    pieces: [
+      { x: 4, y: 1, type: "rook" },
+    ],
+    walls: [],
+  });
 
   assertEquals(result, false);
 });
 
 Deno.test("isValidMove() should return false for diagonal move", () => {
-  const result = isValidMove(
+  const result = isValidMove([
     { x: 4, y: 1 },
     { x: 6, y: 3 },
-    {
-      pieces: [
-        { x: 4, y: 1, type: "rook" },
-      ],
-      walls: [],
-    },
-  );
+  ], {
+    pieces: [
+      { x: 4, y: 1, type: "rook" },
+    ],
+    walls: [],
+  });
 
   assertEquals(result, false);
 });
 
 Deno.test("isValidMove() should return false for blocked move", () => {
-  const result = isValidMove(
+  const result = isValidMove([
     { x: 4, y: 1 },
     { x: 6, y: 1 },
-    {
-      pieces: [{ x: 4, y: 1, type: "rook" }],
-      walls: [{ x: 5, y: 1, orientation: "vertical" }],
-    },
-  );
+  ], {
+    pieces: [{ x: 4, y: 1, type: "rook" }],
+    walls: [{ x: 5, y: 1, orientation: "vertical" }],
+  });
 
   assertEquals(result, false);
+});
+
+Deno.test("resolveMoves() should return the intial board with an empty list", () => {
+  const result = resolveMoves({
+    pieces: [{ x: 4, y: 1, type: "rook" }],
+    walls: [{ x: 5, y: 1, orientation: "vertical" }],
+  }, []);
+
+  assertEquals(result, {
+    pieces: [{ x: 4, y: 1, type: "rook" }],
+    walls: [{ x: 5, y: 1, orientation: "vertical" }],
+  });
+});
+
+Deno.test("resolveMoves() should return updated board state when passed a single move", () => {
+  const result = resolveMoves({
+    pieces: [{ x: 4, y: 1, type: "rook" }],
+    walls: [{ x: 5, y: 1, orientation: "vertical" }],
+  }, [[{ x: 4, y: 1 }, { x: 4, y: 7 }]]);
+
+  assertEquals(result, {
+    pieces: [{ x: 4, y: 7, type: "rook" }],
+    walls: [{ x: 5, y: 1, orientation: "vertical" }],
+  });
+});
+
+Deno.test("resolveMoves() should throw if passed an illegal move (a)", () => {
+  assertThrows(() =>
+    resolveMoves({
+      pieces: [{ x: 4, y: 1, type: "rook" }],
+      walls: [{ x: 4, y: 4, orientation: "horizontal" }],
+    }, [[{ x: 4, y: 1 }, { x: 4, y: 7 }]])
+  );
+});
+
+Deno.test("resolveMoves() should throw if passed an illegal move (b)", () => {
+  assertThrows(() =>
+    resolveMoves({
+      pieces: [{ x: 4, y: 1, type: "rook" }],
+      walls: [],
+    }, [
+      [{ x: 4, y: 1 }, { x: 4, y: 7 }],
+      [{ x: 4, y: 1 }, { x: 5, y: 5 }],
+    ])
+  );
+});
+
+Deno.test("resolveMoves() should return updated board state when passed a list of moves", () => {
+  const result = resolveMoves({
+    pieces: [
+      { x: 4, y: 1, type: "rook" },
+      { x: 6, y: 6, type: "bouncer" },
+    ],
+    walls: [{ x: 5, y: 4, orientation: "horizontal" }],
+  }, [
+    [{ x: 6, y: 6 }, { x: 6, y: 0 }],
+    [{ x: 4, y: 1 }, { x: 4, y: 0 }],
+    [{ x: 4, y: 0 }, { x: 5, y: 0 }],
+    [{ x: 5, y: 0 }, { x: 5, y: 3 }],
+  ]);
+
+  assertEquals(result, {
+    pieces: [
+      { x: 5, y: 3, type: "rook" },
+      { x: 6, y: 0, type: "bouncer" },
+    ],
+    walls: [{ x: 5, y: 4, orientation: "horizontal" }],
+  });
 });
 
 Deno.test("isGameWon() should return false for non matching position", () => {

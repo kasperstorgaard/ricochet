@@ -1,19 +1,8 @@
+import { Board, Move, Piece, Position, Wall } from "../db/types.ts";
+
 // 8 rows and cols align well with hex and comp-science, so a useful/fun limit.
 const COLS = 8;
 const ROWS = 8;
-
-export type Position = {
-  x: number;
-  y: number;
-};
-
-export type Piece = Position & {
-  type: "rook" | "bouncer";
-};
-
-export type Wall = Position & {
-  orientation: "horizontal" | "vertical";
-};
 
 export class BoardError extends Error {
   constructor() {
@@ -25,12 +14,6 @@ export type BoardLike = {
   destination: Position | null | undefined;
   walls: (Wall | null | undefined)[] | undefined | null;
   pieces: (Piece | null | undefined)[] | undefined | null;
-};
-
-export type BoardState = {
-  destination: Position;
-  walls: Wall[];
-  pieces: Piece[];
 };
 
 export function isPositionAligned(src: Position, target: Position) {
@@ -52,7 +35,7 @@ export function isPositionSame(src: Position, target: Position) {
   return src.x === target.x && src.y === target.y;
 }
 
-export function validateBoard(board: BoardLike): BoardState {
+export function validateBoard(board: BoardLike): Board {
   if (!board) throw new BoardError();
 
   const { destination, pieces, walls } = board;
@@ -127,7 +110,7 @@ export type Targets = {
 
 export function getTargets(
   src: Position,
-  { walls, pieces }: Pick<BoardState, "pieces" | "walls">,
+  { walls, pieces }: Pick<Board, "pieces" | "walls">,
 ): Targets {
   const up = { x: src.x, y: 0 };
   const right = { x: COLS - 1, y: src.y };
@@ -135,7 +118,7 @@ export function getTargets(
   const left = { x: 0, y: src.y };
 
   const targetPiece = pieces.find((piece) => isPositionSame(piece, src));
-  if (!targetPiece) throw new Error("Must target a space containing a piece");
+  if (!targetPiece) return {};
 
   /**
    * Determine if any walls are in between src position and current targets
@@ -197,26 +180,52 @@ export function getTargets(
 }
 
 export function isValidMove(
-  src: Position,
-  target: Position,
-  board: Pick<BoardState, "pieces" | "walls">,
+  move: Move,
+  board: Pick<Board, "pieces" | "walls">,
 ) {
   const matchingPiece = board.pieces.find((piece) =>
-    isPositionSame(piece, src)
+    isPositionSame(piece, move[0])
   );
 
   if (!matchingPiece) return false;
 
-  const targets = getTargets(src, board);
+  const targets = getTargets(move[0], board);
+  console.log({ targets, m: move[0], board });
 
   for (const possibleTarget of Object.values(targets)) {
-    if (isPositionSame(possibleTarget, target)) return true;
+    if (isPositionSame(possibleTarget, move[1])) return true;
   }
 
   return false;
 }
 
-export function isGameWon(board: Pick<BoardState, "destination" | "pieces">) {
+export function resolveMoves<
+  TBoard extends Pick<Board, "pieces" | "walls"> = Pick<
+    Board,
+    "pieces" | "walls"
+  >,
+>(
+  board: TBoard,
+  moves: Move[],
+): TBoard {
+  const updatedBoard = { ...board };
+
+  for (const move of moves) {
+    if (!isValidMove(move, updatedBoard)) {
+      throw new Error(
+        `Invalid move, ${move[0].x}_${move[0].y}->${move[1].x}_${move[1].y}`,
+      );
+    }
+
+    updatedBoard.pieces = updatedBoard.pieces.map((piece) =>
+      isPositionSame(piece, move[0]) ? { ...piece, ...move[1] } : piece
+    );
+  }
+
+  return updatedBoard;
+}
+
+export function isGameWon(board: Pick<Board, "destination" | "pieces">) {
   for (const piece of board.pieces) {
     if (piece.type === "bouncer") continue;
 

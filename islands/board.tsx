@@ -1,38 +1,24 @@
 import type { Signal } from "@preact/signals";
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "preact/hooks";
+import { useCallback, useMemo, useState } from "preact/hooks";
 
-import { cn } from "../lib/style.ts";
+import { cn } from "#/lib/style.ts";
 import {
-  BoardState,
   getTargets,
   isPositionSame,
-  Piece,
-  Position,
+  resolveMoves,
   Targets,
-  Wall,
-} from "../util/board.ts";
+} from "#/util/board.ts";
 
-import {
-  parseBoard,
-  parsePosition,
-  stringifyBoard,
-  stringifyPosition,
-} from "../util/url.ts";
-import { Direction, useFlick } from "../lib/touch.ts";
-import { useArrowKeys } from "../lib/keyboard.ts";
+import { Board as BoardState, Move, Position, Wall } from "#/db/types.ts";
 
-interface BoardProps {
-  href: Signal<string>;
-  destination: Signal<Position>;
-  pieces: Signal<Piece[]>;
-  walls: Signal<Wall[]>;
-}
+import { Direction, useFlick } from "#/lib/touch.ts";
+import { useArrowKeys } from "#/lib/keyboard.ts";
+import { useEditor } from "#/util/editor.ts";
+
+type BoardProps = {
+  state: Signal<BoardState>;
+  isEditorMode?: boolean;
+};
 
 /**
  * Ideas:
@@ -51,24 +37,10 @@ interface BoardProps {
  * - use 2 digit hex to store piece state, eg. 7_0 is 07, 1_2 is 09, 1_5 is 0C etc.
  */
 export default function Board(
-  { href, destination, pieces, walls }: BoardProps,
+  { state, isEditorMode }: BoardProps,
 ) {
-  const url = new URL(href.value);
-  const [active, setActive] = useState<Position | null>(
-    parsePosition(url.searchParams.get("a")),
-  );
-  const ref = useRef<HTMLDivElement>(null);
-
-  const board = useMemo(() => ({
-    destination: destination.value,
-    pieces: pieces.value,
-    walls: walls.value,
-  }), [destination.value, pieces.value, walls.value]);
-
-  const targets = useMemo(
-    () => active ? getTargets(active, board) : null,
-    [active],
-  );
+  const [active, setActive] = useState<Position | null>(null);
+  useEditor({ active, isEnabled: Boolean(isEditorMode), state });
 
   const spaces = useMemo(() => {
     const positions: Position[][] = [];
@@ -84,73 +56,31 @@ export default function Board(
     return positions;
   }, []);
 
-  const getTargetHref = useCallback((target: Position) => {
-    if (!active) return url.href;
-
-    const updatedPieces = board.pieces.map((piece) =>
-      isPositionSame(piece, active) ? { ...piece, ...target } : piece
-    );
-
-    const updatedUrl = new URL(url);
-    updatedUrl.search = stringifyBoard({
-      ...board,
-      pieces: updatedPieces,
-    });
-    updatedUrl.searchParams.set("a", stringifyPosition(target));
-
-    return updatedUrl.toString();
-  }, [active, url, board]);
-
-  const getPieceHref = useCallback((target: Position) => {
-    const updatedUrl = new URL(url);
-    updatedUrl.searchParams.set("a", stringifyPosition(target));
-
-    return updatedUrl.toString();
-  }, [active, url, board]);
+  const targets = useMemo(
+    () => active ? getTargets(active, state.value) : null,
+    [active],
+  );
 
   const activePiece = useMemo(() => {
     if (!active) return null;
 
-    return board.pieces.find((piece) => isPositionSame(piece, active));
-  }, [active]);
+    return state.value.pieces.find((piece) => isPositionSame(piece, active));
+  }, [active, state.value]);
 
-  const movePiece = useCallback((src: Position, target: Position) => {
-    if (!src) return;
+  const movePiece = useCallback((move: Move) => {
+    if (!move) return;
 
-    const updatedPieces = board.pieces.map((piece) =>
-      isPositionSame(piece, src)
-        ? {
-          ...piece,
-          ...target,
-        }
-        : piece
-    );
-
-    const url = new URL(href.value);
-
-    const state: BoardState = {
-      ...board,
-      pieces: updatedPieces,
-    };
-
-    setActive(target);
-
-    url.search = new URLSearchParams(stringifyBoard(state)).toString();
-    self.history.pushState({}, "", url);
-    href.value = url.toString();
-
-    self.dispatchEvent(new CustomEvent("board-change"));
-
-    setActive(target);
-  }, [active, board]);
+    state.value = resolveMoves(state.value, [move]);
+    setActive(move[1]);
+  }, [active, state.value]);
 
   const onFlick = useCallback(
     (src: Position, direction: "up" | "right" | "down" | "left") => {
       if (!src) return;
 
       const possibleTargets = getTargets(src, {
-        pieces: pieces.value,
-        walls: walls.value,
+        pieces: state.value.pieces,
+        walls: state.value.walls,
       });
 
       const possibleTarget = possibleTargets[direction];
@@ -158,29 +88,11 @@ export default function Board(
       setActive(src);
 
       if (possibleTarget) {
-        movePiece(src, possibleTarget);
+        movePiece([src, possibleTarget]);
       }
     },
-    [movePiece],
+    [state.value, movePiece],
   );
-
-  useEffect(() => {
-    const onBoardChange = () => {
-      const board = parseBoard(self.location.search);
-
-      destination.value = board.destination;
-      pieces.value = board.pieces;
-      walls.value = board.walls;
-    };
-
-    self.addEventListener("popstate", onBoardChange);
-    self.addEventListener("board-change", onBoardChange);
-
-    return () => {
-      self.removeEventListener("popstate", onBoardChange);
-      self.removeEventListener("board-change", onBoardChange);
-    };
-  }, []);
 
   const onKeyUp = useCallback(
     (direction: Direction) => active && onFlick(active, direction),
@@ -189,9 +101,10 @@ export default function Board(
 
   useArrowKeys({ onKeyUp });
 
+  if (!state.value) return null;
+
   return (
     <div
-      ref={ref}
       className={cn(
         "grid gap-[var(--gap)] w-full",
       )}
@@ -205,11 +118,21 @@ export default function Board(
         gridTemplateRows: `repeat(8,var(--space-w))`,
       }}
     >
-      {spaces.map((row) => row.map((space) => <BoardSpace {...space} />))}
+      {spaces.map((row) =>
+        row.map((space) => (
+          <BoardSpace
+            {...space}
+            isActive={Boolean(
+              isEditorMode && active && isPositionSame(active, space),
+            )}
+            onClick={isEditorMode ? () => setActive(space) : undefined}
+          />
+        ))
+      )}
 
-      {walls.value.map((wall) => <BoardWall {...wall} />)}
+      <BoardDestination {...state.value.destination} />
 
-      <BoardDestination {...destination.value} />
+      {state.value.walls.map((wall) => <BoardWall {...wall} />)}
 
       {/* If we have an active space/piece, draw the possible destinations  */}
       {active && targets && (
@@ -220,20 +143,14 @@ export default function Board(
           {Object.values(targets).map((target) => (
             <BoardTarget
               {...target}
-              href={getTargetHref(target)}
-              onClick={() => {
-                if (!active) return;
-
-                movePiece(active, target);
-              }}
+              onClick={() => active && movePiece([active, target])}
             />
           ))}
         </>
       )}
 
-      {pieces.value.map((piece) => (
+      {state.value.pieces.map((piece) => (
         <BoardPiece
-          href={getPieceHref(piece)}
           {...piece}
           onActivate={() => setActive(piece)}
           onFlick={(dir) => onFlick(piece, dir)}
@@ -259,17 +176,25 @@ function BoardWall({ x, y, orientation }: Wall) {
   );
 }
 
-function BoardSpace({ x, y }: Position) {
+type BoardSpaceProps = Position & {
+  isActive?: boolean;
+  onClick?: () => void;
+};
+
+function BoardSpace({ x, y, isActive, onClick }: BoardSpaceProps) {
   return (
-    <div
+    <button
       className={cn(
         "grid col-[calc(var(--x)+1)] row-[calc(var(--y)+1)] aspect-square rounded-1",
         "border-1 border-stone-9 border-b-1 border-r-1 border-r-stone-7 border-b-stone-7",
+        isActive && "border-blue-6",
       )}
+      tabIndex={onClick ? 0 : -1}
       style={{
         "--x": x,
         "--y": y,
       }}
+      onClick={onClick}
     />
   );
 }
@@ -279,7 +204,7 @@ function BoardDestination({ x, y }: Position) {
     <div
       className={cn(
         "col-[calc(var(--x)+1)] w-full row-[calc(var(--y)+1)]",
-        "aspect-square place-self-center",
+        "aspect-square place-self-center pointer-events-none",
         "border border-1 border-teal-2",
       )}
       style={{
@@ -308,14 +233,12 @@ function BoardDestination({ x, y }: Position) {
 }
 
 type TargetProps = Position & {
-  href: string;
   onClick: () => void;
 };
 
-function BoardTarget({ href, x, y, onClick }: TargetProps) {
+function BoardTarget({ x, y, onClick }: TargetProps) {
   return (
-    <a
-      href={href}
+    <button
       className={cn(
         "w-full aspect-square border-1 place-self-center col-[calc(var(--x)+1)] row-[calc(var(--y)+1)]",
         "border-[var(--active-bg)]",
@@ -368,7 +291,6 @@ function BoardTargetShaders({ active, targets }: BoardTargetShadersProps) {
 }
 
 type BoardPieceProps = {
-  href: string;
   x: number;
   y: number;
   type: "rook" | "bouncer";
@@ -378,14 +300,13 @@ type BoardPieceProps = {
 };
 
 function BoardPiece(
-  { href, isActive, x, y, type, onActivate, onFlick }: BoardPieceProps,
+  { isActive, x, y, type, onActivate, onFlick }: BoardPieceProps,
 ) {
-  const { ref } = useFlick<HTMLAnchorElement>({ onFlick });
+  const { ref } = useFlick<HTMLButtonElement>({ onFlick });
 
   return (
-    <a
+    <button
       ref={ref}
-      href={href}
       className={cn(
         "flex place-content-center col-start-1 row-start-1 p-[var(--pad)]",
         "w-full aspect-square place-self-center ml-[var(--ml)] mt-[var(--mt)]",
@@ -409,11 +330,11 @@ function BoardPiece(
     >
       <div
         className={cn(
-          "w-full",
+          "w-full h-full",
           type === "rook" && "bg-yellow-3 rounded-round",
           type === "bouncer" && "bg-cyan-7 rounded-2",
         )}
       />
-    </a>
+    </button>
   );
 }

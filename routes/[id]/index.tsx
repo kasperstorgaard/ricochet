@@ -1,17 +1,24 @@
 import { useSignal } from "@preact/signals";
-import Board from "../islands/board.tsx";
-import { Puzzle } from "../db/types.ts";
+import Board from "../../islands/board.tsx";
+import { Puzzle } from "../../db/types.ts";
 import { Handlers, PageProps } from "$fresh/server.ts";
 
 export const handler: Handlers<Puzzle> = {
   async GET(_req, ctx) {
-    const response = await fetch("http://localhost:8000/api/puzzles");
-    const puzzles = await response.json() as Puzzle[];
-    return ctx.render(puzzles[0]);
+    const id = ctx.params.id;
+
+    const response = await fetch(`http://localhost:8000/api/puzzles/${id}`);
+    const puzzle = await response.json() as Puzzle | null;
+
+    if (!puzzle) {
+      return ctx.renderNotFound();
+    }
+
+    return ctx.render(puzzle);
   },
 };
 
-export default function Home(props: PageProps<Puzzle>) {
+export default function PuzzleDetails(props: PageProps<Puzzle>) {
   const board = useSignal(props.data.board);
 
   return (

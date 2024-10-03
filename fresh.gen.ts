@@ -2,26 +2,34 @@
 // This file SHOULD be checked into source version control.
 // This file is automatically updated during development when running `dev.ts`.
 
+import * as $_id_index from "./routes/[id]/index.tsx";
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
-import * as $api_puzzle_id_index from "./routes/api/puzzle/[id]/index.ts";
-import * as $api_puzzle_id_solve from "./routes/api/puzzle/[id]/solve.ts";
-import * as $api_puzzle_index from "./routes/api/puzzle/index.ts";
+import * as $api_puzzles_id_index from "./routes/api/puzzles/[id]/index.ts";
+import * as $api_puzzles_id_solve from "./routes/api/puzzles/[id]/solve.ts";
+import * as $api_puzzles_index from "./routes/api/puzzles/index.ts";
+import * as $editor_id_index from "./routes/editor/[[id]]/index.tsx";
 import * as $index from "./routes/index.tsx";
+import * as $list from "./routes/list.tsx";
 import * as $board from "./islands/board.tsx";
+import * as $editor_panel from "./islands/editor-panel.tsx";
 import { type Manifest } from "$fresh/server.ts";
 
 const manifest = {
   routes: {
+    "./routes/[id]/index.tsx": $_id_index,
     "./routes/_404.tsx": $_404,
     "./routes/_app.tsx": $_app,
-    "./routes/api/puzzle/[id]/index.ts": $api_puzzle_id_index,
-    "./routes/api/puzzle/[id]/solve.ts": $api_puzzle_id_solve,
-    "./routes/api/puzzle/index.ts": $api_puzzle_index,
+    "./routes/api/puzzles/[id]/index.ts": $api_puzzles_id_index,
+    "./routes/api/puzzles/[id]/solve.ts": $api_puzzles_id_solve,
+    "./routes/api/puzzles/index.ts": $api_puzzles_index,
+    "./routes/editor/[[id]]/index.tsx": $editor_id_index,
     "./routes/index.tsx": $index,
+    "./routes/list.tsx": $list,
   },
   islands: {
     "./islands/board.tsx": $board,
+    "./islands/editor-panel.tsx": $editor_panel,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;
