@@ -1,5 +1,5 @@
 import { useSignal } from "@preact/signals";
-import { Board as BoardState, Puzzle } from "#/db/types.ts";
+import { Board as BoardState, Move, Puzzle } from "#/db/types.ts";
 import Board from "#/islands/board.tsx";
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { EditorPanel } from "#/islands/editor-panel.tsx";
@@ -28,6 +28,8 @@ export const handler: Handlers<Puzzle> = {
     });
   },
   async POST(req, ctx) {
+    const id = ctx.params.id;
+
     const form = await req.formData();
     const name = form.get("name")?.toString();
 
@@ -35,7 +37,7 @@ export const handler: Handlers<Puzzle> = {
     const board = JSON.parse(rawBoard);
 
     const apiUrl = new URL(req.url);
-    apiUrl.pathname = "api/puzzles";
+    apiUrl.pathname = id ? `api/puzzles/${id}` : "api/puzzles";
 
     const response = await fetch(apiUrl, {
       method: "POST",
@@ -49,15 +51,16 @@ export const handler: Handlers<Puzzle> = {
 };
 
 export default function Home(props: PageProps<Puzzle>) {
-  const board = useSignal<BoardState>(props.data?.board);
+  const puzzle = useSignal(props.data);
+  const href = useSignal(props.url.href);
 
   return (
     <>
       <div class="flex flex-col col-[2/3] w-full gap-2 py-1">
-        <Board state={board} isEditorMode />
+        <Board puzzle={puzzle} href={href} isEditorMode />
       </div>
 
-      <EditorPanel state={board} />
+      <EditorPanel puzzle={puzzle} href={href} />
     </>
   );
 }

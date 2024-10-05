@@ -1,5 +1,6 @@
 import type { Signal } from "@preact/signals";
-import { useCallback, useMemo, useState } from "preact/hooks";
+import { useCallback, useEffect, useMemo } from "preact/hooks";
+import { JSX } from "preact";
 
 import { cn } from "#/lib/style.ts";
 import {
@@ -9,38 +10,37 @@ import {
   Targets,
 } from "#/util/board.ts";
 
-import { Board as BoardState, Move, Position, Wall } from "#/db/types.ts";
+import { Position, Puzzle, Wall } from "#/db/types.ts";
 
 import { Direction, useFlick } from "#/lib/touch.ts";
 import { useArrowKeys } from "#/lib/keyboard.ts";
 import { useEditor } from "#/util/editor.ts";
+import { decodeState } from "#/util/url.ts";
+import { getActiveHref, getMoveHref } from "#/util/game.ts";
+import { useRouter } from "#/lib/router.ts";
 
 type BoardProps = {
-  state: Signal<BoardState>;
+  href: Signal<string>;
+  puzzle: Signal<Puzzle>;
   isEditorMode?: boolean;
 };
 
-/**
- * Ideas:
- * - board state is not all in the url, only pieces
- * - you get the board state from a gameid
- * - the piece moves are stored client side in a session or idb
- * - the moves are validated on the server
- * - add a tutorial, which plays out moves on an interval in front of you interval played out in front of you,
- *   but can be undo/redo'ed to make you understand
- * - add a keyboard navigation hint for desktop
- * - add a touch navigation hint for mobile
- * - ripple fade in of board and pieces, from the outside in, or top to bottom
- * - can't get enough, buy the boardgame (ask for forgiveness, not permission)
- * - extract touch detection to own hook (to make the code cleaner)
- * - undo/redo is just history navigation (is this a good thing even?)
- * - use 2 digit hex to store piece state, eg. 7_0 is 07, 1_2 is 09, 1_5 is 0C etc.
- */
 export default function Board(
-  { state, isEditorMode }: BoardProps,
+  { href, puzzle, isEditorMode }: BoardProps,
 ) {
-  const [active, setActive] = useState<Position | null>(null);
-  useEditor({ active, isEnabled: Boolean(isEditorMode), state });
+  const state = useMemo(() => decodeState(href.value), [href.value]);
+
+  const { updateLocation } = useRouter({
+    onLocationUpdated: (url) => {
+      console.log("onLocationUpdated");
+      href.value = url.href;
+    },
+  });
+
+  const board = useMemo(() => resolveMoves(puzzle.value.board, state.moves), [
+    puzzle.value.board,
+    state.moves,
+  ]);
 
   const spaces = useMemo(() => {
     const positions: Position[][] = [];
@@ -57,51 +57,54 @@ export default function Board(
   }, []);
 
   const targets = useMemo(
-    () => active ? getTargets(active, state.value) : null,
-    [active],
+    () => state.active ? getTargets(state.active, board) : null,
+    [state.active, board],
   );
 
   const activePiece = useMemo(() => {
-    if (!active) return null;
+    if (!state.active) return null;
 
-    return state.value.pieces.find((piece) => isPositionSame(piece, active));
-  }, [active, state.value]);
-
-  const movePiece = useCallback((move: Move) => {
-    if (!move) return;
-
-    state.value = resolveMoves(state.value, [move]);
-    setActive(move[1]);
-  }, [active, state.value]);
+    return board.pieces.find((piece) => isPositionSame(piece, state.active!));
+  }, [state.active, puzzle.value.board.pieces]);
 
   const onFlick = useCallback(
     (src: Position, direction: "up" | "right" | "down" | "left") => {
       if (!src) return;
 
       const possibleTargets = getTargets(src, {
-        pieces: state.value.pieces,
-        walls: state.value.walls,
+        pieces: board.pieces,
+        walls: board.walls,
       });
 
       const possibleTarget = possibleTargets[direction];
-
-      setActive(src);
+      let updatedHref = getActiveHref(src, { ...state, href: href.value });
 
       if (possibleTarget) {
-        movePiece([src, possibleTarget]);
+        updatedHref = getMoveHref([src, possibleTarget], {
+          ...state,
+          href: updatedHref,
+        });
       }
+
+      updateLocation(updatedHref);
     },
-    [state.value, movePiece],
+    [state, href.value],
   );
 
   const onKeyUp = useCallback(
-    (direction: Direction) => active && onFlick(active, direction),
-    [active],
+    (direction: Direction) => state.active && onFlick(state.active, direction),
+    [state.active, onFlick],
   );
+
+  useEditor({
+    active: state.active,
+    isEnabled: Boolean(isEditorMode),
+    puzzle,
+  });
 
   useArrowKeys({ onKeyUp });
 
-  if (!state.value) return null;
+  if (!state) return null;
 
   return (
     <div
@@ -123,36 +126,47 @@ export default function Board(
           <BoardSpace
             {...space}
             isActive={Boolean(
-              isEditorMode && active && isPositionSame(active, space),
+              isEditorMode && state.active &&
+                isPositionSame(state.active, space),
             )}
-            onClick={isEditorMode ? () => setActive(space) : undefined}
+            href={isEditorMode
+              ? getActiveHref(space, { ...state, href: href.value })
+              : undefined}
           />
         ))
       )}
 
-      <BoardDestination {...state.value.destination} />
+      <BoardDestination {...board.destination} />
 
-      {state.value.walls.map((wall) => <BoardWall {...wall} />)}
+      {board.walls.map((wall) => <BoardWall {...wall} />)}
 
       {/* If we have an active space/piece, draw the possible destinations  */}
-      {active && targets && (
+      {state.active && targets && (
         <>
           {/* Backgrounds between src and destinations */}
-          <BoardTargetShaders active={active} targets={targets} />
+          <BoardTargetShaders active={state.active} targets={targets} />
 
           {Object.values(targets).map((target) => (
             <BoardTarget
               {...target}
-              onClick={() => active && movePiece([active, target])}
+              href={getMoveHref([state.active!, target], {
+                ...state,
+                href: href.value,
+              })}
             />
           ))}
         </>
       )}
 
-      {state.value.pieces.map((piece) => (
+      {board.pieces.map((piece) => (
         <BoardPiece
           {...piece}
-          onActivate={() => setActive(piece)}
+          href={getActiveHref(piece, { ...state, href: href.value })}
+          isActive={state.active && isPositionSame(piece, state.active)}
+          onFocus={(event) => {
+            const href = (event.target as HTMLAnchorElement).href;
+            updateLocation(href, { replace: true });
+          }}
           onFlick={(dir) => onFlick(piece, dir)}
         />
       ))}
@@ -178,23 +192,38 @@ function BoardWall({ x, y, orientation }: Wall) {
 
 type BoardSpaceProps = Position & {
   isActive?: boolean;
-  onClick?: () => void;
+  href?: string;
 };
 
-function BoardSpace({ x, y, isActive, onClick }: BoardSpaceProps) {
+function BoardSpace({ x, y, href, isActive }: BoardSpaceProps) {
+  if (href) {
+    return (
+      <a
+        href={href}
+        className={cn(
+          "grid col-[calc(var(--x)+1)] row-[calc(var(--y)+1)] aspect-square rounded-1",
+          "border-1 border-stone-9 border-b-1 border-r-1 border-r-stone-7 border-b-stone-7",
+          isActive && "border-blue-6",
+        )}
+        style={{
+          "--x": x,
+          "--y": y,
+        }}
+        data-router-replace
+      />
+    );
+  }
+
   return (
-    <button
+    <div
       className={cn(
         "grid col-[calc(var(--x)+1)] row-[calc(var(--y)+1)] aspect-square rounded-1",
         "border-1 border-stone-9 border-b-1 border-r-1 border-r-stone-7 border-b-stone-7",
-        isActive && "border-blue-6",
       )}
-      tabIndex={onClick ? 0 : -1}
       style={{
         "--x": x,
         "--y": y,
       }}
-      onClick={onClick}
     />
   );
 }
@@ -233,12 +262,13 @@ function BoardDestination({ x, y }: Position) {
 }
 
 type TargetProps = Position & {
-  onClick: () => void;
+  href: string;
 };
 
-function BoardTarget({ x, y, onClick }: TargetProps) {
+function BoardTarget({ x, y, href }: TargetProps) {
   return (
-    <button
+    <a
+      href={href}
       className={cn(
         "w-full aspect-square border-1 place-self-center col-[calc(var(--x)+1)] row-[calc(var(--y)+1)]",
         "border-[var(--active-bg)]",
@@ -248,10 +278,6 @@ function BoardTarget({ x, y, onClick }: TargetProps) {
         "--y": y,
       }}
       tabIndex={-1}
-      onClick={(event) => {
-        event.preventDefault();
-        onClick();
-      }}
     />
   );
 }
@@ -293,20 +319,22 @@ function BoardTargetShaders({ active, targets }: BoardTargetShadersProps) {
 type BoardPieceProps = {
   x: number;
   y: number;
+  href: string;
   type: "rook" | "bouncer";
   isActive?: boolean;
   onFlick: (direction: Direction) => void;
-  onActivate: () => void;
+  onFocus: (event: FocusEvent) => void;
 };
 
 function BoardPiece(
-  { isActive, x, y, type, onActivate, onFlick }: BoardPieceProps,
+  { x, y, href, type, onFlick, onFocus }: BoardPieceProps,
 ) {
-  const { ref } = useFlick<HTMLButtonElement>({ onFlick });
+  const { ref } = useFlick<HTMLAnchorElement>({ onFlick });
 
   return (
-    <button
+    <a
       ref={ref}
+      href={href}
       className={cn(
         "flex place-content-center col-start-1 row-start-1 p-[var(--pad)]",
         "w-full aspect-square place-self-center ml-[var(--ml)] mt-[var(--mt)]",
@@ -314,7 +342,6 @@ function BoardPiece(
         "translate-y-[calc((var(--space-w)+var(--gap))*var(--y))]",
         "transition-transform duration-200 ease-out",
       )}
-      autoFocus={isActive}
       style={{
         "--x": x,
         "--y": y,
@@ -322,11 +349,8 @@ function BoardPiece(
         "--mt": x > 0 ? "-1px" : "0px",
         "--pad": "var(--size-2)",
       }}
-      onFocus={() => onActivate()}
-      onClick={(event) => {
-        event.preventDefault();
-        onActivate();
-      }}
+      onFocus={onFocus}
+      data-router-replace
     >
       <div
         className={cn(
@@ -335,6 +359,6 @@ function BoardPiece(
           type === "bouncer" && "bg-cyan-7 rounded-2",
         )}
       />
-    </button>
+    </a>
   );
 }

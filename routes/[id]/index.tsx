@@ -1,7 +1,8 @@
 import { useSignal } from "@preact/signals";
 import Board from "#/islands/board.tsx";
-import { Puzzle } from "#/db/types.ts";
+import { Move, Puzzle } from "#/db/types.ts";
 import { Handlers, PageProps } from "$fresh/server.ts";
+import GamePanel from "#/islands/game-panel.tsx";
 
 export const handler: Handlers<Puzzle> = {
   async GET(req, ctx) {
@@ -22,12 +23,21 @@ export const handler: Handlers<Puzzle> = {
 };
 
 export default function PuzzleDetails(props: PageProps<Puzzle>) {
-  const board = useSignal(props.data.board);
+  const href = useSignal(props.url.href);
+  const puzzle = useSignal(props.data);
 
   return (
-    <div class="flex flex-col col-[2/3] w-full gap-2 py-1">
-      <Board state={board} />
-    </div>
+    <>
+      <div class="flex flex-col col-[2/3] w-full gap-2 py-1">
+        <h1 className="text-5 text-pink-8">{props.data.name}</h1>
+
+        <Board href={href} puzzle={puzzle} />
+      </div>
+
+      <div className="grid min-h-[min(20vh,20rem)] col-span-full grid-cols-subgrid bg-gray-7 py-5">
+        <GamePanel href={href} />
+      </div>
+    </>
   );
 }
 

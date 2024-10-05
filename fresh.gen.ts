@@ -13,6 +13,7 @@ import * as $index from "./routes/index.tsx";
 import * as $list from "./routes/list.tsx";
 import * as $board from "./islands/board.tsx";
 import * as $editor_panel from "./islands/editor-panel.tsx";
+import * as $game_panel from "./islands/game-panel.tsx";
 import { type Manifest } from "$fresh/server.ts";
 
 const manifest = {
@@ -30,6 +31,7 @@ const manifest = {
   islands: {
     "./islands/board.tsx": $board,
     "./islands/editor-panel.tsx": $editor_panel,
+    "./islands/game-panel.tsx": $game_panel,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;

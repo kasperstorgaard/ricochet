@@ -1,27 +1,23 @@
-import { useSignal } from "@preact/signals";
-import Board from "../islands/board.tsx";
 import { Puzzle } from "../db/types.ts";
-import { Handlers, PageProps } from "$fresh/server.ts";
+import { Handlers } from "$fresh/server.ts";
 
-export const handler: Handlers<Puzzle> = {
-  async GET(req, ctx) {
+export const handler: Handlers = {
+  async GET(req) {
     const apiUrl = new URL(req.url);
     apiUrl.pathname = "api/puzzles";
 
     const response = await fetch(apiUrl);
     const puzzles = await response.json() as Puzzle[];
-    return ctx.render(puzzles[0]);
+
+    const redirectUrl = new URL(req.url);
+    redirectUrl.pathname = puzzles[0].id;
+
+    return Response.redirect(redirectUrl);
   },
 };
 
-export default function Home(props: PageProps<Puzzle>) {
-  const board = useSignal(props.data.board);
-
-  return (
-    <div class="flex flex-col col-[2/3] w-full gap-2 py-1">
-      <Board state={board} />
-    </div>
-  );
+export default function Home() {
+  return <div>redirect</div>;
 }
 
 /**

@@ -81,12 +81,6 @@ export async function getSolutions(
   return solutions;
 }
 
-export function shortenId(id: string) {
-  if (typeof id !== "string") throw new Error("Cannot shorten a non-string id");
-
-  return id.substring(id.length - 9);
-}
-
 // export async function pushMove(puzzleId: string, move: Move) {
 //   const moves = await kv.get<Move[]>(["puzzles", puzzleId, "moves"]);
 

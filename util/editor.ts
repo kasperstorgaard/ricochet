@@ -1,22 +1,22 @@
 import { useCallback, useEffect } from "preact/hooks";
-import { Board, Position } from "#/db/types.ts";
+import { Position, Puzzle } from "#/db/types.ts";
 import type { Signal } from "@preact/signals";
 import { isPositionSame } from "#/util/board.ts";
 
 type UseEditorOptions = {
-  active: Position | null;
-  state: Signal<Board>;
+  puzzle: Signal<Puzzle>;
+  active?: Position;
   isEnabled: boolean;
 };
 
 export function useEditor(
-  { active, state, isEnabled }: UseEditorOptions,
+  { active, puzzle, isEnabled }: UseEditorOptions,
 ) {
   const cycleWall = useCallback(() => {
     if (!active) return;
 
-    let { walls } = state.value;
-    const activeWalls = state.value.walls.filter((wall) =>
+    let { walls } = puzzle.value.board;
+    const activeWalls = puzzle.value.board.walls.filter((wall) =>
       isPositionSame(wall, active)
     );
 
@@ -38,16 +38,19 @@ export function useEditor(
       walls = walls.filter((wall) => !isPositionSame(wall, active));
     }
 
-    state.value = {
-      ...state.value,
-      walls,
+    puzzle.value = {
+      ...puzzle.value,
+      board: {
+        ...puzzle.value.board,
+        walls,
+      },
     };
-  }, [active, state.value]);
+  }, [active, puzzle.value.board]);
 
   const cyclePiece = useCallback(() => {
     if (!active) return;
 
-    let { pieces } = state.value;
+    let { pieces } = puzzle.value.board;
     const activePiece = pieces.find((piece) => isPositionSame(piece, active));
 
     if (!activePiece) {
@@ -65,20 +68,26 @@ export function useEditor(
       pieces = pieces.filter((piece) => !isPositionSame(piece, active));
     }
 
-    state.value = {
-      ...state.value,
-      pieces,
+    puzzle.value = {
+      ...puzzle.value,
+      board: {
+        ...puzzle.value.board,
+        pieces,
+      },
     };
-  }, [active, state.value]);
+  }, [active, puzzle.value]);
 
   const setDestination = useCallback(() => {
     if (!active) return;
 
-    state.value = {
-      ...state.value,
-      destination: active,
+    puzzle.value = {
+      ...puzzle.value,
+      board: {
+        ...puzzle.value.board,
+        destination: active,
+      },
     };
-  }, [active, state.value]);
+  }, [active, puzzle.value]);
 
   useEffect(() => {
     const onKeyUp = (event: KeyboardEvent) => {

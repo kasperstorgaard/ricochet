@@ -190,7 +190,6 @@ export function isValidMove(
   if (!matchingPiece) return false;
 
   const targets = getTargets(move[0], board);
-  console.log({ targets, m: move[0], board });
 
   for (const possibleTarget of Object.values(targets)) {
     if (isPositionSame(possibleTarget, move[1])) return true;
