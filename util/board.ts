@@ -224,7 +224,7 @@ export function resolveMoves<
   return updatedBoard;
 }
 
-export function isGameWon(board: Pick<Board, "destination" | "pieces">) {
+export function isValidSolution(board: Pick<Board, "destination" | "pieces">) {
   for (const piece of board.pieces) {
     if (piece.type === "bouncer") continue;
 

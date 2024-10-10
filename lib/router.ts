@@ -38,6 +38,9 @@ export function useRouter({ onLocationUpdated }: UseRouterOptions) {
     self.addEventListener("popstate", handler);
     self.addEventListener("location-changed", handler);
 
+    // Fire on initial load.
+    handler();
+
     return () => {
       self.removeEventListener("popstate", handler);
       self.removeEventListener("location-changed", handler);

@@ -1,13 +1,9 @@
-import { Puzzle } from "../db/types.ts";
 import { Handlers } from "$fresh/server.ts";
+import { listPuzzles } from "#/db/kv.ts";
 
 export const handler: Handlers = {
   async GET(req) {
-    const apiUrl = new URL(req.url);
-    apiUrl.pathname = "api/puzzles";
-
-    const response = await fetch(apiUrl);
-    const puzzles = await response.json() as Puzzle[];
+    const puzzles = await listPuzzles();
 
     const redirectUrl = new URL(req.url);
     redirectUrl.pathname = puzzles[0].id;
@@ -24,16 +20,9 @@ export default function Home() {
  * Game state:
  * - game of the day decided by timezone, changes at midnight
  * - 1 url part for the moves of the pieces
- * - update game state (url) after each animation is finished
- * - add revert functionality (history back?)
- * - add reset functionality
- * - active piece or blocker is temporary state, not url state
  *
  * Ideas:
  * - when the page is refreshed/shown, replay the moves. The more moves the faster (capped)
- * - add active/hover potential paths when clicking a piece
- * - start of simple by click interactions, not swiping
- * - enlarge valid click target
  * - replay button
  * - store moves in session
  * - require auth for editor

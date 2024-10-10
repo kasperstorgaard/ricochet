@@ -5,13 +5,14 @@ export const kv = await Deno.openKv("./.sqlite/db");
 
 type ListOptions = {
   limit?: number;
+  page?: number;
 };
 
 export async function createPuzzle(data: Omit<Puzzle, "id">) {
-  const uid = ulid();
-  const puzzle = { uid, ...data };
+  const id = ulid();
+  const puzzle: Puzzle = { id, ...data };
 
-  await kv.atomic().set(["puzzles", uid], puzzle).commit();
+  await kv.atomic().set(["puzzles", id], puzzle).commit();
 
   return puzzle;
 }
@@ -46,17 +47,21 @@ export async function listPuzzles(options?: ListOptions) {
   return puzzles;
 }
 
-export async function addSolution(solution: Omit<Solution, "id">) {
-  const noOfMoves = solution.moves.length;
+export async function addSolution(payload: Omit<Solution, "id">) {
+  const noOfMoves = payload.moves.length;
   const id = ulid();
+
+  const solution = {
+    ...payload,
+    id,
+  };
 
   await kv.atomic().set(
     ["puzzles", solution.puzzleId, "solutions", noOfMoves, id],
-    {
-      ...solution,
-      id,
-    },
+    solution,
   ).commit();
+
+  return solution;
 }
 
 type GetSolutionsOptions = {
@@ -65,7 +70,7 @@ type GetSolutionsOptions = {
 
 export async function getSolutions(
   puzzleId: string,
-  { limit = 10 }: GetSolutionsOptions,
+  options?: GetSolutionsOptions,
 ) {
   const solutions: Solution[] = [];
 
@@ -75,10 +80,42 @@ export async function getSolutions(
 
   for await (const res of iter) {
     solutions.push(res.value);
-    if (solutions.length >= limit) break;
+    if (solutions.length >= (options?.limit ?? 10)) break;
   }
 
   return solutions;
+}
+
+export async function getSolution(
+  puzzleId: string,
+  solutionId: string,
+) {
+  const res = await kv.get<Solution>([
+    "puzzles",
+    puzzleId,
+    "solutions",
+    solutionId,
+  ]);
+  return res.value;
+}
+
+export async function getSolutionRank(
+  puzzleId: string,
+  solutionId: string,
+) {
+  const iter = kv.list<Solution>({
+    prefix: ["puzzles", puzzleId, "solutions"],
+    end: ["puzzles", puzzleId, "solutions", solutionId],
+  }, {
+    batchSize: 500,
+  });
+
+  let counter = 0;
+  for await (const _res of iter) {
+    counter++;
+  }
+
+  return counter;
 }
 
 // export async function pushMove(puzzleId: string, move: Move) {

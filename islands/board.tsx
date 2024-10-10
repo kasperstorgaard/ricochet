@@ -1,11 +1,11 @@
 import type { Signal } from "@preact/signals";
-import { useCallback, useEffect, useMemo } from "preact/hooks";
-import { JSX } from "preact";
+import { useCallback, useMemo } from "preact/hooks";
 
 import { cn } from "#/lib/style.ts";
 import {
   getTargets,
   isPositionSame,
+  isValidSolution,
   resolveMoves,
   Targets,
 } from "#/util/board.ts";
@@ -22,25 +22,28 @@ import { useRouter } from "#/lib/router.ts";
 type BoardProps = {
   href: Signal<string>;
   puzzle: Signal<Puzzle>;
+  hasSolution: Signal<boolean>;
   isEditorMode?: boolean;
 };
 
 export default function Board(
-  { href, puzzle, isEditorMode }: BoardProps,
+  { href, puzzle, hasSolution, isEditorMode }: BoardProps,
 ) {
   const state = useMemo(() => decodeState(href.value), [href.value]);
-
-  const { updateLocation } = useRouter({
-    onLocationUpdated: (url) => {
-      console.log("onLocationUpdated");
-      href.value = url.href;
-    },
-  });
 
   const board = useMemo(() => resolveMoves(puzzle.value.board, state.moves), [
     puzzle.value.board,
     state.moves,
   ]);
+
+  const onLocationUpdated = useCallback((url: URL) => {
+    href.value = url.href;
+    hasSolution.value = isValidSolution(board);
+  }, [board]);
+
+  const { updateLocation } = useRouter({
+    onLocationUpdated,
+  });
 
   const spaces = useMemo(() => {
     const positions: Position[][] = [];

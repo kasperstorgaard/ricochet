@@ -10,7 +10,7 @@ type GamePanelProps = {
   href: Signal<string>;
 };
 
-export default function GamePanel({ href }: GamePanelProps) {
+export function GamePanel({ href }: GamePanelProps) {
   const state = useMemo(() => decodeState(href.value), [href.value]);
 
   const onReset = useCallback(() => updateLocation(getResetHref(href.value)), [
@@ -24,10 +24,10 @@ export default function GamePanel({ href }: GamePanelProps) {
   });
 
   return (
-    <div className="flex col-[2/3] place-items-start gap-fl-1 text-fl-1 w-full">
+    <div className="flex col-[2/3] place-items-start gap-fl-1 px-3 text-fl-1 w-full">
       <a
         className={cn(
-          "rounded-2 px-fl-1 border-gray-3 border-1",
+          "rounded-2 px-2 border-gray-3 border-1",
           state.cursor === 0 && "opacity-40",
         )}
         href={getUndoHref(href.value, state)}
@@ -42,7 +42,7 @@ export default function GamePanel({ href }: GamePanelProps) {
       <a
         href={getRedoHref(href.value, state)}
         className={cn(
-          "rounded-2 px-fl-1 border-gray-3 border-1 disabled:opacity-20",
+          "rounded-2 px-2 border-gray-3 border-1 disabled:opacity-20",
           self.history?.length === 0 && "opacity-40",
         )}
       >
@@ -52,7 +52,7 @@ export default function GamePanel({ href }: GamePanelProps) {
       <a
         href={getResetHref(href.value)}
         className={cn(
-          "rounded-2 px-fl-1 border-gray-3 border-1 disabled:opacity-20 ml-auto",
+          "rounded-2 px-2 border-gray-3 border-1 disabled:opacity-20 ml-auto",
           !state.moves.length && "opacity-40",
         )}
       >

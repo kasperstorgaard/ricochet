@@ -3,10 +3,10 @@ import { assertEquals } from "jsr:@std/assert";
 import {
   BoardError,
   getTargets,
-  isGameWon,
   isPositionAligned,
   isPositionSame,
   isValidMove,
+  isValidSolution,
   resolveMoves,
   validateBoard,
 } from "./board.ts";
@@ -549,8 +549,8 @@ Deno.test("resolveMoves() should return updated board state when passed a list o
   });
 });
 
-Deno.test("isGameWon() should return false for non matching position", () => {
-  const result = isGameWon(
+Deno.test("isValidSolution() should return false for non matching position", () => {
+  const result = isValidSolution(
     {
       destination: { x: 0, y: 2 },
       pieces: [{ x: 4, y: 1, type: "rook" }],
@@ -560,8 +560,8 @@ Deno.test("isGameWon() should return false for non matching position", () => {
   assertEquals(result, false);
 });
 
-Deno.test("isGameWon() should return false for bouncer", () => {
-  const result = isGameWon(
+Deno.test("isValidSolution() should return false for bouncer", () => {
+  const result = isValidSolution(
     {
       destination: { x: 0, y: 2 },
       pieces: [{ type: "bouncer", x: 0, y: 2 }],
@@ -571,8 +571,8 @@ Deno.test("isGameWon() should return false for bouncer", () => {
   assertEquals(result, false);
 });
 
-Deno.test("isGameWon() should return true for winning position", () => {
-  const result = isGameWon(
+Deno.test("isValidSolution() should return true for winning position", () => {
+  const result = isValidSolution(
     {
       destination: { x: 0, y: 2 },
       pieces: [{ type: "rook", x: 0, y: 2 }],
