@@ -2,37 +2,39 @@
 // This file SHOULD be checked into source version control.
 // This file is automatically updated during development when running `dev.ts`.
 
-import * as $_puzzleId_index from "./routes/[puzzleId]/index.tsx";
-import * as $_puzzleId_solutions_solutionId_ from "./routes/[puzzleId]/solutions/[[solutionId]].tsx";
 import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
-import * as $editor_puzzleId_index from "./routes/editor/[[puzzleId]]/index.tsx";
 import * as $index from "./routes/index.tsx";
-import * as $list from "./routes/list.tsx";
-import * as $solution from "./routes/solution.tsx";
+import * as $puzzles_puzzleId_edit_index from "./routes/puzzles/[puzzleId]/edit/index.tsx";
+import * as $puzzles_puzzleId_index from "./routes/puzzles/[puzzleId]/index.tsx";
+import * as $puzzles_puzzleId_solutions_solutionId_ from "./routes/puzzles/[puzzleId]/solutions/[[solutionId]].tsx";
+import * as $puzzles_editor from "./routes/puzzles/editor.tsx";
+import * as $puzzles_index from "./routes/puzzles/index.tsx";
 import * as $board from "./islands/board.tsx";
+import * as $controls_panel from "./islands/controls-panel.tsx";
 import * as $editor_panel from "./islands/editor-panel.tsx";
-import * as $game_panel from "./islands/game-panel.tsx";
 import * as $solution_dialog from "./islands/solution-dialog.tsx";
+import * as $solutions_panel from "./islands/solutions-panel.tsx";
 import { type Manifest } from "$fresh/server.ts";
 
 const manifest = {
   routes: {
-    "./routes/[puzzleId]/index.tsx": $_puzzleId_index,
-    "./routes/[puzzleId]/solutions/[[solutionId]].tsx":
-      $_puzzleId_solutions_solutionId_,
     "./routes/_404.tsx": $_404,
     "./routes/_app.tsx": $_app,
-    "./routes/editor/[[puzzleId]]/index.tsx": $editor_puzzleId_index,
     "./routes/index.tsx": $index,
-    "./routes/list.tsx": $list,
-    "./routes/solution.tsx": $solution,
+    "./routes/puzzles/[puzzleId]/edit/index.tsx": $puzzles_puzzleId_edit_index,
+    "./routes/puzzles/[puzzleId]/index.tsx": $puzzles_puzzleId_index,
+    "./routes/puzzles/[puzzleId]/solutions/[[solutionId]].tsx":
+      $puzzles_puzzleId_solutions_solutionId_,
+    "./routes/puzzles/editor.tsx": $puzzles_editor,
+    "./routes/puzzles/index.tsx": $puzzles_index,
   },
   islands: {
     "./islands/board.tsx": $board,
+    "./islands/controls-panel.tsx": $controls_panel,
     "./islands/editor-panel.tsx": $editor_panel,
-    "./islands/game-panel.tsx": $game_panel,
     "./islands/solution-dialog.tsx": $solution_dialog,
+    "./islands/solutions-panel.tsx": $solutions_panel,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;

@@ -67,7 +67,7 @@ export function getRedoHref(
 ) {
   const url = new URL(href);
   const cursor = state.cursor != null
-    ? Math.min(state.cursor + 1, state.moves.length - 1)
+    ? Math.min(state.cursor + 1, state.moves.length)
     : state.moves.length - 1;
 
   url.search = encodeState({

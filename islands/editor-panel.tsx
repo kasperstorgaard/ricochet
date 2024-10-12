@@ -16,16 +16,17 @@ export function EditorPanel({ puzzle, href }: EditorPanelProps) {
       ...puzzle.value.board,
       moves: [],
     });
-    const state = decodeState(url.href);
 
-    return resolveMoves(puzzle.value.board, state.moves);
+    const state = decodeState(url.href);
+    const moves = state.moves.slice(0, state.cursor ?? state.moves.length - 1);
+
+    return resolveMoves(puzzle.value.board, moves);
   }, [href.value, puzzle.value.board]);
 
   return (
     <aside className="col-span-3 grid grid-cols-subgrid p-3 border-t-2 border-violet-3 bg-gray-7 text-fl-0">
       <form
         className="col-[2/3] grid gap-fl-2"
-        action={`editor/${puzzle.value.id}`}
         method="post"
       >
         <label className="flex flex-col gap-1">

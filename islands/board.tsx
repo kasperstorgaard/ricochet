@@ -3,6 +3,7 @@ import { useCallback, useMemo } from "preact/hooks";
 
 import { cn } from "#/lib/style.ts";
 import {
+  getPieceId,
   getTargets,
   isPositionSame,
   isValidSolution,
@@ -24,14 +25,22 @@ type BoardProps = {
   puzzle: Signal<Puzzle>;
   hasSolution: Signal<boolean>;
   isEditorMode?: boolean;
+  isReplayMode?: boolean;
 };
 
 export default function Board(
-  { href, puzzle, hasSolution, isEditorMode }: BoardProps,
+  { href, puzzle, hasSolution, isEditorMode, isReplayMode }: BoardProps,
 ) {
   const state = useMemo(() => decodeState(href.value), [href.value]);
+  const moves = useMemo(
+    () => state.moves.slice(0, state.cursor ?? state.moves.length - 1),
+    [
+      state.moves,
+      state.cursor,
+    ],
+  );
 
-  const board = useMemo(() => resolveMoves(puzzle.value.board, state.moves), [
+  const board = useMemo(() => resolveMoves(puzzle.value.board, moves), [
     puzzle.value.board,
     state.moves,
   ]);
@@ -118,6 +127,7 @@ export default function Board(
         "--active-bg": activePiece
           ? activePiece.type === "rook" ? "var(--yellow-3)" : "var(--cyan-7)"
           : null,
+        "--replay-len": moves.length,
         "--gap": "var(--size-1)",
         "--space-w": "clamp(46px - var(--gap), 4vw, 64px)",
         gridTemplateColumns: `repeat(8,var(--space-w))`,
@@ -161,11 +171,13 @@ export default function Board(
         </>
       )}
 
-      {board.pieces.map((piece) => (
+      {board.pieces.map((piece, idx) => (
         <BoardPiece
           {...piece}
           href={getActiveHref(piece, { ...state, href: href.value })}
+          id={getPieceId(piece, idx)}
           isActive={state.active && isPositionSame(piece, state.active)}
+          isReplayMode={isReplayMode}
           onFocus={(event) => {
             const href = (event.target as HTMLAnchorElement).href;
             updateLocation(href, { replace: true });
@@ -322,21 +334,24 @@ function BoardTargetShaders({ active, targets }: BoardTargetShadersProps) {
 type BoardPieceProps = {
   x: number;
   y: number;
+  id: string;
   href: string;
   type: "rook" | "bouncer";
   isActive?: boolean;
+  isReplayMode?: boolean;
   onFlick: (direction: Direction) => void;
   onFocus: (event: FocusEvent) => void;
 };
 
 function BoardPiece(
-  { x, y, href, type, onFlick, onFocus }: BoardPieceProps,
+  { x, y, id, href, type, isReplayMode, onFlick, onFocus }: BoardPieceProps,
 ) {
   const { ref } = useFlick<HTMLAnchorElement>({ onFlick });
 
   return (
     <a
       ref={ref}
+      id={id}
       href={href}
       className={cn(
         "flex place-content-center col-start-1 row-start-1 p-[var(--pad)]",
@@ -344,15 +359,24 @@ function BoardPiece(
         "translate-x-[calc((var(--space-w)+var(--gap))*var(--x))]",
         "translate-y-[calc((var(--space-w)+var(--gap))*var(--y))]",
         "transition-transform duration-200 ease-out",
+        "[--replay-duration:calc(var(--replay-len)*1s)]",
       )}
       style={{
+        ...(isReplayMode &&
+          { animation: `replay-${id} var(--replay-duration) ease-in-out` }),
         "--x": x,
         "--y": y,
         "--ml": x > 0 ? "-1px" : "0px",
         "--mt": x > 0 ? "-1px" : "0px",
         "--pad": "var(--size-2)",
       }}
-      onFocus={onFocus}
+      onClick={(ev) => {
+        if (isReplayMode) {
+          ev.preventDefault();
+          ev.stopPropagation();
+        }
+      }}
+      onFocus={!isReplayMode ? onFocus : () => {}}
       data-router-replace
     >
       <div

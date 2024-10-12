@@ -31,6 +31,10 @@ export function isPositionOutOfBounds(
   );
 }
 
+export function getPieceId(piece: Piece, idx: number) {
+  return `${piece.type === "rook" ? "r" : "b"}_${idx}`;
+}
+
 export function isPositionSame(src: Position, target: Position) {
   return src.x === target.x && src.y === target.y;
 }

@@ -19,7 +19,7 @@ export const handler: Handlers<Puzzle[]> = {
   },
 };
 
-export default function PuzzleList(props: PageProps<Puzzle[]>) {
+export default function PuzzlesPage(props: PageProps<Puzzle[]>) {
   return (
     <div class="flex flex-col col-[2/3] w-full gap-fl-2 py-1">
       <h1 className="text-fl-2">Recent puzzles</h1>
@@ -27,11 +27,11 @@ export default function PuzzleList(props: PageProps<Puzzle[]>) {
       <ul className="grid gap-3">
         {props.data.filter((item) => item.id).map((puzzle) => (
           <li className="flex gap-2 pl-0">
-            <a href={`/${puzzle.id}`} className="underline">
+            <a href={`puzzles/${puzzle.id}`} className="underline">
               {puzzle.name}
             </a>
             <a
-              href={`/editor/${puzzle.id}`}
+              href={`puzzles/${puzzle.id}/edit`}
               className="underline px-2 rounded-3 border-1 border-purple-2 text-purple-4"
             >
               edit

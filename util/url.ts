@@ -78,6 +78,7 @@ export function encodeState({ moves, active, cursor }: GameState) {
   return params.toString();
 }
 
+// TODO: make sure encode/decode are aligned on using full url or search only.
 export function decodeState(href: string) {
   const url = new URL(href);
 

@@ -9,3 +9,25 @@
 :root {
   font-size: 20px;
 }
+
+/*
+  Newly available custom properties definition syntax,
+  which allows us to transition values without javascript.
+*/
+@property --x {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+@property --y {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+
+@property --replay-len {
+  syntax: "<integer>";
+  inherits: true;
+  initial-value: 0;
+}

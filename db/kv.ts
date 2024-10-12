@@ -49,17 +49,19 @@ export async function listPuzzles(options?: ListOptions) {
 
 export async function addSolution(payload: Omit<Solution, "id">) {
   const noOfMoves = payload.moves.length;
-  const id = ulid();
+  const id = `${noOfMoves}_${ulid()}`;
 
   const solution = {
     ...payload,
     id,
   };
 
-  await kv.atomic().set(
-    ["puzzles", solution.puzzleId, "solutions", noOfMoves, id],
-    solution,
-  ).commit();
+  await kv.atomic()
+    .set(
+      ["puzzles", solution.puzzleId, "solutions", id],
+      solution,
+    )
+    .commit();
 
   return solution;
 }
@@ -68,7 +70,7 @@ type GetSolutionsOptions = {
   limit?: number;
 };
 
-export async function getSolutions(
+export async function listSolutions(
   puzzleId: string,
   options?: GetSolutionsOptions,
 ) {
@@ -117,36 +119,3 @@ export async function getSolutionRank(
 
   return counter;
 }
-
-// export async function pushMove(puzzleId: string, move: Move) {
-//   const moves = await kv.get<Move[]>(["puzzles", puzzleId, "moves"]);
-
-//   const updatedMoves = moves.value ?? [];
-//   updatedMoves.push(move);
-
-//   await kv.atomic().check(moves).set(
-//     ["puzzles", puzzleId, "moves"],
-//     updatedMoves,
-//   ).commit();
-
-//   return updatedMoves;
-// }
-
-// export async function popMove(puzzleId: string) {
-//   const moves = await kv.get<Move[]>(["puzzles", puzzleId, "moves"]);
-
-//   const updatedMoves = (moves.value ?? []).slice();
-//   updatedMoves.pop();
-
-//   await kv.atomic().check(moves).set(
-//     ["puzzles", puzzleId, "moves"],
-//     updatedMoves,
-//   ).commit();
-
-//   return updatedMoves;
-// }
-
-// export async function getMoves(puzzleId: string) {
-//   const moves = await kv.get<Move[]>(["puzzles", puzzleId, "moves"]);
-//   return moves.value;
-// }

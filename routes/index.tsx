@@ -6,7 +6,7 @@ export const handler: Handlers = {
     const puzzles = await listPuzzles();
 
     const redirectUrl = new URL(req.url);
-    redirectUrl.pathname = puzzles[0].id;
+    redirectUrl.pathname = `puzzles/${puzzles[0].id}`;
 
     return Response.redirect(redirectUrl);
   },

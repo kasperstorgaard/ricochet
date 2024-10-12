@@ -3,7 +3,7 @@ import Board from "#/islands/board.tsx";
 import { Puzzle } from "#/db/types.ts";
 import { isValidSolution, resolveMoves } from "#/util/board.ts";
 import { Handlers, PageProps } from "$fresh/server.ts";
-import { GamePanel } from "#/islands/game-panel.tsx";
+import { ControlsPanel } from "../../../islands/controls-panel.tsx";
 import { SolutionDialog } from "#/islands/solution-dialog.tsx";
 import { decodeState } from "#/util/url.ts";
 import { addSolution, getPuzzle } from "#/db/kv.ts";
@@ -29,8 +29,10 @@ export const handler: Handlers<Puzzle> = {
     const moves = JSON.parse(rawMoves);
 
     const solution = await addSolution({ puzzleId, name, moves });
+    const url = new URL(req.url);
+    url.pathname = `puzzles/${puzzleId}/solutions/${solution.id}`;
 
-    return Response.redirect(`solution/${solution.id}`, 301);
+    return Response.redirect(url.href, 301);
   },
 };
 
@@ -39,7 +41,8 @@ export default function PuzzleDetails(props: PageProps<Puzzle>) {
   const puzzle = useSignal(props.data);
 
   const state = decodeState(props.url.href);
-  const board = resolveMoves(props.data.board, state.moves);
+  const moves = state.moves.slice(0, state.cursor ?? state.moves.length - 1);
+  const board = resolveMoves(props.data.board, moves);
   const hasSolution = useSignal(isValidSolution(board));
 
   return (
@@ -51,7 +54,7 @@ export default function PuzzleDetails(props: PageProps<Puzzle>) {
       </div>
 
       <div className="grid min-h-[min(20vh,20rem)] col-span-full grid-cols-subgrid bg-gray-7 py-6">
-        <GamePanel href={href} />
+        <ControlsPanel href={href} />
       </div>
 
       {hasSolution.value && <SolutionDialog href={href} puzzle={puzzle} />}

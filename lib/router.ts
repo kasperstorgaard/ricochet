@@ -14,7 +14,7 @@ export function updateLocation(href: string, options?: { replace?: boolean }) {
   self.dispatchEvent(new CustomEvent("location-changed"));
 }
 
-export function useRouter({ onLocationUpdated }: UseRouterOptions) {
+export function useRouter({ onLocationUpdated }: UseRouterOptions = {}) {
   useEffect(() => {
     const onClick = (event: MouseEvent) => {
       const a = (event.target as HTMLElement).closest("a");

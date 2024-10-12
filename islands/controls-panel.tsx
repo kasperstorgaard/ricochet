@@ -6,11 +6,11 @@ import { getRedoHref, getResetHref, getUndoHref } from "#/util/game.ts";
 import { useGameShortcuts } from "#/util/game.ts";
 import { updateLocation } from "#/lib/router.ts";
 
-type GamePanelProps = {
+type ControlsPanelProps = {
   href: Signal<string>;
 };
 
-export function GamePanel({ href }: GamePanelProps) {
+export function ControlsPanel({ href }: ControlsPanelProps) {
   const state = useMemo(() => decodeState(href.value), [href.value]);
 
   const onReset = useCallback(() => updateLocation(getResetHref(href.value)), [
@@ -18,19 +18,20 @@ export function GamePanel({ href }: GamePanelProps) {
   ]);
 
   useGameShortcuts({
-    onUndo: () => window.history.back(),
-    onRedo: () => window.history.forward(),
+    onUndo: () => self.history.back(),
+    onRedo: () => self.history.forward(),
     onReset,
   });
 
   return (
     <div className="flex col-[2/3] place-items-start gap-fl-1 px-3 text-fl-1 w-full">
       <a
+        href={getUndoHref(href.value, state)}
         className={cn(
           "rounded-2 px-2 border-gray-3 border-1",
-          state.cursor === 0 && "opacity-40",
+          !state.cursor && "opacity-40",
         )}
-        href={getUndoHref(href.value, state)}
+        data-router-replace
       >
         <i className="ph-arrow-arc-left ph-bold" />
       </a>
@@ -43,8 +44,9 @@ export function GamePanel({ href }: GamePanelProps) {
         href={getRedoHref(href.value, state)}
         className={cn(
           "rounded-2 px-2 border-gray-3 border-1 disabled:opacity-20",
-          self.history?.length === 0 && "opacity-40",
+          state.cursor === state.moves.length && "opacity-40",
         )}
+        data-router-replace
       >
         <i className="ph-arrow-arc-right ph-bold" />
       </a>
@@ -53,7 +55,7 @@ export function GamePanel({ href }: GamePanelProps) {
         href={getResetHref(href.value)}
         className={cn(
           "rounded-2 px-2 border-gray-3 border-1 disabled:opacity-20 ml-auto",
-          !state.moves.length && "opacity-40",
+          state.cursor === 0 && "opacity-40",
         )}
       >
         <i className="ph-arrow-counter-clockwise ph-bold" />

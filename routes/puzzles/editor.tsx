@@ -38,8 +38,6 @@ export const handler: Handlers<Puzzle> = {
     const rawBoard = form.get("board")?.toString() ?? "";
     const board = JSON.parse(rawBoard) as Puzzle["board"];
 
-    console.log({ board, form });
-
     if (!name) throw new Error("Must provide a username");
 
     const puzzle = puzzleId
@@ -47,14 +45,13 @@ export const handler: Handlers<Puzzle> = {
       : await createPuzzle({ name, board });
 
     const url = new URL(req.url);
-    url.pathname = puzzle.id;
+    url.pathname = `puzzles/${puzzle.id}`;
     return Response.redirect(url);
   },
 };
 
-export default function EditorDetails(props: PageProps<Puzzle>) {
+export default function EditorPage(props: PageProps<Puzzle>) {
   const puzzle = useSignal(props.data);
-  console.log({ v: puzzle.value });
   const href = useSignal(props.url.href);
   const hasSolution = useSignal(false);
 
