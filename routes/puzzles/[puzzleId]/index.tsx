@@ -25,8 +25,15 @@ export const handler: Handlers<Puzzle> = {
 
     if (!name) throw new Error("Must provide a username");
 
+    const puzzle = await getPuzzle(puzzleId);
+    if (!puzzle) throw new Error(`Puzzle with id: ${puzzleId} not found`);
+
     const rawMoves = form.get("moves")?.toString() ?? "";
     const moves = JSON.parse(rawMoves);
+
+    if (!isValidSolution(resolveMoves(puzzle.board, moves))) {
+      throw new Error("Solution is not valid");
+    }
 
     const solution = await addSolution({ puzzleId, name, moves });
     const url = new URL(req.url);
