@@ -33,7 +33,7 @@ export default function Board(
 ) {
   const state = useMemo(() => decodeState(href.value), [href.value]);
   const moves = useMemo(
-    () => state.moves.slice(0, state.cursor ?? state.moves.length - 1),
+    () => state.moves.slice(0, state.cursor ?? state.moves.length),
     [
       state.moves,
       state.cursor,
@@ -47,7 +47,10 @@ export default function Board(
 
   const onLocationUpdated = useCallback((url: URL) => {
     href.value = url.href;
-    hasSolution.value = isValidSolution(board);
+
+    if (!isEditorMode && !isReplayMode) {
+      hasSolution.value = isValidSolution(board);
+    }
   }, [board]);
 
   const { updateLocation } = useRouter({
@@ -69,7 +72,8 @@ export default function Board(
   }, []);
 
   const targets = useMemo(
-    () => state.active ? getTargets(state.active, board) : null,
+    () =>
+      state.active && !isEditorMode ? getTargets(state.active, board) : null,
     [state.active, board],
   );
 
@@ -114,7 +118,7 @@ export default function Board(
     puzzle,
   });
 
-  useArrowKeys({ onKeyUp });
+  useArrowKeys({ onKeyUp, isEnabled: !isEditorMode && !isReplayMode });
 
   if (!state) return null;
 
@@ -338,21 +342,24 @@ type BoardPieceProps = {
   href: string;
   type: "rook" | "bouncer";
   isActive?: boolean;
-  isReplayMode?: boolean;
+  isReadonly?: boolean;
   onFlick: (direction: Direction) => void;
   onFocus: (event: FocusEvent) => void;
 };
 
 function BoardPiece(
-  { x, y, id, href, type, isReplayMode, onFlick, onFocus }: BoardPieceProps,
+  { x, y, id, href, type, isReadonly, onFlick, onFocus }: BoardPieceProps,
 ) {
-  const { ref } = useFlick<HTMLAnchorElement>({ onFlick });
+  const { ref } = useFlick<HTMLAnchorElement>({
+    onFlick,
+    isEnabled: !isReadonly,
+  });
 
   return (
     <a
       ref={ref}
       id={id}
-      href={href}
+      href={isReadonly ? "#" : href}
       className={cn(
         "flex place-content-center col-start-1 row-start-1 p-[var(--pad)]",
         "w-full aspect-square place-self-center ml-[var(--ml)] mt-[var(--mt)]",
@@ -360,23 +367,18 @@ function BoardPiece(
         "translate-y-[calc((var(--space-w)+var(--gap))*var(--y))]",
         "transition-transform duration-200 ease-out",
         "[--replay-duration:calc(var(--replay-len)*1s)]",
+        isReadonly && "pointer-events-none",
       )}
       style={{
-        ...(isReplayMode &&
-          { animation: `replay-${id} var(--replay-duration) ease-in-out` }),
+        animation: `replay-${id} var(--replay-duration) ease-in-out`,
         "--x": x,
         "--y": y,
         "--ml": x > 0 ? "-1px" : "0px",
         "--mt": x > 0 ? "-1px" : "0px",
         "--pad": "var(--size-2)",
       }}
-      onClick={(ev) => {
-        if (isReplayMode) {
-          ev.preventDefault();
-          ev.stopPropagation();
-        }
-      }}
-      onFocus={!isReplayMode ? onFocus : () => {}}
+      tabIndex={isReadonly ? -1 : 0}
+      onFocus={onFocus}
       data-router={isReadonly ? undefined : "replace"}
     >
       <div
