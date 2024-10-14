@@ -4,6 +4,7 @@ export type Direction = "up" | "right" | "down" | "left";
 
 type Props = {
   onFlick: (direction: Direction) => void;
+  isEnabled?: boolean;
 };
 
 /**
@@ -13,7 +14,7 @@ type Props = {
 const SPEED_THRESHOLD = 0.15;
 
 export function useFlick<TElement extends HTMLElement = HTMLElement>(
-  { onFlick }: Props,
+  { onFlick, isEnabled }: Props,
 ) {
   const ref = useRef<TElement>(null);
 
@@ -58,22 +59,28 @@ export function useFlick<TElement extends HTMLElement = HTMLElement>(
       onFlick(direction);
     };
 
-    ref.current?.addEventListener("touchmove", onTouchMove, { passive: true });
-    ref.current?.addEventListener("touchend", onTouchEnd, { passive: true });
-    ref.current?.addEventListener("touchcancel", removeListeners);
+    if (isEnabled) {
+      ref.current?.addEventListener("touchmove", onTouchMove, {
+        passive: true,
+      });
+      ref.current?.addEventListener("touchend", onTouchEnd, { passive: true });
+      ref.current?.addEventListener("touchcancel", removeListeners);
+    }
 
     return removeListeners;
-  }, [onFlick]);
+  }, [isEnabled, onFlick]);
 
   useEffect(() => {
-    ref.current?.addEventListener("touchstart", onTouchStart, {
-      passive: true,
-    });
+    if (isEnabled) {
+      ref.current?.addEventListener("touchstart", onTouchStart, {
+        passive: true,
+      });
+    }
 
     return () => {
       ref.current?.removeEventListener("touchstart", onTouchStart);
     };
-  }, [ref.current, onTouchStart]);
+  }, [ref.current, isEnabled, onTouchStart]);
 
   return {
     ref,

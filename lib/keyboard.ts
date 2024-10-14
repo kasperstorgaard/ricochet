@@ -3,10 +3,11 @@ import { useEffect } from "preact/hooks";
 export type Direction = "up" | "right" | "down" | "left";
 
 type UseArrowKeysOptions = {
+  isEnabled?: boolean;
   onKeyUp: (direction: Direction) => void;
 };
 
-export function useArrowKeys({ onKeyUp }: UseArrowKeysOptions) {
+export function useArrowKeys({ isEnabled, onKeyUp }: UseArrowKeysOptions) {
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
       switch (event.key) {
@@ -21,10 +22,12 @@ export function useArrowKeys({ onKeyUp }: UseArrowKeysOptions) {
       }
     };
 
-    self.addEventListener("keyup", handler);
+    if (isEnabled) {
+      self.addEventListener("keyup", handler);
+    }
 
     return () => {
       self.removeEventListener("keyup", handler);
     };
-  }, [onKeyUp]);
+  }, [isEnabled, onKeyUp]);
 }
