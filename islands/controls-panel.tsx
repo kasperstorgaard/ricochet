@@ -31,7 +31,7 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
           "rounded-2 px-2 border-gray-3 border-1",
           !state.cursor && "opacity-40",
         )}
-        data-router-replace
+        data-router="replace"
       >
         <i className="ph-arrow-arc-left ph-bold" />
       </a>
@@ -46,7 +46,7 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
           "rounded-2 px-2 border-gray-3 border-1 disabled:opacity-20",
           state.cursor === state.moves.length && "opacity-40",
         )}
-        data-router-replace
+        data-router="replace"
       >
         <i className="ph-arrow-arc-right ph-bold" />
       </a>

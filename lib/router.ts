@@ -17,12 +17,15 @@ export function updateLocation(href: string, options?: { replace?: boolean }) {
 export function useRouter({ onLocationUpdated }: UseRouterOptions = {}) {
   useEffect(() => {
     const onClick = (event: MouseEvent) => {
-      const a = (event.target as HTMLElement).closest("a");
+      const anchor = (event.target as HTMLElement).closest("a");
 
-      if (!a) return;
+      if (!anchor) return;
+      const routerAttribute = anchor.getAttribute("data-router");
+
+      if (routerAttribute == null) return;
+
       event.preventDefault();
-      const replace = a.hasAttribute("data-router-replace");
-      updateLocation(a.href, { replace });
+      updateLocation(anchor.href, { replace: routerAttribute === "replace" });
     };
 
     self.addEventListener("click", onClick);

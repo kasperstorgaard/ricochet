@@ -177,7 +177,7 @@ export default function Board(
           href={getActiveHref(piece, { ...state, href: href.value })}
           id={getPieceId(piece, idx)}
           isActive={state.active && isPositionSame(piece, state.active)}
-          isReplayMode={isReplayMode}
+          isReadonly={isReplayMode || isEditorMode}
           onFocus={(event) => {
             const href = (event.target as HTMLAnchorElement).href;
             updateLocation(href, { replace: true });
@@ -224,7 +224,7 @@ function BoardSpace({ x, y, href, isActive }: BoardSpaceProps) {
           "--x": x,
           "--y": y,
         }}
-        data-router-replace
+        data-router="replace"
       />
     );
   }
@@ -377,7 +377,7 @@ function BoardPiece(
         }
       }}
       onFocus={!isReplayMode ? onFocus : () => {}}
-      data-router-replace
+      data-router={isReadonly ? undefined : "replace"}
     >
       <div
         className={cn(
