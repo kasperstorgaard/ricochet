@@ -127,9 +127,9 @@ function buildReplayStyles(board: BoardState, moves: Move[]) {
        * Set a start position just before animating,
       to make sure the animation happens in single steps, not all the way from the start.
        */
-      output += writeKeyframeMove((idx - 1) * increment, move[0]);
-      // Animate to the new position.
-      output += writeKeyframeMove(idx * increment, move[1]);
+      output += writeKeyframeMove(idx * increment, move[0]);
+      // Animate to position
+      output += writeKeyframeMove((idx + 1) * increment, move[1]);
     }
 
     output += "}\n\n";
