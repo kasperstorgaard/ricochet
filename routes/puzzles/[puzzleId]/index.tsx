@@ -64,7 +64,7 @@ export default function PuzzleDetails(props: PageProps<Puzzle>) {
         <ControlsPanel href={href} />
       </div>
 
-      {hasSolution.value && <SolutionDialog href={href} puzzle={puzzle} />}
+      <SolutionDialog isOpen={hasSolution} href={href} puzzle={puzzle} />}
     </>
   );
 }
