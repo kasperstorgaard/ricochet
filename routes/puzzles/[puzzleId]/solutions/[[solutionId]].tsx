@@ -47,9 +47,7 @@ export const handler: Handlers<Data> = {
 
     const url = new URL(req.url);
     if (!url.searchParams.has("m")) {
-      url.search = encodeState({
-        moves: solution.moves,
-      });
+      url.search = encodeState(solution);
 
       return Response.redirect(url, 301);
     }
