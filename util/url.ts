@@ -79,7 +79,7 @@ export function encodeState({ moves, active, cursor }: GameState) {
 }
 
 // TODO: make sure encode/decode are aligned on using full url or search only.
-export function decodeState(href: string) {
+export function decodeState(href: string): GameState {
   const url = new URL(href);
 
   const moves = url.searchParams.has("m")
@@ -88,11 +88,11 @@ export function decodeState(href: string) {
 
   const active = url.searchParams.has("a")
     ? decodePosition(url.searchParams.get("a")!)
-    : moves[moves.length - 1]?.[1];
+    : undefined;
 
   const cursor = url.searchParams.has("c")
     ? parseInt(url.searchParams.get("c")!)
-    : Math.max(moves.length - 1, 0);
+    : undefined;
 
   return {
     active,

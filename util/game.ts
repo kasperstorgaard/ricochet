@@ -16,7 +16,7 @@ export function getMoveHref(
   move: Move,
   { href, moves, cursor }: GetMoveOptions,
 ) {
-  const updatedMoves = [...moves.slice(0, cursor ?? moves.length - 1), move];
+  const updatedMoves = [...moves.slice(0, cursor ?? moves.length), move];
   const url = new URL(href);
 
   url.search = encodeState({
@@ -68,7 +68,7 @@ export function getRedoHref(
   const url = new URL(href);
   const cursor = state.cursor != null
     ? Math.min(state.cursor + 1, state.moves.length)
-    : state.moves.length - 1;
+    : state.moves.length;
 
   url.search = encodeState({
     ...state,

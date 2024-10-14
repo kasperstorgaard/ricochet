@@ -41,7 +41,7 @@ export default function PuzzleDetails(props: PageProps<Puzzle>) {
   const puzzle = useSignal(props.data);
 
   const state = decodeState(props.url.href);
-  const moves = state.moves.slice(0, state.cursor ?? state.moves.length - 1);
+  const moves = state.moves.slice(0, state.cursor ?? state.moves.length);
   const board = resolveMoves(props.data.board, moves);
   const hasSolution = useSignal(isValidSolution(board));
 

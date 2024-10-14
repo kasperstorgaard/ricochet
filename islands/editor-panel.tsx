@@ -18,7 +18,7 @@ export function EditorPanel({ puzzle, href }: EditorPanelProps) {
     });
 
     const state = decodeState(url.href);
-    const moves = state.moves.slice(0, state.cursor ?? state.moves.length - 1);
+    const moves = state.moves.slice(0, state.cursor ?? state.moves.length);
 
     return resolveMoves(puzzle.value.board, moves);
   }, [href.value, puzzle.value.board]);
