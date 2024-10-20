@@ -3,7 +3,6 @@ import { useCallback, useMemo } from "preact/hooks";
 
 import { cn } from "#/lib/style.ts";
 import {
-  getPieceId,
   getTargets,
   isPositionSame,
   isValidSolution,
@@ -11,7 +10,7 @@ import {
   Targets,
 } from "#/util/board.ts";
 
-import { Position, Puzzle, Wall } from "#/db/types.ts";
+import { type Move, type Piece, Position, Puzzle, Wall } from "#/db/types.ts";
 
 import { Direction, useFlick } from "#/lib/touch.ts";
 import { useArrowKeys } from "#/lib/keyboard.ts";
@@ -189,6 +188,13 @@ export default function Board(
           onFlick={(dir) => onFlick(piece, dir)}
         />
       ))}
+
+      {isReplayMode && (
+        <BoardReplayStyles
+          puzzle={puzzle.value}
+          moves={moves}
+        />
+      )}
     </div>
   );
 }
@@ -390,4 +396,63 @@ function BoardPiece(
       />
     </a>
   );
+}
+
+type BoardReplayProps = {
+  puzzle: Puzzle;
+  moves: Move[];
+};
+
+function BoardReplayStyles({ puzzle, moves }: BoardReplayProps) {
+  if (!moves.length) return null;
+
+  /**
+   * Build up a lookup of which pieces to move at which index.
+   * This is because we have to look at the moves as a whole, to determine which piece was moved.
+   */
+  const pieceMovesLookup: Record<string, { idx: number; move: Move }[]> = {};
+  const totalMoves = moves.length;
+  const increment = 100 / totalMoves;
+
+  for (let idx = 0; idx < moves.length; idx++) {
+    const move = moves[idx];
+
+    const state = resolveMoves(puzzle.board, moves.slice(0, idx));
+    const piece = state.pieces.find((item) => isPositionSame(item, move[0]));
+    if (!piece) continue;
+
+    const id = getPieceId(piece, state.pieces.indexOf(piece));
+
+    if (!pieceMovesLookup[id]) pieceMovesLookup[id] = [{ idx, move }];
+    else pieceMovesLookup[id].push({ idx, move });
+  }
+
+  return (
+    <style>
+      {Object.entries(pieceMovesLookup).map(([id, pieceMoves]) => {
+        return [
+          `@keyframes replay-${id} {`,
+          `  ${writeKeyframeMove(0, pieceMoves[0].move[0])}`,
+          ...pieceMoves.flatMap(({ idx, move }) => /*
+                * Set a start position just before animating,
+                to make sure the animation happens in single steps, not all the way from the start,
+                then animate to position.
+                */
+          [
+            `  ${writeKeyframeMove(idx * increment, move[0])}`,
+            `  ${writeKeyframeMove((idx + 1) * increment, move[1])}`,
+          ]),
+          "}",
+        ].join("");
+      })}
+    </style>
+  );
+}
+
+function writeKeyframeMove(percentage: number, position: Position) {
+  return `${percentage}% { --x: ${position.x}; --y: ${position.y}; }`;
+}
+
+export function getPieceId(piece: Piece, idx: number) {
+  return `${piece.type === "rook" ? "r" : "b"}_${idx}`;
 }
