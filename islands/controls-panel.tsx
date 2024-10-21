@@ -24,42 +24,44 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
   });
 
   return (
-    <div className="flex col-[2/3] place-items-start gap-fl-1 px-3 text-fl-1 w-full">
-      <a
-        href={getUndoHref(href.value, state)}
-        className={cn(
-          "rounded-2 px-2 border-gray-3 border-1",
-          !state.cursor && "opacity-40",
-        )}
-        data-router="replace"
-      >
-        <i className="ph-arrow-arc-left ph-bold" />
-      </a>
+    <aside className="col-span-3 grid grid-cols-subgrid min-h-[min(20vh,20rem)] border-t-2 border-pink-5 bg-gray-7 text-fl-0 py-3">
+      <div className="flex col-[2/3] place-items-start gap-fl-1 text-fl-1 w-full">
+        <a
+          href={getUndoHref(href.value, state)}
+          className={cn(
+            "rounded-2 px-2 border-gray-3 border-1",
+            !state.cursor && "opacity-40",
+          )}
+          data-router="replace"
+        >
+          <i className="ph-arrow-arc-left ph-bold" />
+        </a>
 
-      <div className="flex place-content-center text-fl-1 w-4">
-        {Math.min(state.moves.length, state.cursor ?? 0)}
+        <div className="flex place-content-center text-fl-1 w-4">
+          {Math.min(state.moves.length, state.cursor ?? 0)}
+        </div>
+
+        <a
+          href={getRedoHref(href.value, state)}
+          className={cn(
+            "rounded-2 px-2 border-gray-3 border-1 disabled:opacity-20",
+            state.cursor === state.moves.length && "opacity-40",
+          )}
+          data-router="replace"
+        >
+          <i className="ph-arrow-arc-right ph-bold" />
+        </a>
+
+        <a
+          href={getResetHref(href.value)}
+          className={cn(
+            "rounded-2 px-2 border-gray-3 border-1 disabled:opacity-20 ml-auto",
+            state.cursor === 0 && "opacity-40",
+          )}
+        >
+          <i className="ph-arrow-counter-clockwise ph-bold" />
+        </a>
       </div>
-
-      <a
-        href={getRedoHref(href.value, state)}
-        className={cn(
-          "rounded-2 px-2 border-gray-3 border-1 disabled:opacity-20",
-          state.cursor === state.moves.length && "opacity-40",
-        )}
-        data-router="replace"
-      >
-        <i className="ph-arrow-arc-right ph-bold" />
-      </a>
-
-      <a
-        href={getResetHref(href.value)}
-        className={cn(
-          "rounded-2 px-2 border-gray-3 border-1 disabled:opacity-20 ml-auto",
-          state.cursor === 0 && "opacity-40",
-        )}
-      >
-        <i className="ph-arrow-counter-clockwise ph-bold" />
-      </a>
-    </div>
+    </aside>
   );
 }

@@ -60,9 +60,7 @@ export default function PuzzleDetails(props: PageProps<Puzzle>) {
         <Board href={href} puzzle={puzzle} hasSolution={hasSolution} />
       </div>
 
-      <div className="grid min-h-[min(20vh,20rem)] col-span-full grid-cols-subgrid bg-gray-7 py-6">
-        <ControlsPanel href={href} />
-      </div>
+      <ControlsPanel href={href} />
 
       <SolutionDialog isOpen={hasSolution} href={href} puzzle={puzzle} />
     </>

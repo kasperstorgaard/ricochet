@@ -55,6 +55,8 @@ export default function SolutionPage(props: PageProps<Data>) {
   return (
     <>
       <div class="flex flex-col col-[2/3] w-full gap-2 py-1">
+        <h1 className="text-5 text-pink-8">{props.data.puzzle.name}</h1>
+
         <Board
           puzzle={puzzle}
           href={href}
@@ -63,13 +65,11 @@ export default function SolutionPage(props: PageProps<Data>) {
         />
       </div>
 
-      <div className="grid min-h-[min(33vh,20rem)] col-span-full grid-cols-subgrid bg-gray-7 py-6">
-        <SolutionsPanel
-          solutions={props.data.solutions}
-          solution={props.data.solution}
-          href={href}
-        />
-      </div>
+      <SolutionsPanel
+        solutions={props.data.solutions}
+        solution={props.data.solution}
+        href={href}
+      />
     </>
   );
 }

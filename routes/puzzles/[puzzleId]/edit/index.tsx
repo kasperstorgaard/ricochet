@@ -58,6 +58,8 @@ export default function EditPage(props: PageProps<Puzzle>) {
   return (
     <>
       <div class="flex flex-col col-[2/3] w-full gap-2 py-1">
+        <h1 className="text-5 text-pink-8">{puzzle.value.name}</h1>
+
         <Board
           puzzle={puzzle}
           href={href}
