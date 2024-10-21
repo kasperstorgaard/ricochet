@@ -1,7 +1,7 @@
 import { Puzzle, Solution } from "./types.ts";
 import { ulid } from "jsr:@std/ulid";
 
-export const kv = await Deno.openKv("./.sqlite/db");
+export const kv = await Deno.openKv();
 
 export async function createPuzzle(data: Omit<Puzzle, "id">) {
   const id = ulid();
