@@ -13,7 +13,7 @@ export default function App({ Component }: PageProps) {
           href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css"
         />
       </head>
-      <body className="grid grid-rows-[1fr] grid-cols-[minmax(0,auto)_max-content_minmax(0,auto)] place-items-center grow">
+      <body className="grid grid-rows-[1fr] grid-cols-[minmax(var(--size-fluid-1),auto)_max-content_minmax(var(--size-fluid-1),auto)] place-items-center grow">
         <Component />
       </body>
     </html>
