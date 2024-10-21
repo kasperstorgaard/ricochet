@@ -11,7 +11,7 @@ type Props = {
  * Minimum speed in pixels per millisecond to trigger a flick.
  * example: 400 pixels in 100ms = 4.0 speed
  */
-const SPEED_THRESHOLD = 0.4;
+const SPEED_THRESHOLD = 0.6;
 
 export function useFlick<TElement extends HTMLElement = HTMLElement>(
   { onFlick, isEnabled }: Props,
@@ -29,14 +29,15 @@ export function useFlick<TElement extends HTMLElement = HTMLElement>(
       currentY = (moveEvent as TouchEvent).touches[0].clientY;
     };
 
-    const removeListeners = () => {
+    const kill = () => {
       ref.current?.removeEventListener("touchmove", onTouchMove);
       ref.current?.removeEventListener("touchend", onTouchEnd);
-      ref.current?.removeEventListener("touchcancel", removeListeners);
+      ref.current?.removeEventListener("touchcancel", kill);
+      ref.current?.removeEventListener("click", kill);
     };
 
     const onTouchEnd = (endEvent: Event) => {
-      removeListeners();
+      kill();
 
       const xMovement = startX - currentX;
       const yMovement = startY - currentY;
@@ -60,14 +61,15 @@ export function useFlick<TElement extends HTMLElement = HTMLElement>(
     };
 
     if (isEnabled) {
+      ref.current?.addEventListener("touchcancel", kill);
+      // ref.current?.addEventListener("click", kill);
       ref.current?.addEventListener("touchmove", onTouchMove, {
         passive: true,
       });
       ref.current?.addEventListener("touchend", onTouchEnd, { passive: true });
-      ref.current?.addEventListener("touchcancel", removeListeners);
     }
 
-    return removeListeners;
+    return kill;
   }, [isEnabled, onFlick]);
 
   useEffect(() => {
