@@ -23,7 +23,8 @@ export default function App({ Component }: PageProps) {
           rel="stylesheet"
         />
       </head>
-      <body className="grid grid-rows-[1fr] grid-cols-[minmax(var(--size-fluid-1),auto)_max-content_minmax(var(--size-fluid-1),auto)] place-items-center grow gap-fl-2">
+
+      <body className="grid grid-cols-[minmax(var(--size-fluid-1),auto)_max-content_minmax(var(--size-fluid-1),auto)] items-end place-items-center grow gap-y-fl-3 overflow-y-auto">
         <Component />
       </body>
     </html>

@@ -24,7 +24,7 @@ export function EditorPanel({ puzzle, href }: EditorPanelProps) {
   }, [href.value, puzzle.value.board]);
 
   return (
-    <aside className="col-span-3 grid grid-cols-subgrid py-fl-2 border-t-2 border-brand bg-surface-2 text-fl-0">
+    <aside className="col-span-3 grid grid-cols-subgrid py-fl-3 border-t-2 border-brand bg-surface-2 text-fl-0">
       <form
         className="col-[2/3] grid gap-fl-2"
         method="post"
