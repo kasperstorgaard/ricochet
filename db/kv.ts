@@ -6,6 +6,7 @@ export const kv = await Deno.openKv("./.sqlite/db");
 export async function createPuzzle(data: Omit<Puzzle, "id">) {
   const id = ulid();
   const puzzle: Puzzle = { id, ...data };
+
   const key = ["puzzles", id];
 
   await kv.atomic()
@@ -22,19 +23,27 @@ export async function getPuzzle(id: string) {
 }
 
 export async function setPuzzle(id: string, data: Puzzle) {
+  const key = ["puzzles", id];
+
   await kv.atomic()
-    .set(["puzzles", id], data)
+    .set(key, data)
     .commit();
 
   return data;
 }
 
 export async function deletePuzzle(id: string) {
-  await kv.atomic().delete(["puzzles", id]).commit();
+  const key = ["puzzles", id];
+
+  await kv.atomic()
+    .delete(key)
+    .commit();
 }
 
 export async function listPuzzles(options?: Deno.KvListOptions) {
-  const iter = kv.list<Puzzle>({ prefix: ["puzzles"] }, {
+  const key = ["puzzles"];
+
+  const iter = kv.list<Puzzle>({ prefix: key }, {
     limit: options?.limit ?? 10,
     reverse: true,
   });
@@ -49,13 +58,14 @@ export async function listPuzzles(options?: Deno.KvListOptions) {
 }
 
 export async function addSolution(payload: Omit<Solution, "id">) {
-  const { puzzleId } = payload;
-  const noOfMoves = payload.moves.length;
+  const { puzzleId, moves } = payload;
+  const noOfMoves = moves.length;
+
   const id = ulid();
   const solution = { ...payload, id };
 
-  const primaryKey = ["puzzles", puzzleId, "solutions", id];
-  const byMovesKey = ["puzzles", puzzleId, "solutions_by_moves", noOfMoves, id];
+  const primaryKey = ["solutions_by_puzzle", puzzleId, id];
+  const byMovesKey = ["solutions_by_puzzle_moves", puzzleId, noOfMoves, id];
 
   await kv.atomic()
     .check({ key: primaryKey, versionstamp: null })
@@ -67,7 +77,7 @@ export async function addSolution(payload: Omit<Solution, "id">) {
   return solution;
 }
 
-export async function listSolutions(
+export async function listPuzzleSolutions(
   puzzleId: string,
   options: Deno.KvListOptions = {
     limit: 10,
@@ -75,23 +85,23 @@ export async function listSolutions(
 ) {
   const solutions: Solution[] = [];
 
-  const iter = kv.list<Solution>({
-    prefix: ["puzzles", puzzleId, "solutions"],
-  }, options);
+  const key = ["solutions", puzzleId];
+
+  const iter = kv.list<Solution>({ prefix: key }, options);
 
   for await (const res of iter) solutions.push(res.value);
 
   return solutions;
 }
 
-export async function listSolutionsByMoves(
+export async function listPuzzleSolutionsByMoves(
   puzzleId: string,
   options: Deno.KvListOptions = {
     limit: 10,
   },
 ) {
   const solutions: Solution[] = [];
-  const byMovesKey = ["puzzles", puzzleId, "solutions_by_moves"];
+  const byMovesKey = ["solutions_by_puzzle_moves", puzzleId];
 
   const iter = kv.list<Solution>({ prefix: byMovesKey }, options);
   for await (const res of iter) solutions.push(res.value);
@@ -99,11 +109,11 @@ export async function listSolutionsByMoves(
   return solutions;
 }
 
-export async function getSolution(
+export async function getPuzzleSolution(
   puzzleId: string,
   solutionId: string,
 ) {
-  const key = ["puzzles", puzzleId, "solutions", solutionId];
+  const key = ["solutions_by_puzzle", puzzleId, solutionId];
   const res = await kv.get<Solution>(key);
 
   return res.value;
