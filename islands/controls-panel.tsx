@@ -63,6 +63,7 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
             "flex items-center rounded-1 px-2 border-[currentColor] border-1 disabled:opacity-20 aspect-square ml-auto",
             state.cursor === 0 && "opacity-40",
           )}
+          data-router="push"
         >
           <i className="ph-arrow-counter-clockwise ph-light" />
         </a>

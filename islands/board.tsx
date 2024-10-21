@@ -160,6 +160,7 @@ export default function Board(
               href={isEditorMode
                 ? getActiveHref(space, { ...state, href: href.value })
                 : undefined}
+              data-router="replace"
             />
           ))
         )}
@@ -327,6 +328,7 @@ function BoardTarget({ x, y, href }: TargetProps) {
         "--y": y,
       }}
       tabIndex={-1}
+      data-router="push"
     />
   );
 }
