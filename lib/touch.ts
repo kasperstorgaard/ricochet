@@ -11,7 +11,7 @@ type Props = {
  * Minimum speed in pixels per millisecond to trigger a flick.
  * example: 400 pixels in 100ms = 4.0 speed
  */
-const SPEED_THRESHOLD = 0.25;
+const SPEED_THRESHOLD = 0.4;
 
 export function useFlick<TElement extends HTMLElement = HTMLElement>(
   { onFlick, isEnabled }: Props,
