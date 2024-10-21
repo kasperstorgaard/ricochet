@@ -100,6 +100,10 @@ export function useGameShortcuts(
 ) {
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
+      // If the event originated from an input, let it do it's thing.
+      const input = (event.target as HTMLElement).closest("input");
+      if (input != null) return;
+
       switch (event.key) {
         case "Enter":
           return onSubmit?.();
