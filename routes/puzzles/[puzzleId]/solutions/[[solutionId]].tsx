@@ -58,7 +58,7 @@ export default function SolutionPage(props: PageProps<Data>) {
 
   return (
     <>
-      <div class="flex flex-col col-[2/3] w-full gap-2 py-1">
+      <div class="flex flex-col col-[2/3] w-full gap-2">
         <h1 className="text-5 text-brand">{props.data.puzzle.name}</h1>
 
         <Board

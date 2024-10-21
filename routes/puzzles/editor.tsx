@@ -57,7 +57,9 @@ export default function EditorPage(props: PageProps<Puzzle>) {
 
   return (
     <>
-      <div class="flex flex-col col-[2/3] w-full gap-2 py-1">
+      <div class="flex flex-col col-[2/3] w-full gap-2">
+        <h1 className="text-5 text-brand">Editor</h1>
+
         <Board
           puzzle={puzzle}
           href={href}
