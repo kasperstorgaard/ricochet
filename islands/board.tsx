@@ -132,7 +132,7 @@ export default function Board(
           : null,
         "--replay-len": moves.length,
         "--gap": "var(--size-1)",
-        "--space-w": "clamp(46px - var(--gap), 4vw, 64px)",
+        "--space-w": "clamp(44px - var(--gap), 5vw, 64px)",
         gridTemplateColumns: `repeat(8,var(--space-w))`,
         gridTemplateRows: `repeat(8,var(--space-w))`,
       }}
