@@ -42,7 +42,7 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
           <i className="ph-arrow-arc-left ph-light" />
         </a>
 
-        <div className="flex items-center text-fl-2 leading-0 min-w-[2ch] font-1">
+        <div className="flex justify-center text-fl-2 leading-0 min-w-[2ch] text-center font-1">
           {count < 10 ? `0${count}` : count}
         </div>
 
