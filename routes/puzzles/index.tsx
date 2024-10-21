@@ -14,7 +14,7 @@ export const handler: Handlers<Puzzle[]> = {
     );
     if (isNaN(limit)) limit = undefined;
 
-    const puzzles = await listPuzzles({ limit, page });
+    const puzzles = await listPuzzles({ limit });
     return ctx.render(puzzles);
   },
 };
