@@ -10,10 +10,20 @@ export default function App({ Component }: PageProps) {
         <link
           rel="stylesheet"
           type="text/css"
-          href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css"
+          href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/light/style.css"
+        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link
+          rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossOrigin="crossOrigin"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+          rel="stylesheet"
         />
       </head>
-      <body className="grid grid-rows-[1fr] grid-cols-[minmax(var(--size-fluid-1),auto)_max-content_minmax(var(--size-fluid-1),auto)] place-items-center grow">
+      <body className="grid grid-rows-[1fr] grid-cols-[minmax(var(--size-fluid-1),auto)_max-content_minmax(var(--size-fluid-1),auto)] place-items-center grow gap-fl-2">
         <Component />
       </body>
     </html>

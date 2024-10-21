@@ -1,5 +1,5 @@
 import type { Signal } from "@preact/signals";
-import { useCallback, useMemo } from "preact/hooks";
+import { useCallback, useEffect, useMemo, useRef } from "preact/hooks";
 
 import { cn } from "#/lib/style.ts";
 import {
@@ -18,6 +18,7 @@ import { useEditor } from "#/util/editor.ts";
 import { decodeState } from "#/util/url.ts";
 import { getActiveHref, getMoveHref } from "#/util/game.ts";
 import { useRouter } from "#/lib/router.ts";
+import { SolutionDialog } from "#/islands/solution-dialog.tsx";
 
 type BoardProps = {
   href: Signal<string>;
@@ -28,8 +29,10 @@ type BoardProps = {
 };
 
 export default function Board(
-  { href, puzzle, hasSolution, isEditorMode, isReplayMode }: BoardProps,
+  { href, puzzle, isEditorMode, isReplayMode }: BoardProps,
 ) {
+  const solutionDialogRef = useRef<HTMLDialogElement>(null);
+
   const state = useMemo(() => decodeState(href.value), [href.value]);
   const moves = useMemo(
     () => state.moves.slice(0, state.cursor ?? state.moves.length),
@@ -43,14 +46,26 @@ export default function Board(
     puzzle.value.board,
     state.moves,
   ]);
+  const hasSolution = useMemo(
+    () => isValidSolution(board),
+    [puzzle.value.board, moves],
+  );
 
   const onLocationUpdated = useCallback((url: URL) => {
     href.value = url.href;
-
-    if (!isEditorMode && !isReplayMode) {
-      hasSolution.value = isValidSolution(board);
-    }
   }, [board]);
+
+  useEffect(() => {
+    solutionDialogRef.current?.close();
+
+    if (!isEditorMode && !isReplayMode && hasSolution) {
+      /**
+       * Need to close and re-open the modal, since `open` prop gives the behavior
+       * of a non-modal dialog.
+       */
+      solutionDialogRef.current?.showModal();
+    }
+  }, [isEditorMode, isReplayMode, hasSolution]);
 
   const { updateLocation } = useRouter({
     onLocationUpdated,
@@ -122,80 +137,87 @@ export default function Board(
   if (!state) return null;
 
   return (
-    <div
-      className={cn(
-        "grid gap-[var(--gap)] w-full",
-      )}
-      style={{
-        "--active-bg": activePiece
-          ? activePiece.type === "rook" ? "var(--yellow-3)" : "var(--cyan-7)"
-          : null,
-        "--replay-len": moves.length,
-        "--gap": "var(--size-1)",
-        "--space-w": "clamp(44px - var(--gap), 5vw, 64px)",
-        gridTemplateColumns: `repeat(8,var(--space-w))`,
-        gridTemplateRows: `repeat(8,var(--space-w))`,
-      }}
-    >
-      {spaces.map((row) =>
-        row.map((space) => (
-          <BoardSpace
-            {...space}
-            isActive={Boolean(
-              isEditorMode && state.active &&
-                isPositionSame(state.active, space),
-            )}
-            href={isEditorMode
-              ? getActiveHref(space, { ...state, href: href.value })
-              : undefined}
-          />
-        ))
-      )}
-
-      <BoardDestination {...board.destination} />
-
-      {board.walls.map((wall) => <BoardWall {...wall} />)}
-
-      {/* If we have an active space/piece, draw the possible destinations  */}
-      {state.active && targets && (
-        <>
-          {/* Backgrounds between src and destinations */}
-          <BoardTargetShaders active={state.active} targets={targets} />
-
-          {Object.values(targets).map((target) => (
-            <BoardTarget
-              {...target}
-              href={getMoveHref([state.active!, target], {
-                ...state,
-                href: href.value,
-              })}
+    <>
+      <div
+        style={{
+          "--active-bg": activePiece
+            ? activePiece.type === "rook" ? "var(--ui-2)" : "var(--ui-3)"
+            : null,
+          "--replay-len": moves.length,
+          "--gap": "var(--size-1)",
+          "--space-w": "clamp(44px - var(--gap), 5vw, 56px)",
+        }}
+        className="grid gap-[var(--gap)] w-full grid-cols-[repeat(8,var(--space-w))] grid-rows-[repeat(8,var(--space-w))]"
+      >
+        {spaces.map((row) =>
+          row.map((space) => (
+            <BoardSpace
+              {...space}
+              isActive={Boolean(
+                isEditorMode && state.active &&
+                  isPositionSame(state.active, space),
+              )}
+              href={isEditorMode
+                ? getActiveHref(space, { ...state, href: href.value })
+                : undefined}
             />
-          ))}
-        </>
-      )}
+          ))
+        )}
 
-      {board.pieces.map((piece, idx) => (
-        <BoardPiece
-          {...piece}
-          href={getActiveHref(piece, { ...state, href: href.value })}
-          id={getPieceId(piece, idx)}
-          isActive={state.active && isPositionSame(piece, state.active)}
-          isReadonly={isReplayMode || isEditorMode}
-          onFocus={(event) => {
-            const href = (event.target as HTMLAnchorElement).href;
-            updateLocation(href, { replace: true });
-          }}
-          onFlick={(dir) => onFlick(piece, dir)}
-        />
-      ))}
+        <BoardDestination {...board.destination} />
 
-      {isReplayMode && (
-        <BoardReplayStyles
-          puzzle={puzzle.value}
-          moves={moves}
-        />
-      )}
-    </div>
+        {board.walls.map((wall) => <BoardWall {...wall} />)}
+
+        {/* If we have an active space/piece, draw the possible destinations  */}
+        {state.active && targets && (
+          <>
+            {/* Backgrounds between src and destinations */}
+            <BoardTargetShaders active={state.active} targets={targets} />
+
+            {Object.values(targets).map((target) => (
+              <BoardTarget
+                {...target}
+                href={getMoveHref([state.active!, target], {
+                  ...state,
+                  href: href.value,
+                })}
+              />
+            ))}
+          </>
+        )}
+
+        {board.pieces.map((piece, idx) => (
+          <BoardPiece
+            {...piece}
+            href={getActiveHref(piece, { ...state, href: href.value })}
+            id={getPieceId(piece, idx)}
+            isActive={state.active && isPositionSame(piece, state.active)}
+            isReadonly={isReplayMode || isEditorMode}
+            onFocus={(event) => {
+              const href = (event.target as HTMLAnchorElement).href;
+              updateLocation(href, { replace: true });
+            }}
+            onFlick={(dir) => onFlick(piece, dir)}
+          />
+        ))}
+
+        {isReplayMode && (
+          <BoardReplayStyles
+            puzzle={puzzle.value}
+            moves={moves}
+          />
+        )}
+      </div>
+
+      <SolutionDialog
+        ref={solutionDialogRef}
+        // Basically only use the open value if javascript is disabled and currently solving.
+        open={!isEditorMode && !isReplayMode && !solutionDialogRef.current &&
+          hasSolution}
+        href={href}
+        puzzle={puzzle}
+      />
+    </>
   );
 }
 
@@ -204,7 +226,7 @@ function BoardWall({ x, y, orientation }: Wall) {
     <div
       className={cn(
         "place-self-start col-[calc(var(--x)+1)] row-[calc(var(--y)+1)] w-full",
-        "border-orange-6 aspect-square pointer-events-none",
+        "border-ui-4 aspect-square pointer-events-none",
         orientation === "vertical" ? "border-l-2" : "border-t-2",
       )}
       style={{
@@ -259,19 +281,20 @@ function BoardDestination({ x, y }: Position) {
       className={cn(
         "col-[calc(var(--x)+1)] w-full row-[calc(var(--y)+1)]",
         "aspect-square place-self-center pointer-events-none",
-        "border border-1 border-teal-2",
+        "border border-2 border-ui-1",
       )}
       style={{
         "--x": x,
         "--y": y,
       }}
     >
-      <svg className="text-teal-2" viewBox="0 0 100 100">
+      <svg className="text-ui-1" viewBox="0 0 100 100">
         <line
           x1={0}
           y1={0}
           x2={100}
           y2={100}
+          strokeWidth={2}
           stroke="currentColor"
         />
         <line
@@ -279,6 +302,7 @@ function BoardDestination({ x, y }: Position) {
           y1={100}
           x2={100}
           y2={0}
+          strokeWidth={2}
           stroke="currentColor"
         />
       </svg>
@@ -321,7 +345,7 @@ function BoardTargetShaders({ active, targets }: BoardTargetShadersProps) {
   return (
     <>
       <div
-        className="bg-[var(--active-bg)] opacity-5 pointer-events-none"
+        className="bg-[var(--active-bg)] opacity-20 pointer-events-none"
         style={{
           gridColumnStart: `${up.x + 1}`,
           gridRowStart: `${up.y + 1}`,
@@ -330,7 +354,7 @@ function BoardTargetShaders({ active, targets }: BoardTargetShadersProps) {
       />
 
       <div
-        className="bg-[var(--active-bg)] opacity-5 pointer-events-none"
+        className="bg-[var(--active-bg)] opacity-20 pointer-events-none"
         style={{
           gridColumnStart: `${left.x + 1}`,
           gridColumnEnd: `${right.x + 2}`,
@@ -390,8 +414,8 @@ function BoardPiece(
       <div
         className={cn(
           "w-full h-full",
-          type === "rook" && "bg-yellow-3 rounded-round",
-          type === "bouncer" && "bg-cyan-7 rounded-2",
+          type === "rook" && "bg-ui-2 rounded-round",
+          type === "bouncer" && "bg-ui-3 rounded-1",
         )}
       />
     </a>

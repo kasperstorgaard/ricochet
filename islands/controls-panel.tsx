@@ -13,6 +13,11 @@ type ControlsPanelProps = {
 export function ControlsPanel({ href }: ControlsPanelProps) {
   const state = useMemo(() => decodeState(href.value), [href.value]);
 
+  const count = useMemo(() => Math.min(state.moves.length, state.cursor ?? 0), [
+    state.moves.length,
+    state.cursor,
+  ]);
+
   const onReset = useCallback(() => updateLocation(getResetHref(href.value)), [
     href.value,
   ]);
@@ -24,42 +29,42 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
   });
 
   return (
-    <aside className="col-span-3 grid grid-cols-subgrid min-h-[min(20vh,20rem)] border-t-2 border-pink-5 bg-gray-7 text-fl-0 py-3">
-      <div className="flex col-[2/3] place-items-start gap-fl-1 text-fl-1 w-full">
+    <aside className="col-span-3 grid grid-cols-subgrid min-h-[min(20vh,20rem)] border-t-2 border-brand bg-surface-2 text-fl-1 py-fl-2">
+      <div className="flex col-[2/3] place-items-start gap-fl-1 w-full">
         <a
           href={getUndoHref(href.value, state)}
           className={cn(
-            "rounded-2 px-2 border-gray-3 border-1",
+            "flex items-center rounded-1 px-2 border-[currentColor] border-1 aspect-square",
             !state.cursor && "opacity-40",
           )}
           data-router="replace"
         >
-          <i className="ph-arrow-arc-left ph-bold" />
+          <i className="ph-arrow-arc-left ph-light" />
         </a>
 
-        <div className="flex place-content-center text-fl-1 w-4">
-          {Math.min(state.moves.length, state.cursor ?? 0)}
+        <div className="flex items-center text-fl-2 leading-0 min-w-[2ch] font-1">
+          {count < 10 ? `0${count}` : count}
         </div>
 
         <a
           href={getRedoHref(href.value, state)}
           className={cn(
-            "rounded-2 px-2 border-gray-3 border-1 disabled:opacity-20",
+            "flex items-center rounded-1 px-2 border-[currentColor] border-1 disabled:opacity-20 aspect-square",
             state.cursor === state.moves.length && "opacity-40",
           )}
           data-router="replace"
         >
-          <i className="ph-arrow-arc-right ph-bold" />
+          <i className="ph-arrow-arc-right ph-light" />
         </a>
 
         <a
           href={getResetHref(href.value)}
           className={cn(
-            "rounded-2 px-2 border-gray-3 border-1 disabled:opacity-20 ml-auto",
+            "flex items-center rounded-1 px-2 border-[currentColor] border-1 disabled:opacity-20 aspect-square ml-auto",
             state.cursor === 0 && "opacity-40",
           )}
         >
-          <i className="ph-arrow-counter-clockwise ph-bold" />
+          <i className="ph-arrow-counter-clockwise ph-light" />
         </a>
       </div>
     </aside>

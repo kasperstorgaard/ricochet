@@ -29,15 +29,15 @@ export function SolutionsPanel(
   }, [href.value]);
 
   return (
-    <aside className="col-span-3 grid grid-cols-subgrid min-h-[min(33vh,20rem)] border-t-2 border-teal-3 bg-gray-7 text-fl-0 py-3">
-      <ol className="grid col-[2/3] w-full md:grid-rows-5 grid-cols-1 md:grid-cols-2 md:grid-flow-col items-center gap-x-fl-2 text-sand-0">
+    <aside className="col-span-3 grid grid-cols-subgrid min-h-[min(20vh,20rem)] border-t-2 border-brand bg-surface-2 text-fl-1 py-fl-2">
+      <ol className="grid col-[2/3] w-full md:grid-rows-5 grid-cols-1 md:grid-cols-2 md:grid-flow-col items-center gap-x-fl-2 gap-y-1">
         {solutionItems.map((item) =>
           item === null ? <li className="p-0">...</li> : (
             <li
               key={item?.id}
               className={cn(
-                "p-0 border-b-1 border-gray-5",
-                item?.id === solution.id && "text-yellow-3",
+                "p-0 px-1 border-b-1 border-gray-5",
+                item?.id === solution.id && "text-brand font-5 bg-surface-1",
               )}
             >
               <a

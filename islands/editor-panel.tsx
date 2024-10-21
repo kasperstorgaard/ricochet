@@ -24,18 +24,18 @@ export function EditorPanel({ puzzle, href }: EditorPanelProps) {
   }, [href.value, puzzle.value.board]);
 
   return (
-    <aside className="col-span-3 grid grid-cols-subgrid p-3 border-t-2 border-violet-3 bg-gray-7 text-fl-0">
+    <aside className="col-span-3 grid grid-cols-subgrid py-fl-2 border-t-2 border-brand bg-surface-2 text-fl-0">
       <form
         className="col-[2/3] grid gap-fl-2"
         method="post"
       >
         <label className="flex flex-col gap-1">
-          Puzzle name
+          Name
 
           <input
             name="name"
             value={puzzle.value.name}
-            className="border-1 border-gray-0 p-2 bg-none text-fl-1"
+            className="border-1 rounded-1 border-gray-0 p-2 bg-none"
             onKeyUp={(event) => event.stopPropagation()}
           />
         </label>
@@ -47,10 +47,10 @@ export function EditorPanel({ puzzle, href }: EditorPanelProps) {
         />
 
         <button
-          className="place-self-start px-2 py-1 rounded-2 bg-cyan-8"
+          className="place-self-start px-2 py-1 rounded-1 bg-ui-3"
           type="submit"
         >
-          submit
+          Create puzzle
         </button>
       </form>
     </aside>

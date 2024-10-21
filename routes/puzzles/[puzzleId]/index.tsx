@@ -55,14 +55,12 @@ export default function PuzzleDetails(props: PageProps<Puzzle>) {
   return (
     <>
       <div class="flex flex-col col-[2/3] w-full gap-2 py-1">
-        <h1 className="text-5 text-pink-8">{props.data.name}</h1>
+        <h1 className="text-5 text-brand">{props.data.name}</h1>
 
         <Board href={href} puzzle={puzzle} hasSolution={hasSolution} />
       </div>
 
       <ControlsPanel href={href} />
-
-      <SolutionDialog isOpen={hasSolution} href={href} puzzle={puzzle} />
     </>
   );
 }
