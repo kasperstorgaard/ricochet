@@ -15,8 +15,6 @@ const colorKeys = [
   "lime",
   "yellow",
   "orange",
-  "choco",
-  "brown",
   "brown",
   "sand",
   "camo",
@@ -27,6 +25,26 @@ for (const key of colorKeys) {
   for (let index = 0; index < 13; index++) {
     colors[`${key}-${index}`] = `var(--${key}-${index})`;
   }
+}
+
+const themeKeys = [
+  "surface-1",
+  "surface-2",
+  "surface-3",
+  "surface-4",
+  "text-1",
+  "text-2",
+  "brand",
+  "link",
+  "link-visited",
+  "ui-1",
+  "ui-2",
+  "ui-3",
+  "ui-4",
+];
+
+for (const key of themeKeys) {
+  colors[key] = `var(--${key})`;
 }
 
 export default {
