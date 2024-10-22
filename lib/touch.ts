@@ -11,7 +11,7 @@ type Props = {
  * Minimum speed in pixels per millisecond to trigger a flick.
  * example: 400 pixels in 100ms = 4.0 speed
  */
-const SPEED_THRESHOLD = 0.6;
+const SPEED_THRESHOLD = 0.25;
 
 export function useFlick<TElement extends HTMLElement = HTMLElement>(
   { onFlick, isEnabled }: Props,
@@ -21,8 +21,8 @@ export function useFlick<TElement extends HTMLElement = HTMLElement>(
   const onTouchStart = useCallback((startEvent: TouchEvent) => {
     const startX = startEvent.touches[0].clientX;
     const startY = startEvent.touches[0].clientY;
-    let currentX = 0;
-    let currentY = 0;
+    let currentX = startX;
+    let currentY = startY;
 
     const onTouchMove = (moveEvent: Event) => {
       currentX = (moveEvent as TouchEvent).touches[0].clientX;
