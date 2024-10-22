@@ -29,6 +29,7 @@
 @media (prefers-color-scheme: light) {
   :root {
     --brand: var(--sand-11);
+    --link: var(--purple-5);
 
     --surface-1: var(--sand-1);
     --surface-2: var(--sand-2);
