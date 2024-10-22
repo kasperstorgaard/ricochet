@@ -29,7 +29,7 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
   });
 
   return (
-    <aside className="col-span-3 place-content-start grid grid-cols-subgrid min-h-[min(20vh,20rem)] border-t-2 border-brand bg-surface-2 text-fl-1 py-fl-3">
+    <aside className="col-span-3 place-content-start grid grid-cols-subgrid min-h-[min(25vh,20rem)] border-t-2 border-brand bg-surface-2 text-fl-1 py-fl-3">
       <div className="flex col-[2/3] items-center gap-fl-1 w-full">
         <a
           href={getUndoHref(href.value, state)}
@@ -42,7 +42,7 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
           <i className="ph-arrow-arc-left ph-light" />
         </a>
 
-        <div className="flex place-content-center justify-center text-fl-2 leading-0 min-w-[2ch] text-center font-1">
+        <div className="flex place-content-center justify-center text-fl-2 leading-0 min-w-[2ch] text-center font-3">
           {count < 10 ? `0${count}` : count}
         </div>
 

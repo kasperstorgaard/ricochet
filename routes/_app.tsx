@@ -1,4 +1,5 @@
 import { type PageProps } from "$fresh/server.ts";
+import { cn } from "#/lib/style.ts";
 export default function App({ Component }: PageProps) {
   return (
     <html className="flex flex-col min-h-screen">
@@ -19,12 +20,18 @@ export default function App({ Component }: PageProps) {
           crossOrigin="crossOrigin"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500&display=swap"
           rel="stylesheet"
         />
       </head>
 
-      <body className="grid grid-cols-[minmax(var(--size-fluid-1),auto)_max-content_minmax(var(--size-fluid-1),auto)] place-items-[flex-end_center] grow gap-y-fl-3 pt-fl-2">
+      <body
+        className={cn(
+          "grow grid grid-cols-[minmax(var(--size-fluid-1),auto)_max-content_minmax(var(--size-fluid-1),auto)]",
+          "grid-rows-[1fr] place-items-[flex-end_center] auto-rows-max gap-y-fl-3",
+          "pt-fl-2",
+        )}
+      >
         <Component />
       </body>
     </html>

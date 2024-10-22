@@ -3,6 +3,7 @@ import type { Signal } from "@preact/signals";
 import { useMemo } from "preact/hooks";
 import { decodeState, encodeState } from "#/util/url.ts";
 import { resolveMoves } from "#/util/board.ts";
+import { cn } from "#/lib/style.ts";
 
 type EditorPanelProps = {
   href: Signal<string>;
@@ -24,7 +25,12 @@ export function EditorPanel({ puzzle, href }: EditorPanelProps) {
   }, [href.value, puzzle.value.board]);
 
   return (
-    <aside className="col-span-3 grid grid-cols-subgrid py-fl-3 border-t-2 border-brand bg-surface-2 text-fl-0">
+    <aside
+      className={cn(
+        "col-span-3 grid grid-cols-subgrid place-content-start py-fl-3",
+        "border-t-2 border-brand bg-surface-2 text-fl-0",
+      )}
+    >
       <form
         className="col-[2/3] grid gap-fl-2"
         method="post"
@@ -35,7 +41,7 @@ export function EditorPanel({ puzzle, href }: EditorPanelProps) {
           <input
             name="name"
             value={puzzle.value.name}
-            className="border-1 rounded-1 border-gray-0 p-2 bg-none"
+            className="border-1 rounded-1 border-none p-2 bg-surface-3"
             onKeyUp={(event) => event.stopPropagation()}
           />
         </label>

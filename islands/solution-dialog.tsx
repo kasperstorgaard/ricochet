@@ -22,30 +22,28 @@ export const SolutionDialog = forwardRef<HTMLDialogElement, Props>(
         ref={ref}
         open={open || undefined}
         className={cn(
-          "rounded-1 backdrop:bg-surface-1 opacity-0 open:opacity-100 transition-opacity duration-500",
+          "rounded-1 opacity-0 open:opacity-100 transition-opacity duration-500",
+          "backdrop:bg-surface-1",
         )}
       >
-        <div
-          className={cn(
-            "grid max-w-screen-lg gap-fl-2",
-            "md:aspect-golden p-fl-2",
-          )}
-        >
+        <div className="grid gap-fl-2 p-fl-3">
           <h2 className="text-4">You found a solution!</h2>
 
           <form
-            className="grid gap-fl-2"
+            className="grid gap-fl-3"
             action={puzzle.value.id}
             method="post"
           >
             <label className="flex flex-col gap-1">
-              What name/username do you want to use?
+              <span className="text-text-2 text-1">
+                What name/username do you want to use?
+              </span>
 
               <input
                 name="name"
                 autocomplete="username name"
                 placeholder="fx. Jungleboi87"
-                className="border-1 border-gray-0 p-2 bg-none text-2 rounded-1"
+                className="border-1 border-none p-2 bg-none text-2 rounded-1"
               />
             </label>
 
@@ -56,7 +54,7 @@ export const SolutionDialog = forwardRef<HTMLDialogElement, Props>(
             />
 
             <button
-              className="place-self-start px-2 py-1 rounded-1 bg-ui-3 -mt-fl-1"
+              className="place-self-start px-2 py-1 rounded-1 bg-ui-3"
               type="submit"
             >
               Submit solution
