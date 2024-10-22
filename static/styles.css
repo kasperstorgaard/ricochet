@@ -16,6 +16,8 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --brand: var(--pink-7);
+    --link: var(--violet-4);
+
     --ui-1: var(--teal-4);
     --ui-2: var(--yellow-3);
     --ui-3: var(--violet-6);
@@ -36,7 +38,7 @@
     --ui-1: var(--lime-7);
     --ui-2: var(--orange-5);
     --ui-3: var(--purple-5);
-    --ui-4: var(--sand-10);
+    --ui-4: var(--choco-11);
   }
 }
 
