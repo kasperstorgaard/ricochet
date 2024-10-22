@@ -189,7 +189,7 @@ export default {
     spacing: {
       "000": "var(--size-000)",
       "00": "var(--size-00)",
-      "0": "var(--size-0)",
+      "0": "0px",
       "1": "var(--size-1)",
       "2": "var(--size-2)",
       "3": "var(--size-3)",
@@ -222,7 +222,7 @@ export default {
 
       "000": "var(--size-000)",
       "00": "var(--size-00)",
-      "0": "var(--size-0)",
+      "0": "0px",
       "1": "var(--size-1)",
       "2": "var(--size-2)",
       "3": "var(--size-3)",
