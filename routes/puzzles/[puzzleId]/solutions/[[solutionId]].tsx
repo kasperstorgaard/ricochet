@@ -10,6 +10,7 @@ import {
 import Board from "#/islands/board.tsx";
 import { SolutionsPanel } from "#/islands/solutions-panel.tsx";
 import { encodeState } from "#/util/url.ts";
+import { Header } from "#/components/Header.tsx";
 
 type Data = {
   puzzle: Puzzle;
@@ -56,9 +57,18 @@ export default function SolutionPage(props: PageProps<Data>) {
   const href = useSignal(props.url.href);
   const hasSolution = useSignal(false);
 
+  const navItems = [
+    { name: "home", href: "/" },
+    { name: "puzzles", href: "/puzzles/" },
+    { name: props.data.puzzle.name, href: `/puzzles/${props.data.puzzle.id}` },
+    { name: "solutions", href: `/puzzles/${props.data.puzzle.id}/solutions` },
+  ];
+
   return (
     <>
-      <div class="flex flex-col col-[2/3] w-full gap-2">
+      <div class="flex flex-col col-[2/3] w-full gap-fl-2">
+        <Header items={navItems} />
+
         <h1 className="text-5 text-brand">{props.data.puzzle.name}</h1>
 
         <Board
@@ -69,13 +79,15 @@ export default function SolutionPage(props: PageProps<Data>) {
         />
       </div>
 
-      {props.data.solutions.length && (
-        <SolutionsPanel
-          solutions={props.data.solutions}
-          solution={props.data.solution}
-          href={href}
-        />
-      )}
+      {props.data.solutions.length
+        ? (
+          <SolutionsPanel
+            solutions={props.data.solutions}
+            solution={props.data.solution}
+            href={href}
+          />
+        )
+        : null}
     </>
   );
 }

@@ -3,7 +3,8 @@ import { Puzzle } from "#/db/types.ts";
 import Board from "#/islands/board.tsx";
 import { EditorPanel } from "#/islands/editor-panel.tsx";
 import { Handlers, PageProps } from "$fresh/server.ts";
-import { createPuzzle, deletePuzzle, getPuzzle } from "#/db/kv.ts";
+import { createPuzzle, getPuzzle } from "#/db/kv.ts";
+import { Header } from "#/components/Header.tsx";
 
 export const handler: Handlers<Puzzle> = {
   async GET(_req, ctx) {
@@ -46,14 +47,21 @@ export const handler: Handlers<Puzzle> = {
   },
 };
 
-export default function EditorPage(props: PageProps<Puzzle>) {
+export default function NewPuzzlePage(props: PageProps<Puzzle>) {
   const puzzle = useSignal(props.data);
   const href = useSignal(props.url.href);
   const hasSolution = useSignal(false);
 
+  const navItems = [
+    { name: "home", href: "/" },
+    { name: "puzzles", href: "/puzzles/" },
+  ];
+
   return (
     <>
-      <div class="flex flex-col col-[2/3] w-full gap-2">
+      <div class="flex flex-col col-[2/3] w-full gap-fl-2">
+        <Header items={navItems} />
+
         <h1 className="text-5 text-brand">Editor</h1>
 
         <Board

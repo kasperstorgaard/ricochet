@@ -7,6 +7,8 @@ import { ControlsPanel } from "../../../islands/controls-panel.tsx";
 import { SolutionDialog } from "#/islands/solution-dialog.tsx";
 import { decodeState } from "#/util/url.ts";
 import { addSolution, getPuzzle } from "#/db/kv.ts";
+import { Header } from "#/components/Header.tsx";
+import { useMemo } from "https://esm.sh/v128/preact@10.19.6/hooks/src/index.js";
 
 export const handler: Handlers<Puzzle> = {
   async GET(_req, ctx) {
@@ -52,9 +54,16 @@ export default function PuzzleDetails(props: PageProps<Puzzle>) {
   const board = resolveMoves(props.data.board, moves);
   const hasSolution = useSignal(isValidSolution(board));
 
+  const navItems = [
+    { name: "home", href: "/" },
+    { name: "puzzles", href: "/puzzles/" },
+  ];
+
   return (
     <>
-      <div class="flex flex-col col-[2/3] w-full gap-2">
+      <div class="flex flex-col col-[2/3] w-full gap-fl-2">
+        <Header items={navItems} />
+
         <h1 className="text-5 text-brand">{props.data.name}</h1>
 
         <Board href={href} puzzle={puzzle} hasSolution={hasSolution} />

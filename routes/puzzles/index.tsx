@@ -1,6 +1,7 @@
 import { Puzzle } from "#/db/types.ts";
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { listPuzzles } from "#/db/kv.ts";
+import { Header } from "#/components/Header.tsx";
 
 export const handler: Handlers<Puzzle[]> = {
   async GET(_req, ctx) {
@@ -20,11 +21,17 @@ export const handler: Handlers<Puzzle[]> = {
 };
 
 export default function PuzzlesPage(props: PageProps<Puzzle[]>) {
-  return (
-    <div class="flex flex-col col-[2/3] w-full gap-fl-2 py-1 text-fl-1">
-      <h1 className="text-fl-2 text-brand">Recent puzzles</h1>
+  const navItems = [
+    { name: "home", href: "/" },
+  ];
 
-      <ul className="grid gap-3">
+  return (
+    <div class="flex flex-col col-[2/3] w-full gap-fl-2">
+      <Header items={navItems} />
+
+      <h1 className="text-5 text-brand">Recent puzzles</h1>
+
+      <ul className="grid gap-1 py-fl-2">
         {props.data.filter((item) => item.id).map((puzzle) => (
           <li className="flex gap-fl-2 pl-0">
             <a href={`puzzles/${puzzle.id}`} className="underline">
