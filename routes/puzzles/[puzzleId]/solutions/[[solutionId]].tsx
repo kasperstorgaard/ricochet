@@ -32,12 +32,12 @@ export const handler: Handlers<Data> = {
       ? await getPuzzleSolution(puzzleId, solutionId)
       : solutions[0];
 
-    if (!solution) {
+    if (solutions.length && !solution) {
       throw new Error(`Unable to find solution with id: ${solutionId}`);
     }
 
     const url = new URL(req.url);
-    if (!url.searchParams.has("m")) {
+    if (!url.searchParams.has("m") && solution) {
       url.search = encodeState(solution);
 
       return Response.redirect(url, 301);
@@ -69,11 +69,13 @@ export default function SolutionPage(props: PageProps<Data>) {
         />
       </div>
 
-      <SolutionsPanel
-        solutions={props.data.solutions}
-        solution={props.data.solution}
-        href={href}
-      />
+      {props.data.solutions.length && (
+        <SolutionsPanel
+          solutions={props.data.solutions}
+          solution={props.data.solution}
+          href={href}
+        />
+      )}
     </>
   );
 }

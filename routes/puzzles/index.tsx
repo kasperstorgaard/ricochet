@@ -30,12 +30,6 @@ export default function PuzzlesPage(props: PageProps<Puzzle[]>) {
             <a href={`puzzles/${puzzle.id}`} className="underline">
               {puzzle.name}
             </a>
-            <a
-              href={`puzzles/${puzzle.id}/edit`}
-              className="underline text-cyan-6"
-            >
-              edit
-            </a>
           </li>
         ))}
       </ul>

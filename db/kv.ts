@@ -22,16 +22,6 @@ export async function getPuzzle(id: string) {
   return puzzle.value;
 }
 
-export async function setPuzzle(id: string, data: Puzzle) {
-  const key = ["puzzles", id];
-
-  await kv.atomic()
-    .set(key, data)
-    .commit();
-
-  return data;
-}
-
 export async function deletePuzzle(id: string) {
   const key = ["puzzles", id];
 

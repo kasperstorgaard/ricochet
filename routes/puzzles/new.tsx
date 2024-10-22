@@ -3,7 +3,7 @@ import { Puzzle } from "#/db/types.ts";
 import Board from "#/islands/board.tsx";
 import { EditorPanel } from "#/islands/editor-panel.tsx";
 import { Handlers, PageProps } from "$fresh/server.ts";
-import { createPuzzle, getPuzzle, setPuzzle } from "#/db/kv.ts";
+import { createPuzzle, deletePuzzle, getPuzzle } from "#/db/kv.ts";
 
 export const handler: Handlers<Puzzle> = {
   async GET(_req, ctx) {
@@ -29,9 +29,7 @@ export const handler: Handlers<Puzzle> = {
     });
   },
 
-  async POST(req, ctx) {
-    const { puzzleId } = ctx.params;
-
+  async POST(req) {
     const form = await req.formData();
     const name = form.get("name")?.toString();
 
@@ -40,12 +38,10 @@ export const handler: Handlers<Puzzle> = {
 
     if (!name) throw new Error("Must provide a username");
 
-    const puzzle = puzzleId
-      ? await setPuzzle(puzzleId, { name, board, id: puzzleId })
-      : await createPuzzle({ name, board });
+    const puzzle = await createPuzzle({ name, board });
 
     const url = new URL(req.url);
-    url.pathname = `puzzles/${puzzle.id}`;
+    url.pathname = `puzzles/${puzzle?.id}`;
     return Response.redirect(url);
   },
 };

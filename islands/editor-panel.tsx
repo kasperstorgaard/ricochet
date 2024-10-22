@@ -50,7 +50,7 @@ export function EditorPanel({ puzzle, href }: EditorPanelProps) {
           className="place-self-start px-2 py-1 rounded-1 bg-ui-3"
           type="submit"
         >
-          Create puzzle
+          {!puzzle.value.id ? "Create puzzle" : "Save puzzle"}
         </button>
       </form>
     </aside>
