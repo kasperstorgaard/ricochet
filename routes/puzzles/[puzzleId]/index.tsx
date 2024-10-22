@@ -7,7 +7,7 @@ import { ControlsPanel } from "../../../islands/controls-panel.tsx";
 import { SolutionDialog } from "#/islands/solution-dialog.tsx";
 import { decodeState } from "#/util/url.ts";
 import { addSolution, getPuzzle } from "#/db/kv.ts";
-import { Header } from "#/components/Header.tsx";
+import { Header } from "#/components/header.tsx";
 import { useMemo } from "https://esm.sh/v128/preact@10.19.6/hooks/src/index.js";
 
 export const handler: Handlers<Puzzle> = {

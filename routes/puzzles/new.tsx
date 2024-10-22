@@ -4,7 +4,7 @@ import Board from "#/islands/board.tsx";
 import { EditorPanel } from "#/islands/editor-panel.tsx";
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { createPuzzle, getPuzzle } from "#/db/kv.ts";
-import { Header } from "#/components/Header.tsx";
+import { Header } from "#/components/header.tsx";
 
 export const handler: Handlers<Puzzle> = {
   async GET(_req, ctx) {

@@ -10,7 +10,7 @@ import {
 import Board from "#/islands/board.tsx";
 import { SolutionsPanel } from "#/islands/solutions-panel.tsx";
 import { encodeState } from "#/util/url.ts";
-import { Header } from "#/components/Header.tsx";
+import { Header } from "#/components/header.tsx";
 
 type Data = {
   puzzle: Puzzle;

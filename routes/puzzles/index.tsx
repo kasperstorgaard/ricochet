@@ -1,7 +1,7 @@
 import { Puzzle } from "#/db/types.ts";
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { listPuzzles } from "#/db/kv.ts";
-import { Header } from "#/components/Header.tsx";
+import { Header } from "#/components/header.tsx";
 
 export const handler: Handlers<Puzzle[]> = {
   async GET(_req, ctx) {
