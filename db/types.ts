@@ -21,6 +21,8 @@ export type Move = [Position, Position];
 
 export type Puzzle = {
   id: string;
+  // TODO: set this as non-optional once every puzzle has been migrated
+  slug?: string;
   name: string;
   board: Board;
 };

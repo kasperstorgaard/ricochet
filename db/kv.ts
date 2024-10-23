@@ -4,11 +4,12 @@ import { slug } from "jsr:@annervisser/slug";
 
 export const kv = await Deno.openKv();
 
-export async function createPuzzle(data: Omit<Puzzle, "id">) {
+export async function createPuzzle(data: Omit<Puzzle, "id" | "slug">) {
   const id = ulid();
-  const puzzle: Puzzle = { id, ...data };
-
   const puzzleSlug = slug(`${data.name}-${id.slice(id.length - 20)}`);
+
+  const puzzle: Puzzle = { id, slug: puzzleSlug, ...data };
+
   const primaryKey = ["puzzles", id];
   const bySlugKey = ["puzzles_by_slug", puzzleSlug];
 
