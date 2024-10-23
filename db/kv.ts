@@ -1,5 +1,6 @@
 import { Puzzle, Solution } from "./types.ts";
 import { ulid } from "jsr:@std/ulid";
+import { slug } from "jsr:@annervisser/slug";
 
 export const kv = await Deno.openKv();
 
@@ -7,31 +8,49 @@ export async function createPuzzle(data: Omit<Puzzle, "id">) {
   const id = ulid();
   const puzzle: Puzzle = { id, ...data };
 
-  const key = ["puzzles", id];
+  const puzzleSlug = slug(`${data.name}-${id.slice(id.length - 20)}`);
+  const primaryKey = ["puzzles", id];
+  const bySlugKey = ["puzzles_by_slug", puzzleSlug];
 
   await kv.atomic()
-    .check({ key, versionstamp: null })
-    .set(key, puzzle)
+    .check({ key: primaryKey, versionstamp: null })
+    .check({ key: bySlugKey, versionstamp: null })
+    .set(primaryKey, puzzle)
+    .set(bySlugKey, puzzle)
     .commit();
 
   return puzzle;
 }
 
-export async function getPuzzle(id: string) {
-  const puzzle = await kv.get<Puzzle>(["puzzles", id]);
-  return puzzle.value;
+export async function getPuzzle(idOrSlug: string) {
+  const primaryKey = ["puzzles", idOrSlug];
+  const bySlugKey = ["puzzles_by_slug", idOrSlug];
+
+  const puzzles = await kv.getMany<Puzzle[]>([primaryKey, bySlugKey]);
+
+  for (const puzzle of puzzles) {
+    if (puzzle.value) return puzzle.value;
+  }
+
+  return null;
 }
 
-export async function deletePuzzle(id: string) {
-  const key = ["puzzles", id];
+export async function deletePuzzle(idOrSlug: string) {
+  const primaryKey = ["puzzles", idOrSlug];
+  const bySlugKey = ["puzzles_by_slug", idOrSlug];
 
   await kv.atomic()
-    .delete(key)
+    .delete(primaryKey)
+    .delete(bySlugKey)
     .commit();
 }
 
-export async function listPuzzles(options?: Deno.KvListOptions) {
-  const key = ["puzzles"];
+type ListPuzzlesOptions = Deno.KvListOptions & {
+  bySlug?: boolean;
+};
+
+export async function listPuzzles(options?: ListPuzzlesOptions) {
+  const key = options?.bySlug ? ["puzzles_by_slug"] : ["puzzles"];
 
   const iter = kv.list<Puzzle>({ prefix: key }, {
     limit: options?.limit ?? 10,
@@ -67,33 +86,22 @@ export async function addSolution(payload: Omit<Solution, "id">) {
   return solution;
 }
 
+type ListPuzzleSolutionsOptions = Deno.KvListOptions & {
+  byMoves?: boolean;
+};
+
 export async function listPuzzleSolutions(
   puzzleId: string,
-  options: Deno.KvListOptions = {
-    limit: 10,
-  },
+  options: ListPuzzleSolutionsOptions,
 ) {
   const solutions: Solution[] = [];
 
-  const key = ["solutions", puzzleId];
+  const key = options?.byMoves
+    ? ["solutions_by_puzzle_moves", puzzleId]
+    : ["solutions_by_puzzle", puzzleId];
 
   const iter = kv.list<Solution>({ prefix: key }, options);
 
-  for await (const res of iter) solutions.push(res.value);
-
-  return solutions;
-}
-
-export async function listPuzzleSolutionsByMoves(
-  puzzleId: string,
-  options: Deno.KvListOptions = {
-    limit: 10,
-  },
-) {
-  const solutions: Solution[] = [];
-  const byMovesKey = ["solutions_by_puzzle_moves", puzzleId];
-
-  const iter = kv.list<Solution>({ prefix: byMovesKey }, options);
   for await (const res of iter) solutions.push(res.value);
 
   return solutions;

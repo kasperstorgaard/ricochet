@@ -2,11 +2,7 @@ import { Puzzle, Solution } from "#/db/types.ts";
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { useSignal } from "@preact/signals";
 
-import {
-  getPuzzle,
-  getPuzzleSolution,
-  listPuzzleSolutionsByMoves,
-} from "#/db/kv.ts";
+import { getPuzzle, getPuzzleSolution, listPuzzleSolutions } from "#/db/kv.ts";
 import Board from "#/islands/board.tsx";
 import { SolutionsPanel } from "#/islands/solutions-panel.tsx";
 import { encodeState } from "#/util/url.ts";
@@ -27,7 +23,10 @@ export const handler: Handlers<Data> = {
       throw new Error(`Unable to find a puzzle with id: ${puzzleId}`);
     }
 
-    const solutions = await listPuzzleSolutionsByMoves(puzzleId);
+    const solutions = await listPuzzleSolutions(puzzleId, {
+      limit: 10,
+      byMoves: true,
+    });
 
     const solution = solutionId
       ? await getPuzzleSolution(puzzleId, solutionId)
