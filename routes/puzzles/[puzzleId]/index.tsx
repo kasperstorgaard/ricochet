@@ -3,12 +3,10 @@ import Board from "#/islands/board.tsx";
 import { Puzzle } from "#/db/types.ts";
 import { isValidSolution, resolveMoves } from "#/util/board.ts";
 import { Handlers, PageProps } from "$fresh/server.ts";
-import { ControlsPanel } from "../../../islands/controls-panel.tsx";
-import { SolutionDialog } from "#/islands/solution-dialog.tsx";
+import { ControlsPanel } from "#/islands/controls-panel.tsx";
 import { decodeState } from "#/util/url.ts";
 import { addSolution, getPuzzle } from "#/db/kv.ts";
 import { Header } from "#/components/header.tsx";
-import { useMemo } from "https://esm.sh/v128/preact@10.19.6/hooks/src/index.js";
 
 export const handler: Handlers<Puzzle> = {
   async GET(_req, ctx) {
