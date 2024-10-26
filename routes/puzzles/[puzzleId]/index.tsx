@@ -46,11 +46,7 @@ export const handler: Handlers<Puzzle> = {
 export default function PuzzleDetails(props: PageProps<Puzzle>) {
   const href = useSignal(props.url.href);
   const puzzle = useSignal(props.data);
-
-  const state = decodeState(props.url.href);
-  const moves = state.moves.slice(0, state.cursor ?? state.moves.length);
-  const board = resolveMoves(props.data.board, moves);
-  const hasSolution = useSignal(isValidSolution(board));
+  const mode = useSignal<"solve">("solve");
 
   const navItems = [
     { name: "home", href: "/" },
@@ -64,7 +60,7 @@ export default function PuzzleDetails(props: PageProps<Puzzle>) {
 
         <h1 className="text-5 text-brand">{props.data.name}</h1>
 
-        <Board href={href} puzzle={puzzle} hasSolution={hasSolution} />
+        <Board href={href} puzzle={puzzle} mode={mode} />
       </div>
 
       <ControlsPanel href={href} />

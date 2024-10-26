@@ -54,7 +54,7 @@ export const handler: Handlers<Data> = {
 export default function SolutionPage(props: PageProps<Data>) {
   const puzzle = useSignal(props.data.puzzle);
   const href = useSignal(props.url.href);
-  const hasSolution = useSignal(false);
+  const mode = useSignal<"replay">("replay");
 
   const navItems = [
     { name: "home", href: "/" },
@@ -73,8 +73,7 @@ export default function SolutionPage(props: PageProps<Data>) {
         <Board
           puzzle={puzzle}
           href={href}
-          hasSolution={hasSolution}
-          isReplayMode
+          mode={mode}
         />
       </div>
 

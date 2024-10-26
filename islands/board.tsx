@@ -23,13 +23,11 @@ import { SolutionDialog } from "#/islands/solution-dialog.tsx";
 type BoardProps = {
   href: Signal<string>;
   puzzle: Signal<Puzzle>;
-  hasSolution: Signal<boolean>;
-  isEditorMode?: boolean;
-  isReplayMode?: boolean;
+  mode: Signal<"editor" | "replay" | "solve" | "readonly">;
 };
 
 export default function Board(
-  { href, puzzle, isEditorMode, isReplayMode }: BoardProps,
+  { href, puzzle, mode }: BoardProps,
 ) {
   const solutionDialogRef = useRef<HTMLDialogElement>(null);
 
@@ -58,14 +56,14 @@ export default function Board(
   useEffect(() => {
     solutionDialogRef.current?.close();
 
-    if (!isEditorMode && !isReplayMode && hasSolution) {
+    if (mode.value === "solve" && hasSolution) {
       /**
        * Need to close and re-open the modal, since `open` prop gives the behavior
        * of a non-modal dialog.
        */
       solutionDialogRef.current?.showModal();
     }
-  }, [isEditorMode, isReplayMode, hasSolution]);
+  }, [mode, hasSolution]);
 
   const { updateLocation } = useRouter({
     onLocationUpdated,
@@ -87,7 +85,9 @@ export default function Board(
 
   const targets = useMemo(
     () =>
-      state.active && !isEditorMode ? getTargets(state.active, board) : null,
+      state.active && mode.value === "solve"
+        ? getTargets(state.active, board)
+        : null,
     [state.active, board],
   );
 
@@ -96,6 +96,15 @@ export default function Board(
 
     return board.pieces.find((piece) => isPositionSame(piece, state.active!));
   }, [state.active, puzzle.value.board.pieces]);
+
+  const replaySpeed = useMemo(() => {
+    const url = new URL(href.value);
+
+    const rawValue = url.searchParams.get("r");
+    const value = parseInt(rawValue ?? "", 10);
+
+    return isNaN(value) ? 1 : value;
+  }, [href.value]);
 
   const onFlick = useCallback(
     (src: Position, direction: "up" | "right" | "down" | "left") => {
@@ -128,11 +137,11 @@ export default function Board(
 
   useEditor({
     active: state.active,
-    isEnabled: Boolean(isEditorMode),
+    isEnabled: mode.value === "editor",
     puzzle,
   });
 
-  useArrowKeys({ onKeyUp, isEnabled: !isEditorMode && !isReplayMode });
+  useArrowKeys({ onKeyUp, isEnabled: mode.value === "solve" });
 
   if (!state) return null;
 
@@ -146,6 +155,7 @@ export default function Board(
           "--replay-len": moves.length,
           "--gap": "var(--size-1)",
           "--space-w": "clamp(44px - var(--gap), 5vw, 56px)",
+          "--replay-speed": `${replaySpeed}s`,
         }}
         className="grid gap-[var(--gap)] w-full grid-cols-[repeat(8,var(--space-w))] grid-rows-[repeat(8,var(--space-w))]"
       >
@@ -154,10 +164,10 @@ export default function Board(
             <BoardSpace
               {...space}
               isActive={Boolean(
-                isEditorMode && state.active &&
+                mode.value === "editor" && state.active &&
                   isPositionSame(state.active, space),
               )}
-              href={isEditorMode
+              href={mode.value === "editor"
                 ? getActiveHref(space, { ...state, href: href.value })
                 : undefined}
               data-router="replace"
@@ -193,7 +203,7 @@ export default function Board(
             href={getActiveHref(piece, { ...state, href: href.value })}
             id={getPieceId(piece, idx)}
             isActive={state.active && isPositionSame(piece, state.active)}
-            isReadonly={isReplayMode || isEditorMode}
+            isReadonly={mode.value === "replay" || mode.value === "editor"}
             onFocus={(event) => {
               const href = (event.target as HTMLAnchorElement).href;
               updateLocation(href, { replace: true });
@@ -202,7 +212,7 @@ export default function Board(
           />
         ))}
 
-        {isReplayMode && (
+        {mode.value === "replay" && (
           <BoardReplayStyles
             puzzle={puzzle.value}
             moves={moves}
@@ -213,7 +223,8 @@ export default function Board(
       <SolutionDialog
         ref={solutionDialogRef}
         // Basically only use the open value if javascript is disabled and currently solving.
-        open={!isEditorMode && !isReplayMode && !solutionDialogRef.current &&
+        open={mode.value === "solve" &&
+          !solutionDialogRef.current &&
           hasSolution}
         href={href}
         puzzle={puzzle}
@@ -398,7 +409,7 @@ function BoardPiece(
         "translate-x-[calc((var(--space-w)+var(--gap))*var(--x))]",
         "translate-y-[calc((var(--space-w)+var(--gap))*var(--y))]",
         "transition-transform duration-200 ease-out",
-        "[--replay-duration:calc(var(--replay-len)*1s)]",
+        "[--replay-duration:calc(var(--replay-len)*var(--replay-speed))]",
         isReadonly && "pointer-events-none",
       )}
       style={{
