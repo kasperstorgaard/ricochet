@@ -31,10 +31,7 @@ export const handler: Handlers<Data> = {
 
     if (!ctx.url.searchParams.has("m")) {
       const redirectUrl = new URL(ctx.url);
-      redirectUrl.search = encodeState({
-        ...solution,
-        cursor: 0,
-      });
+      redirectUrl.search = encodeState(solution);
       return Response.redirect(redirectUrl, 301);
     }
 
