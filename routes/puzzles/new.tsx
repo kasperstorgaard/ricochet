@@ -43,14 +43,14 @@ export const handler: Handlers<Puzzle> = {
 
     const url = new URL(req.url);
     url.pathname = `puzzles/${puzzle?.id}`;
-    return Response.redirect(url);
+    return Response.redirect(url, 301);
   },
 };
 
 export default function NewPuzzlePage(props: PageProps<Puzzle>) {
   const puzzle = useSignal(props.data);
   const href = useSignal(props.url.href);
-  const hasSolution = useSignal(false);
+  const mode = useSignal<"editor">("editor");
 
   const navItems = [
     { name: "home", href: "/" },
@@ -67,8 +67,7 @@ export default function NewPuzzlePage(props: PageProps<Puzzle>) {
         <Board
           puzzle={puzzle}
           href={href}
-          hasSolution={hasSolution}
-          isEditorMode
+          mode={mode}
         />
       </div>
 

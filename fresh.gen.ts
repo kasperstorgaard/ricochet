@@ -9,11 +9,13 @@ import * as $puzzles_puzzleId_index from "./routes/puzzles/[puzzleId]/index.tsx"
 import * as $puzzles_puzzleId_solutions_solutionId_ from "./routes/puzzles/[puzzleId]/solutions/[[solutionId]].tsx";
 import * as $puzzles_index from "./routes/puzzles/index.tsx";
 import * as $puzzles_new from "./routes/puzzles/new.tsx";
+import * as $puzzles_tutorial from "./routes/puzzles/tutorial.tsx";
 import * as $board from "./islands/board.tsx";
 import * as $controls_panel from "./islands/controls-panel.tsx";
 import * as $editor_panel from "./islands/editor-panel.tsx";
 import * as $solution_dialog from "./islands/solution-dialog.tsx";
 import * as $solutions_panel from "./islands/solutions-panel.tsx";
+import * as $tutorial_dialog from "./islands/tutorial-dialog.tsx";
 import { type Manifest } from "$fresh/server.ts";
 
 const manifest = {
@@ -26,6 +28,7 @@ const manifest = {
       $puzzles_puzzleId_solutions_solutionId_,
     "./routes/puzzles/index.tsx": $puzzles_index,
     "./routes/puzzles/new.tsx": $puzzles_new,
+    "./routes/puzzles/tutorial.tsx": $puzzles_tutorial,
   },
   islands: {
     "./islands/board.tsx": $board,
@@ -33,6 +36,7 @@ const manifest = {
     "./islands/editor-panel.tsx": $editor_panel,
     "./islands/solution-dialog.tsx": $solution_dialog,
     "./islands/solutions-panel.tsx": $solutions_panel,
+    "./islands/tutorial-dialog.tsx": $tutorial_dialog,
   },
   baseUrl: import.meta.url,
 } satisfies Manifest;
