@@ -1,4 +1,5 @@
 import { type Config } from "tailwindcss";
+import btnPlugin from "./lib/btn.ts";
 
 const colorKeys = [
   "gray",
@@ -48,6 +49,7 @@ for (const key of themeKeys) {
 }
 
 export default {
+  plugins: [btnPlugin],
   content: [
     "{routes,islands,components}/**/*.{ts,tsx}",
   ],
