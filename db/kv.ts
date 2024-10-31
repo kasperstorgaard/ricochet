@@ -1,6 +1,7 @@
 import { Puzzle, Solution } from "./types.ts";
 import { ulid } from "jsr:@std/ulid";
 import { slug } from "jsr:@annervisser/slug";
+import { dayOfYear } from "jsr:@std/datetime";
 
 export const kv = await Deno.openKv();
 
@@ -34,6 +35,24 @@ export async function getPuzzle(idOrSlug: string) {
   }
 
   return null;
+}
+
+export async function getPuzzleOfTheDay(date = new Date(Date.now())) {
+  const index = dayOfYear(date);
+  const primaryKey = ["puzzles"];
+
+  const iter = kv.list<Puzzle[]>({ prefix: primaryKey });
+
+  const items = [];
+
+  for await (const res of iter) {
+    const item = res.value;
+    items.push(item);
+    if (items.length === index) return item;
+  }
+
+  // If the index is higher than the available items.
+  return items[index % items.length];
 }
 
 export async function deletePuzzle(idOrSlug: string) {
