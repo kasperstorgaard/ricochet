@@ -7,6 +7,7 @@ import { getPuzzle, getPuzzleSolution } from "#/db/kv.ts";
 import { Header } from "#/components/header.tsx";
 import { TutorialDialog } from "#/islands/tutorial-dialog.tsx";
 import { encodeState } from "#/util/url.ts";
+import { getCookies, setCookie } from "jsr:@std/http";
 
 type Data = {
   puzzle: Puzzle;
@@ -36,6 +37,32 @@ export const handler: Handlers<Data> = {
     }
 
     return ctx.render({ puzzle, solution });
+  },
+  // dismiss dialog
+  POST() {
+    const isDenoDeploy = Deno.env.get("DENO_DEPLOYMENT_ID") !== undefined;
+    console.log({ isDenoDeploy });
+
+    const headers = new Headers({
+      // Redirect to home
+      Location: "/",
+    });
+
+    setCookie(headers, {
+      name: "skipTutorial",
+      value: "true",
+      httpOnly: false,
+      secure: isDenoDeploy,
+      // 1 month
+      maxAge: 1000 * 60 * 60 * 24 * 30,
+    });
+
+    console.log(headers);
+
+    return new Response("", {
+      status: 301,
+      headers,
+    });
   },
 };
 

@@ -82,7 +82,9 @@ Deno.test("encodeState() should encode the game state", () => {
 });
 
 Deno.test("decodeState() should decode the game state", () => {
-  const result = decodeState("m=5c57%2C5750&a=ff&c=0");
+  const url = new URL("http://example.com");
+  url.search = "?m=5c57%2C5750&a=ff&c=0";
+  const result = decodeState(url);
 
   assertEquals(result, {
     moves: [

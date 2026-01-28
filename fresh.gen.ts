@@ -6,6 +6,7 @@ import * as $_404 from "./routes/_404.tsx";
 import * as $_app from "./routes/_app.tsx";
 import * as $index from "./routes/index.tsx";
 import * as $puzzles_puzzleId_index from "./routes/puzzles/[puzzleId]/index.tsx";
+import * as $puzzles_puzzleId_md_index from "./routes/puzzles/[puzzleId]/md/index.tsx";
 import * as $puzzles_puzzleId_solutions_solutionId_ from "./routes/puzzles/[puzzleId]/solutions/[[solutionId]].tsx";
 import * as $puzzles_index from "./routes/puzzles/index.tsx";
 import * as $puzzles_new from "./routes/puzzles/new.tsx";
@@ -24,6 +25,7 @@ const manifest = {
     "./routes/_app.tsx": $_app,
     "./routes/index.tsx": $index,
     "./routes/puzzles/[puzzleId]/index.tsx": $puzzles_puzzleId_index,
+    "./routes/puzzles/[puzzleId]/md/index.tsx": $puzzles_puzzleId_md_index,
     "./routes/puzzles/[puzzleId]/solutions/[[solutionId]].tsx":
       $puzzles_puzzleId_solutions_solutionId_,
     "./routes/puzzles/index.tsx": $puzzles_index,

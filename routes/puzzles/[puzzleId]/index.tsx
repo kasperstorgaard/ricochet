@@ -4,7 +4,6 @@ import { Puzzle } from "#/db/types.ts";
 import { isValidSolution, resolveMoves } from "#/util/board.ts";
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { ControlsPanel } from "#/islands/controls-panel.tsx";
-import { decodeState } from "#/util/url.ts";
 import { addSolution, getPuzzle } from "#/db/kv.ts";
 import { Header } from "#/components/header.tsx";
 

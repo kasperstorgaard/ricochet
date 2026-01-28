@@ -69,6 +69,13 @@ type TutorialStepProps = {
 function TutorialWelcomeStep({ href }: TutorialStepProps) {
   const nextStep = useMemo(() => getStepLink(href, 1), [href]);
 
+  const dismissUrl = useMemo(() => {
+    const url = new URL(href);
+    url.pathname = "/";
+    url.searchParams.set("tutorial", "false");
+    return url;
+  }, [href]);
+
   return (
     <>
       <div className="flex flex-col gap-fl-2 text-text-2">
@@ -87,7 +94,11 @@ function TutorialWelcomeStep({ href }: TutorialStepProps) {
         </p>
       </div>
 
-      <div className="flex w-full">
+      <div className="flex w-full" action={href} method="POST">
+        <a href={dismissUrl.href} className="btn mr-auto">
+          Dismiss
+        </a>
+
         <a
           href={nextStep}
           className="btn ml-auto"
