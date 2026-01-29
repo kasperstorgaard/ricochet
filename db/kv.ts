@@ -1,100 +1,17 @@
-import { Puzzle, Solution } from "./types.ts";
+import { Solution } from "./types.ts";
 import { ulid } from "jsr:@std/ulid";
-import { slug } from "jsr:@annervisser/slug";
-import { dayOfYear } from "jsr:@std/datetime";
 
 export const kv = await Deno.openKv();
 
-export async function createPuzzle(data: Omit<Puzzle, "id" | "slug">) {
-  const id = ulid();
-  const puzzleSlug = slug(`${data.name}-${id.slice(id.length - 20)}`);
-
-  const puzzle: Puzzle = { id, slug: puzzleSlug, ...data };
-
-  const primaryKey = ["puzzles", id];
-  const bySlugKey = ["puzzles_by_slug", puzzleSlug];
-
-  await kv.atomic()
-    .check({ key: primaryKey, versionstamp: null })
-    .check({ key: bySlugKey, versionstamp: null })
-    .set(primaryKey, puzzle)
-    .set(bySlugKey, puzzle)
-    .commit();
-
-  return puzzle;
-}
-
-export async function getPuzzle(idOrSlug: string) {
-  const primaryKey = ["puzzles", idOrSlug];
-  const bySlugKey = ["puzzles_by_slug", idOrSlug];
-
-  const puzzles = await kv.getMany<Puzzle[]>([primaryKey, bySlugKey]);
-
-  for (const puzzle of puzzles) {
-    if (puzzle.value) return puzzle.value;
-  }
-
-  return null;
-}
-
-export async function getPuzzleOfTheDay(date = new Date(Date.now())) {
-  const index = dayOfYear(date);
-  const primaryKey = ["puzzles"];
-
-  const iter = kv.list<Puzzle[]>({ prefix: primaryKey });
-
-  const items = [];
-
-  for await (const res of iter) {
-    const item = res.value;
-    items.push(item);
-    if (items.length === index) return item;
-  }
-
-  // If the index is higher than the available items.
-  return items[index % items.length];
-}
-
-export async function deletePuzzle(idOrSlug: string) {
-  const primaryKey = ["puzzles", idOrSlug];
-  const bySlugKey = ["puzzles_by_slug", idOrSlug];
-
-  await kv.atomic()
-    .delete(primaryKey)
-    .delete(bySlugKey)
-    .commit();
-}
-
-type ListPuzzlesOptions = Deno.KvListOptions & {
-  bySlug?: boolean;
-};
-
-export async function listPuzzles(options?: ListPuzzlesOptions) {
-  const key = options?.bySlug ? ["puzzles_by_slug"] : ["puzzles"];
-
-  const iter = kv.list<Puzzle>({ prefix: key }, {
-    limit: options?.limit ?? 10,
-    reverse: true,
-  });
-
-  const puzzles: Puzzle[] = [];
-
-  for await (const res of iter) {
-    puzzles.push(res.value);
-  }
-
-  return puzzles;
-}
-
 export async function addSolution(payload: Omit<Solution, "id">) {
-  const { puzzleId, moves } = payload;
+  const { puzzleSlug, moves } = payload;
   const noOfMoves = moves.length;
 
   const id = ulid();
   const solution = { ...payload, id };
 
-  const primaryKey = ["solutions_by_puzzle", puzzleId, id];
-  const byMovesKey = ["solutions_by_puzzle_moves", puzzleId, noOfMoves, id];
+  const primaryKey = ["solutions_by_puzzle", puzzleSlug, id];
+  const byMovesKey = ["solutions_by_puzzle_moves", puzzleSlug, noOfMoves, id];
 
   await kv.atomic()
     .check({ key: primaryKey, versionstamp: null })
@@ -128,10 +45,10 @@ export async function listPuzzleSolutions(
 }
 
 export async function getPuzzleSolution(
-  puzzleId: string,
+  puzzleSlug: string,
   solutionId: string,
 ) {
-  const key = ["solutions_by_puzzle", puzzleId, solutionId];
+  const key = ["solutions_by_puzzle", puzzleSlug, solutionId];
   const res = await kv.get<Solution>(key);
 
   return res.value;

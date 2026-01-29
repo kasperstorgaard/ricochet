@@ -1,4 +1,4 @@
-import { Board, Piece, Position, Wall } from "../db/types.ts";
+import { Board, Piece, Position, type Puzzle, Wall } from "../db/types.ts";
 import { extractYaml } from "@std/front-matter";
 import { ROWS, validateBoard } from "#/util/board.ts";
 
@@ -11,13 +11,13 @@ import { ROWS, validateBoard } from "#/util/board.ts";
  * - Characters:
  *   - ` ` (space) = empty cell
  *   - `@` = rook (main piece)
- *   - `@̃` = rook on destination (@ + U+0303)
+ *   - `@̂` = rook on destination (@ + U+0302)
  *   - `@̲` = rook + horizontal wall below (@ + U+0332)
- *   - `@̲̃` = rook on destination + horizontal wall below (@ + U+0303 + U+0332)
+ *   - `@̲̂` = rook on destination + horizontal wall below (@ + U+0332 + U+0302)
  *   - `#` = bouncer (supporting piece)
- *   - `#̃` = bouncer on destination (# + U+0303)
+ *   - `#̂` = bouncer on destination (# + U+0302)
  *   - `#̲` = bouncer + horizontal wall below (# + U+0332)
- *   - `#̲̃` = bouncer on destination + horizontal wall below (# + U+0303 + U+0332)
+ *   - `#̲̂` = bouncer on destination + horizontal wall below (# + U+0332 + U+0302)
  *   - `X` = destination (when no piece on it)
  *   - `X̲` = destination + horizontal wall below (X + U+0332)
  *   - `|` = vertical wall (between columns)
@@ -45,18 +45,9 @@ import { ROWS, validateBoard } from "#/util/board.ts";
  * ```
  */
 
-export type PuzzleMetadata = {
-  name: string;
-  slug?: string;
-  difficulty?: string;
-  author?: string;
-  [key: string]: string | undefined;
-};
-
 export type ParsedPuzzle = {
-  metadata: PuzzleMetadata;
+  metadata: Omit<Puzzle, "board">;
   board: Board;
-  description?: string;
 };
 
 export class ParserError extends Error {
@@ -81,8 +72,8 @@ const CELL_CHARS = {
 
 /** Combining low line character (U+0332) */
 const COMBINING_LOW_LINE = "\u0332";
-/** Combining tilde character (U+0303) */
-const COMBINING_TILDE = "\u0303";
+/** Combining circumflex accent (U+0302) - indicates piece is on destination */
+const COMBINING_CIRCUMFLEX = "\u0302";
 
 /**
  * Parses the board grid into pieces, walls, and destination
@@ -98,44 +89,51 @@ function parseBoard(rows: string[]): Board {
     // Row content is already extracted (no row number prefix)
     const cellContent = row;
 
+    // Track the actual string index as we process combined characters
+    let stringIndex = 0;
+
     for (let x = 0; x < 8; x++) {
-      // Each cell is at position x*2 in the content (char + space/separator)
-      const charIndex = x * 2;
-      if (charIndex >= cellContent.length) break;
+      // Each cell should be at position x*2, but combining characters shift the indices
+      if (stringIndex >= cellContent.length) break;
 
-      const char = cellContent[charIndex];
+      const char = cellContent[stringIndex];
 
-      // Check for combining characters after the main character
-      let nextCharOffset = 1;
-      let hasTilde = false;
+      // Check for combining characters after the main character (up to 2)
+      // They can appear in any order: U+0332 (underline) and/or U+0302 (circumflex)
+      let hasCircumflex = false;
       let hasUnderline = false;
+      let combiningCharsCount = 0;
 
-      // Check for combining tilde (U+0303) and/or combining low line (U+0332)
-      // They can appear in any order after the base character
-      while (charIndex + nextCharOffset < cellContent.length) {
-        const nextChar = cellContent[charIndex + nextCharOffset];
-        if (nextChar === COMBINING_TILDE) {
-          hasTilde = true;
-          nextCharOffset++;
-        } else if (nextChar === COMBINING_LOW_LINE) {
+      for (let i = 1; i <= 2; i++) {
+        const nextIndex = stringIndex + i;
+        if (nextIndex >= cellContent.length) break;
+
+        const nextChar = cellContent[nextIndex];
+        if (nextChar === COMBINING_LOW_LINE && !hasUnderline) {
           hasUnderline = true;
-          nextCharOffset++;
+          combiningCharsCount++;
+        } else if (nextChar === COMBINING_CIRCUMFLEX && !hasCircumflex) {
+          hasCircumflex = true;
+          combiningCharsCount++;
         } else {
+          // Not a combining character, stop looking
           break;
         }
       }
 
-      // Check for vertical wall (appears after a cell, at odd positions)
-      // But we handle it as the separator character
-      if (x > 0) {
-        // Check the separator before this cell (at position x*2 - 1)
-        const sepIndex = x * 2 - 1;
-        if (
-          sepIndex >= 0 && cellContent[sepIndex] === CELL_CHARS.wallVertical
-        ) {
-          walls.push({ x: x - 1, y, orientation: "vertical" });
-        }
+      // The separator comes after the base character and any combining characters
+      const separatorIndex = stringIndex + 1 + combiningCharsCount;
+      const separator = separatorIndex < cellContent.length
+        ? cellContent[separatorIndex]
+        : " ";
+
+      // Check for vertical wall separator
+      if (separator === CELL_CHARS.wallVertical) {
+        walls.push({ x: x + 1, y, orientation: "vertical" });
       }
+
+      // Move to the next cell (past the separator)
+      stringIndex = separatorIndex + 1;
 
       // If the cell itself is a vertical wall, it's positioned between this cell and the previous
       // Wall at x means it's to the right of column x
@@ -148,7 +146,7 @@ function parseBoard(rows: string[]): Board {
 
       // Check for horizontal wall standalone
       if (char === CELL_CHARS.wallHorizontal) {
-        walls.push({ x, y, orientation: "horizontal" });
+        walls.push({ x, y: y + 1, orientation: "horizontal" });
         continue;
       }
 
@@ -156,15 +154,17 @@ function parseBoard(rows: string[]): Board {
       if (char === "@") {
         pieces.push({ x, y, type: "rook" });
 
-        // If this piece has a tilde, it's on the destination
-        if (hasTilde) {
+        // If this piece has circumflex, it's on the destination
+        if (hasCircumflex) {
           if (destination) {
             throw new ParserError("Multiple destinations found");
           }
           destination = { x, y };
         }
 
-        if (hasUnderline) walls.push({ x, y, orientation: "horizontal" });
+        if (hasUnderline) {
+          walls.push({ x, y: y + 1, orientation: "horizontal" });
+        }
 
         continue;
       }
@@ -173,35 +173,41 @@ function parseBoard(rows: string[]): Board {
       if (char === "#") {
         pieces.push({ x, y, type: "bouncer" });
 
-        // If this piece has a tilde, it's on the destination
-        if (hasTilde) {
+        // If this piece has circumflex, it's on the destination
+        if (hasCircumflex) {
           if (destination) {
             throw new ParserError("Multiple destinations found");
           }
           destination = { x, y };
         }
 
-        if (hasUnderline) walls.push({ x, y, orientation: "horizontal" });
+        if (hasUnderline) {
+          walls.push({ x, y: y + 1, orientation: "horizontal" });
+        }
 
         continue;
       }
 
       // Check for destination
-      if (char === "~") {
+      if (char === "X") {
         if (destination) {
           throw new ParserError("Multiple destinations found");
         }
 
         destination = { x, y };
-        if (hasUnderline) walls.push({ x, y, orientation: "horizontal" });
+        if (hasUnderline) {
+          walls.push({ x, y: y + 1, orientation: "horizontal" });
+        }
         continue;
       }
 
       // Empty space
       if (char === " ") continue;
 
-      // Skip combining characters that might appear standalone
-      if (char === COMBINING_LOW_LINE) continue;
+      // Skip modifiers that might appear standalone
+      if (char === COMBINING_LOW_LINE || char === COMBINING_CIRCUMFLEX) {
+        continue;
+      }
 
       throw new ParserError(
         `Unknown cell character '${char}' at position (${x}, ${y})`,
@@ -219,14 +225,13 @@ function parseBoard(rows: string[]): Board {
 /**
  * Main parser function - parses a markdown puzzle file into a ParsedPuzzle
  */
-export function parsePuzzle(content: string): ParsedPuzzle {
-  const { attrs, body } = extractYaml<PuzzleMetadata>(content);
+export function parsePuzzle(content: string): Puzzle {
+  const { attrs, body } = extractYaml<Omit<Puzzle, "board">>(content);
 
   if (!attrs.name) {
     throw new ParserError("Metadata must include 'name' field");
   }
 
-  const description = extractDescription(body);
   const rows = extractRows(body);
   if (rows.length !== ROWS) {
     throw new ParserError(`Expected ${ROWS} board rows, found ${rows.length}`);
@@ -235,27 +240,9 @@ export function parsePuzzle(content: string): ParsedPuzzle {
   const board = parseBoard(rows);
 
   return {
-    metadata: attrs,
+    ...attrs,
     board,
-    description,
   };
-}
-
-/**
- * Extracts description text before the board grid
- */
-function extractDescription(content: string): string | undefined {
-  const lines = content.split(/[\r\n]/);
-  const descLines: string[] = [];
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-    // Stop when we hit the grid header
-    if (isHeader(trimmed)) break;
-    if (trimmed) descLines.push(trimmed);
-  }
-
-  return descLines.join("\n").trim() || undefined;
 }
 
 /**
@@ -269,6 +256,9 @@ function extractRows(content: string): string[] {
   let inGrid = false;
 
   for (const line of lines) {
+    // Skip code block markers
+    if (line.trim() === "```") continue;
+
     if (isHeader(line)) {
       inGrid = true;
       continue;

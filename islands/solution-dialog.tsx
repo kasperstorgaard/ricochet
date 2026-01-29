@@ -31,7 +31,7 @@ export const SolutionDialog = forwardRef<HTMLDialogElement, Props>(
 
           <form
             className="grid gap-fl-3"
-            action={puzzle.value.id}
+            action={puzzle.value.slug}
             method="post"
           >
             <label className="flex flex-col gap-1">

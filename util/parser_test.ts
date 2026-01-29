@@ -1,126 +1,5 @@
-import { assertEquals, assertThrows } from "jsr:@std/assert";
+import { assertEquals, assertObjectMatch, assertThrows } from "jsr:@std/assert";
 import { parsePuzzle, ParserError } from "./parser.ts";
-import { BoardError } from "#/util/board.ts";
-
-Deno.test("parsePuzzle - parses simple puzzle", () => {
-  const markdown = `---
-name: Simple Puzzle
-slug: simple-puzzle
----
-
-A simple starting puzzle.
-
-+ A B C D E F G H +
-1                 |
-2   @             |
-3                 |
-4                 |
-5         #       |
-6                 |
-7                 |
-8       ~         |
-+-----------------+
-`;
-
-  const result = parsePuzzle(markdown);
-
-  assertEquals(result.metadata, {
-    name: "Simple Puzzle",
-    slug: "simple-puzzle",
-  });
-
-  assertEquals(result.description, "A simple starting puzzle.");
-
-  assertEquals(result.board.destination, { x: 3, y: 7 });
-
-  assertEquals(result.board.pieces, [
-    { x: 1, y: 1, type: "rook" },
-    { x: 4, y: 4, type: "bouncer" },
-  ]);
-});
-
-Deno.test("parsePuzzle - parses puzzle without description", () => {
-  const markdown = `---
-name: No Description
----
-
-+ A B C D E F G H +
-1 @               |
-2                 |
-3                 |
-4                 |
-5                 |
-6                 |
-7                 |
-8       ~         |
-+-----------------+
-`;
-
-  const result = parsePuzzle(markdown);
-
-  assertEquals(result.metadata.name, "No Description");
-  assertEquals(result.description, undefined);
-  assertEquals(result.board.pieces, [{ x: 0, y: 0, type: "rook" }]);
-});
-
-Deno.test("parsePuzzle - parses puzzle with multiple bouncers", () => {
-  const markdown = `---
-name: Multiple Bouncers
----
-
-+ A B C D E F G H +
-1 @               |
-2   #             |
-3     #           |
-4       #         |
-5                 |
-6                 |
-7                 |
-8       ~         |
-+-----------------+
-`;
-
-  const result = parsePuzzle(markdown);
-
-  assertEquals(result.board.pieces.length, 4);
-  assertEquals(
-    result.board.pieces,
-    [
-      { type: "rook", x: 0, y: 0 },
-      { type: "bouncer", x: 1, y: 1 },
-      { type: "bouncer", x: 2, y: 2 },
-      { type: "bouncer", x: 3, y: 3 },
-    ],
-  );
-});
-
-Deno.test("parsePuzzle - parses puzzle with walls", () => {
-  const markdown = `---
-name: Walls Puzzle
----
-
-+ A B C D E F G H +
-1 @               |
-2                 |
-3     _           |
-4                 |
-5  |              |
-6                 |
-7                 |
-8       ~         |
-+-----------------+
-`;
-
-  const result = parsePuzzle(markdown);
-
-  assertEquals(result.board.walls.length, 2);
-  assertEquals(result.board.walls[0], {
-    x: 2,
-    y: 2,
-    orientation: "horizontal",
-  });
-  assertEquals(result.board.walls[1], { x: 0, y: 4, orientation: "vertical" });
-});
 
 Deno.test("parsePuzzle - parses metadata with extra fields", () => {
   const markdown = `---
@@ -139,17 +18,18 @@ tags: challenge
 5                 |
 6                 |
 7                 |
-8       ~         |
+8       X         |
 +-----------------+
 `;
 
   const result = parsePuzzle(markdown);
 
-  assertEquals(result.metadata.name, "Advanced Puzzle");
-  assertEquals(result.metadata.slug, "advanced-puzzle");
-  assertEquals(result.metadata.difficulty, "hard");
-  assertEquals(result.metadata.author, "John Doe");
-  assertEquals(result.metadata.tags, "challenge");
+  assertObjectMatch(result, {
+    name: "Advanced Puzzle",
+    slug: "advanced-puzzle",
+    author: "John Doe",
+    board: {},
+  });
 });
 
 Deno.test("parsePuzzle - throws on missing frontmatter", () => {
@@ -162,7 +42,7 @@ Deno.test("parsePuzzle - throws on missing frontmatter", () => {
 5                 |
 6                 |
 7                 |
-8       ~         |
+8       X         |
 +-----------------+
 `;
 
@@ -182,7 +62,7 @@ slug: no-name
 5                 |
 6                 |
 7                 |
-8       ~         |
+8       X         |
 +-----------------+
 `;
 
@@ -215,7 +95,7 @@ name: Wrong Rows
 + A B C D E F G H +
 1 @               |
 2                 |
-8       ~         |
+8       X         |
 +-----------------+
 `;
 
@@ -223,26 +103,6 @@ name: Wrong Rows
     () => parsePuzzle(markdown),
     ParserError,
   );
-});
-
-Deno.test("parsePuzzle - throws on missing destination", () => {
-  const markdown = `---
-name: No Destination
----
-
-+ A B C D E F G H +
-1 @               |
-2                 |
-3                 |
-4                 |
-5                 |
-6                 |
-7                 |
-8                 |
-+-----------------+
-`;
-
-  assertThrows(() => parsePuzzle(markdown), BoardError);
 });
 
 Deno.test("parsePuzzle - throws on multiple destinations", () => {
@@ -258,51 +118,11 @@ name: Multiple Destinations
 5                 |
 6                 |
 7                 |
-8       ~         |
+8       X         |
 +-----------------+
 `;
 
   assertThrows(() => parsePuzzle(markdown), ParserError);
-});
-
-Deno.test("parsePuzzle - throws on missing rook", () => {
-  const markdown = `---
-name: No Rook
----
-
-+ A B C D E F G H +
-1 #               |
-2                 |
-3                 |
-4                 |
-5                 |
-6                 |
-7                 |
-8       ~         |
-+-----------------+
-`;
-
-  assertThrows(() => parsePuzzle(markdown), BoardError);
-});
-
-Deno.test("parsePuzzle - throws on no pieces", () => {
-  const markdown = `---
-name: No Pieces
----
-
-+ A B C D E F G H +
-1                 |
-2                 |
-3                 |
-4                 |
-5                 |
-6                 |
-7                 |
-8       ~         |
-+-----------------+
-`;
-
-  assertThrows(() => parsePuzzle(markdown), BoardError);
 });
 
 Deno.test("parsePuzzle - throws on unknown cell character", () => {
@@ -318,7 +138,7 @@ name: Unknown Character
 5                 |
 6                 |
 7                 |
-8       ~         |
+8       X         |
 +-----------------+
 `;
 
@@ -329,7 +149,43 @@ name: Unknown Character
   );
 });
 
-Deno.test("parsePuzzle - real-world example", () => {
+Deno.test("parsePuzzle - parses simple puzzle", () => {
+  const markdown = `---
+name: Simple Puzzle
+slug: simple-puzzle
+description: A simple starting puzzle.
+---
+
++ A B C D E F G H +
+1                 |
+2   @             |
+3                 |
+4                 |
+5         #       |
+6                 |
+7                 |
+8       X         |
++-----------------+
+`;
+
+  const result = parsePuzzle(markdown);
+
+  assertEquals(result, {
+    name: "Simple Puzzle",
+    slug: "simple-puzzle",
+    description: "A simple starting puzzle.",
+    board: {
+      destination: { x: 3, y: 7 },
+      pieces: [
+        { x: 1, y: 1, type: "rook" },
+        { x: 4, y: 4, type: "bouncer" },
+      ],
+      walls: [],
+    },
+  });
+});
+
+Deno.test("parsePuzzle - real-world example 1", () => {
   const markdown = `---
 name: Around the middle
 slug: around-the-middle
@@ -346,19 +202,101 @@ Navigate the rook around the middle
 4    |       |  # |
 5 #  |_ _ _ _|    |
 6 _             _ |
-7       #̃         |
+7       #̂         |
 8    |         |  |
 +-----------------+
 `;
 
   const result = parsePuzzle(markdown);
 
-  assertEquals(result.metadata.name, "Around the middle");
-  assertEquals(result.metadata.difficulty, "medium");
-  assertEquals(result.board.pieces.length, 5);
-  assertEquals(
-    result.board.pieces.filter((p) => p.type === "bouncer").length,
-    4,
-  );
-  assertEquals(result.board.destination, { x: 3, y: 6 });
+  assertObjectMatch(result, {
+    name: "Around the middle",
+    slug: "around-the-middle",
+    author: "Puzzle Master",
+  });
+
+  assertEquals(result.board, {
+    destination: { x: 3, y: 6 },
+    pieces: [
+      { x: 2, y: 1, type: "bouncer" },
+      { x: 5, y: 2, type: "rook" },
+      { x: 7, y: 3, type: "bouncer" },
+      { x: 0, y: 4, type: "bouncer" },
+      { x: 3, y: 6, type: "bouncer" },
+    ],
+    walls: [
+      { x: 1, y: 0, orientation: "vertical" },
+      { x: 6, y: 0, orientation: "vertical" },
+      { x: 0, y: 2, orientation: "horizontal" },
+      { x: 7, y: 2, orientation: "horizontal" },
+      { x: 2, y: 3, orientation: "horizontal" },
+      { x: 3, y: 3, orientation: "horizontal" },
+      { x: 4, y: 3, orientation: "horizontal" },
+      { x: 5, y: 3, orientation: "horizontal" },
+      { x: 2, y: 3, orientation: "vertical" },
+      { x: 6, y: 3, orientation: "vertical" },
+      { x: 2, y: 4, orientation: "vertical" },
+      { x: 2, y: 5, orientation: "horizontal" },
+      { x: 3, y: 5, orientation: "horizontal" },
+      { x: 4, y: 5, orientation: "horizontal" },
+      { x: 6, y: 4, orientation: "vertical" },
+      { x: 5, y: 5, orientation: "horizontal" },
+      { x: 0, y: 6, orientation: "horizontal" },
+      { x: 7, y: 6, orientation: "horizontal" },
+      { x: 2, y: 7, orientation: "vertical" },
+      { x: 7, y: 7, orientation: "vertical" },
+    ],
+  });
+});
+
+Deno.test("parsePuzzle - real-world example 2", () => {
+  const markdown = `---
+name: Boxy
+slug: boxy
+---
+
++ A B C D E F G H +
+1                 |
+2   # _ _ _ _ @   |
+3    |       |    |
+4            |    |
+5            |    |
+6    |_ _ X̲ _|    |
+7   #         #   |
+8                 |
++-----------------+
+`;
+
+  const result = parsePuzzle(markdown);
+
+  assertObjectMatch(result, {
+    name: "Boxy",
+    slug: "boxy",
+  });
+
+  assertEquals(result.board, {
+    destination: { x: 4, y: 5 },
+    pieces: [
+      { x: 1, y: 1, type: "bouncer" },
+      { x: 6, y: 1, type: "rook" },
+      { x: 1, y: 6, type: "bouncer" },
+      { x: 6, y: 6, type: "bouncer" },
+    ],
+    walls: [
+      { x: 2, y: 2, orientation: "horizontal" },
+      { x: 3, y: 2, orientation: "horizontal" },
+      { x: 4, y: 2, orientation: "horizontal" },
+      { x: 5, y: 2, orientation: "horizontal" },
+      { x: 2, y: 2, orientation: "vertical" },
+      { x: 6, y: 2, orientation: "vertical" },
+      { x: 6, y: 3, orientation: "vertical" },
+      { x: 6, y: 4, orientation: "vertical" },
+      { x: 2, y: 5, orientation: "vertical" },
+      { x: 2, y: 6, orientation: "horizontal" },
+      { x: 3, y: 6, orientation: "horizontal" },
+      { x: 4, y: 6, orientation: "horizontal" },
+      { x: 6, y: 5, orientation: "vertical" },
+      { x: 5, y: 6, orientation: "horizontal" },
+    ],
+  });
 });

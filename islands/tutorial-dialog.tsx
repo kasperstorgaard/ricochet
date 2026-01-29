@@ -166,7 +166,7 @@ function TutorialSolutionStep({ href, solution }: TutorialStepProps & {
   );
   const nextStep = useMemo(() => {
     const url = new URL(href);
-    url.pathname = `/puzzles/${solution.puzzleId}`;
+    url.pathname = `/puzzles/${solution.puzzleSlug}`;
     url.search = encodeState({
       ...solution,
       cursor: 0,

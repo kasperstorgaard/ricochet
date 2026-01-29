@@ -3,11 +3,12 @@ import Board from "#/islands/board.tsx";
 import { Puzzle, type Solution } from "#/db/types.ts";
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { ControlsPanel } from "#/islands/controls-panel.tsx";
-import { getPuzzle, getPuzzleSolution } from "#/db/kv.ts";
+import { getPuzzleSolution } from "#/db/kv.ts";
 import { Header } from "#/components/header.tsx";
 import { TutorialDialog } from "#/islands/tutorial-dialog.tsx";
 import { encodeState } from "#/util/url.ts";
-import { getCookies, setCookie } from "jsr:@std/http";
+import { setCookie } from "jsr:@std/http";
+import { getPuzzle } from "#/util/loader.ts";
 
 type Data = {
   puzzle: Puzzle;
@@ -16,19 +17,14 @@ type Data = {
 
 export const handler: Handlers<Data> = {
   async GET(_req, ctx) {
-    const puzzleId = Deno.env.get("TUTORIAL_PUZZLE_ID");
-    if (!puzzleId) throw new Error("Tutorial puzzle not found");
-
     const solutionId = Deno.env.get("TUTORIAL_PUZZLE_SOLUTION_ID");
     if (!solutionId) throw new Error("Tutorial puzzle solution not found");
 
-    const puzzle = await getPuzzle(puzzleId);
-    if (!puzzle) throw new Error(`Unable to find puzzle with id: ${puzzleId}`);
+    const puzzle = await getPuzzle("tutorial");
+    if (!puzzle) throw new Error("Tutorial puzzle not found");
 
-    const solution = await getPuzzleSolution(puzzleId, solutionId);
-    if (!solution) {
-      throw new Error(`Unable to find puzzle solution id: ${puzzleId}`);
-    }
+    const solution = await getPuzzleSolution("tutorial", solutionId);
+    if (!solution) throw new Error("Tutorial puzzle solution not found");
 
     if (!ctx.url.searchParams.has("m")) {
       const redirectUrl = new URL(ctx.url);
@@ -57,8 +53,6 @@ export const handler: Handlers<Data> = {
       maxAge: 1000 * 60 * 60 * 24 * 30,
     });
 
-    console.log(headers);
-
     return new Response("", {
       status: 301,
       headers,
@@ -79,7 +73,7 @@ export default function PuzzleTutorial(props: PageProps<Data>) {
 
   return (
     <>
-      <div class="flex flex-col col-[2/3] w-full gap-fl-2">
+      <div class="flex flex-col col-[2/3] w-full gap-fl-2 pt-fl-2">
         <Header items={navItems} />
 
         <h1 className="text-5 text-brand">{puzzle.value.name}</h1>

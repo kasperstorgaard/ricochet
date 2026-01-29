@@ -6,7 +6,7 @@ export default function App({ Component }: PageProps) {
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>ricochet</title>
+        <title>Ricochet</title>
         <link rel="stylesheet" href="/styles.css" />
         <link
           rel="stylesheet"
@@ -29,7 +29,6 @@ export default function App({ Component }: PageProps) {
         className={cn(
           "grow grid grid-cols-[minmax(var(--size-fluid-1),auto)_max-content_minmax(var(--size-fluid-1),auto)]",
           "grid-rows-[1fr] place-items-[flex-end_center] auto-rows-max gap-y-fl-3",
-          "pt-fl-2",
         )}
       >
         <Component />

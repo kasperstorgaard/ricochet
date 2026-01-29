@@ -1,13 +1,13 @@
 import { Handlers } from "$fresh/server.ts";
-import { listPuzzles } from "#/db/kv.ts";
 import { Header } from "#/components/header.tsx";
+import { listPuzzles } from "#/util/loader.ts";
 
 export const handler: Handlers = {
   async GET(req) {
     const puzzles = await listPuzzles();
 
     const redirectUrl = new URL(req.url);
-    redirectUrl.pathname = `puzzles/${puzzles[0].id}`;
+    redirectUrl.pathname = `puzzles/${puzzles[0].slug}`;
 
     return Response.redirect(redirectUrl);
   },
@@ -20,7 +20,7 @@ export default function Home() {
   ];
 
   return (
-    <div class="flex flex-col col-[2/3] w-full gap-fl-2">
+    <div class="flex flex-col col-[2/3] w-full gap-fl-2 pt-fl-2">
       <Header items={navItems} />
       <div className="flex gap-fl-1">
         <section className="flex flex-col gap-fl-1">

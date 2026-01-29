@@ -4,22 +4,24 @@ import Board from "#/islands/board.tsx";
 import { EditorPanel } from "#/islands/editor-panel.tsx";
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { Header } from "#/components/header.tsx";
+import { getPuzzle } from "#/util/loader.ts";
 
 export const handler: Handlers<Puzzle> = {
-  GET(_req, ctx) {
-    return ctx.render({
-      name: "",
-      slug: "",
-      board: {
-        destination: { x: 0, y: 0 },
-        pieces: [],
-        walls: [],
-      },
-    });
+  async GET(_req, ctx) {
+    const { slug } = ctx.params;
+
+    const puzzle = await getPuzzle(slug);
+
+    if (!puzzle) {
+      throw new Error(`Unable to find puzzle with slug: ${slug}`);
+    }
+
+    return ctx.render(puzzle);
   },
 };
 
 export default function EditorPage(props: PageProps<Puzzle>) {
+  const slug = props.data.slug;
   const puzzle = useSignal(props.data);
   const href = useSignal(props.url.href);
   const mode = useSignal<"editor">("editor");
@@ -27,7 +29,8 @@ export default function EditorPage(props: PageProps<Puzzle>) {
   const navItems = [
     { name: "home", href: "/" },
     { name: "puzzles", href: "/puzzles/" },
-    { name: "new", href: "/puzzles/new/" },
+    { name: slug, href: "/puzzles/" + slug + "/" },
+    { name: "edit", href: "/puzzles/" + slug + "/edit/" },
   ];
 
   return (
@@ -35,7 +38,7 @@ export default function EditorPage(props: PageProps<Puzzle>) {
       <div class="flex flex-col col-[2/3] w-full gap-fl-2">
         <Header items={navItems} />
 
-        <h1 className="text-5 text-brand">New puzzle</h1>
+        <h1 className="text-5 text-brand">Edit</h1>
 
         <Board
           puzzle={puzzle}
