@@ -7,7 +7,7 @@ import { encodeState } from "#/util/url.ts";
 type Props = {
   href: Signal<string>;
   mode: Signal<"replay" | "readonly">;
-  solution: Solution;
+  solution: Omit<Solution, "id" | "name">;
 };
 
 export const TutorialDialog = function ({ href, mode, solution }: Props) {
@@ -69,13 +69,6 @@ type TutorialStepProps = {
 function TutorialWelcomeStep({ href }: TutorialStepProps) {
   const nextStep = useMemo(() => getStepLink(href, 1), [href]);
 
-  const dismissUrl = useMemo(() => {
-    const url = new URL(href);
-    url.pathname = "/";
-    url.searchParams.set("tutorial", "false");
-    return url;
-  }, [href]);
-
   return (
     <>
       <div className="flex flex-col gap-fl-2 text-text-2">
@@ -94,10 +87,14 @@ function TutorialWelcomeStep({ href }: TutorialStepProps) {
         </p>
       </div>
 
-      <div className="flex w-full" action={href} method="POST">
-        <a href={dismissUrl.href} className="btn mr-auto">
+      <form
+        action={href}
+        method="POST"
+        className="flex w-full"
+      >
+        <button type="submit" className="btn mr-auto">
           Dismiss
-        </a>
+        </button>
 
         <a
           href={nextStep}
@@ -106,7 +103,7 @@ function TutorialWelcomeStep({ href }: TutorialStepProps) {
         >
           Next
         </a>
-      </div>
+      </form>
     </>
   );
 }
@@ -157,7 +154,7 @@ function TutorialPiecesStep({ href }: TutorialStepProps) {
 }
 
 function TutorialSolutionStep({ href, solution }: TutorialStepProps & {
-  solution: Solution;
+  solution: Omit<Solution, "id" | "name">;
 }) {
   const prevStep = useMemo(() => getStepLink(href, 1), [href]);
   const reloadStep = useMemo(
@@ -179,7 +176,7 @@ function TutorialSolutionStep({ href, solution }: TutorialStepProps & {
       <div className="flex flex-col gap-fl-2 text-text-2">
         <h1 className="text-fl-2 leading-1 text-text-1">Finding a solution</h1>
         <p>
-          That was a replay of a solution.<br />
+          That was a replay mf a solution.<br />
           <a
             href={reloadStep}
             className="underline text-link"
@@ -200,7 +197,11 @@ function TutorialSolutionStep({ href, solution }: TutorialStepProps & {
         </p>
       </div>
 
-      <div className="flex w-full gap-fl-1 flex-wrap justify-between">
+      <form
+        action={href}
+        method="POST"
+        className="flex w-full gap-fl-1 flex-wrap justify-between"
+      >
         <a
           href={prevStep}
           className="btn"
@@ -209,13 +210,13 @@ function TutorialSolutionStep({ href, solution }: TutorialStepProps & {
           Previous
         </a>
 
-        <a
-          href={nextStep}
+        <button
+          type="submit"
           className="btn"
         >
           Ok, I'm ready!
-        </a>
-      </div>
+        </button>
+      </form>
     </>
   );
 }

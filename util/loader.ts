@@ -49,10 +49,10 @@ export async function listPuzzles(): Promise<Puzzle[]> {
  */
 export async function getPuzzleOfTheDay(
   date = new Date(),
-): Promise<Puzzle | null> {
+) {
   const puzzles = await listPuzzles();
 
-  if (puzzles.length === 0) return null;
+  if (puzzles.length === 0) throw new Error("No puzzles available");
 
   // Use day of year to deterministically select a puzzle
   const dayOfYear = Math.floor(

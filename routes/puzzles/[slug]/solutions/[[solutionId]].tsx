@@ -41,7 +41,7 @@ export const handler: Handlers<Data> = {
     if (!url.searchParams.has("m") && solution) {
       url.search = encodeState(solution);
 
-      return Response.redirect(url, 301);
+      return Response.redirect(url);
     }
 
     return ctx.render({

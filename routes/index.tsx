@@ -1,14 +1,21 @@
 import { Handlers } from "$fresh/server.ts";
 import { Header } from "#/components/header.tsx";
 import { listPuzzles } from "#/util/loader.ts";
+import { getSkipTutorialCookie } from "#/util/cookies.ts";
 
 export const handler: Handlers = {
   async GET(req) {
+    const skipTutorial = getSkipTutorialCookie(req.headers);
+    const redirectUrl = new URL(req.url);
+
+    if (!skipTutorial) {
+      redirectUrl.pathname = "/puzzles/tutorial";
+      return Response.redirect(redirectUrl);
+    }
+
     const puzzles = await listPuzzles();
 
-    const redirectUrl = new URL(req.url);
     redirectUrl.pathname = `puzzles/${puzzles[0].slug}`;
-
     return Response.redirect(redirectUrl);
   },
 };

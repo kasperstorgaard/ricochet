@@ -39,7 +39,7 @@ export const handler: Handlers<Puzzle> = {
     const url = new URL(req.url);
     url.pathname = `puzzles/${slug}/solutions/${solution.id}`;
 
-    return Response.redirect(url.href, 301);
+    return Response.redirect(url.href, 302);
   },
 };
 

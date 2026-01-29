@@ -3,58 +3,53 @@ import Board from "#/islands/board.tsx";
 import { Puzzle, type Solution } from "#/db/types.ts";
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { ControlsPanel } from "#/islands/controls-panel.tsx";
-import { getPuzzleSolution } from "#/db/kv.ts";
 import { Header } from "#/components/header.tsx";
 import { TutorialDialog } from "#/islands/tutorial-dialog.tsx";
-import { encodeState } from "#/util/url.ts";
-import { setCookie } from "jsr:@std/http";
+import { decodeState } from "#/util/url.ts";
 import { getPuzzle } from "#/util/loader.ts";
+import { setSkipTutorialCookie } from "#/util/cookies.ts";
 
 type Data = {
   puzzle: Puzzle;
-  solution: Solution;
+  solution: Omit<Solution, "id" | "name">;
 };
 
 export const handler: Handlers<Data> = {
   async GET(_req, ctx) {
-    const solutionId = Deno.env.get("TUTORIAL_PUZZLE_SOLUTION_ID");
-    if (!solutionId) throw new Error("Tutorial puzzle solution not found");
+    const solutionRaw = Deno.env.get("TUTORIAL_SOLUTION");
+    if (!solutionRaw) throw new Error("Tutorial puzzle solution not found");
+
+    const redirectUrl = new URL(ctx.url);
+    redirectUrl.searchParams.set("m", solutionRaw);
 
     const puzzle = await getPuzzle("tutorial");
     if (!puzzle) throw new Error("Tutorial puzzle not found");
 
-    const solution = await getPuzzleSolution("tutorial", solutionId);
-    if (!solution) throw new Error("Tutorial puzzle solution not found");
-
     if (!ctx.url.searchParams.has("m")) {
-      const redirectUrl = new URL(ctx.url);
-      redirectUrl.search = encodeState(solution);
-      return Response.redirect(redirectUrl, 301);
+      return Response.redirect(redirectUrl);
     }
 
-    return ctx.render({ puzzle, solution });
+    const { moves } = decodeState(redirectUrl);
+
+    return ctx.render({
+      puzzle,
+      solution: {
+        puzzleSlug: puzzle.slug,
+        moves,
+      },
+    });
   },
   // dismiss dialog
   POST() {
-    const isDenoDeploy = Deno.env.get("DENO_DEPLOYMENT_ID") !== undefined;
-    console.log({ isDenoDeploy });
-
     const headers = new Headers({
       // Redirect to home
       Location: "/",
     });
 
-    setCookie(headers, {
-      name: "skipTutorial",
-      value: "true",
-      httpOnly: false,
-      secure: isDenoDeploy,
-      // 1 month
-      maxAge: 1000 * 60 * 60 * 24 * 30,
-    });
+    setSkipTutorialCookie(headers, true);
 
     return new Response("", {
-      status: 301,
+      status: 302,
       headers,
     });
   },
