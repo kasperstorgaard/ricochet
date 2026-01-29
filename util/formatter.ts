@@ -11,7 +11,7 @@ const COMBINING_CIRCUMFLEX = "\u0302";
 /**
  * Formats a puzzle into markdown format for easy viewing/editing
  */
-export function formatPuzzle(puzzle: Omit<Puzzle, "id">): string {
+export function formatPuzzle(puzzle: Puzzle): string {
   const { board, ...metadata } = puzzle;
 
   // Build frontmatter using YAML stringify

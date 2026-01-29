@@ -35,7 +35,7 @@ export default function EditorPage(props: PageProps<Puzzle>) {
 
   return (
     <>
-      <div class="flex flex-col col-[2/3] w-full gap-fl-2">
+      <div class="flex flex-col col-[2/3] w-full gap-fl-2 pt-fl-2">
         <Header items={navItems} />
 
         <h1 className="text-5 text-brand">Edit</h1>

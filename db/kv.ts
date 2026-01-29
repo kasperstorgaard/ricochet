@@ -7,7 +7,7 @@ export async function addSolution(payload: Omit<Solution, "id">) {
   const { puzzleSlug, moves } = payload;
   const noOfMoves = moves.length;
 
-  const id = ulid();
+  const id = ulid().toLowerCase();
   const solution = { ...payload, id };
 
   const primaryKey = ["solutions_by_puzzle", puzzleSlug, id];
