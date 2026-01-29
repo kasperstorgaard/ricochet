@@ -29,8 +29,13 @@ export function SolutionsPanel(
   }, [href.value]);
 
   return (
-    <aside className="col-span-3 grid grid-cols-subgrid place-content-start max-md:min-h-[min(25vh,20rem)] border-t-2 border-brand bg-surface-2 text-fl-1 py-fl-3">
-      <ol className="grid col-[2/3] w-full md:grid-rows-5 grid-cols-1 md:grid-cols-2 md:grid-flow-col items-center gap-x-fl-2 gap-y-1">
+    <aside
+      className={cn(
+        "col-span-3 grid grid-cols-subgrid place-content-start max-md:min-h-[min(25vh,20rem)] border-t-2 border-brand bg-surface-2 text-fl-1 py-fl-3",
+        "lg:fixed lg:top-0 lg:right-0 lg:h-full lg:px-fl-2 lg:grid-cols-1",
+      )}
+    >
+      <ol className="grid col-[2/3] w-full md:grid-rows-5 md:grid-cols-2 lg:grid-cols-1 md:grid-flow-col lg:grid-flow-row items-center gap-x-fl-2 gap-y-1">
         {solutionItems.map((item) =>
           item === null ? <li className="p-0">...</li> : (
             <li
