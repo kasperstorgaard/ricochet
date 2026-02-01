@@ -23,8 +23,11 @@ export type Puzzle = {
   slug: string;
   name: string;
   board: Board;
+  createdAt: Date;
   description?: string;
   author?: string;
+  difficulty?: "easy" | "medium" | "hard";
+  isTutorial?: boolean;
 };
 
 export type Solution = {

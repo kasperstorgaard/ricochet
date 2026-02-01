@@ -2,6 +2,7 @@ import type { Signal } from "@preact/signals";
 import { cn } from "#/lib/style.ts";
 import type { Solution } from "#/db/types.ts";
 import { useCallback, useMemo } from "preact/hooks";
+import { Panel } from "#/components/panel.tsx";
 
 type ControlsPanelProps = {
   href: Signal<string>;
@@ -29,13 +30,13 @@ export function SolutionsPanel(
   }, [href.value]);
 
   return (
-    <aside
-      className={cn(
-        "col-span-3 grid grid-cols-subgrid place-content-start max-md:min-h-[min(25vh,20rem)] border-t-2 border-brand bg-surface-2 text-fl-1 py-fl-3",
-        "lg:fixed lg:top-0 lg:right-0 lg:h-full lg:px-fl-2 lg:grid-cols-1",
-      )}
-    >
-      <ol className="grid col-[2/3] w-full md:grid-rows-5 md:grid-cols-2 lg:grid-cols-1 md:grid-flow-col lg:grid-flow-row items-center gap-x-fl-2 gap-y-1">
+    <Panel>
+      <ol
+        className={cn(
+          "grid col-[2/3] lg:col-auto w-full items-center gap-x-fl-2 gap-y-1",
+          "lg:row-[3/4] lg:grid-flow-row lg:grid-rows-[auto] lg:content-start",
+        )}
+      >
         {solutionItems.map((item) =>
           item === null ? <li className="p-0">...</li> : (
             <li
@@ -56,6 +57,6 @@ export function SolutionsPanel(
           )
         )}
       </ol>
-    </aside>
+    </Panel>
   );
 }

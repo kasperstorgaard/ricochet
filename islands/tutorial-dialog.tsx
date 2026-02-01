@@ -176,7 +176,7 @@ function TutorialSolutionStep({ href, solution }: TutorialStepProps & {
       <div className="flex flex-col gap-fl-2 text-text-2">
         <h1 className="text-fl-2 leading-1 text-text-1">Finding a solution</h1>
         <p>
-          That was a replay mf a solution.<br />
+          That was a replay of a solution.<br />
           <a
             href={reloadStep}
             className="underline text-link"

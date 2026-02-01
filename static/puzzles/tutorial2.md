@@ -1,6 +1,6 @@
 ---
-name: Tutorial
-slug: tutorial
+name: Tutorial2
+slug: tutorial2
 ---
 
 ```

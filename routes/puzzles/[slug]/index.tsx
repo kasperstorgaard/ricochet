@@ -7,6 +7,7 @@ import { ControlsPanel } from "#/islands/controls-panel.tsx";
 import { addSolution } from "#/db/kv.ts";
 import { getPuzzle } from "../../../util/loader.ts";
 import { Header } from "#/components/header.tsx";
+import { Main } from "#/components/main.tsx";
 
 export const handler: Handlers<Puzzle> = {
   async GET(_req, ctx) {
@@ -55,13 +56,13 @@ export default function PuzzleDetails(props: PageProps<Puzzle>) {
 
   return (
     <>
-      <div class="flex flex-col col-[2/3] w-full gap-fl-2 pt-fl-2">
+      <Main>
         <Header items={navItems} />
 
         <h1 className="text-5 text-brand">{props.data.name}</h1>
 
         <Board href={href} puzzle={puzzle} mode={mode} />
-      </div>
+      </Main>
 
       <ControlsPanel href={href} />
     </>

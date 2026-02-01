@@ -2,10 +2,14 @@ import { Puzzle } from "#/db/types.ts";
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { listPuzzles } from "#/util/loader.ts";
 import { Header } from "#/components/header.tsx";
+import { Main } from "#/components/main.tsx";
+import { Thumbnail } from "../../components/thumbnail.tsx";
+import { cn } from "#/lib/style.ts";
+import { Panel } from "#/components/panel.tsx";
 
 export const handler: Handlers<Puzzle[]> = {
   async GET(_req, ctx) {
-    const puzzles = await listPuzzles();
+    const puzzles = await listPuzzles({ sortBy: "date", limit: 6 });
     return ctx.render(puzzles);
   },
 };
@@ -16,20 +20,50 @@ export default function PuzzlesPage(props: PageProps<Puzzle[]>) {
   ];
 
   return (
-    <div class="flex flex-col col-[2/3] w-full gap-fl-2 pt-fl-2">
-      <Header items={navItems} />
+    <>
+      <Main>
+        <Header items={navItems} />
 
-      <h1 className="text-5 text-brand">Recent puzzles</h1>
+        <h1 className="text-5 text-brand">Recent puzzles</h1>
 
-      <ul className="grid gap-1 py-fl-2">
-        {props.data.filter((item) => item.slug).map((puzzle) => (
-          <li className="flex gap-fl-2 pl-0">
-            <a href={`puzzles/${puzzle.slug}`} className="underline">
-              {puzzle.name}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
+        <ul
+          className={cn(
+            "grid grid-cols-[repeat(2,1fr)] gap-fl-3 py-fl-2",
+            "sm:grid-cols-[repeat(3,1fr)]",
+            "md:grid-cols-[repeat(4,1fr)]",
+          )}
+        >
+          {props.data.filter((item) => item.slug).map((puzzle) => (
+            <li className="list-none pl-[0] min-w-0">
+              <a
+                href={`puzzles/${puzzle.slug}`}
+                className="flex flex-col gap-1 group"
+              >
+                <div
+                  className={cn(
+                    "flex overflow-hidden rounded-2 border-1 border-surface-4",
+                    "group-hover:border-brand transition-colors",
+                  )}
+                >
+                  <Thumbnail
+                    board={puzzle.board}
+                    class="basis-0 grow aspect-square h-full"
+                  />
+                </div>
+
+                <span className="text-fl-0 font-3 group-hover:text-brand transition-colors">
+                  {puzzle.name}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </Main>
+
+      <Panel>
+        {/* TODO: chuck some links in here */}
+        <span />
+      </Panel>
+    </>
   );
 }

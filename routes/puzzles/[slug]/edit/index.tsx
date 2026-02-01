@@ -5,6 +5,7 @@ import { EditorPanel } from "#/islands/editor-panel.tsx";
 import { Handlers, PageProps } from "$fresh/server.ts";
 import { Header } from "#/components/header.tsx";
 import { getPuzzle } from "#/util/loader.ts";
+import { Main } from "#/components/main.tsx";
 
 export const handler: Handlers<Puzzle> = {
   async GET(_req, ctx) {
@@ -35,7 +36,7 @@ export default function EditorPage(props: PageProps<Puzzle>) {
 
   return (
     <>
-      <div class="flex flex-col col-[2/3] w-full gap-fl-2 pt-fl-2">
+      <Main>
         <Header items={navItems} />
 
         <h1 className="text-5 text-brand">Edit</h1>
@@ -45,7 +46,7 @@ export default function EditorPage(props: PageProps<Puzzle>) {
           href={href}
           mode={mode}
         />
-      </div>
+      </Main>
 
       <EditorPanel puzzle={puzzle} href={href} />
     </>

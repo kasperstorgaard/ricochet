@@ -28,7 +28,8 @@ export default function App({ Component }: PageProps) {
       <body
         className={cn(
           "grow grid grid-cols-[minmax(var(--size-fluid-1),auto)_max-content_minmax(var(--size-fluid-1),auto)]",
-          "grid-rows-[1fr] place-items-[flex-end_center] auto-rows-max gap-y-fl-3",
+          "grid-rows-[repeat(3,max-content)_1fr] place-items-[flex-end_center] gap-y-fl-3",
+          "lg:grid-cols-[1fr_minmax(20vw,min-content)] lg:content-center",
         )}
       >
         <Component />

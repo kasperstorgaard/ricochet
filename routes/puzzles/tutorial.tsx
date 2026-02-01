@@ -8,6 +8,7 @@ import { TutorialDialog } from "#/islands/tutorial-dialog.tsx";
 import { decodeState } from "#/util/url.ts";
 import { getPuzzle } from "#/util/loader.ts";
 import { setSkipTutorialCookie } from "#/util/cookies.ts";
+import { Main } from "#/components/main.tsx";
 
 type Data = {
   puzzle: Puzzle;
@@ -68,7 +69,7 @@ export default function PuzzleTutorial(props: PageProps<Data>) {
 
   return (
     <>
-      <div class="flex flex-col col-[2/3] w-full gap-fl-2 pt-fl-2">
+      <Main>
         <Header items={navItems} />
 
         <h1 className="text-5 text-brand">{puzzle.value.name}</h1>
@@ -78,7 +79,7 @@ export default function PuzzleTutorial(props: PageProps<Data>) {
           puzzle={puzzle}
           mode={mode}
         />
-      </div>
+      </Main>
 
       <ControlsPanel href={href} />
 

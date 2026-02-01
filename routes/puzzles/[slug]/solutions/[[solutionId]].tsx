@@ -8,6 +8,8 @@ import { SolutionsPanel } from "#/islands/solutions-panel.tsx";
 import { encodeState } from "#/util/url.ts";
 import { Header } from "#/components/header.tsx";
 import { getPuzzle } from "#/util/loader.ts";
+import { Main } from "#/components/main.tsx";
+import { isValidSolution, resolveMoves } from "#/util/board.ts";
 
 type Data = {
   puzzle: Puzzle;
@@ -69,7 +71,7 @@ export default function SolutionPage(props: PageProps<Data>) {
 
   return (
     <>
-      <div class="flex flex-col col-[2/3] w-full gap-fl-2 pt-fl-2">
+      <Main>
         <Header items={navItems} />
 
         <h1 className="text-5 text-brand">{props.data.puzzle.name}</h1>
@@ -79,7 +81,7 @@ export default function SolutionPage(props: PageProps<Data>) {
           href={href}
           mode={mode}
         />
-      </div>
+      </Main>
 
       {props.data.solutions.length
         ? (

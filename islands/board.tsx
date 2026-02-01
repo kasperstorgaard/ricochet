@@ -157,7 +157,9 @@ export default function Board(
           "--space-w": "clamp(44px - var(--gap), 5vw, 56px)",
           "--replay-speed": `${replaySpeed}s`,
         }}
-        className="grid gap-[var(--gap)] w-full grid-cols-[repeat(8,var(--space-w))] grid-rows-[repeat(8,var(--space-w))]"
+        className={cn(
+          "grid gap-[var(--gap)] w-full grid-cols-[repeat(8,var(--space-w))] grid-rows-[repeat(8,var(--space-w))]",
+        )}
       >
         {spaces.map((row) =>
           row.map((space) => (

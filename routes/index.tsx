@@ -1,6 +1,6 @@
 import { Handlers } from "$fresh/server.ts";
 import { Header } from "#/components/header.tsx";
-import { listPuzzles } from "#/util/loader.ts";
+import { getPuzzleOfTheDay } from "#/util/loader.ts";
 import { getSkipTutorialCookie } from "#/util/cookies.ts";
 
 export const handler: Handlers = {
@@ -13,9 +13,9 @@ export const handler: Handlers = {
       return Response.redirect(redirectUrl);
     }
 
-    const puzzles = await listPuzzles();
+    const puzzle = await getPuzzleOfTheDay();
 
-    redirectUrl.pathname = `puzzles/${puzzles[0].slug}`;
+    redirectUrl.pathname = `puzzles/${puzzle.slug}`;
     return Response.redirect(redirectUrl);
   },
 };

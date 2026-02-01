@@ -1,6 +1,8 @@
 ---
 name: Tutorial
 slug: tutorial
+createdAt: 2026-01-29T08:24:07.189Z
+isTutorial: true
 ---
 
 ```

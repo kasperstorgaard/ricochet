@@ -1,4 +1,4 @@
-import { assertEquals, assertObjectMatch } from "jsr:@std/assert";
+import { assertEquals } from "jsr:@std/assert";
 import { formatPuzzle } from "./formatter.ts";
 import { parsePuzzle } from "./parser.ts";
 import type { Puzzle } from "#/db/types.ts";
@@ -7,6 +7,7 @@ Deno.test("formatPuzzle - formats simple puzzle", () => {
   const puzzle: Puzzle = {
     name: "Simple Puzzle",
     slug: "simple-puzzle",
+    createdAt: new Date("2024-06-20T00:00:00.000Z"),
     board: {
       destination: { x: 3, y: 7 },
       pieces: [
@@ -29,6 +30,7 @@ Deno.test("formatPuzzle - formats puzzle with walls", () => {
   const puzzle: Puzzle = {
     name: "Walls Puzzle",
     slug: "walls-puzzle",
+    createdAt: new Date("2024-06-20T00:00:00.000Z"),
     board: {
       destination: { x: 7, y: 7 },
       pieces: [{ x: 0, y: 0, type: "rook" }],
@@ -50,6 +52,7 @@ Deno.test("formatPuzzle - formats puzzle with piece on destination", () => {
   const puzzle: Puzzle = {
     name: "Piece on Destination",
     slug: "piece-on-destination",
+    createdAt: new Date("2024-06-20T00:00:00.000Z"),
     board: {
       destination: { x: 4, y: 4 },
       pieces: [
@@ -78,6 +81,7 @@ Deno.test("formatPuzzle - formats puzzle with piece on destination and wall", ()
   const puzzle: Puzzle = {
     name: "Complex Piece",
     slug: "complex-piece",
+    createdAt: new Date("2024-06-20T00:00:00.000Z"),
     board: {
       destination: { x: 3, y: 2 },
       pieces: [

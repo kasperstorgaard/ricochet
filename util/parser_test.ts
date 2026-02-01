@@ -7,7 +7,7 @@ name: Advanced Puzzle
 slug: advanced-puzzle
 difficulty: hard
 author: John Doe
-tags: challenge
+createdAt: 2025-06-15T00:00:00.000Z
 ---
 
 + A B C D E F G H +
@@ -29,6 +29,7 @@ tags: challenge
     slug: "advanced-puzzle",
     author: "John Doe",
     board: {},
+    createdAt: new Date("2025-06-15T00:00:00.000Z"),
   });
 });
 
@@ -154,6 +155,7 @@ Deno.test("parsePuzzle - parses simple puzzle", () => {
 name: Simple Puzzle
 slug: simple-puzzle
 description: A simple starting puzzle.
+createdAt: 2026-01-01T00:00:00.000Z
 ---
 
 + A B C D E F G H +
@@ -173,6 +175,7 @@ description: A simple starting puzzle.
   assertEquals(result, {
     name: "Simple Puzzle",
     slug: "simple-puzzle",
+    createdAt: new Date("2026-01-01T00:00:00.000Z"),
     description: "A simple starting puzzle.",
     board: {
       destination: { x: 3, y: 7 },
@@ -189,6 +192,7 @@ Deno.test("parsePuzzle - real-world example 1", () => {
   const markdown = `---
 name: Around the middle
 slug: around-the-middle
+createdAt: 2025-06-15T00:00:00.000Z
 difficulty: medium
 author: Puzzle Master
 ---
@@ -253,6 +257,7 @@ Deno.test("parsePuzzle - real-world example 2", () => {
   const markdown = `---
 name: Boxy
 slug: boxy
+createdAt: 2026-01-01T00:00:00.000Z
 ---
 
 + A B C D E F G H +

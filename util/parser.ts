@@ -225,7 +225,9 @@ function parseBoard(rows: string[]): Board {
 /**
  * Main parser function - parses a markdown puzzle file into a ParsedPuzzle
  */
-export function parsePuzzle(content: string): Puzzle {
+export function parsePuzzle(
+  content: string,
+): Puzzle {
   const { attrs, body } = extractYaml<Omit<Puzzle, "board">>(content);
 
   if (!attrs.name) {

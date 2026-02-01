@@ -1,6 +1,6 @@
 ---
 name: Roundish2
-slug: roundish-2
+slug: roundish2
 ---
 
 ```
