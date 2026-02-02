@@ -1,5 +1,5 @@
-import { assertEquals } from "@std/assert";
-import { assertThrows } from "$std/assert/assert_throws.ts";
+import { assertEquals, assertThrows } from "@std/assert";
+
 import {
   decodeMove,
   decodeMoves,

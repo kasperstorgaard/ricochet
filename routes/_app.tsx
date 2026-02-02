@@ -1,6 +1,7 @@
 import { type PageProps } from "fresh";
+
 import { cn } from "#/lib/style.ts";
-import { define } from "./core.ts";
+import { define } from "#/routes/core.ts";
 
 export default define.page(function AppWrapper({ Component }: PageProps) {
   return (

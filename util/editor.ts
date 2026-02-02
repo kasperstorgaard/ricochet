@@ -1,7 +1,8 @@
-import { useCallback, useEffect } from "preact/hooks";
-import { Position, Puzzle } from "#/util/types.ts";
 import type { Signal } from "@preact/signals";
+import { useCallback, useEffect } from "preact/hooks";
+
 import { isPositionSame } from "#/util/board.ts";
+import { Position, Puzzle } from "#/util/types.ts";
 
 type UseEditorOptions = {
   puzzle: Signal<Puzzle>;

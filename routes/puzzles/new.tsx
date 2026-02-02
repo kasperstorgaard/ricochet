@@ -1,10 +1,11 @@
 import { useSignal } from "@preact/signals";
-import { Puzzle } from "#/util/types.ts";
+import { page, PageProps } from "fresh";
+
+import { Header } from "#/components/header.tsx";
 import Board from "#/islands/board.tsx";
 import { EditorPanel } from "#/islands/editor-panel.tsx";
-import { page, PageProps } from "fresh";
-import { Header } from "#/components/header.tsx";
-import { define } from "../core.ts";
+import { define } from "#/routes/core.ts";
+import { Puzzle } from "#/util/types.ts";
 
 export const handler = define.handlers<Puzzle>({
   GET() {

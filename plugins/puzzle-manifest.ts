@@ -1,6 +1,7 @@
-import { Plugin } from "vite";
 import { extractYaml } from "@std/front-matter";
-import { Puzzle, PuzzleManifestEntry } from "../util/types.ts";
+import { Plugin } from "vite";
+
+import { Puzzle, PuzzleManifestEntry } from "#/util/types.ts";
 
 /**
  * Vite build plugin that generates a file manifest at static/puzzles/manifest.json.

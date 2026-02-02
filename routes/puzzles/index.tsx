@@ -1,12 +1,13 @@
-import { Puzzle } from "#/util/types.ts";
 import { page, PageProps } from "fresh";
-import { listPuzzles } from "#/util/loader.ts";
+
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
-import { Thumbnail } from "../../components/thumbnail.tsx";
-import { cn } from "#/lib/style.ts";
 import { Panel } from "#/components/panel.tsx";
-import { define } from "../core.ts";
+import { Thumbnail } from "#/components/thumbnail.tsx";
+import { cn } from "#/lib/style.ts";
+import { define } from "#/routes/core.ts";
+import { listPuzzles } from "#/util/loader.ts";
+import { Puzzle } from "#/util/types.ts";
 
 export const handler = define.handlers<Puzzle[]>({
   async GET(ctx) {

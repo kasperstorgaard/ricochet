@@ -1,7 +1,8 @@
 import type { Signal } from "@preact/signals";
-import { cn } from "#/lib/style.ts";
 import { useEffect, useMemo, useRef } from "preact/hooks";
+
 import type { Solution } from "#/db/types.ts";
+import { cn } from "#/lib/style.ts";
 
 type Props = {
   href: Signal<string>;

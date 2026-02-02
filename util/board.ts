@@ -1,4 +1,4 @@
-import { Board, Move, Piece, Position, Wall } from "../util/types.ts";
+import { Board, Move, Piece, Position, Wall } from "#/util/types.ts";
 
 // 8 rows and cols align well with hex and comp-science, so a useful/fun limit.
 export const COLS = 8;

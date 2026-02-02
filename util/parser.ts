@@ -1,6 +1,7 @@
-import { Board, Piece, Position, type Puzzle, Wall } from "../util/types.ts";
 import { extractYaml } from "@std/front-matter";
+
 import { ROWS, validateBoard } from "#/util/board.ts";
+import { Board, Piece, Position, type Puzzle, Wall } from "#/util/types.ts";
 
 /**
  * Parses a markdown-based puzzle format into a Board object.

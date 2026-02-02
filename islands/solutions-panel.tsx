@@ -1,8 +1,9 @@
 import type { Signal } from "@preact/signals";
-import { cn } from "#/lib/style.ts";
-import type { Solution } from "#/db/types.ts";
 import { useCallback, useMemo } from "preact/hooks";
+
 import { Panel } from "#/components/panel.tsx";
+import type { Solution } from "#/db/types.ts";
+import { cn } from "#/lib/style.ts";
 
 type ControlsPanelProps = {
   href: Signal<string>;

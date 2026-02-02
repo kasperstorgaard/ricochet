@@ -1,5 +1,5 @@
-import { Solution } from "./types.ts";
 import { ulid } from "@std/ulid";
+import { Solution } from "./types.ts";
 
 export const kv = await Deno.openKv();
 

@@ -1,7 +1,7 @@
 import { Header } from "#/components/header.tsx";
 import { getPuzzleOfTheDay } from "#/util/loader.ts";
 import { getSkipTutorialCookie } from "#/util/cookies.ts";
-import { define } from "./core.ts";
+import { define } from "#/routes/core.ts";
 
 export const handler = define.handlers({
   async GET(ctx) {

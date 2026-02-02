@@ -1,4 +1,5 @@
 import { assertEquals } from "@std/assert";
+
 import { decodeState, encodeState } from "#/util/url.ts";
 
 Deno.test("encodeState() should add all params", () => {
