@@ -15,9 +15,9 @@ export function getDayOfYear(date: Date): number {
  * Note: Adding or removing items will change which item is selected
  *
  * @example
- * // Day 32 with 10 items -> index 1
- * // Day 32 with 11 items -> index 9
- * // Day 33 with 10 items -> index 2
+ * - Day 32 with 10 items -> index 1
+ * - Day 33 with 10 items -> index 2
+ * - Day 32 with 11 items -> index 9
  */
 export function pickByDay<TItem>(
   items: TItem[],
