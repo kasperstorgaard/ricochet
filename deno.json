@@ -34,6 +34,7 @@
     "open-props": "npm:open-props@^1.7.23",
     "preact": "npm:preact@^10.27.2",
     "preact/": "npm:/preact@^10.27.2/",
+    "tailwind-merge": "npm:tailwind-merge@^3.4.0",
     "tailwindcss": "npm:tailwindcss@^4.1.10",
     "vite": "npm:vite@^7.3.1"
   },

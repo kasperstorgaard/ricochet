@@ -1,4 +1,4 @@
-import { twMerge } from "npm:tailwind-merge@2.5.3";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...classes: unknown[]) {
   return twMerge(
