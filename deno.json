@@ -5,7 +5,8 @@
   "tasks": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "deno serve -A _fresh/server.js"
+    "preview": "deno serve -A _fresh/server.js",
+    "tunnel": "deno run --tunnel --allow-env main.ts"
   },
   "lint": {
     "rules": {
@@ -44,11 +45,7 @@
   },
   "nodeModulesDir": "auto",
   "deploy": {
-    "project": "0c6046e1-a321-4a83-8c2c-6a9027b89971",
-    "exclude": [
-      "**/node_modules"
-    ],
-    "include": [],
-    "entrypoint": "main.ts"
+    "org": "kasperstorgaard",
+    "app": "ricochet"
   }
 }
