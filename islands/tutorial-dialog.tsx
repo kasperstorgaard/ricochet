@@ -187,8 +187,8 @@ function TutorialSolutionStep({ href }: TutorialStepProps & {
         </p>
 
         <p>
-          You can see the number of moves in the bottom control panel, where you
-          can also undo/redo moves and reset the puzzle.
+          You can see the number of moves in the control panel, where you can
+          also undo/redo moves and reset the puzzle.
         </p>
       </div>
 
