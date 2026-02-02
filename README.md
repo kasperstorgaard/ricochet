@@ -3,7 +3,7 @@
 A puzzle game inspired by the boardgame "Ricochet Robots", built as a fullstack
 project with progressive enhancement, and tailwind + openprops for styling.
 
-Try it here: https://ricochet.deno.dev
+Try it here: [https://ricochet.kasperstorgaard.deno.net/](https://ricochet.kasperstorgaard.deno.net/)
 
 ### Installation
 
