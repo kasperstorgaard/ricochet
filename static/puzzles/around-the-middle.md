@@ -1,7 +1,7 @@
 ---
 name: Around the middle
 slug: around-the-middle
-createdAt: 2026-01-29T08:23:58.134Z
+createdAt: 2026-01-24T00:00:00.000Z
 ---
 
 ```

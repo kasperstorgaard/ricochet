@@ -1,4 +1,4 @@
-import type { Move, Position } from "#/db/types.ts";
+import type { Move, Position } from "#/util/types.ts";
 
 const COLUMNS = ["A", "B", "C", "D", "E", "F", "G", "H"];
 

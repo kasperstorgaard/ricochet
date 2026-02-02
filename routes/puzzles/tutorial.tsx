@@ -1,6 +1,6 @@
 import { useSignal } from "@preact/signals";
 import Board from "#/islands/board.tsx";
-import { Puzzle, type Solution } from "#/db/types.ts";
+import { Puzzle } from "#/util/types.ts";
 import { page, PageProps } from "fresh";
 import { ControlsPanel } from "#/islands/controls-panel.tsx";
 import { Header } from "#/components/header.tsx";
@@ -10,6 +10,7 @@ import { getPuzzle } from "#/util/loader.ts";
 import { setSkipTutorialCookie } from "#/util/cookies.ts";
 import { Main } from "#/components/main.tsx";
 import { define } from "../core.ts";
+import { Solution } from "../../db/types.ts";
 
 type Data = {
   puzzle: Puzzle;
@@ -24,7 +25,7 @@ export const handler = define.handlers<Data>({
     const redirectUrl = new URL(ctx.url);
     redirectUrl.searchParams.set("m", solutionRaw);
 
-    const puzzle = await getPuzzle("tutorial");
+    const puzzle = await getPuzzle(ctx.url.origin, "tutorial");
     if (!puzzle) throw new Error("Tutorial puzzle not found");
 
     if (!ctx.url.searchParams.has("m")) {

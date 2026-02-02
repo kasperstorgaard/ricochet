@@ -1,5 +1,5 @@
 import { useSignal } from "@preact/signals";
-import { Puzzle } from "#/db/types.ts";
+import { Puzzle } from "#/util/types.ts";
 import Board from "#/islands/board.tsx";
 import { EditorPanel } from "#/islands/editor-panel.tsx";
 import { page, PageProps } from "fresh";
@@ -12,7 +12,7 @@ export const handler = define.handlers<Puzzle>({
   async GET(ctx) {
     const { slug } = ctx.params;
 
-    const puzzle = await getPuzzle(slug);
+    const puzzle = await getPuzzle(ctx.url.origin, slug);
 
     if (!puzzle) {
       throw new Error(`Unable to find puzzle with slug: ${slug}`);

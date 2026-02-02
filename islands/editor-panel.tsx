@@ -1,4 +1,4 @@
-import { Puzzle } from "#/db/types.ts";
+import { Puzzle } from "#/util/types.ts";
 import type { Signal } from "@preact/signals";
 import { useMemo, useState } from "preact/hooks";
 import { decodeState, encodeState } from "#/util/url.ts";

@@ -11,7 +11,7 @@ import {
   validateBoard,
 } from "./board.ts";
 import { assertThrows } from "$std/assert/assert_throws.ts";
-import { Piece, Position } from "../db/types.ts";
+import { Piece, Position } from "../util/types.ts";
 
 Deno.test("isPositionSame() should be true for identical positions", () => {
   assertEquals(

@@ -14,7 +14,7 @@ export const handler = define.handlers({
       return Response.redirect(redirectUrl);
     }
 
-    const puzzle = await getPuzzleOfTheDay();
+    const puzzle = await getPuzzleOfTheDay(ctx.url.origin);
 
     redirectUrl.pathname = `puzzles/${puzzle.slug}`;
     return Response.redirect(redirectUrl);

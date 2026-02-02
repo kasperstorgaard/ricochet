@@ -12,3 +12,6 @@ node_modules/
 
 # Deno kv local database
 .sqlite/
+
+# Generated manifest file for puzzles
+static/puzzles/manifest.json

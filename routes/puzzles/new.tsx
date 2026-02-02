@@ -1,5 +1,5 @@
 import { useSignal } from "@preact/signals";
-import { Puzzle } from "#/db/types.ts";
+import { Puzzle } from "#/util/types.ts";
 import Board from "#/islands/board.tsx";
 import { EditorPanel } from "#/islands/editor-panel.tsx";
 import { page, PageProps } from "fresh";

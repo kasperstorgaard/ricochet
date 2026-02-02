@@ -1,7 +1,7 @@
 ---
 name: Tutorial
 slug: tutorial
-createdAt: 2026-01-29T08:24:07.189Z
+createdAt: 2026-01-01T00:00:00.000Z
 isTutorial: true
 ---
 

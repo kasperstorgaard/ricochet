@@ -1,7 +1,7 @@
 import { assertEquals } from "@std/assert";
 import { formatPuzzle } from "./formatter.ts";
 import { parsePuzzle } from "./parser.ts";
-import type { Puzzle } from "#/db/types.ts";
+import type { Puzzle } from "#/util/types.ts";
 
 Deno.test("formatPuzzle - formats simple puzzle", () => {
   const puzzle: Puzzle = {

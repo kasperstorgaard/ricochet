@@ -1,4 +1,4 @@
-import { Board, Piece, Position, type Puzzle, Wall } from "../db/types.ts";
+import { Board, Piece, Position, type Puzzle, Wall } from "../util/types.ts";
 import { extractYaml } from "@std/front-matter";
 import { ROWS, validateBoard } from "#/util/board.ts";
 

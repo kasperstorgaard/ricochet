@@ -1,6 +1,7 @@
-import type { Board, Piece, Wall } from "#/db/types.ts";
+import type { Board, Piece, Wall } from "#/util/types.ts";
+import { HTMLAttributes } from "preact";
 
-export type ThumbnailProps = React.HTMLAttributes<SVGSVGElement> & {
+export type ThumbnailProps = HTMLAttributes<SVGSVGElement> & {
   board: Board;
   width?: number;
   height?: number;

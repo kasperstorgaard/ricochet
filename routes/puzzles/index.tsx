@@ -1,4 +1,4 @@
-import { Puzzle } from "#/db/types.ts";
+import { Puzzle } from "#/util/types.ts";
 import { page, PageProps } from "fresh";
 import { listPuzzles } from "#/util/loader.ts";
 import { Header } from "#/components/header.tsx";
@@ -9,8 +9,8 @@ import { Panel } from "#/components/panel.tsx";
 import { define } from "../core.ts";
 
 export const handler = define.handlers<Puzzle[]>({
-  async GET() {
-    const puzzles = await listPuzzles({ sortBy: "date", limit: 6 });
+  async GET(ctx) {
+    const puzzles = await listPuzzles(ctx.url.origin, { limit: 6 });
     return page(puzzles);
   },
 });

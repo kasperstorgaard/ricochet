@@ -1,4 +1,4 @@
-import { Board, Position, type Puzzle } from "#/db/types.ts";
+import { Board, Position, type Puzzle } from "#/util/types.ts";
 import { isPositionSame } from "#/util/board.ts";
 import { stringify as stringifyYaml } from "$std/yaml/stringify.ts";
 

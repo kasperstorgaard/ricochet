@@ -1,4 +1,4 @@
-import { Puzzle } from "#/db/types.ts";
+import { Puzzle } from "#/util/types.ts";
 import type { Signal } from "@preact/signals";
 import { cn } from "#/lib/style.ts";
 import { useEffect, useMemo, useRef } from "preact/hooks";

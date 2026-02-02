@@ -1,4 +1,4 @@
-import { Move, Position } from "#/db/types.ts";
+import { Move, Position } from "#/util/types.ts";
 import { encodeState } from "#/util/url.ts";
 import { useEffect } from "preact/hooks";
 

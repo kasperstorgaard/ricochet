@@ -10,7 +10,7 @@ import {
   Targets,
 } from "#/util/board.ts";
 
-import { type Move, type Piece, Position, Puzzle, Wall } from "#/db/types.ts";
+import { type Move, type Piece, Position, Puzzle, Wall } from "#/util/types.ts";
 
 import { Direction, useFlick } from "#/lib/touch.ts";
 import { useArrowKeys } from "#/lib/keyboard.ts";

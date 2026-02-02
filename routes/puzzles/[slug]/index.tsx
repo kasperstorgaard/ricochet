@@ -1,6 +1,6 @@
 import { useSignal } from "@preact/signals";
 import Board from "#/islands/board.tsx";
-import { Puzzle } from "#/db/types.ts";
+import { Puzzle } from "#/util/types.ts";
 import { isValidSolution, resolveMoves } from "#/util/board.ts";
 import { page, PageProps } from "fresh";
 import { ControlsPanel } from "#/islands/controls-panel.tsx";
@@ -14,7 +14,7 @@ export const handler = define.handlers<Puzzle>({
   async GET(ctx) {
     const { slug } = ctx.params;
 
-    const puzzle = await getPuzzle(slug);
+    const puzzle = await getPuzzle(ctx.url.origin, slug);
     if (!puzzle) throw new Error(`Unable to find puzzle with slug: ${slug}`);
 
     return page(puzzle);
@@ -28,7 +28,7 @@ export const handler = define.handlers<Puzzle>({
 
     if (!name) throw new Error("Must provide a username");
 
-    const puzzle = await getPuzzle(slug);
+    const puzzle = await getPuzzle(ctx.url.origin, slug);
     if (!puzzle) throw new Error(`Puzzle with id: ${slug} not found`);
 
     const rawMoves = form.get("moves")?.toString() ?? "";
