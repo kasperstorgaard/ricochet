@@ -1,4 +1,4 @@
-import { assertEquals } from "jsr:@std/assert";
+import { assertEquals } from "@std/assert";
 
 import {
   BoardError,
@@ -11,7 +11,7 @@ import {
   validateBoard,
 } from "./board.ts";
 import { assertThrows } from "$std/assert/assert_throws.ts";
-import { Piece, Position } from "../db/types.ts";
+import { Piece, Position } from "../util/types.ts";
 
 Deno.test("isPositionSame() should be true for identical positions", () => {
   assertEquals(
@@ -56,13 +56,13 @@ Deno.test("isPositionAligned() should be true for y-aligned", () => {
   );
 });
 
-Deno.test("getTargets() should throw for an empty space", () => {
-  assertThrows(() =>
-    getTargets({ x: 4, y: 4 }, {
-      walls: [],
-      pieces: [],
-    })
-  );
+Deno.test("getTargets() should return {} for an empty space", () => {
+  const result = getTargets({ x: 4, y: 4 }, {
+    walls: [],
+    pieces: [],
+  });
+
+  assertEquals(result, {});
 });
 
 Deno.test("getTargets() should get 4 positions for a center source", () => {

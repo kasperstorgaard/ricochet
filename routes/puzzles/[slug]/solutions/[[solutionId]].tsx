@@ -1,12 +1,16 @@
-import { Puzzle, Solution } from "#/db/types.ts";
-import { Handlers, PageProps } from "$fresh/server.ts";
 import { useSignal } from "@preact/signals";
+import { page, PageProps } from "fresh";
 
-import { getPuzzle, getPuzzleSolution, listPuzzleSolutions } from "#/db/kv.ts";
+import { Header } from "#/components/header.tsx";
+import { Main } from "#/components/main.tsx";
+import { getPuzzleSolution, listPuzzleSolutions } from "#/db/kv.ts";
+import { Solution } from "#/db/types.ts";
 import Board from "#/islands/board.tsx";
 import { SolutionsPanel } from "#/islands/solutions-panel.tsx";
+import { define } from "#/routes/core.ts";
+import { getPuzzle } from "#/util/loader.ts";
+import { Puzzle } from "#/util/types.ts";
 import { encodeState } from "#/util/url.ts";
-import { Header } from "#/components/header.tsx";
 
 type Data = {
   puzzle: Puzzle;
@@ -14,22 +18,23 @@ type Data = {
   solution: Solution | null;
 };
 
-export const handler: Handlers<Data> = {
-  async GET(req, ctx) {
-    const { puzzleId, solutionId } = ctx.params;
+export const handler = define.handlers<Data>({
+  async GET(ctx) {
+    const req = ctx.req;
+    const { slug, solutionId } = ctx.params;
 
-    const puzzle = await getPuzzle(puzzleId);
+    const puzzle = await getPuzzle(ctx.url.origin, slug);
     if (!puzzle) {
-      throw new Error(`Unable to find a puzzle with id: ${puzzleId}`);
+      throw new Error(`Unable to find a puzzle with slug: ${slug}`);
     }
 
-    const solutions = await listPuzzleSolutions(puzzleId, {
+    const solutions = await listPuzzleSolutions(slug, {
       limit: 10,
       byMoves: true,
     });
 
     const solution = solutionId
-      ? await getPuzzleSolution(puzzleId, solutionId)
+      ? await getPuzzleSolution(slug, solutionId)
       : solutions[0];
 
     if (solutions.length && !solution) {
@@ -40,32 +45,35 @@ export const handler: Handlers<Data> = {
     if (!url.searchParams.has("m") && solution) {
       url.search = encodeState(solution);
 
-      return Response.redirect(url, 301);
+      return Response.redirect(url);
     }
 
-    return ctx.render({
+    return page({
       puzzle,
       solutions,
       solution,
     });
   },
-};
+});
 
-export default function SolutionPage(props: PageProps<Data>) {
+export default define.page(function SolutionPage(props: PageProps<Data>) {
   const puzzle = useSignal(props.data.puzzle);
   const href = useSignal(props.url.href);
   const mode = useSignal<"replay">("replay");
 
   const navItems = [
     { name: "home", href: "/" },
-    { name: "puzzles", href: "/puzzles/" },
-    { name: props.data.puzzle.name, href: `/puzzles/${props.data.puzzle.id}` },
-    { name: "solutions", href: `/puzzles/${props.data.puzzle.id}/solutions` },
+    { name: "puzzles", href: "/puzzles" },
+    {
+      name: props.data.puzzle.name,
+      href: `/puzzles/${props.data.puzzle.slug}`,
+    },
+    { name: "solutions", href: `/puzzles/${props.data.puzzle.slug}/solutions` },
   ];
 
   return (
     <>
-      <div class="flex flex-col col-[2/3] w-full gap-fl-2">
+      <Main>
         <Header items={navItems} />
 
         <h1 className="text-5 text-brand">{props.data.puzzle.name}</h1>
@@ -75,7 +83,7 @@ export default function SolutionPage(props: PageProps<Data>) {
           href={href}
           mode={mode}
         />
-      </div>
+      </Main>
 
       {props.data.solutions.length
         ? (
@@ -88,4 +96,4 @@ export default function SolutionPage(props: PageProps<Data>) {
         : null}
     </>
   );
-}
+});

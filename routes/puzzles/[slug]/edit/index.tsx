@@ -4,24 +4,26 @@ import Board from "#/islands/board.tsx";
 import { EditorPanel } from "#/islands/editor-panel.tsx";
 import { page, PageProps } from "fresh";
 import { Header } from "#/components/header.tsx";
-import { define } from "../core.ts";
+import { getPuzzle } from "#/util/loader.ts";
+import { Main } from "#/components/main.tsx";
+import { define } from "../../../core.ts";
 
 export const handler = define.handlers<Puzzle>({
-  GET() {
-    return page({
-      name: "",
-      slug: "",
-      createdAt: new Date(Date.now()),
-      board: {
-        destination: { x: 0, y: 0 },
-        pieces: [],
-        walls: [],
-      },
-    });
+  async GET(ctx) {
+    const { slug } = ctx.params;
+
+    const puzzle = await getPuzzle(ctx.url.origin, slug);
+
+    if (!puzzle) {
+      throw new Error(`Unable to find puzzle with slug: ${slug}`);
+    }
+
+    return page(puzzle);
   },
 });
 
 export default define.page(function EditorPage(props: PageProps<Puzzle>) {
+  const slug = props.data.slug;
   const puzzle = useSignal(props.data);
   const href = useSignal(props.url.href);
   const mode = useSignal<"editor">("editor");
@@ -29,22 +31,23 @@ export default define.page(function EditorPage(props: PageProps<Puzzle>) {
   const navItems = [
     { name: "home", href: "/" },
     { name: "puzzles", href: "/puzzles" },
-    { name: "new", href: "/puzzles/new" },
+    { name: slug, href: "/puzzles/" + slug },
+    { name: "edit", href: "/puzzles/" + slug + "/edit" },
   ];
 
   return (
     <>
-      <div class="flex flex-col col-[2/3] w-full gap-fl-2 pt-fl-2">
+      <Main>
         <Header items={navItems} />
 
-        <h1 className="text-5 text-brand">New puzzle</h1>
+        <h1 className="text-5 text-brand">Edit</h1>
 
         <Board
           puzzle={puzzle}
           href={href}
           mode={mode}
         />
-      </div>
+      </Main>
 
       <EditorPanel puzzle={puzzle} href={href} />
     </>

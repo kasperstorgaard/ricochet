@@ -1,9 +1,10 @@
-import { Puzzle } from "#/db/types.ts";
+import { Puzzle } from "#/util/types.ts";
 import type { Signal } from "@preact/signals";
-import { useMemo } from "preact/hooks";
+import { useMemo, useState } from "preact/hooks";
 import { decodeState, encodeState } from "#/util/url.ts";
 import { resolveMoves } from "#/util/board.ts";
-import { cn } from "#/lib/style.ts";
+import { formatPuzzle } from "#/util/formatter.ts";
+import { Panel } from "#/components/panel.tsx";
 
 type EditorPanelProps = {
   href: Signal<string>;
@@ -24,41 +25,37 @@ export function EditorPanel({ puzzle, href }: EditorPanelProps) {
     return resolveMoves(puzzle.value.board, moves);
   }, [href.value, puzzle.value.board]);
 
+  const [isCopied, setIsCopied] = useState(false);
+
+  const formatted = useMemo(() =>
+    formatPuzzle({
+      name: puzzle.value.name,
+      slug: puzzle.value.slug,
+      createdAt: puzzle.value.createdAt ?? new Date(Date.now()),
+      board,
+    }), [puzzle.value, board]);
+
   return (
-    <aside
-      className={cn(
-        "col-span-3 grid grid-cols-subgrid place-content-start py-fl-3",
-        "border-t-2 border-brand bg-surface-2 text-fl-0",
-      )}
-    >
-      <form
-        className="col-[2/3] grid gap-fl-2"
-        method="post"
-      >
-        <label className="flex flex-col gap-1">
-          Name
-
-          <input
-            name="name"
-            value={puzzle.value.name}
-            className="border-1 rounded-1 border-none p-2 bg-surface-3"
-            onKeyUp={(event) => event.stopPropagation()}
-          />
-        </label>
-
-        <input
-          type="hidden"
-          name="board"
-          value={JSON.stringify(board)}
-        />
-
+    <Panel>
+      <div className="flex flex-col col-[2/3] lg:row-[3/4] gap-fl-1">
         <button
-          className="place-self-start px-2 py-1 rounded-1 bg-ui-3"
-          type="submit"
+          type="button"
+          className="btn"
+          onClick={() => {
+            navigator.clipboard.writeText(
+              formatted,
+            );
+            setIsCopied(true);
+          }}
         >
-          {!puzzle.value.id ? "Create puzzle" : "Save puzzle"}
+          Copy markdown
         </button>
-      </form>
-    </aside>
+        {isCopied && (
+          <p className="text-fl-0 text-purple-1 leading-tight">
+            markdown copied to clipboard!
+          </p>
+        )}
+      </div>
+    </Panel>
   );
 }

@@ -5,6 +5,7 @@ import { cn } from "#/lib/style.ts";
 import { getRedoHref, getResetHref, getUndoHref } from "#/util/game.ts";
 import { useGameShortcuts } from "#/util/game.ts";
 import { updateLocation } from "#/lib/router.ts";
+import { Panel } from "#/components/panel.tsx";
 
 type ControlsPanelProps = {
   href: Signal<string>;
@@ -29,45 +30,54 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
   });
 
   return (
-    <aside className="col-span-3 place-content-start grid grid-cols-subgrid min-h-[min(25vh,20rem)] border-t-2 border-brand bg-surface-2 text-fl-1 py-fl-3">
-      <div className="flex col-[2/3] items-center gap-fl-1 w-full">
-        <a
-          href={getUndoHref(href.value, state)}
-          className={cn(
-            "flex items-center rounded-1 px-2 border-[currentColor] border-1 aspect-square",
-            !state.cursor && "opacity-40",
-          )}
-          data-router="replace"
-        >
-          <i className="ph-arrow-arc-left ph-light" />
-        </a>
+    <Panel>
+      <div
+        className={cn(
+          "flex max-lg:col-[2/3] items-center gap-fl-1 w-full",
+          "lg:grid lg:grid-rows-subgrid lg:row-[3/4]",
+        )}
+      >
+        <div className="flex place-items-center gap-fl-1 lg:row-start-4 lg:place-self-end">
+          <a
+            href={getUndoHref(href.value, state)}
+            className={cn(
+              "flex items-center rounded-1 px-2 border-[currentColor] border-1 aspect-square",
+              !state.cursor && "opacity-40",
+            )}
+            data-router="replace"
+          >
+            <i className="ph-arrow-arc-left ph-light" />
+          </a>
 
-        <div className="flex place-content-center justify-center text-fl-2 leading-0 min-w-[2ch] text-center font-3">
-          {count < 10 ? `0${count}` : count}
+          <div className="flex items-center justify-center text-fl-2 leading-flat min-w-[2ch] text-center font-3">
+            {count < 10 ? `0${count}` : count}
+          </div>
+
+          <a
+            href={getRedoHref(href.value, state)}
+            className={cn(
+              "flex items-center rounded-1 px-2 border-[currentColor] border-1 disabled:opacity-20 aspect-square",
+              (state.cursor == null ||
+                state.cursor === state.moves.length) && "opacity-40",
+            )}
+            data-router="replace"
+          >
+            <i className="ph-arrow-arc-right ph-light" />
+          </a>
         </div>
-
-        <a
-          href={getRedoHref(href.value, state)}
-          className={cn(
-            "flex items-center rounded-1 px-2 border-[currentColor] border-1 disabled:opacity-20 aspect-square",
-            state.cursor === state.moves.length && "opacity-40",
-          )}
-          data-router="replace"
-        >
-          <i className="ph-arrow-arc-right ph-light" />
-        </a>
 
         <a
           href={getResetHref(href.value)}
           className={cn(
             "flex items-center rounded-1 px-2 border-[currentColor] border-1 disabled:opacity-20 aspect-square ml-auto",
-            state.cursor === 0 && "opacity-40",
+            (state.cursor == null || state.cursor === 0) && "opacity-40",
+            "lg:row-[1/3] lg:place-self-start",
           )}
           data-router="push"
         >
           <i className="ph-arrow-counter-clockwise ph-light" />
         </a>
       </div>
-    </aside>
+    </Panel>
   );
 }

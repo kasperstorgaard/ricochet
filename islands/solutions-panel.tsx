@@ -2,6 +2,7 @@ import type { Signal } from "@preact/signals";
 import { cn } from "#/lib/style.ts";
 import type { Solution } from "#/db/types.ts";
 import { useCallback, useMemo } from "preact/hooks";
+import { Panel } from "#/components/panel.tsx";
 
 type ControlsPanelProps = {
   href: Signal<string>;
@@ -23,16 +24,21 @@ export function SolutionsPanel(
 
   const getSolutionUrl = useCallback((item: Solution) => {
     const url = new URL(href.value);
-    url.pathname = `/puzzles/${item.puzzleId}/solutions/${item.id}`;
+    url.pathname = `/puzzles/${item.puzzleSlug}/solutions/${item.id}`;
     url.search = "";
     return url.href;
   }, [href.value]);
 
   return (
-    <aside className="col-span-3 grid grid-cols-subgrid place-content-start min-h-[min(25vh,20rem)] border-t-2 border-brand bg-surface-2 text-fl-1 py-fl-3">
-      <ol className="grid col-[2/3] w-full md:grid-rows-5 grid-cols-1 md:grid-cols-2 md:grid-flow-col items-center gap-x-fl-2 gap-y-1">
+    <Panel>
+      <ol
+        className={cn(
+          "grid col-[2/3] lg:col-auto w-full items-center gap-x-fl-2 gap-y-1",
+          "lg:row-[3/4] lg:grid-flow-row lg:grid-rows-[auto] lg:content-start",
+        )}
+      >
         {solutionItems.map((item) =>
-          item === null ? <li className="p-0">...</li> : (
+          item === null ? <li key="delimiter" className="p-0">...</li> : (
             <li
               key={item?.id}
               className={cn(
@@ -51,6 +57,6 @@ export function SolutionsPanel(
           )
         )}
       </ol>
-    </aside>
+    </Panel>
   );
 }

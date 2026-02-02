@@ -1,8 +1,8 @@
-import { Board, Move, Piece, Position, Wall } from "../db/types.ts";
+import { Board, Move, Piece, Position, Wall } from "../util/types.ts";
 
 // 8 rows and cols align well with hex and comp-science, so a useful/fun limit.
-const COLS = 8;
-const ROWS = 8;
+export const COLS = 8;
+export const ROWS = 8;
 
 export class BoardError extends Error {
   constructor() {

@@ -1,5 +1,5 @@
 import { useCallback, useEffect } from "preact/hooks";
-import { Position, Puzzle } from "#/db/types.ts";
+import { Position, Puzzle } from "#/util/types.ts";
 import type { Signal } from "@preact/signals";
 import { isPositionSame } from "#/util/board.ts";
 

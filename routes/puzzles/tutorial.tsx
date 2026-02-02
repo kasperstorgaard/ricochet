@@ -1,45 +1,64 @@
 import { useSignal } from "@preact/signals";
 import Board from "#/islands/board.tsx";
-import { Puzzle, type Solution } from "#/db/types.ts";
-import { Handlers, PageProps } from "$fresh/server.ts";
+import { Puzzle } from "#/util/types.ts";
+import { page, PageProps } from "fresh";
 import { ControlsPanel } from "#/islands/controls-panel.tsx";
-import { getPuzzle, getPuzzleSolution } from "#/db/kv.ts";
 import { Header } from "#/components/header.tsx";
 import { TutorialDialog } from "#/islands/tutorial-dialog.tsx";
-import { encodeState } from "#/util/url.ts";
+import { decodeState } from "#/util/url.ts";
+import { getPuzzle } from "#/util/loader.ts";
+import { setSkipTutorialCookie } from "#/util/cookies.ts";
+import { Main } from "#/components/main.tsx";
+import { define } from "../core.ts";
+import { Solution } from "../../db/types.ts";
 
 type Data = {
   puzzle: Puzzle;
-  solution: Solution;
+  solution: Omit<Solution, "id" | "name">;
 };
 
-export const handler: Handlers<Data> = {
-  async GET(_req, ctx) {
-    const puzzleId = Deno.env.get("TUTORIAL_PUZZLE_ID");
-    if (!puzzleId) throw new Error("Tutorial puzzle not found");
+export const handler = define.handlers<Data>({
+  async GET(ctx) {
+    const solutionRaw = Deno.env.get("TUTORIAL_SOLUTION");
+    if (!solutionRaw) throw new Error("Tutorial puzzle solution not found");
 
-    const solutionId = Deno.env.get("TUTORIAL_PUZZLE_SOLUTION_ID");
-    if (!solutionId) throw new Error("Tutorial puzzle solution not found");
+    const redirectUrl = new URL(ctx.url);
+    redirectUrl.searchParams.set("m", solutionRaw);
 
-    const puzzle = await getPuzzle(puzzleId);
-    if (!puzzle) throw new Error(`Unable to find puzzle with id: ${puzzleId}`);
-
-    const solution = await getPuzzleSolution(puzzleId, solutionId);
-    if (!solution) {
-      throw new Error(`Unable to find puzzle solution id: ${puzzleId}`);
-    }
+    const puzzle = await getPuzzle(ctx.url.origin, "tutorial");
+    if (!puzzle) throw new Error("Tutorial puzzle not found");
 
     if (!ctx.url.searchParams.has("m")) {
-      const redirectUrl = new URL(ctx.url);
-      redirectUrl.search = encodeState(solution);
-      return Response.redirect(redirectUrl, 301);
+      return Response.redirect(redirectUrl);
     }
 
-    return ctx.render({ puzzle, solution });
-  },
-};
+    const { moves } = decodeState(redirectUrl);
 
-export default function PuzzleTutorial(props: PageProps<Data>) {
+    return page({
+      puzzle,
+      solution: {
+        puzzleSlug: puzzle.slug,
+        moves,
+      },
+    });
+  },
+  // dismiss dialog
+  POST() {
+    const headers = new Headers({
+      // Redirect to home
+      Location: "/",
+    });
+
+    setSkipTutorialCookie(headers, true);
+
+    return new Response("", {
+      status: 302,
+      headers,
+    });
+  },
+});
+
+export default define.page(function PuzzleTutorial(props: PageProps<Data>) {
   const href = useSignal(props.url.href);
   const puzzle = useSignal(props.data.puzzle);
   const mode = useSignal<"readonly" | "replay">(
@@ -52,7 +71,7 @@ export default function PuzzleTutorial(props: PageProps<Data>) {
 
   return (
     <>
-      <div class="flex flex-col col-[2/3] w-full gap-fl-2">
+      <Main>
         <Header items={navItems} />
 
         <h1 className="text-5 text-brand">{puzzle.value.name}</h1>
@@ -62,11 +81,16 @@ export default function PuzzleTutorial(props: PageProps<Data>) {
           puzzle={puzzle}
           mode={mode}
         />
-      </div>
+      </Main>
 
       <ControlsPanel href={href} />
 
-      <TutorialDialog href={href} mode={mode} solution={props.data.solution} />
+      <TutorialDialog
+        open
+        href={href}
+        mode={mode}
+        solution={props.data.solution}
+      />
     </>
   );
-}
+});
