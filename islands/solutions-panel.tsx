@@ -38,7 +38,7 @@ export function SolutionsPanel(
         )}
       >
         {solutionItems.map((item) =>
-          item === null ? <li className="p-0">...</li> : (
+          item === null ? <li key="delimiter" className="p-0">...</li> : (
             <li
               key={item?.id}
               className={cn(

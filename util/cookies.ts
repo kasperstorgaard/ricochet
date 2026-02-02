@@ -1,4 +1,4 @@
-import { getCookies, setCookie } from "jsr:@std/http/cookie";
+import { getCookies, setCookie } from "@std/http/cookie";
 
 // 3 months
 const SKIP_TUTORIAL_KEY = "skip_tutorial";

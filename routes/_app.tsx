@@ -1,13 +1,14 @@
-import { type PageProps } from "$fresh/server.ts";
+import { type PageProps } from "fresh";
 import { cn } from "#/lib/style.ts";
-export default function App({ Component }: PageProps) {
+import { define } from "./core.ts";
+
+export default define.page(function AppWrapper({ Component }: PageProps) {
   return (
     <html className="flex flex-col min-h-screen">
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Ricochet</title>
-        <link rel="stylesheet" href="/styles.css" />
         <link
           rel="stylesheet"
           type="text/css"
@@ -17,7 +18,7 @@ export default function App({ Component }: PageProps) {
         <link
           rel="preconnect"
           href="https://fonts.gstatic.com"
-          crossOrigin="crossOrigin"
+          crossorigin="anonymous"
         />
         <link
           href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500&display=swap"
@@ -32,8 +33,9 @@ export default function App({ Component }: PageProps) {
           "lg:grid-cols-[1fr_minmax(20vw,min-content)] lg:content-center",
         )}
       >
+        {/* @ts-ignore: Fresh 2.x Component type issue */}
         <Component />
       </body>
     </html>
   );
-}
+});

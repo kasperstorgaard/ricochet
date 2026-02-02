@@ -34,10 +34,10 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
       <div
         className={cn(
           "flex max-lg:col-[2/3] items-center gap-fl-1 w-full",
-          "lg:grid lg:grid-rows-subgrid lg:row-[1/4]",
+          "lg:grid lg:grid-rows-subgrid lg:row-[3/4]",
         )}
       >
-        <div className="flex gap-fl-1 lg:row-start-4 lg:place-self-end">
+        <div className="flex place-items-center gap-fl-1 lg:row-start-4 lg:place-self-end">
           <a
             href={getUndoHref(href.value, state)}
             className={cn(
@@ -49,7 +49,7 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
             <i className="ph-arrow-arc-left ph-light" />
           </a>
 
-          <div className="flex items-center justify-center text-fl-2 leading-0 min-w-[2ch] text-center font-3">
+          <div className="flex items-center justify-center text-fl-2 leading-flat min-w-[2ch] text-center font-3">
             {count < 10 ? `0${count}` : count}
           </div>
 

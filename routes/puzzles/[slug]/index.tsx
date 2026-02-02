@@ -2,23 +2,25 @@ import { useSignal } from "@preact/signals";
 import Board from "#/islands/board.tsx";
 import { Puzzle } from "#/db/types.ts";
 import { isValidSolution, resolveMoves } from "#/util/board.ts";
-import { Handlers, PageProps } from "$fresh/server.ts";
+import { page, PageProps } from "fresh";
 import { ControlsPanel } from "#/islands/controls-panel.tsx";
 import { addSolution } from "#/db/kv.ts";
 import { getPuzzle } from "../../../util/loader.ts";
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
+import { define } from "../../core.ts";
 
-export const handler: Handlers<Puzzle> = {
-  async GET(_req, ctx) {
+export const handler = define.handlers<Puzzle>({
+  async GET(ctx) {
     const { slug } = ctx.params;
 
     const puzzle = await getPuzzle(slug);
     if (!puzzle) throw new Error(`Unable to find puzzle with slug: ${slug}`);
 
-    return ctx.render(puzzle);
+    return page(puzzle);
   },
-  async POST(req, ctx) {
+  async POST(ctx) {
+    const req = ctx.req;
     const { slug } = ctx.params;
 
     const form = await req.formData();
@@ -42,16 +44,16 @@ export const handler: Handlers<Puzzle> = {
 
     return Response.redirect(url.href, 302);
   },
-};
+});
 
-export default function PuzzleDetails(props: PageProps<Puzzle>) {
+export default define.page(function PuzzleDetails(props: PageProps<Puzzle>) {
   const href = useSignal(props.url.href);
   const puzzle = useSignal(props.data);
   const mode = useSignal<"solve">("solve");
 
   const navItems = [
     { name: "home", href: "/" },
-    { name: "puzzles", href: "/puzzles/" },
+    { name: "puzzles", href: "/puzzles" },
   ];
 
   return (
@@ -67,4 +69,4 @@ export default function PuzzleDetails(props: PageProps<Puzzle>) {
       <ControlsPanel href={href} />
     </>
   );
-}
+});

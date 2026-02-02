@@ -3,7 +3,6 @@ import type { Signal } from "@preact/signals";
 import { useMemo, useState } from "preact/hooks";
 import { decodeState, encodeState } from "#/util/url.ts";
 import { resolveMoves } from "#/util/board.ts";
-import { cn } from "#/lib/style.ts";
 import { formatPuzzle } from "#/util/formatter.ts";
 import { Panel } from "#/components/panel.tsx";
 
@@ -32,6 +31,7 @@ export function EditorPanel({ puzzle, href }: EditorPanelProps) {
     formatPuzzle({
       name: puzzle.value.name,
       slug: puzzle.value.slug,
+      createdAt: puzzle.value.createdAt ?? new Date(Date.now()),
       board,
     }), [puzzle.value, board]);
 
@@ -39,6 +39,7 @@ export function EditorPanel({ puzzle, href }: EditorPanelProps) {
     <Panel>
       <div className="flex flex-col col-[2/3] lg:row-[3/4] gap-fl-1">
         <button
+          type="button"
           className="btn"
           onClick={() => {
             navigator.clipboard.writeText(
@@ -50,7 +51,7 @@ export function EditorPanel({ puzzle, href }: EditorPanelProps) {
           Copy markdown
         </button>
         {isCopied && (
-          <p className="text-fl-0 text-purple-1 leading-1">
+          <p className="text-fl-0 text-purple-1 leading-tight">
             markdown copied to clipboard!
           </p>
         )}

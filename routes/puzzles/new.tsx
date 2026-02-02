@@ -2,14 +2,16 @@ import { useSignal } from "@preact/signals";
 import { Puzzle } from "#/db/types.ts";
 import Board from "#/islands/board.tsx";
 import { EditorPanel } from "#/islands/editor-panel.tsx";
-import { Handlers, PageProps } from "$fresh/server.ts";
+import { page, PageProps } from "fresh";
 import { Header } from "#/components/header.tsx";
+import { define } from "../core.ts";
 
-export const handler: Handlers<Puzzle> = {
-  GET(_req, ctx) {
-    return ctx.render({
+export const handler = define.handlers<Puzzle>({
+  GET() {
+    return page({
       name: "",
       slug: "",
+      createdAt: new Date(Date.now()),
       board: {
         destination: { x: 0, y: 0 },
         pieces: [],
@@ -17,17 +19,17 @@ export const handler: Handlers<Puzzle> = {
       },
     });
   },
-};
+});
 
-export default function EditorPage(props: PageProps<Puzzle>) {
+export default define.page(function EditorPage(props: PageProps<Puzzle>) {
   const puzzle = useSignal(props.data);
   const href = useSignal(props.url.href);
   const mode = useSignal<"editor">("editor");
 
   const navItems = [
     { name: "home", href: "/" },
-    { name: "puzzles", href: "/puzzles/" },
-    { name: "new", href: "/puzzles/new/" },
+    { name: "puzzles", href: "/puzzles" },
+    { name: "new", href: "/puzzles/new" },
   ];
 
   return (
@@ -47,4 +49,4 @@ export default function EditorPage(props: PageProps<Puzzle>) {
       <EditorPanel puzzle={puzzle} href={href} />
     </>
   );
-}
+});

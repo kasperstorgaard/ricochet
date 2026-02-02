@@ -11,7 +11,7 @@ export function Header({ items }: Props) {
       <nav className="flex items-center gap-1 text-fl-0">
         {items.map((item, idx) => (
           <>
-            {idx > 0 && <span className="leading-0 mb-00">/</span>}
+            {idx > 0 && <span className="leading-mini mb-00">/</span>}
 
             <a
               href={item.href}

@@ -19,6 +19,7 @@ import { decodeState } from "#/util/url.ts";
 import { getActiveHref, getMoveHref } from "#/util/game.ts";
 import { useRouter } from "#/lib/router.ts";
 import { SolutionDialog } from "#/islands/solution-dialog.tsx";
+import { getReplaySpeed } from "../lib/replay.ts";
 
 type BoardProps = {
   href: Signal<string>;
@@ -100,8 +101,8 @@ export default function Board(
   const replaySpeed = useMemo(() => {
     const url = new URL(href.value);
 
-    const rawValue = url.searchParams.get("r");
-    const value = parseInt(rawValue ?? "", 10);
+    const name = url.searchParams.get("r");
+    const value = getReplaySpeed(name);
 
     return isNaN(value) ? 1 : value;
   }, [href.value]);
@@ -158,7 +159,7 @@ export default function Board(
           "--replay-speed": `${replaySpeed}s`,
         }}
         className={cn(
-          "grid gap-[var(--gap)] w-full grid-cols-[repeat(8,var(--space-w))] grid-rows-[repeat(8,var(--space-w))]",
+          "grid gap-(--gap) w-full grid-cols-[repeat(8,var(--space-w))] grid-rows-[repeat(8,var(--space-w))]",
         )}
       >
         {spaces.map((row) =>
@@ -179,7 +180,12 @@ export default function Board(
 
         <BoardDestination {...board.destination} />
 
-        {board.walls.map((wall) => <BoardWall {...wall} />)}
+        {board.walls.map((wall) => (
+          <BoardWall
+            key={`${wall.x}-${wall.y}-${wall.orientation}`}
+            {...wall}
+          />
+        ))}
 
         {/* If we have an active space/piece, draw the possible destinations  */}
         {state.active && targets && (
@@ -223,8 +229,6 @@ export default function Board(
       </div>
 
       <SolutionDialog
-        ref={solutionDialogRef}
-        // Basically only use the open value if javascript is disabled and currently solving.
         open={mode.value === "solve" &&
           !solutionDialogRef.current &&
           hasSolution}
@@ -406,8 +410,8 @@ function BoardPiece(
       id={id}
       href={isReadonly ? "#" : href}
       className={cn(
-        "flex place-content-center col-start-1 row-start-1 p-[var(--pad)]",
-        "w-full aspect-square place-self-center ml-[var(--ml)] mt-[var(--mt)]",
+        "flex place-content-center col-start-1 row-start-1 p-(--pad)",
+        "w-full aspect-square place-self-center ml-(--ml) mt-(--mt)",
         "translate-x-[calc((var(--space-w)+var(--gap))*var(--x))]",
         "translate-y-[calc((var(--space-w)+var(--gap))*var(--y))]",
         "transition-transform duration-200 ease-out",

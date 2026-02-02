@@ -1,5 +1,5 @@
 import { Puzzle, Solution } from "#/db/types.ts";
-import { Handlers, PageProps } from "$fresh/server.ts";
+import { page, PageProps } from "fresh";
 import { useSignal } from "@preact/signals";
 
 import { getPuzzleSolution, listPuzzleSolutions } from "#/db/kv.ts";
@@ -9,7 +9,7 @@ import { encodeState } from "#/util/url.ts";
 import { Header } from "#/components/header.tsx";
 import { getPuzzle } from "#/util/loader.ts";
 import { Main } from "#/components/main.tsx";
-import { isValidSolution, resolveMoves } from "#/util/board.ts";
+import { define } from "../../../core.ts";
 
 type Data = {
   puzzle: Puzzle;
@@ -17,8 +17,9 @@ type Data = {
   solution: Solution | null;
 };
 
-export const handler: Handlers<Data> = {
-  async GET(req, ctx) {
+export const handler = define.handlers<Data>({
+  async GET(ctx) {
+    const req = ctx.req;
     const { slug, solutionId } = ctx.params;
 
     const puzzle = await getPuzzle(slug);
@@ -46,22 +47,22 @@ export const handler: Handlers<Data> = {
       return Response.redirect(url);
     }
 
-    return ctx.render({
+    return page({
       puzzle,
       solutions,
       solution,
     });
   },
-};
+});
 
-export default function SolutionPage(props: PageProps<Data>) {
+export default define.page(function SolutionPage(props: PageProps<Data>) {
   const puzzle = useSignal(props.data.puzzle);
   const href = useSignal(props.url.href);
   const mode = useSignal<"replay">("replay");
 
   const navItems = [
     { name: "home", href: "/" },
-    { name: "puzzles", href: "/puzzles/" },
+    { name: "puzzles", href: "/puzzles" },
     {
       name: props.data.puzzle.name,
       href: `/puzzles/${props.data.puzzle.slug}`,
@@ -94,4 +95,4 @@ export default function SolutionPage(props: PageProps<Data>) {
         : null}
     </>
   );
-}
+});

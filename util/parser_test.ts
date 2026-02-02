@@ -1,4 +1,4 @@
-import { assertEquals, assertObjectMatch, assertThrows } from "jsr:@std/assert";
+import { assertEquals, assertObjectMatch, assertThrows } from "@std/assert";
 import { parsePuzzle, ParserError } from "./parser.ts";
 
 Deno.test("parsePuzzle - parses metadata with extra fields", () => {

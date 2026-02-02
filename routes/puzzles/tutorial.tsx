@@ -1,7 +1,7 @@
 import { useSignal } from "@preact/signals";
 import Board from "#/islands/board.tsx";
 import { Puzzle, type Solution } from "#/db/types.ts";
-import { Handlers, PageProps } from "$fresh/server.ts";
+import { page, PageProps } from "fresh";
 import { ControlsPanel } from "#/islands/controls-panel.tsx";
 import { Header } from "#/components/header.tsx";
 import { TutorialDialog } from "#/islands/tutorial-dialog.tsx";
@@ -9,14 +9,15 @@ import { decodeState } from "#/util/url.ts";
 import { getPuzzle } from "#/util/loader.ts";
 import { setSkipTutorialCookie } from "#/util/cookies.ts";
 import { Main } from "#/components/main.tsx";
+import { define } from "../core.ts";
 
 type Data = {
   puzzle: Puzzle;
   solution: Omit<Solution, "id" | "name">;
 };
 
-export const handler: Handlers<Data> = {
-  async GET(_req, ctx) {
+export const handler = define.handlers<Data>({
+  async GET(ctx) {
     const solutionRaw = Deno.env.get("TUTORIAL_SOLUTION");
     if (!solutionRaw) throw new Error("Tutorial puzzle solution not found");
 
@@ -32,7 +33,7 @@ export const handler: Handlers<Data> = {
 
     const { moves } = decodeState(redirectUrl);
 
-    return ctx.render({
+    return page({
       puzzle,
       solution: {
         puzzleSlug: puzzle.slug,
@@ -54,9 +55,9 @@ export const handler: Handlers<Data> = {
       headers,
     });
   },
-};
+});
 
-export default function PuzzleTutorial(props: PageProps<Data>) {
+export default define.page(function PuzzleTutorial(props: PageProps<Data>) {
   const href = useSignal(props.url.href);
   const puzzle = useSignal(props.data.puzzle);
   const mode = useSignal<"readonly" | "replay">(
@@ -83,7 +84,12 @@ export default function PuzzleTutorial(props: PageProps<Data>) {
 
       <ControlsPanel href={href} />
 
-      <TutorialDialog href={href} mode={mode} solution={props.data.solution} />
+      <TutorialDialog
+        open
+        href={href}
+        mode={mode}
+        solution={props.data.solution}
+      />
     </>
   );
-}
+});

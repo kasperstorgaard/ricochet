@@ -1,4 +1,4 @@
-import { assertEquals } from "jsr:@std/assert";
+import { assertEquals } from "@std/assert";
 import { getDayOfYear, pickByDay } from "./date.ts";
 
 Deno.test("getDayOfYear - returns correct day number", () => {

@@ -1,10 +1,11 @@
-import { Handlers } from "$fresh/server.ts";
 import { Header } from "#/components/header.tsx";
 import { getPuzzleOfTheDay } from "#/util/loader.ts";
 import { getSkipTutorialCookie } from "#/util/cookies.ts";
+import { define } from "./core.ts";
 
-export const handler: Handlers = {
-  async GET(req) {
+export const handler = define.handlers({
+  async GET(ctx) {
+    const req = ctx.req;
     const skipTutorial = getSkipTutorialCookie(req.headers);
     const redirectUrl = new URL(req.url);
 
@@ -18,12 +19,12 @@ export const handler: Handlers = {
     redirectUrl.pathname = `puzzles/${puzzle.slug}`;
     return Response.redirect(redirectUrl);
   },
-};
+});
 
-export default function Home() {
+export default define.page(function Home() {
   const navItems = [
     { name: "home", href: "/" },
-    { name: "puzzles", href: "/puzzles/" },
+    { name: "puzzles", href: "/puzzles" },
   ];
 
   return (
@@ -42,12 +43,10 @@ export default function Home() {
       </div>
     </div>
   );
-}
+});
 
 /**
  * Ideas:
- * - require auth for editor
- * - redirect to game id of the day when landing on home
  * - add a keyboard navigation hint for desktop
  * - add a touch navigation hint for mobile
  * - ripple fade in of board and pieces, from the outside in, or top to bottom

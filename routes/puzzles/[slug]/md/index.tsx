@@ -1,10 +1,10 @@
 import { Puzzle } from "#/db/types.ts";
-import { Handlers } from "$fresh/server.ts";
 import { formatPuzzle } from "#/util/formatter.ts";
 import { getPuzzle } from "#/util/loader.ts";
+import { define } from "../../../core.ts";
 
-export const handler: Handlers<Puzzle> = {
-  async GET(_req, ctx) {
+export const handler = define.handlers<Puzzle>({
+  async GET(ctx) {
     const { slug } = ctx.params;
 
     const puzzle = await getPuzzle(slug);
@@ -12,4 +12,4 @@ export const handler: Handlers<Puzzle> = {
 
     return new Response(formatPuzzle(puzzle));
   },
-};
+});

@@ -1,7 +1,6 @@
 import { parsePuzzle } from "#/util/parser.ts";
 import type { Puzzle } from "#/db/types.ts";
 import { pickByDay } from "#/util/date.ts";
-import { ErrorOverlay } from "$fresh/src/server/error_overlay.tsx";
 
 const PUZZLES_DIR = new URL("../static/puzzles/", import.meta.url);
 

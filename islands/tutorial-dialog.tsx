@@ -2,15 +2,15 @@ import type { Signal } from "@preact/signals";
 import { cn } from "#/lib/style.ts";
 import { useEffect, useMemo, useRef } from "preact/hooks";
 import type { Solution } from "#/db/types.ts";
-import { encodeState } from "#/util/url.ts";
 
 type Props = {
   href: Signal<string>;
   mode: Signal<"replay" | "readonly">;
   solution: Omit<Solution, "id" | "name">;
+  open?: boolean;
 };
 
-export const TutorialDialog = function ({ href, mode, solution }: Props) {
+export const TutorialDialog = function ({ open, href, mode, solution }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
 
   const step = useMemo(() => {
@@ -23,15 +23,18 @@ export const TutorialDialog = function ({ href, mode, solution }: Props) {
 
   const replaySpeed = useMemo(() => {
     const url = new URL(href.value);
-    const rawValue = url.searchParams.get("r");
-    const value = parseInt(rawValue ?? "", 10);
+
+    const name = url.searchParams.get("r");
+    const value = name === "slow" ? 1.5 : 1;
+
     return isNaN(value) ? 1 : value;
   }, [href.value]);
 
   useEffect(() => {
     ref.current?.close();
-    ref.current?.showModal();
-  }, []);
+
+    if (open) ref.current?.showModal();
+  }, [open]);
 
   useEffect(() => {
     mode.value = step === 2 ? "replay" : "readonly";
@@ -40,15 +43,14 @@ export const TutorialDialog = function ({ href, mode, solution }: Props) {
   return (
     <dialog
       ref={ref}
-      open={true}
       className={cn(
-        "rounded-1 max-w-lg shadow-4",
+        "m-auto rounded-1 max-w-lg shadow-4 [animation-fill-mode:forwards]",
+        "backdrop:[animation-delay:inherit] backdrop:[animation-fill-mode:forwards]",
         step === 2 &&
-          "opacity-0 animate-fade-in",
+          "opacity-0 animate-fade-in backdrop:opacity-0 backdrop:animate-fade-in",
       )}
       style={{
-        animationDelay: `${replaySpeed * 6}s`,
-        animationFillMode: "forwards",
+        animationDelay: `${replaySpeed * 5.15}s`,
       }}
     >
       <div className="grid gap-fl-3 p-fl-3">
@@ -72,7 +74,7 @@ function TutorialWelcomeStep({ href }: TutorialStepProps) {
   return (
     <>
       <div className="flex flex-col gap-fl-2 text-text-2">
-        <h1 className="text-fl-2 leading-00 text-text-1">
+        <h1 className="text-fl-2 leading-flat text-text-1">
           Welcome to <strong className="text-ui-2">Ricochet!</strong>
         </h1>
 
@@ -110,14 +112,14 @@ function TutorialWelcomeStep({ href }: TutorialStepProps) {
 
 function TutorialPiecesStep({ href }: TutorialStepProps) {
   const prevStep = useMemo(() => getStepLink(href, 0), [href]);
-  const nextStep = useMemo(() => getStepLink(href, 2, { replay: "fast" }), [
+  const nextStep = useMemo(() => getStepLink(href, 2, { replay: "regular" }), [
     href,
   ]);
 
   return (
     <>
       <div className="flex flex-col gap-fl-2 text-text-2">
-        <h1 className="text-fl-2 leading-1 text-text-1">The pieces</h1>
+        <h1 className="text-fl-2 leading-tight text-text-1">The pieces</h1>
         <p>
           There are two pieces: the "rook" and the "bouncers".
         </p>
@@ -153,7 +155,7 @@ function TutorialPiecesStep({ href }: TutorialStepProps) {
   );
 }
 
-function TutorialSolutionStep({ href, solution }: TutorialStepProps & {
+function TutorialSolutionStep({ href }: TutorialStepProps & {
   solution: Omit<Solution, "id" | "name">;
 }) {
   const prevStep = useMemo(() => getStepLink(href, 1), [href]);
@@ -161,20 +163,13 @@ function TutorialSolutionStep({ href, solution }: TutorialStepProps & {
     () => getStepLink(href, 2, { replay: "slow" }),
     [href],
   );
-  const nextStep = useMemo(() => {
-    const url = new URL(href);
-    url.pathname = `/puzzles/${solution.puzzleSlug}`;
-    url.search = encodeState({
-      ...solution,
-      cursor: 0,
-    });
-    return url.href;
-  }, [href, solution]);
 
   return (
     <>
       <div className="flex flex-col gap-fl-2 text-text-2">
-        <h1 className="text-fl-2 leading-1 text-text-1">Finding a solution</h1>
+        <h1 className="text-fl-2 leading-tight text-text-1">
+          Finding a solution
+        </h1>
         <p>
           That was a replay of a solution.<br />
           <a
@@ -222,7 +217,7 @@ function TutorialSolutionStep({ href, solution }: TutorialStepProps & {
 }
 
 type GetStepLinkOptions = {
-  replay?: "fast" | "slow";
+  replay?: "regular" | "slow";
 };
 
 function getStepLink(
@@ -233,9 +228,7 @@ function getStepLink(
   const url = new URL(href);
   url.searchParams.set("s", step.toString());
 
-  if (replay) {
-    url.searchParams.set("r", replay === "fast" ? "1" : "2");
-  }
+  if (replay) url.searchParams.set("r", replay);
 
   return url.href;
 }

@@ -1,6 +1,6 @@
 ---
-name: 'leila'
-slug: 'leila'
+name: Leila
+slug: leila
 ---
 
 ```
