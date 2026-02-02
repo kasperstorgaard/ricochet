@@ -25,8 +25,9 @@ export default define.page(function PuzzlesPage(props: PageProps<Puzzle[]>) {
       <Main>
         <Header items={navItems} />
 
-        <h1 className="text-5 text-brand">Recent puzzles</h1>
+        <h1 className="text-5 text-brand">Puzzles</h1>
 
+        {/* TODO: add pagination */}
         <ul
           className={cn(
             "grid grid-cols-[repeat(2,1fr)] gap-fl-3 py-fl-2",
