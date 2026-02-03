@@ -1,11 +1,16 @@
 import type { Signal } from "@preact/signals";
 import { useCallback, useMemo } from "preact/hooks";
-import { decodeState } from "#/util/url.ts";
-import { cn } from "#/lib/style.ts";
-import { getRedoHref, getResetHref, getUndoHref } from "#/util/game.ts";
-import { useGameShortcuts } from "#/util/game.ts";
-import { updateLocation } from "#/lib/router.ts";
+
 import { Panel } from "#/components/panel.tsx";
+import { updateLocation } from "#/lib/router.ts";
+import { cn } from "#/lib/style.ts";
+import { useGameShortcuts } from "#/util/game.ts";
+import {
+  decodeState,
+  getRedoHref,
+  getResetHref,
+  getUndoHref,
+} from "#/util/url.ts";
 
 type ControlsPanelProps = {
   href: Signal<string>;

@@ -1,10 +1,11 @@
-import { Puzzle } from "#/util/types.ts";
 import type { Signal } from "@preact/signals";
 import { useMemo, useState } from "preact/hooks";
-import { decodeState, encodeState } from "#/util/url.ts";
+
+import { Panel } from "#/components/panel.tsx";
 import { resolveMoves } from "#/util/board.ts";
 import { formatPuzzle } from "#/util/formatter.ts";
-import { Panel } from "#/components/panel.tsx";
+import { Puzzle } from "#/util/types.ts";
+import { decodeState, encodeState } from "#/util/url.ts";
 
 type EditorPanelProps = {
   href: Signal<string>;

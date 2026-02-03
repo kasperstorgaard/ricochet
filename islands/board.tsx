@@ -1,7 +1,11 @@
 import type { Signal } from "@preact/signals";
 import { useCallback, useEffect, useMemo, useRef } from "preact/hooks";
 
+import { SolutionDialog } from "#/islands/solution-dialog.tsx";
+import { useArrowKeys } from "#/lib/keyboard.ts";
+import { useRouter } from "#/lib/router.ts";
 import { cn } from "#/lib/style.ts";
+import { Direction, useFlick } from "#/lib/touch.ts";
 import {
   getTargets,
   isPositionSame,
@@ -9,17 +13,10 @@ import {
   resolveMoves,
   Targets,
 } from "#/util/board.ts";
-
-import { type Move, type Piece, Position, Puzzle, Wall } from "#/util/types.ts";
-
-import { Direction, useFlick } from "#/lib/touch.ts";
-import { useArrowKeys } from "#/lib/keyboard.ts";
 import { useEditor } from "#/util/editor.ts";
-import { decodeState } from "#/util/url.ts";
-import { getActiveHref, getMoveHref } from "#/util/game.ts";
-import { useRouter } from "#/lib/router.ts";
-import { SolutionDialog } from "#/islands/solution-dialog.tsx";
-import { getReplaySpeed } from "../lib/replay.ts";
+import { type Move, type Piece, Position, Puzzle, Wall } from "#/util/types.ts";
+import { decodeState, getActiveHref, getMoveHref } from "#/util/url.ts";
+import { getReplaySpeed } from "#/lib/replay.ts";
 
 type BoardProps = {
   href: Signal<string>;

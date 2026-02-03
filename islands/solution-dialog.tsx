@@ -1,9 +1,9 @@
-import { Puzzle } from "#/util/types.ts";
 import type { Signal } from "@preact/signals";
-import { cn } from "#/lib/style.ts";
 import { useEffect, useMemo, useRef } from "preact/hooks";
-import { decodeState } from "#/util/url.ts";
-import { getResetHref } from "#/util/game.ts";
+
+import { cn } from "#/lib/style.ts";
+import { Puzzle } from "#/util/types.ts";
+import { decodeState, getResetHref } from "#/util/url.ts";
 
 type Props = {
   href: Signal<string>;

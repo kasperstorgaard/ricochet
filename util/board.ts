@@ -1,25 +1,46 @@
-import { Board, Move, Piece, Position, Wall } from "../util/types.ts";
+import { Board, Move, Piece, Position, Wall } from "#/util/types.ts";
 
-// 8 rows and cols align well with hex and comp-science, so a useful/fun limit.
+/**
+ * The board dimensions.
+ * background: 8 rows and cols align well with hex and comp-science,
+ * so a useful/fun limit, while providing benefits.
+ */
 export const COLS = 8;
 export const ROWS = 8;
 
+/**
+ * Custom error for invalid board states.
+ */
 export class BoardError extends Error {
   constructor() {
     super("Board is invalid");
   }
 }
 
+/**
+ * Board type to use when inputting potentially incomplete board data.
+ */
 export type BoardLike = {
   destination: Position | null | undefined;
   walls: (Wall | null | undefined)[] | undefined | null;
   pieces: (Piece | null | undefined)[] | undefined | null;
 };
 
+/**
+ * Checks if two positions are aligned either horizontally or vertically.
+ * @param src The source position
+ * @param target The target position to compare against
+ * @returns true if aligned, otherwise false
+ */
 export function isPositionAligned(src: Position, target: Position) {
   return src.x === target.x || src.y === target.y;
 }
 
+/**
+ * Checks if a given position is out bounds of the board.
+ * @param src The position to check
+ * @returns true if out of bounds, otherwise false
+ */
 export function isPositionOutOfBounds(
   src: Position,
 ) {
@@ -31,10 +52,22 @@ export function isPositionOutOfBounds(
   );
 }
 
+/**
+ * Checks if two positions are identical.
+ * @param src The source position
+ * @param target The target position to compare against.
+ * @returns True if identical, otherwise false
+ */
 export function isPositionSame(src: Position, target: Position) {
   return src.x === target.x && src.y === target.y;
 }
 
+/**
+ * Validates the board structure and contents, returning a sanitized Board object.
+ * Can be consumed as a truthy check or a means to get a properly typed Board.
+ * Will throw BoardError if invalid.
+ */
+// TODO: add more specific board error messages.
 export function validateBoard(board: BoardLike): Board {
   if (!board) throw new BoardError();
 
@@ -43,45 +76,44 @@ export function validateBoard(board: BoardLike): Board {
 
   if (!destination) throw new BoardError();
 
-  if (isPositionOutOfBounds(destination)) {
-    throw new BoardError();
-  }
+  if (isPositionOutOfBounds(destination)) throw new BoardError();
 
   const checkedPieces: Piece[] = [];
   for (const piece of pieces) {
+    // Check for invalid pieces
     if (piece == null || !piece.type || piece.x == null || piece.y == null) {
       throw new BoardError();
     }
 
-    if (isPositionOutOfBounds(piece)) {
-      throw new BoardError();
-    }
+    // Check for out of bounds pieces
+    if (isPositionOutOfBounds(piece)) throw new BoardError();
 
     // Check for identical piece positions
-    const match = checkedPieces.find((checkedPiece) =>
+    const hasIdenticalPieces = checkedPieces.some((checkedPiece) =>
       isPositionSame(piece, checkedPiece)
     );
-    if (match) {
-      throw new BoardError();
-    }
+
+    if (hasIdenticalPieces) throw new BoardError();
 
     checkedPieces.push(piece);
   }
 
-  if (!pieces.some((piece) => piece?.type === "rook")) {
-    throw new BoardError();
-  }
+  // Make sure a rook exists
+  const rook = pieces.find((piece) => piece?.type === "rook");
+  if (!rook) throw new BoardError();
 
-  // Check for duplicate walls
   const checkedWalls: Wall[] = [];
+
   for (const wall of walls ?? []) {
+    // Check for invalid walls
     if (wall == null || !wall.orientation || wall.x == null || wall.y == null) {
       throw new BoardError();
     }
-    if (isPositionOutOfBounds(wall)) {
-      throw new BoardError();
-    }
 
+    // Check for out of bounds walls
+    if (isPositionOutOfBounds(wall)) throw new BoardError();
+
+    // Check for duplicate walls
     if (
       checkedWalls.some((checkedWall) =>
         isPositionSame(wall, checkedWall) &&
@@ -101,6 +133,11 @@ export function validateBoard(board: BoardLike): Board {
   };
 }
 
+/**
+ * The positions in each direction a piece can move to.
+ * undefined means the piece cannot move in that direction.
+ * empty object means the piece cannot move at all.
+ */
 export type Targets = {
   up?: Position;
   right?: Position;
@@ -108,6 +145,17 @@ export type Targets = {
   left?: Position;
 };
 
+/**
+ * Gets the furthest possible position a piece can move in each direction,
+ * blocked by walls, other pieces and board edges.
+ *
+ * An empty direction means the piece cannot move in that direction.
+ * An empty object means the piece cannot move at all.
+ *
+ * @param src The starting position
+ * @param board The board state
+ * @returns The possible target positions of the piece
+ */
 export function getTargets(
   src: Position,
   { walls, pieces }: Pick<Board, "pieces" | "walls">,
@@ -179,6 +227,12 @@ export function getTargets(
   return lookup;
 }
 
+/**
+ * Check if a move between to positions is valid given a board state.
+ * @param move
+ * @param board
+ * @returns true if valid, otherwise false
+ */
 export function isValidMove(
   move: Move,
   board: Pick<Board, "pieces" | "walls">,
@@ -198,6 +252,13 @@ export function isValidMove(
   return false;
 }
 
+/**
+ * Resolves a series of moves given a board state.
+ * Will throw if any move is not valid.
+ * @param board
+ * @param moves
+ * @returns updated board state.
+ */
 export function resolveMoves<
   TBoard extends Pick<Board, "pieces" | "walls"> = Pick<
     Board,
@@ -224,6 +285,11 @@ export function resolveMoves<
   return updatedBoard;
 }
 
+/**
+ * Check if the current board state is a valid solution
+ * @param board The current board state
+ * @returns true if valid solution, otherwise false
+ */
 export function isValidSolution(board: Pick<Board, "destination" | "pieces">) {
   for (const piece of board.pieces) {
     if (piece.type === "bouncer") continue;
