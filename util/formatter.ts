@@ -1,6 +1,6 @@
 import { stringify as stringifyYaml } from "@std/yaml";
 
-import { isPositionSame } from "#/util/board.ts";
+import { COLS, isPositionSame, ROWS } from "#/util/board.ts";
 import { Board, Position, type Puzzle } from "#/util/types.ts";
 
 /** Combining low line character (U+0332) */
@@ -22,18 +22,21 @@ export function formatPuzzle(puzzle: Puzzle): string {
   // Start code block to prevent markdown formatting
   markdown += "```\n";
 
-  // Header
+  // Header (chess x-axis notation)
   markdown += "+ A B C D E F G H +\n";
 
   // Build rows
-  for (let y = 0; y < 8; y++) {
+  for (let y = 0; y < ROWS; y++) {
+    // Use chess y-axis notation, 1-indexed
     let row = `${y + 1} `;
 
-    for (let x = 0; x < 8; x++) {
+    for (let x = 0; x < COLS; x++) {
+      // Add the cell contents and separator
       row += formatCell(board, { x, y });
-      row += formatSeparator(board, { x, y });
+      row += formatCellSeparator(board, { x, y });
     }
 
+    // Add board border and newline
     markdown += row + "|\n";
   }
 
@@ -46,22 +49,28 @@ export function formatPuzzle(puzzle: Puzzle): string {
   return markdown;
 }
 
-function formatCell(board: Board, position: Position) {
+/**
+ * Formats a single cell in the board
+ * @param board
+ * @param position
+ * @returns Cell contents, including any combining characters
+ */
+function formatCell({ destination, walls, pieces }: Board, position: Position) {
   // Horizontal walls are positioned below the cell
   const wallPosition = { x: position.x, y: position.y + 1 };
 
-  const hasWall = board.walls.some((wall) =>
+  const hasHorizontalWall = walls.some((wall) =>
     wall.orientation === "horizontal" && isPositionSame(wall, wallPosition)
   );
-  const isDestination = isPositionSame(board.destination, position);
+  const isDestination = isPositionSame(destination, position);
 
   // Determine cell character
-  const piece = board.pieces.find((item) => isPositionSame(item, position));
+  const piece = pieces.find((item) => isPositionSame(item, position));
 
   if (piece) {
     let char = piece.type === "rook" ? "@" : "#";
     // Add underline if there's a wall below
-    if (hasWall) char += COMBINING_LOW_LINE;
+    if (hasHorizontalWall) char += COMBINING_LOW_LINE;
     // Add circumflex if piece is on destination
     if (isDestination) char += COMBINING_CIRCUMFLEX;
     return char;
@@ -69,21 +78,33 @@ function formatCell(board: Board, position: Position) {
 
   if (isDestination) {
     const char = "X";
-    return hasWall ? char + COMBINING_LOW_LINE : char;
+    return hasHorizontalWall ? char + COMBINING_LOW_LINE : char;
   }
 
-  if (hasWall) return "_";
+  // Only horizontal wall present
+  if (hasHorizontalWall) return "_";
+
   return " ";
 }
 
-function formatSeparator(board: Board, position: Position) {
+/**
+ * Formats the separator after a cell
+ * @param board
+ * @param position
+ * @returns Cell separator - " " or "|"
+ */
+function formatCellSeparator(
+  { walls }: Pick<Board, "walls">,
+  position: Position,
+) {
   // Vertical walls are positioned to the right of the cell
   const wallPosition = { x: position.x + 1, y: position.y };
 
-  const hasVerticalWall = board.walls.some((wall) =>
+  const hasVerticalWall = walls.some((wall) =>
     wall.orientation === "vertical" && isPositionSame(wall, wallPosition)
   );
 
   if (hasVerticalWall) return "|";
+
   return " ";
 }
