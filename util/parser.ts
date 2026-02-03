@@ -202,8 +202,14 @@ function parseBoard(rows: string[]): Board {
         continue;
       }
 
-      // Empty space
-      if (char === " ") continue;
+      // Empty space - but check for underline modifier
+      if (char === " ") {
+        // Space with underline means a horizontal wall below this empty cell
+        if (hasUnderline) {
+          walls.push({ x, y: y + 1, orientation: "horizontal" });
+        }
+        continue;
+      }
 
       // Skip modifiers that might appear standalone
       if (char === COMBINING_LOW_LINE || char === COMBINING_CIRCUMFLEX) {

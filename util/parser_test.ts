@@ -306,3 +306,58 @@ createdAt: 2026-01-01T00:00:00.000Z
     ],
   });
 });
+
+Deno.test("parsePuzzle - real-world example 3", () => {
+  const markdown = `---
+name: Joe
+slug: joe
+createdAt: 2026-02-03T00:00:00.000Z
+---
+
++ A B C D E F G H +
+1         #̂       |
+2     _ _ _ _ _   |
+3            |    |
+4            |    |
+5    |    @  |    |
+6    |_ _  ̲ _|    |
+7                 |
+8     #       #   |
++-----------------+
+`;
+
+  const result = parsePuzzle(markdown);
+
+  assertObjectMatch(result, {
+    name: "Joe",
+    slug: "joe",
+  });
+
+  assertEquals(result.board, {
+    destination: { x: 4, y: 0 },
+    pieces: [
+      { x: 4, y: 0, type: "bouncer" },
+      { x: 4, y: 4, type: "rook" },
+      { x: 2, y: 7, type: "bouncer" },
+      { x: 6, y: 7, type: "bouncer" },
+    ],
+    walls: [
+      { x: 2, y: 2, orientation: "horizontal" },
+      { x: 3, y: 2, orientation: "horizontal" },
+      { x: 4, y: 2, orientation: "horizontal" },
+      { x: 5, y: 2, orientation: "horizontal" },
+      { x: 6, y: 2, orientation: "horizontal" },
+
+      { x: 6, y: 2, orientation: "vertical" },
+      { x: 6, y: 3, orientation: "vertical" },
+      { x: 2, y: 4, orientation: "vertical" },
+      { x: 6, y: 4, orientation: "vertical" },
+      { x: 2, y: 5, orientation: "vertical" },
+      { x: 2, y: 6, orientation: "horizontal" },
+      { x: 3, y: 6, orientation: "horizontal" },
+      { x: 4, y: 6, orientation: "horizontal" },
+      { x: 6, y: 5, orientation: "vertical" },
+      { x: 5, y: 6, orientation: "horizontal" },
+    ],
+  });
+});
