@@ -4,13 +4,13 @@ import { useCallback, useMemo } from "preact/hooks";
 import { Panel } from "#/components/panel.tsx";
 import { updateLocation } from "#/lib/router.ts";
 import { cn } from "#/lib/style.ts";
+import { useGameShortcuts } from "#/util/game.ts";
 import {
+  decodeState,
   getRedoHref,
   getResetHref,
   getUndoHref,
-  useGameShortcuts,
-} from "#/util/game.ts";
-import { decodeState } from "#/util/url.ts";
+} from "#/util/url.ts";
 
 type ControlsPanelProps = {
   href: Signal<string>;

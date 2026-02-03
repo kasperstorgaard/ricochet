@@ -14,9 +14,8 @@ import {
   Targets,
 } from "#/util/board.ts";
 import { useEditor } from "#/util/editor.ts";
-import { getActiveHref, getMoveHref } from "#/util/game.ts";
 import { type Move, type Piece, Position, Puzzle, Wall } from "#/util/types.ts";
-import { decodeState } from "#/util/url.ts";
+import { decodeState, getActiveHref, getMoveHref } from "#/util/url.ts";
 import { getReplaySpeed } from "#/lib/replay.ts";
 
 type BoardProps = {
