@@ -4,16 +4,30 @@ import { useCallback, useEffect } from "preact/hooks";
 import { isPositionSame } from "#/util/board.ts";
 import { Position, Puzzle } from "#/util/types.ts";
 
+/**
+ * Current state for the editor
+ */
 type UseEditorOptions = {
+  // The puzzle being edited (empty board for new puzzles)
   puzzle: Signal<Puzzle>;
+  // The active position, eg. the cell the user has selected
   active?: Position;
+  // If the editor is enabled
   isEnabled: boolean;
 };
 
+/**
+ * Hook for editor functionality, eg.
+ * - cycle walls with "w"
+ * - cycle pieces with "p"
+ * - set destination with "d"
+ * @param options
+ */
 export function useEditor(
   { active, puzzle, isEnabled }: UseEditorOptions,
 ) {
   const cycleWall = useCallback(() => {
+    // No active position, do nothing
     if (!active) return;
 
     let { walls } = puzzle.value.board;
