@@ -10,7 +10,6 @@ import { define } from "#/routes/core.ts";
 import { listPuzzles } from "#/util/loader.ts";
 import { PaginatedData, Puzzle } from "#/util/types.ts";
 import { getPage } from "#/util/url.ts";
-import { Title } from "../../components/title.tsx";
 
 const ITEMS_PER_PAGE = 6;
 
