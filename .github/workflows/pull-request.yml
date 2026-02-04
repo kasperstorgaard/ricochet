@@ -4,12 +4,13 @@ name: Pull Request
 on:
   pull_request:
     branches: [main]
+    types: [opened, synchronize]
 
 permissions:
   contents: read
 
 jobs:
-  test:
+  verify:
     runs-on: ubuntu-latest
 
     steps:
