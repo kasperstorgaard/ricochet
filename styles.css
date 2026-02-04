@@ -484,13 +484,13 @@
   --letter-spacing-7: var(--font-letterspacing-7);
 
   /* Line Height */
-  --line-height-flat: var(--font-lineheight-00);
-  --line-height-mini: var(--font-lineheight-0);
-  --line-height-tight: var(--font-lineheight-1);
-  --line-height-snug: var(--font-lineheight-2);
-  --line-height-normal: var(--font-lineheight-3);
-  --line-height-relaxed: var(--font-lineheight-4);
-  --line-height-loose: var(--font-lineheight-5);
+  --leading-flat: var(--font-lineheight-00);
+  --leading-mini: var(--font-lineheight-0);
+  --leading-tight: var(--font-lineheight-1);
+  --leading-snug: var(--font-lineheight-2);
+  --leading-normal: var(--font-lineheight-3);
+  --leading-relaxed: var(--font-lineheight-4);
+  --leading-loose: var(--font-lineheight-5);
 
   /* Width utilities (in addition to spacing values) */
   --width-full: 100%;
