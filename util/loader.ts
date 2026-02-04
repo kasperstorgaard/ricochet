@@ -52,8 +52,8 @@ export async function getPuzzle(
 }
 
 type ListOptions = Pick<PaginationState, "page" | "itemsPerPage"> & {
-  sortBy?: "createdAt";
-  sortOrder?: "ascending" | "descending";
+  sortBy: "createdAt";
+  sortOrder: "ascending" | "descending";
 };
 
 /**
@@ -62,7 +62,12 @@ type ListOptions = Pick<PaginationState, "page" | "itemsPerPage"> & {
  */
 export async function listPuzzles(
   baseUrl: string | URL,
-  options?: ListOptions,
+  options: ListOptions = {
+    page: 1,
+    itemsPerPage: ITEMS_PER_PAGE,
+    sortBy: "createdAt",
+    sortOrder: "descending",
+  },
 ): Promise<PaginatedData<Puzzle>> {
   let entries = await getPuzzleManifest(baseUrl);
   const totalItems = entries.length;
@@ -72,12 +77,7 @@ export async function listPuzzles(
   const start = (page - 1) * limit;
   const end = start + limit;
 
-  if (options?.sortBy) {
-    entries = sortList(entries, {
-      sortBy: "createdAt",
-      sortOrder: "ascending",
-    });
-  }
+  entries = sortList(entries, options);
 
   entries = entries.slice(start, end);
 
