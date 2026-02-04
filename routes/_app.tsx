@@ -5,7 +5,7 @@ import { define } from "#/routes/core.ts";
 
 export default define.page(function AppWrapper({ Component }: PageProps) {
   return (
-    <html className="flex flex-col min-h-screen">
+    <html className="min-h-screen">
       <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
