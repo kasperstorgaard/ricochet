@@ -4,9 +4,7 @@ import {
   encodeMoves,
   encodePosition,
 } from "#/util/strings.ts";
-import { page } from "fresh";
-import { Move, PaginatedData, Position } from "./types.ts";
-import { stat } from "node:fs";
+import { Move, Position } from "./types.ts";
 
 /**
  * All state needed to represent the current game
