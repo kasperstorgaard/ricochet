@@ -42,7 +42,7 @@ export const handler = define.handlers<Data>({
     }
 
     const url = new URL(req.url);
-    if (!url.searchParams.has("m") && solution) {
+    if (!url.searchParams.has("moves") && solution) {
       url.search = encodeState(solution);
 
       return Response.redirect(url);

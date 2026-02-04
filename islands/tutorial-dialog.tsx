@@ -16,7 +16,7 @@ export const TutorialDialog = function ({ open, href, mode, solution }: Props) {
 
   const step = useMemo(() => {
     const url = new URL(href.value);
-    const rawValue = url.searchParams.get("s");
+    const rawValue = url.searchParams.get("step");
     const value = rawValue && parseInt(rawValue, 10);
 
     return !value || isNaN(value) ? 0 : value;
@@ -25,7 +25,7 @@ export const TutorialDialog = function ({ open, href, mode, solution }: Props) {
   const replaySpeed = useMemo(() => {
     const url = new URL(href.value);
 
-    const name = url.searchParams.get("r");
+    const name = url.searchParams.get("replay_speed");
     const value = name === "slow" ? 1.5 : 1;
 
     return isNaN(value) ? 1 : value;
@@ -227,9 +227,9 @@ function getStepLink(
   { replay }: GetStepLinkOptions = {},
 ) {
   const url = new URL(href);
-  url.searchParams.set("s", step.toString());
+  url.searchParams.set("step", step.toString());
 
-  if (replay) url.searchParams.set("r", replay);
+  if (replay) url.searchParams.set("replay_speed", replay);
 
   return url.href;
 }

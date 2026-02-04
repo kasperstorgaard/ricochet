@@ -28,15 +28,15 @@ export function encodeState({ moves, active, cursor }: GameState) {
   const params = new URLSearchParams();
 
   if (moves.length) {
-    params.set("m", encodeMoves(moves));
+    params.set("moves", encodeMoves(moves));
   }
 
   if (active != null) {
-    params.set("a", encodePosition(active));
+    params.set("active", encodePosition(active));
   }
 
   if (cursor != null) {
-    params.set("c", cursor.toString());
+    params.set("cursor", cursor.toString());
   }
 
   return params.toString();
@@ -52,13 +52,13 @@ export function decodeState(urlOrHref: URL | string): GameState {
   const url = new URL(urlOrHref);
   const params = url.searchParams;
 
-  const moveParam = params.get("m");
+  const moveParam = params.get("moves");
   const moves = moveParam ? decodeMoves(moveParam) : [];
 
-  const activeParam = params.get("a");
+  const activeParam = params.get("active");
   const active = activeParam ? decodePosition(activeParam) : undefined;
 
-  const cursorParam = params.get("c");
+  const cursorParam = params.get("cursor");
   const cursor = cursorParam ? parseInt(cursorParam) : undefined;
 
   return {
@@ -146,9 +146,9 @@ export function getRedoHref(
 export function getResetHref(href: string) {
   const url = new URL(href);
 
-  url.searchParams.delete("a");
-  url.searchParams.delete("c");
-  url.searchParams.delete("m");
+  url.searchParams.delete("active");
+  url.searchParams.delete("cursor");
+  url.searchParams.delete("moves");
 
   return url.href;
 }
@@ -156,7 +156,7 @@ export function getResetHref(href: string) {
 export function getPage(
   url: URL,
 ) {
-  const pageParam = url.searchParams.get("p");
+  const pageParam = url.searchParams.get("page");
 
   if (!pageParam) return 1;
 

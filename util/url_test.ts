@@ -17,12 +17,12 @@ Deno.test("encodeState() should add all params", () => {
     cursor: 3,
   });
 
-  assertEquals(result, "m=A1A6&a=F1&c=3");
+  assertEquals(result, "moves=A1A6&active=F1&cursor=3");
 });
 
 Deno.test("decodeState() should extract all params", () => {
   const url = new URL("http://example.com");
-  url.search = "?m=F6F3&a=H8&c=0";
+  url.search = "?moves=F6F3&active=H8&cursor=0";
   const result = decodeState(url);
 
   assertEquals(result, {
@@ -44,7 +44,7 @@ Deno.test("getMoveHref() should append move and update cursor", () => {
     },
   );
 
-  assertEquals(result, "http://example.com/?m=A1A6&a=A6&c=1");
+  assertEquals(result, "http://example.com/?moves=A1A6&active=A6&cursor=1");
 });
 
 Deno.test("getMoveHref() should truncate moves at cursor position", () => {
@@ -60,7 +60,10 @@ Deno.test("getMoveHref() should truncate moves at cursor position", () => {
     },
   );
 
-  assertEquals(result, "http://example.com/?m=A1A6-C3C8&a=C8&c=2");
+  assertEquals(
+    result,
+    "http://example.com/?moves=A1A6-C3C8&active=C8&cursor=2",
+  );
 });
 
 Deno.test("getActiveHref() should set active position", () => {
@@ -73,7 +76,7 @@ Deno.test("getActiveHref() should set active position", () => {
     },
   );
 
-  assertEquals(result, "http://example.com/?m=A1A6&a=D5&c=1");
+  assertEquals(result, "http://example.com/?moves=A1A6&active=D5&cursor=1");
 });
 
 Deno.test("getUndoHref() should decrement cursor", () => {
@@ -85,7 +88,7 @@ Deno.test("getUndoHref() should decrement cursor", () => {
     cursor: 2,
   });
 
-  assertEquals(result, "http://example.com/?m=A1A6-F6&c=1");
+  assertEquals(result, "http://example.com/?moves=A1A6-F6&cursor=1");
 });
 
 Deno.test("getUndoHref() should not go below zero", () => {
@@ -94,7 +97,7 @@ Deno.test("getUndoHref() should not go below zero", () => {
     cursor: 0,
   });
 
-  assertEquals(result, "http://example.com/?m=A1A6&c=0");
+  assertEquals(result, "http://example.com/?moves=A1A6&cursor=0");
 });
 
 Deno.test("getRedoHref() should increment cursor", () => {
@@ -106,7 +109,7 @@ Deno.test("getRedoHref() should increment cursor", () => {
     cursor: 0,
   });
 
-  assertEquals(result, "http://example.com/?m=A1A6-F6&c=1");
+  assertEquals(result, "http://example.com/?moves=A1A6-F6&cursor=1");
 });
 
 Deno.test("getRedoHref() should not exceed moves length", () => {
@@ -115,11 +118,13 @@ Deno.test("getRedoHref() should not exceed moves length", () => {
     cursor: 1,
   });
 
-  assertEquals(result, "http://example.com/?m=A1A6&c=1");
+  assertEquals(result, "http://example.com/?moves=A1A6&cursor=1");
 });
 
 Deno.test("getResetHref() should remove all game params", () => {
-  const result = getResetHref("http://example.com/?m=A1A6&a=F1&c=1&other=kept");
+  const result = getResetHref(
+    "http://example.com/?moves=A1A6&active=F1&cursor=1&other=kept",
+  );
 
   assertEquals(result, "http://example.com/?other=kept");
 });

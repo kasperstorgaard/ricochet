@@ -98,7 +98,7 @@ export default function Board(
   const replaySpeed = useMemo(() => {
     const url = new URL(href.value);
 
-    const name = url.searchParams.get("r");
+    const name = url.searchParams.get("replay_speed");
     const value = getReplaySpeed(name);
 
     return isNaN(value) ? 1 : value;
