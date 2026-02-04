@@ -10,25 +10,31 @@ import { define } from "#/routes/core.ts";
 import { listPuzzles } from "#/util/loader.ts";
 import { PaginatedData, Puzzle } from "#/util/types.ts";
 import { getPage } from "#/util/url.ts";
+import { Title } from "../../components/title.tsx";
 
 const ITEMS_PER_PAGE = 6;
 
-export const handler = define.handlers<PaginatedData<Puzzle>>({
+type PageData = PaginatedData<Puzzle> & { locale: string };
+
+export const handler = define.handlers<PageData>({
   async GET(ctx) {
     const { items, pagination } = await listPuzzles(ctx.url.origin, {
       sortBy: "createdAt",
-      sortOrder: "ascending",
+      sortOrder: "descending",
       page: getPage(ctx.url),
       itemsPerPage: ITEMS_PER_PAGE,
     });
 
-    return page({ items, pagination });
+    const locale = ctx.req.headers.get("Accept-Language")?.split(",")[0] ??
+      "en";
+
+    return page({ items, pagination, locale });
   },
 });
 
 export default define.page(
-  function PuzzlesPage(props: PageProps<PaginatedData<Puzzle>>) {
-    const { items, pagination } = props.data;
+  function PuzzlesPage(props: PageProps<PageData>) {
+    const { items, pagination, locale } = props.data;
     const navItems = [
       { name: "home", href: "/" },
     ];
@@ -42,7 +48,7 @@ export default define.page(
 
           <ul
             className={cn(
-              "grid grid-cols-[repeat(2,1fr)] gap-fl-3",
+              "grid grid-cols-[repeat(2,1fr)] gap-fl-2",
               "sm:grid-cols-[repeat(3,1fr)]",
             )}
           >
@@ -50,7 +56,7 @@ export default define.page(
               <li className="list-none pl-0 min-w-0" key={puzzle.slug}>
                 <a
                   href={`puzzles/${puzzle.slug}`}
-                  className="flex flex-col gap-1 group"
+                  className="group flex flex-col gap-1 hover:text-brand"
                 >
                   <div
                     className={cn(
@@ -64,7 +70,15 @@ export default define.page(
                     />
                   </div>
 
-                  <span className="flex flex-wrap text-fl-0 font-3 group-hover:text-brand transition-colors">
+                  <time
+                    dateTime={puzzle.createdAt.toISOString()}
+                    className="text-0 uppercase tracking-wide"
+                  >
+                    {new Intl.DateTimeFormat(locale, {
+                      dateStyle: "short",
+                    }).format(puzzle.createdAt)}
+                  </time>
+                  <span className="flex flex-wrap text-2 font-3 -mt-fl-1">
                     {puzzle.name}
                   </span>
                 </a>
