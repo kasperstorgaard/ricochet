@@ -13,9 +13,9 @@ export function Pagination({ page, totalPages, baseUrl }: Props) {
   const getPageUrl = (page: number) => {
     const url = new URL(baseUrl);
     if (page === 1) {
-      url.searchParams.delete("p");
+      url.searchParams.delete("page");
     } else {
-      url.searchParams.set("p", page.toString());
+      url.searchParams.set("page", page.toString());
     }
     return url.pathname + url.search;
   };

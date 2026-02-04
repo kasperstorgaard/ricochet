@@ -24,12 +24,12 @@ export const handler = define.handlers<Data>({
     if (!solutionRaw) throw new Error("Tutorial puzzle solution not found");
 
     const redirectUrl = new URL(ctx.url);
-    redirectUrl.searchParams.set("m", solutionRaw);
+    redirectUrl.searchParams.set("moves", solutionRaw);
 
     const puzzle = await getPuzzle(ctx.url.origin, "tutorial");
     if (!puzzle) throw new Error("Tutorial puzzle not found");
 
-    if (!ctx.url.searchParams.has("m")) {
+    if (!ctx.url.searchParams.has("moves")) {
       return Response.redirect(redirectUrl);
     }
 
@@ -63,7 +63,7 @@ export default define.page(function PuzzleTutorial(props: PageProps<Data>) {
   const href = useSignal(props.url.href);
   const puzzle = useSignal(props.data.puzzle);
   const mode = useSignal<"readonly" | "replay">(
-    props.url.searchParams.has("r") ? "replay" : "readonly",
+    props.url.searchParams.has("replay_speed") ? "replay" : "readonly",
   );
 
   const navItems = [
