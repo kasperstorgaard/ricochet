@@ -6,7 +6,7 @@ import { Pagination } from "#/components/pagination.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { Thumbnail } from "#/components/thumbnail.tsx";
 import { cn } from "#/lib/style.ts";
-import { define } from "#/routes/core.ts";
+import { define } from "../../core.ts";
 import { listPuzzles } from "#/util/loader.ts";
 import { PaginatedData, Puzzle } from "#/util/types.ts";
 import { getPage } from "#/util/url.ts";
