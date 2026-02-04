@@ -1,6 +1,14 @@
 import { pickByDay } from "#/util/date.ts";
 import { parsePuzzle } from "#/util/parser.ts";
-import { Puzzle, PuzzleManifestEntry } from "#/util/types.ts";
+import {
+  PaginatedData,
+  PaginationState,
+  Puzzle,
+  PuzzleManifestEntry,
+} from "#/util/types.ts";
+
+// Default items per page
+const ITEMS_PER_PAGE = 6;
 
 /**
  * Fetches puzzle manifest containing metadata for all puzzles.
@@ -42,32 +50,7 @@ export async function getPuzzle(
   return parsed;
 }
 
-type ListOptions = {
-  limit?: number;
-  page?: number;
-};
-
-/**
- * Lists puzzle metadata from the manifest.
- * For full puzzle data including board, use getPuzzle() for each entry.
- *
- * Manifest is pre-sorted by createdAt descending (newest first).
- */
-export async function listPuzzlesMeta(
-  baseUrl: string | URL,
-  options?: ListOptions,
-): Promise<PuzzleManifestEntry[]> {
-  let entries = await getPuzzleManifest(baseUrl);
-
-  if (options?.limit) {
-    const page = options.page ?? 1;
-    const start = (page - 1) * options.limit;
-    const end = start + options.limit;
-    entries = entries.slice(start, end);
-  }
-
-  return entries;
-}
+type ListOptions = Pick<PaginationState, "page" | "itemsPerPage">;
 
 /**
  * Lists all available puzzles with full data (including board).
@@ -76,14 +59,30 @@ export async function listPuzzlesMeta(
 export async function listPuzzles(
   baseUrl: string | URL,
   options?: ListOptions,
-): Promise<Puzzle[]> {
-  const entries = await listPuzzlesMeta(baseUrl, options);
+): Promise<PaginatedData<Puzzle>> {
+  let entries = await getPuzzleManifest(baseUrl);
+  const totalItems = entries.length;
 
-  const puzzles = await Promise.all(
+  const limit = options?.itemsPerPage ?? ITEMS_PER_PAGE;
+  const page = options?.page ?? 1;
+  const start = (page - 1) * limit;
+  const end = start + limit;
+
+  entries = entries.slice(start, end);
+
+  const items = await Promise.all(
     entries.map((entry) => getPuzzle(baseUrl, entry.slug)),
   );
 
-  return puzzles;
+  return {
+    items,
+    pagination: {
+      page,
+      itemsPerPage: limit,
+      totalItems,
+      totalPages: Math.ceil(totalItems / limit),
+    },
+  };
 }
 
 /**
@@ -97,7 +96,7 @@ export async function getPuzzleOfTheDay(
   baseUrl: string | URL,
   date = new Date(Date.now()),
 ): Promise<Puzzle> {
-  const entries = (await listPuzzlesMeta(baseUrl))
+  const entries = (await getPuzzleManifest(baseUrl))
     .filter((p) => !p.slug.startsWith("tutorial"));
 
   // Sort oldest first for consistent rotation base
