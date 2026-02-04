@@ -4,7 +4,9 @@ import {
   encodeMoves,
   encodePosition,
 } from "#/util/strings.ts";
-import { Move, Position } from "./types.ts";
+import { page } from "fresh";
+import { Move, PaginatedData, Position } from "./types.ts";
+import { stat } from "node:fs";
 
 /**
  * All state needed to represent the current game
@@ -151,4 +153,15 @@ export function getResetHref(href: string) {
   url.searchParams.delete("m");
 
   return url.href;
+}
+
+export function getPage(
+  url: URL,
+) {
+  const pageParam = url.searchParams.get("p");
+
+  if (!pageParam) return 1;
+
+  const parsed = Number.parseInt(pageParam, 10);
+  return Number.isNaN(parsed) ? 1 : parsed;
 }

@@ -31,3 +31,15 @@ export type Puzzle = {
 };
 
 export type PuzzleManifestEntry = Pick<Puzzle, "slug" | "name" | "createdAt">;
+
+export type PaginationState = {
+  page: number;
+  totalItems: number;
+  totalPages: number;
+  itemsPerPage: number;
+};
+
+export type PaginatedData<T> = {
+  items: T[];
+  pagination: PaginationState;
+};
