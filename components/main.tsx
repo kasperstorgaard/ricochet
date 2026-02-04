@@ -14,8 +14,8 @@ export function Main({ children, className }: MainProps) {
   return (
     <main
       className={cn(
-        "grid grid-rows-subgrid row-span-3 col-[2/3] w-full gap-fl-2 pt-fl-2",
-        "lg:col-[1/2] lg:w-[auto] lg:mx-auto lg:self-end",
+        "grid grid-rows-subgrid row-span-3 col-[2/3] w-full gap-fl-2 pt-fl-2 place-content-center",
+        "lg:col-[1/2] lg:mx-auto lg:max-w-184 lg:px-fl-6 lg:self-end lg:row-span-full lg:pb-fl-2",
         className,
       )}
     >

@@ -152,3 +152,14 @@ export function getResetHref(href: string) {
 
   return url.href;
 }
+
+export function getPage(
+  url: URL,
+) {
+  const pageParam = url.searchParams.get("p");
+
+  if (!pageParam) return 1;
+
+  const parsed = Number.parseInt(pageParam, 10);
+  return Number.isNaN(parsed) ? 1 : parsed;
+}
