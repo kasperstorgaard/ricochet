@@ -16,6 +16,8 @@ const ITEMS_PER_PAGE = 6;
 export const handler = define.handlers<PaginatedData<Puzzle>>({
   async GET(ctx) {
     const { items, pagination } = await listPuzzles(ctx.url.origin, {
+      sortBy: "createdAt",
+      sortOrder: "ascending",
       page: getPage(ctx.url),
       itemsPerPage: ITEMS_PER_PAGE,
     });

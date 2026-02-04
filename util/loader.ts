@@ -6,6 +6,7 @@ import {
   Puzzle,
   PuzzleManifestEntry,
 } from "#/util/types.ts";
+import { sortList } from "./list.ts";
 
 // Default items per page
 const ITEMS_PER_PAGE = 6;
@@ -50,7 +51,10 @@ export async function getPuzzle(
   return parsed;
 }
 
-type ListOptions = Pick<PaginationState, "page" | "itemsPerPage">;
+type ListOptions = Pick<PaginationState, "page" | "itemsPerPage"> & {
+  sortBy?: "createdAt";
+  sortOrder?: "ascending" | "descending";
+};
 
 /**
  * Lists all available puzzles with full data (including board).
@@ -67,6 +71,13 @@ export async function listPuzzles(
   const page = options?.page ?? 1;
   const start = (page - 1) * limit;
   const end = start + limit;
+
+  if (options?.sortBy) {
+    entries = sortList(entries, {
+      sortBy: "createdAt",
+      sortOrder: "ascending",
+    });
+  }
 
   entries = entries.slice(start, end);
 
