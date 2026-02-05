@@ -47,7 +47,7 @@ export default define.page(
 
           <ul
             className={cn(
-              "grid grid-cols-[repeat(2,1fr)] gap-fl-2",
+              "grid grid-cols-[repeat(2,1fr)] gap-fl-2 p-0 m-0",
               "sm:grid-cols-[repeat(3,1fr)]",
             )}
           >
@@ -55,7 +55,7 @@ export default define.page(
               <li className="list-none pl-0 min-w-0" key={puzzle.slug}>
                 <a
                   href={`puzzles/${puzzle.slug}`}
-                  className="group flex flex-col gap-1 hover:text-brand"
+                  className="group flex flex-col gap-1 hover:text-brand hover:no-underline"
                 >
                   <div
                     className={cn(

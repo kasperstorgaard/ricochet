@@ -38,7 +38,7 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
     <Panel>
       <div
         className={cn(
-          "flex max-lg:col-[2/3] items-center gap-fl-1 w-full",
+          "flex max-lg:col-[2/3] items-center gap-fl-1 w-full place-content-center",
           "lg:grid lg:grid-rows-subgrid lg:row-[3/4]",
         )}
       >
@@ -46,7 +46,8 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
           <a
             href={getUndoHref(href.value, state)}
             className={cn(
-              "flex items-center rounded-1 px-2 border-[currentColor] border-1 aspect-square",
+              "flex items-center rounded-1 px-2 text-text-1 border-current border-1 aspect-square",
+              "hover:no-underline",
               !state.cursor && "opacity-40",
             )}
             data-router="replace"
@@ -54,27 +55,35 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
             <i className="ph-arrow-arc-left ph-light" />
           </a>
 
-          <div className="flex items-center justify-center text-fl-2 leading-flat min-w-[2ch] text-center font-3">
+          <div
+            className={cn(
+              "flex items-center justify-center min-w-[2ch]",
+              "text-center font-3 text-fl-2 leading-flat",
+            )}
+          >
             {count < 10 ? `0${count}` : count}
           </div>
 
           <a
             href={getRedoHref(href.value, state)}
             className={cn(
-              "flex items-center rounded-1 px-2 border-[currentColor] border-1 disabled:opacity-20 aspect-square",
+              "flex items-center rounded-1 px-2",
+              "text-text-1 border-current border-1 aspect-square",
+              "hover:no-underline disabled:opacity-20",
               (state.cursor == null ||
                 state.cursor === state.moves.length) && "opacity-40",
             )}
             data-router="replace"
           >
-            <i className="ph-arrow-arc-right ph-light" />
+            <i className="ph-arrow-arc-right text-current ph-light" />
           </a>
         </div>
 
         <a
           href={getResetHref(href.value)}
           className={cn(
-            "flex items-center rounded-1 px-2 border-[currentColor] border-1 disabled:opacity-20 aspect-square ml-auto",
+            "flex items-center rounded-1 px-2 text-text-1 border-current border-1 disabled:opacity-20 aspect-square ml-auto",
+            "hover:no-underline",
             (state.cursor == null || state.cursor === 0) && "opacity-40",
             "lg:row-[1/3] lg:place-self-start",
           )}

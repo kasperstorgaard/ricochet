@@ -31,7 +31,7 @@ export default define.page(function AppWrapper({ Component }: PageProps) {
         className={cn(
           "grow grid grid-cols-[minmax(var(--size-fluid-3),auto)_1fr_minmax(var(--size-fluid-3),auto)]",
           "grid-rows-[repeat(3,max-content)_1fr] place-items-[flex-end_center] gap-y-fl-3",
-          "lg:grid-cols-[1fr_12rem] lg:content-center",
+          "lg:grid-cols-[1fr_13rem] lg:content-center",
         )}
       >
         {/* @ts-ignore: Fresh 2.x Component type issue */}
