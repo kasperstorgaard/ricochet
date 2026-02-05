@@ -251,19 +251,19 @@
   --color-camo-12: var(--camo-12);
 
   /* Theme colors */
-  --color-surface-1: var(--surface-1);
-  --color-surface-2: var(--surface-2);
-  --color-surface-3: var(--surface-3);
-  --color-surface-4: var(--surface-4);
-  --color-text-1: var(--text-1);
-  --color-text-2: var(--text-2);
-  --color-brand: var(--brand);
-  --color-link: var(--link);
-  --color-link-visited: var(--link-visited);
-  --color-ui-1: var(--ui-1);
-  --color-ui-2: var(--ui-2);
-  --color-ui-3: var(--ui-3);
-  --color-ui-4: var(--ui-4);
+  --color-surface-1: var(--color-surface-1);
+  --color-surface-2: var(--color-surface-2);
+  --color-surface-3: var(--color-surface-3);
+  --color-surface-4: var(--color-surface-4);
+  --color-text-1: var(--color-text-1);
+  --color-text-2: var(--color-text-2);
+  --color-brand: var(--color-brand);
+  --color-link: var(--color-link);
+  --color-link-visited: var(--color-link-visited);
+  --color-ui-1: var(--color-ui-1);
+  --color-ui-2: var(--color-ui-2);
+  --color-ui-3: var(--color-ui-3);
+  --color-ui-4: var(--color-ui-4);
 
   /* Animations */
   --animate-fade-in: var(--animation-fade-in);
@@ -530,48 +530,58 @@
 /* Dark theme */
 @media (prefers-color-scheme: dark) {
   :root {
-    --brand: var(--pink-7);
-    --link: var(--violet-4);
+    --color-brand: var(--pink-7);
+    --color-link: var(--violet-4);
+    --color-link-visited: var(--link-visited);
 
-    --text-1: var(--gray-1);
-    --text-2: var(--gray-4);
+    /* rename from open-props */
+    --color-surface-1: var(--surface-1);
+    --color-surface-2: var(--surface-2);
+    --color-surface-3: var(--surface-3);
+    --color-surface-4: var(--surface-4);
 
-    --ui-1: var(--teal-4);
-    --ui-2: var(--yellow-3);
-    --ui-3: var(--violet-6);
-    --ui-4: var(--orange-6);
+    --color-text-1: var(--gray-1);
+    --color-text-2: var(--gray-4);
+
+    --color-ui-1: var(--teal-4);
+    --color-ui-2: var(--yellow-3);
+    --color-ui-3: var(--violet-6);
+    --color-ui-4: var(--orange-6);
   }
 }
 
 /* Light theme */
 @media (prefers-color-scheme: light) {
   :root {
-    --brand: var(--sand-11);
-    --link: var(--purple-5);
+    --color-brand: var(--sand-11);
+    --color-link: var(--purple-5);
+    --color-link-visited: var(--link-visited);
 
-    --surface-1: var(--sand-1);
-    --surface-2: var(--sand-2);
-    --surface-3: var(--sand-3);
-    --surface-4: var(--sand-4);
+    --color-surface-1: var(--sand-1);
+    --color-surface-2: var(--sand-2);
+    --color-surface-3: var(--sand-3);
+    --color-surface-4: var(--sand-4);
 
-    --text-1: var(--sand-12);
-    --text-2: var(--sand-11);
+    --color-text-1: var(--sand-12);
+    --color-text-2: var(--sand-11);
 
-    --ui-1: var(--lime-7);
-    --ui-2: var(--orange-5);
-    --ui-3: var(--purple-5);
-    --ui-4: var(--choco-11);
+    --color-ui-1: var(--lime-7);
+    --color-ui-2: var(--orange-5);
+    --color-ui-3: var(--purple-5);
+    --color-ui-4: var(--choco-9);
   }
 }
 
-/* Set default text color */
-body {
-  color: var(--text-1);
-  font-family: var(--font-sans);
-}
+@layer base {
+  /* Set default text color */
+  body {
+    color: var(--color-text-1);
+    font-family: var(--font-sans);
+  }
 
-:where(h1, h2, h3, h4, h5, h6) {
-  font-weight: 400;
+  :where(h1, h2, h3, h4, h5, h6) {
+    font-weight: 400;
+  }
 }
 
 /* Custom components */
@@ -583,8 +593,8 @@ body {
     font-weight: var(--font-weight-7);
     padding-inline: var(--size-3);
     padding-block: var(--size-1);
-    color: var(--link);
-    border: var(--border-size-2) solid var(--link);
+    color: var(--color-link);
+    border: var(--border-size-2) solid var(--color-link);
     background-color: transparent;
     border-radius: var(--radius-2);
   }
@@ -592,7 +602,7 @@ body {
   .btn:is(:hover, :focus) {
     cursor: pointer;
     color: var(--blue-0);
-    background-color: var(--link);
+    background-color: var(--color-link);
     text-decoration: none;
   }
 

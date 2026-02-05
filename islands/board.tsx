@@ -148,7 +148,9 @@ export default function Board(
       <div
         style={{
           "--active-bg": activePiece
-            ? activePiece.type === "rook" ? "var(--ui-2)" : "var(--ui-3)"
+            ? activePiece.type === "rook"
+              ? "var(--color-ui-2)"
+              : "var(--color-ui-3)"
             : null,
           "--replay-len": moves.length,
           "--gap": "var(--size-1)",
@@ -335,7 +337,7 @@ function BoardTarget({ x, y, href }: TargetProps) {
       href={href}
       className={cn(
         "w-full aspect-square border-1 place-self-center col-[calc(var(--x)+1)] row-[calc(var(--y)+1)]",
-        "border-[var(--active-bg)]",
+        "border-(--active-bg)",
       )}
       style={{
         "--x": x,
@@ -361,7 +363,7 @@ function BoardTargetShaders({ active, targets }: BoardTargetShadersProps) {
   return (
     <>
       <div
-        className="bg-[var(--active-bg)] opacity-20 pointer-events-none"
+        className="bg-(--active-bg) opacity-20 pointer-events-none"
         style={{
           gridColumnStart: `${up.x + 1}`,
           gridRowStart: `${up.y + 1}`,
@@ -370,7 +372,7 @@ function BoardTargetShaders({ active, targets }: BoardTargetShadersProps) {
       />
 
       <div
-        className="bg-[var(--active-bg)] opacity-20 pointer-events-none"
+        className="bg-(--active-bg) opacity-20 pointer-events-none"
         style={{
           gridColumnStart: `${left.x + 1}`,
           gridColumnEnd: `${right.x + 2}`,

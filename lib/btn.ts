@@ -12,15 +12,15 @@ export default plugin(({ addComponents }) => {
       paddingInline: "var(--size-3)",
       paddingBlock: "var(--size-1)",
 
-      color: "var(--link)",
-      border: "var(--border-size-2) solid var(--link)",
+      color: "var(--color-link)",
+      border: "var(--border-size-2) solid var(--color-link)",
       backgroundColor: "transparent",
       borderRadius: "var(--radius-2)",
 
       ".btn:is(:hover, :focus)": {
         cursor: "pointer",
         color: "var(--blue-0)",
-        backgroundColor: "var(--link)",
+        backgroundColor: "var(--color-link)",
       },
 
       ".btn:active:not(:focus-visible)": {
