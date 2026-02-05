@@ -1,6 +1,15 @@
 import { define } from "#/core.ts";
 import { generateTrackingId, setTrackingCookie } from "#/util/cookies.ts";
 
+/**
+ * Handles cookie consent form submissions from the CookieBanner.
+ *
+ * POST /api/consent
+ * - action=accept: Generates new tracking ID and sets cookie
+ * - action=decline: Sets cookie to "declined"
+ *
+ * Redirects back to the referring page after setting the cookie.
+ */
 export const handler = define.handlers({
   async POST(ctx) {
     const formData = await ctx.req.formData();

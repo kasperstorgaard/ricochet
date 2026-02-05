@@ -3,14 +3,19 @@ import { useEffect, useRef } from "preact/hooks";
 import { cn } from "#/lib/style.ts";
 
 type Props = {
+  /** Whether the banner should be shown (true when user hasn't made a choice). */
   open: boolean;
 };
 
+/**
+ * Cookie consent banner displayed at the bottom of the page.
+ * Submits to /api/consent with action "accept" or "decline".
+ */
 export function CookieBanner({ open }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
 
+  // Client side showModal call is needed to properly render.
   useEffect(() => {
-    // Only show if no tracking cookie exists
     if (open) ref.current?.showModal();
   }, [open]);
 
@@ -24,7 +29,7 @@ export function CookieBanner({ open }: Props) {
         "fixed bottom-fl-2 left-fl-2 right-auto z-50 overflow-hidden max-w-88",
       )}
     >
-      {/* Bitten cookie decoration */}
+      {/* Simple circle with a bite taken out */}
       <svg
         className="absolute -top-4 -right-3 w-18 h-18 opacity-80 pointer-events-none"
         viewBox="0 0 100 100"

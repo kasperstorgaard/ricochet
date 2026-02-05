@@ -1,10 +1,15 @@
 import { createDefine } from "fresh";
 
-// This specifies the type of "ctx.state" which is used to share
-// data among middlewares, layouts and routes.
+/**
+ * Shared state passed through ctx.state in middlewares, layouts, and routes.
+ * Set by the tracking middleware in middleware/tracking.ts.
+ */
 export type State = {
+  /** True if user accepted tracking (has valid tracking ID). */
   trackingAllowed: boolean;
+  /** True if user explicitly declined tracking. */
   trackingDeclined: boolean;
+  /** The user's tracking ID (UUID), or null if not allowed. */
   trackingId: string | null;
 };
 

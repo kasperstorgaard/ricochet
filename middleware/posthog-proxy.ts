@@ -1,8 +1,14 @@
 import { define } from "#/core.ts";
 
 /**
- * Proxy requests to /ph/* to PostHog servers.
- * This avoids the client connecting directly to PostHog.
+ * Middleware that proxies /ph/* requests to PostHog servers.
+ *
+ * This allows the client-side PostHog SDK to send events through our server,
+ * avoiding direct connections to PostHog (better for privacy and ad blockers).
+ *
+ * Routes:
+ * - /ph/static/* -> eu-assets.i.posthog.com (JS bundles, etc.)
+ * - /ph/* -> eu.i.posthog.com (API endpoints)
  */
 export const posthogProxy = define.middleware(async (ctx) => {
   const url = new URL(ctx.req.url);
