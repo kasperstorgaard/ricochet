@@ -69,7 +69,7 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
             className={cn(
               "flex items-center rounded-1 px-2",
               "text-text-1 border-current border-1 aspect-square",
-              "hover:no-underline disabled:opacity-20 ",
+              "hover:no-underline disabled:opacity-20",
               (state.cursor == null ||
                 state.cursor === state.moves.length) && "opacity-40",
             )}
