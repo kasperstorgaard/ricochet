@@ -7,14 +7,16 @@ export default define.page(function CookiePolicyPage() {
     <>
       <Main className="max-w-prose">
         <article className="grid gap-fl-2">
-          <h2 className="text-4 font-semibold">Cookie Policy</h2>
+          <h2 className="text-4 font-semibold mt-fl-4">Cookie Policy</h2>
 
           <p className="text-text-2">
             Ricochet uses a single first-party cookie to understand how people
-            use the game. That's it.
+            use the game. That's it. (and it's opt in)
           </p>
 
-          <h3 className="text-2 font-medium mt-fl-1">What cookie do we use?</h3>
+          <h3 className="text-2 font-semibold mt-fl-1">
+            What cookie do we use?
+          </h3>
 
           <div>
             <table>
@@ -54,16 +56,18 @@ export default define.page(function CookiePolicyPage() {
 
           <p className="text-text-2">When you opt in, we collect:</p>
 
-          <ul className="list-disc ml-5 text-text-2 leading-relaxed">
+          <ul className="text-text-2">
             <li>Which pages you visit in the game</li>
             <li>What buttons you click</li>
             <li>How long you play</li>
             <li>Basic technical info (browser type, screen size)</li>
           </ul>
 
-          <h3 className="text-2 font-semibold mt-fl-1">What we DON'T do</h3>
+          <h3 className="text-2 font-semibold mt-fl-1">
+            What we DON'T do
+          </h3>
           <p className="text-text-2">We don't:</p>
-          <ul className="list-disc ml-5 text-text-2 leading-relaxed">
+          <ul className="text-text-2 leading-relaxed">
             <li>Sell your data to anyone</li>
             <li>Share it with advertisers</li>
             <li>Track you across other websites</li>
