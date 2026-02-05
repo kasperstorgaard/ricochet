@@ -6,7 +6,7 @@ import { Pagination } from "#/components/pagination.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { Thumbnail } from "#/components/thumbnail.tsx";
 import { cn } from "#/lib/style.ts";
-import { define } from "../../core.ts";
+import { define } from "#/core.ts";
 import { listPuzzles } from "#/util/loader.ts";
 import { PaginatedData, Puzzle } from "#/util/types.ts";
 import { getPage } from "#/util/url.ts";
@@ -47,7 +47,7 @@ export default define.page(
 
           <ul
             className={cn(
-              "grid grid-cols-[repeat(2,1fr)] gap-fl-2 p-0 m-0",
+              "m-0 p-0 grid grid-cols-[repeat(2,1fr)] gap-fl-2",
               "sm:grid-cols-[repeat(3,1fr)]",
             )}
           >

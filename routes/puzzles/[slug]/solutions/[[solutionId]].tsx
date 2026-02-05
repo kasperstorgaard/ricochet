@@ -7,7 +7,7 @@ import { getPuzzleSolution, listPuzzleSolutions } from "#/db/kv.ts";
 import { Solution } from "#/db/types.ts";
 import Board from "#/islands/board.tsx";
 import { SolutionsPanel } from "#/islands/solutions-panel.tsx";
-import { define } from "#/routes/core.ts";
+import { define } from "#/core.ts";
 import { getPuzzle } from "#/util/loader.ts";
 import { Puzzle } from "#/util/types.ts";
 import { encodeState } from "#/util/url.ts";
