@@ -38,7 +38,7 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
     <Panel>
       <div
         className={cn(
-          "flex max-lg:col-[2/3] items-center gap-fl-1 w-full",
+          "flex max-lg:col-[2/3] items-center gap-fl-1 w-full place-content-center",
           "lg:grid lg:grid-rows-subgrid lg:row-[3/4]",
         )}
       >

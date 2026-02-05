@@ -34,7 +34,7 @@ export function SolutionsPanel(
     <Panel>
       <ol
         className={cn(
-          "grid col-[2/3] lg:col-auto w-full items-center gap-x-fl-2 gap-y-1",
+          "grid col-[2/3] lg:col-auto w-full items-center gap-x-fl-2 gap-y-1 m-0 p-0 list-none",
           "lg:row-[3/4] lg:grid-flow-row lg:grid-rows-[auto] lg:content-start",
         )}
       >
