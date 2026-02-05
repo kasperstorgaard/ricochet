@@ -1,8 +1,13 @@
-/* Open props */
+/* Open Props */
 @import "open-props/open-props.min.css";
 @import "open-props/normalize.min.css" layer(base);
 
-@import "tailwindcss";
+/*
+  Tailwind v4
+  No preflight - open props has normalize included
+*/
+@import "tailwindcss/theme" layer(theme);
+@import "tailwindcss/utilities" layer(utilities);
 
 /* Tailwind v4 theme configuration */
 @theme {
@@ -562,6 +567,11 @@
 /* Set default text color */
 body {
   color: var(--text-1);
+  font-family: var(--font-sans);
+}
+
+:where(h1, h2, h3, h4, h5, h6) {
+  font-weight: 400;
 }
 
 /* Custom components */
@@ -583,6 +593,7 @@ body {
     cursor: pointer;
     color: var(--blue-0);
     background-color: var(--link);
+    text-decoration: none;
   }
 
   .btn:active:not(:focus-visible) {
