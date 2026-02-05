@@ -1,5 +1,5 @@
 import { Header } from "#/components/header.tsx";
-import { define } from "#/routes/core.ts";
+import { define } from "#/core.ts";
 import { getSkipTutorialCookie } from "#/util/cookies.ts";
 import { getPuzzleOfTheDay } from "#/util/loader.ts";
 

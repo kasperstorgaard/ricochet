@@ -7,7 +7,7 @@ import { Solution } from "#/db/types.ts";
 import Board from "#/islands/board.tsx";
 import { ControlsPanel } from "#/islands/controls-panel.tsx";
 import { TutorialDialog } from "#/islands/tutorial-dialog.tsx";
-import { define } from "#/routes/core.ts";
+import { define } from "#/core.ts";
 import { setSkipTutorialCookie } from "#/util/cookies.ts";
 import { getPuzzle } from "#/util/loader.ts";
 import { Puzzle } from "#/util/types.ts";
