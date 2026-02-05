@@ -41,11 +41,8 @@ export function Thumbnail({
       viewBox={`0 0 ${width} ${height}`}
       {...rest}
     >
-      {/* Background */}
-      {/* <rect width={width} height={height} stroke="var(--surface-2)" /> */}
-
       {/* Destination marker */}
-      <g stroke="var(--ui-1)" strokeWidth="2" fill="none">
+      <g stroke="var(--color-ui-1)" strokeWidth="2" fill="none">
         <line
           x1={destX - destHalf}
           y1={destY - destHalf}
@@ -74,7 +71,7 @@ export function Thumbnail({
               x2={px}
               y2={py + cellSize}
               strokeWidth="3"
-              stroke="var(--ui-4)"
+              stroke="var(--color-ui-4)"
             />
           );
         } else {
@@ -86,7 +83,7 @@ export function Thumbnail({
               x2={px + cellSize}
               y2={py}
               strokeWidth="3"
-              stroke="var(--ui-4)"
+              stroke="var(--color-ui-4)"
             />
           );
         }
@@ -104,7 +101,7 @@ export function Thumbnail({
               cx={cx}
               cy={cy}
               r={radius}
-              fill="var(--ui-2)"
+              fill="var(--color-ui-2)"
             />
           );
         } else {
@@ -117,7 +114,7 @@ export function Thumbnail({
               y={cy - half}
               width={size}
               height={size}
-              fill="var(--ui-3)"
+              fill="var(--color-ui-3)"
             />
           );
         }
