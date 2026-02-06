@@ -3,7 +3,7 @@ import { useEffect } from "preact/hooks";
 
 type TrackingProps = {
   /** PostHog API key from environment. */
-  apiKey: string;
+  posthogAPIKey: string | undefined;
   /** Whether user has consented to tracking. */
   trackingAllowed: boolean;
   /** User's tracking ID (UUID), or null if not allowed. */
@@ -16,11 +16,11 @@ type TrackingProps = {
  * Pageviews are captured server-side, so capture_pageview is disabled.
  */
 export function TrackingScript(
-  { apiKey, trackingAllowed, trackingId }: TrackingProps,
+  { posthogAPIKey, trackingAllowed, trackingId }: TrackingProps,
 ) {
   useEffect(() => {
-    if (apiKey && trackingAllowed && trackingId) {
-      posthog.init(apiKey, {
+    if (posthogAPIKey && trackingAllowed && trackingId) {
+      posthog.init(posthogAPIKey, {
         api_host: "/ph",
         ui_host: "https://eu.posthog.com",
         defaults: "2025-11-30",
@@ -34,7 +34,7 @@ export function TrackingScript(
     return () => {
       if (!trackingAllowed) posthog.opt_out_capturing();
     };
-  }, [apiKey, trackingAllowed, trackingId]);
+  }, [posthogAPIKey, trackingAllowed, trackingId]);
 
   return null;
 }

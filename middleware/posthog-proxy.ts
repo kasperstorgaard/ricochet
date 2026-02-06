@@ -30,16 +30,24 @@ export const posthogProxy = define.middleware(async (ctx) => {
   const headers = new Headers(ctx.req.headers);
   headers.delete("host");
 
-  // Forward the request
-  const response = await fetch(targetUrl, {
-    method,
-    headers,
-    body: method === "POST" ? body : undefined,
-  });
+  try {
+    // Forward the request
+    const response = await fetch(targetUrl, {
+      method,
+      headers,
+      body: method === "POST" ? body : undefined,
+    });
 
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers: response.headers,
-  });
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers,
+    });
+    // Catch any network errors, so they don't pollute the console
+  } catch {
+    return new Response(null, {
+      status: 503,
+      headers: { "Retry-After": "3600" },
+    });
+  }
 });

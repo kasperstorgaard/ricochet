@@ -48,15 +48,16 @@ export default define.page(
             "lg:grid-cols-[1fr_13rem] lg:content-center",
           )}
         >
-          {/* @ts-ignore: Fresh 2.x Component type issue */}
           <Component />
+
           {!isTutorial && (
             <CookieBanner
               open={!state.trackingAllowed && !state.trackingDeclined}
             />
           )}
+
           <TrackingScript
-            apiKey={Deno.env.get("POSTHOG_API_KEY")!}
+            posthogAPIKey={Deno.env.get("POSTHOG_API_KEY")}
             trackingAllowed={state.trackingAllowed}
             trackingId={state.trackingId}
           />
