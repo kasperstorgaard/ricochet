@@ -43,7 +43,7 @@ export default define.page(function EditorPage(props: PageProps<Puzzle>) {
       <Main>
         <Header url={url} items={navItems} />
 
-        <h1 className="text-5 text-brand">Edit</h1>
+        <h1 className="text-5 text-brand mt-2">Edit</h1>
 
         <Board
           puzzle={puzzle}

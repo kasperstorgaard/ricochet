@@ -77,7 +77,7 @@ export default define.page(function PuzzleTutorial(props: PageProps<Data>) {
       <Main>
         <Header url={url} items={navItems} />
 
-        <h1 className="text-5 text-brand">{puzzle.value.name}</h1>
+        <h1 className="text-5 text-brand mt-2">{puzzle.value.name}</h1>
 
         <Board
           href={href}

@@ -47,7 +47,7 @@ export default define.page(
         <Main className="max-lg:row-span-full items-stretch place-content-stretch lg:pb-fl-4">
           <Header url={url} items={navItems} />
 
-          <h1 className="text-5 text-brand">Puzzles</h1>
+          <h1 className="text-5 text-brand mt-2 -mb-1">Puzzles</h1>
 
           <ul
             className={cn(

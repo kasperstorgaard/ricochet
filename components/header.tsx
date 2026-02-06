@@ -14,12 +14,12 @@ export function Header({ items }: Props) {
       <nav className="flex items-center gap-1 text-1">
         {items.map((item, idx) => (
           <>
-            {idx > 0 && <span className="leading-mini mb-00 text-link">/</span>}
+            {idx > 0 && <span className="leading-flat mb-00 text-link">/</span>}
 
             <a
               href={item.href}
               className={cn(
-                "underline text-link visited:text-link",
+                "underline text-link leading-mini visited:text-link",
               )}
             >
               {item.name}

@@ -78,7 +78,9 @@ export default define.page(function SolutionPage(props: PageProps<Data>) {
       <Main>
         <Header url={url} items={navItems} />
 
-        <h1 className="text-5 text-brand">{props.data.puzzle.name}</h1>
+        <h1 className="text-5 text-brand mt-2">
+          {props.data.puzzle.name}
+        </h1>
 
         <Board
           puzzle={puzzle}
