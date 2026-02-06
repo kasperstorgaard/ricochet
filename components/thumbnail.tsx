@@ -19,7 +19,8 @@ export function Thumbnail({
   ...rest
 }: ThumbnailProps) {
   const cellSize = width / 8;
-  const pieceSize = cellSize * 0.7;
+  const pieceSize = cellSize * 0.8; // More realistic piece sizing
+  const wallGap = cellSize * 0.08; // Gap at each end of walls
 
   // Helper to get cell center coordinates
   const getCenter = (x: number, y: number) => ({
@@ -27,13 +28,9 @@ export function Thumbnail({
     cy: y * cellSize + cellSize / 2,
   });
 
-  // Destination marker (X)
-  const { cx: destX, cy: destY } = getCenter(
-    board.destination.x,
-    board.destination.y,
-  );
-  const destSize = cellSize * 0.5;
-  const destHalf = destSize / 2;
+  // Destination marker - fills the cell like the real board
+  const destX = board.destination.x * cellSize;
+  const destY = board.destination.y * cellSize;
 
   return (
     <svg
@@ -41,23 +38,24 @@ export function Thumbnail({
       viewBox={`0 0 ${width} ${height}`}
       {...rest}
     >
-      {/* Destination marker */}
+      {/* Destination marker - fills the cell with border and X */}
       <g stroke="var(--color-ui-1)" strokeWidth="2" fill="none">
+        <rect x={destX} y={destY} width={cellSize} height={cellSize} />
         <line
-          x1={destX - destHalf}
-          y1={destY - destHalf}
-          x2={destX + destHalf}
-          y2={destY + destHalf}
+          x1={destX}
+          y1={destY}
+          x2={destX + cellSize}
+          y2={destY + cellSize}
         />
         <line
-          x1={destX - destHalf}
-          y1={destY + destHalf}
-          x2={destX + destHalf}
-          y2={destY - destHalf}
+          x1={destX}
+          y1={destY + cellSize}
+          x2={destX + cellSize}
+          y2={destY}
         />
       </g>
 
-      {/* Walls */}
+      {/* Walls - with gaps to look like separate segments */}
       {board.walls.map((wall: Wall, idx) => {
         const px = wall.x * cellSize;
         const py = wall.y * cellSize;
@@ -67,9 +65,9 @@ export function Thumbnail({
             <line
               key={`wall-${idx}`}
               x1={px}
-              y1={py}
+              y1={py + wallGap}
               x2={px}
-              y2={py + cellSize}
+              y2={py + cellSize - wallGap}
               strokeWidth="3"
               stroke="var(--color-ui-4)"
             />
@@ -78,9 +76,9 @@ export function Thumbnail({
           return (
             <line
               key={`wall-${idx}`}
-              x1={px}
+              x1={px + wallGap}
               y1={py}
-              x2={px + cellSize}
+              x2={px + cellSize - wallGap}
               y2={py}
               strokeWidth="3"
               stroke="var(--color-ui-4)"
@@ -105,8 +103,10 @@ export function Thumbnail({
             />
           );
         } else {
-          const size = pieceSize * 0.9;
+          // Bouncers are same size as rooks, with rounded corners
+          const size = pieceSize;
           const half = size / 2;
+          const cornerRadius = size * 0.15; // Slightly rounded corners
           return (
             <rect
               key={`piece-${idx}`}
@@ -114,6 +114,8 @@ export function Thumbnail({
               y={cy - half}
               width={size}
               height={size}
+              rx={cornerRadius}
+              ry={cornerRadius}
               fill="var(--color-ui-3)"
             />
           );

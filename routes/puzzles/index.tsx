@@ -40,14 +40,14 @@ export default define.page(
 
     return (
       <>
-        <Main className="max-lg:row-span-full place-content-center lg:pb-fl-4">
+        <Main className="max-lg:row-span-full items-stretch place-content-stretch lg:pb-fl-4">
           <Header items={navItems} />
 
           <h1 className="text-5 text-brand">Puzzles</h1>
 
           <ul
             className={cn(
-              "m-0 p-0 grid grid-cols-[repeat(2,1fr)] gap-fl-1 gap-x-fl-2",
+              "p-0 grid grid-cols-[repeat(2,1fr)] gap-fl-1 gap-x-fl-2",
               "md:grid-cols-[repeat(3,1fr)] max-lg:max-w-120",
             )}
           >
@@ -91,7 +91,11 @@ export default define.page(
             ))}
           </ul>
 
-          <Pagination {...pagination} baseUrl={props.url.href} />
+          <Pagination
+            {...pagination}
+            baseUrl={props.url.href}
+            className="pt-fl-1"
+          />
         </Main>
 
         <Panel>

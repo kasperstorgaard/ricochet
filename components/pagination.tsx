@@ -4,9 +4,10 @@ type Props = {
   page: number;
   totalPages: number;
   baseUrl: string;
+  className?: string;
 };
 
-export function Pagination({ page, totalPages, baseUrl }: Props) {
+export function Pagination({ page, totalPages, baseUrl, className }: Props) {
   const hasPrevious = page > 1;
   const hasNext = page < totalPages;
 
@@ -22,7 +23,10 @@ export function Pagination({ page, totalPages, baseUrl }: Props) {
 
   return (
     <nav
-      className="flex items-center justify-center gap-fl-2 self-end max-lg:w-full"
+      className={cn(
+        "flex items-center justify-center gap-fl-2 self-end max-lg:w-full",
+        className,
+      )}
       aria-label="Pagination"
     >
       <a
