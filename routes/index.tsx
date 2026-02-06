@@ -2,7 +2,6 @@ import { Header } from "#/components/header.tsx";
 import { define } from "#/core.ts";
 import { getSkipTutorialCookie } from "#/util/cookies.ts";
 import { getPuzzleOfTheDay } from "#/util/loader.ts";
-import { context } from "npm:esbuild@~0.25.5";
 
 export const handler = define.handlers({
   async GET(ctx) {
