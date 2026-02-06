@@ -40,22 +40,25 @@ export default define.page(
 
     return (
       <>
-        <Main className="max-lg:row-span-full place-content-stretch lg:pb-fl-4">
+        <Main className="max-lg:row-span-full place-content-center lg:pb-fl-4">
           <Header items={navItems} />
 
           <h1 className="text-5 text-brand">Puzzles</h1>
 
           <ul
             className={cn(
-              "m-0 p-0 grid grid-cols-[repeat(2,1fr)] gap-fl-2",
-              "sm:grid-cols-[repeat(3,1fr)]",
+              "m-0 p-0 grid grid-cols-[repeat(2,1fr)] gap-fl-1 gap-x-fl-2",
+              "md:grid-cols-[repeat(3,1fr)] max-lg:max-w-120",
             )}
           >
             {items.map((puzzle) => (
               <li className="list-none pl-0 min-w-0" key={puzzle.slug}>
                 <a
                   href={`puzzles/${puzzle.slug}`}
-                  className="group flex flex-col gap-1 hover:text-brand hover:no-underline"
+                  className={cn(
+                    "group flex flex-col gap-fl-1 text-text-1",
+                    "hover:text-brand hover:no-underline",
+                  )}
                 >
                   <div
                     className={cn(
@@ -69,17 +72,20 @@ export default define.page(
                     />
                   </div>
 
-                  <time
-                    dateTime={puzzle.createdAt.toISOString()}
-                    className="text-0 uppercase tracking-wide"
-                  >
-                    {new Intl.DateTimeFormat(locale, {
-                      dateStyle: "short",
-                    }).format(puzzle.createdAt)}
-                  </time>
-                  <span className="flex flex-wrap text-2 font-3 -mt-fl-1">
-                    {puzzle.name}
-                  </span>
+                  <div className="flex flex-col">
+                    <time
+                      dateTime={puzzle.createdAt.toISOString()}
+                      className="text-0 text-text-2 uppercase tracking-wide leading-flat"
+                    >
+                      {new Intl.DateTimeFormat(locale, {
+                        dateStyle: "short",
+                      }).format(puzzle.createdAt)}
+                    </time>
+
+                    <span className="flex flex-wrap text-2 leading-tight font-4">
+                      {puzzle.name}
+                    </span>
+                  </div>
                 </a>
               </li>
             ))}
