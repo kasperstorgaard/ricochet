@@ -98,7 +98,7 @@ export default define.page(
           <Pagination
             {...pagination}
             baseUrl={props.url.href}
-            className="pt-fl-1"
+            className="mt-fl-1 max-sm:mb-fl-1 max-sm:mt-fl-3"
           />
         </Main>
 
