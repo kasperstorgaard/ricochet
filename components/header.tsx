@@ -1,4 +1,7 @@
+import { cn } from "../lib/style.ts";
+
 type Props = {
+  url: URL;
   items: {
     name: string;
     href: string;
@@ -8,14 +11,16 @@ type Props = {
 export function Header({ items }: Props) {
   return (
     <header>
-      <nav className="flex items-center gap-1 text-fl-0">
+      <nav className="flex items-center gap-1 text-1">
         {items.map((item, idx) => (
           <>
-            {idx > 0 && <span className="leading-mini mb-00">/</span>}
+            {idx > 0 && <span className="leading-mini mb-00 text-link">/</span>}
 
             <a
               href={item.href}
-              className="underline text-link"
+              className={cn(
+                "underline text-link visited:text-link",
+              )}
             >
               {item.name}
             </a>

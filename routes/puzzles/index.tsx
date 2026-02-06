@@ -34,14 +34,18 @@ export const handler = define.handlers<PageData>({
 export default define.page(
   function PuzzlesPage(props: PageProps<PageData>) {
     const { items, pagination, locale } = props.data;
+
+    const url = new URL(props.req.url);
+
     const navItems = [
       { name: "home", href: "/" },
+      { name: "puzzles", href: "/puzzles" },
     ];
 
     return (
       <>
         <Main className="max-lg:row-span-full items-stretch place-content-stretch lg:pb-fl-4">
-          <Header items={navItems} />
+          <Header url={url} items={navItems} />
 
           <h1 className="text-5 text-brand">Puzzles</h1>
 
@@ -62,7 +66,7 @@ export default define.page(
                 >
                   <div
                     className={cn(
-                      "flex overflow-hidden rounded-2 border-1 border-surface-4",
+                      "flex border-1 border-surface-4",
                       "group-hover:border-brand transition-colors",
                     )}
                   >
@@ -75,7 +79,7 @@ export default define.page(
                   <div className="flex flex-col">
                     <time
                       dateTime={puzzle.createdAt.toISOString()}
-                      className="text-0 text-text-2 uppercase tracking-wide leading-flat"
+                      className="text-0 text-text-2 group-hover:text-current uppercase tracking-wide leading-flat"
                     >
                       {new Intl.DateTimeFormat(locale, {
                         dateStyle: "short",

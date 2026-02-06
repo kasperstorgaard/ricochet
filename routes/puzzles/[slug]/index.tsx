@@ -52,15 +52,18 @@ export default define.page(function PuzzleDetails(props: PageProps<Puzzle>) {
   const puzzle = useSignal(props.data);
   const mode = useSignal<"solve">("solve");
 
+  const url = new URL(props.req.url);
+
   const navItems = [
     { name: "home", href: "/" },
     { name: "puzzles", href: "/puzzles" },
+    { name: props.data.name, href: `/puzzles/${props.data.slug}` },
   ];
 
   return (
     <>
       <Main>
-        <Header items={navItems} />
+        <Header url={url} items={navItems} />
 
         <h1 className="text-5 text-brand">{props.data.name}</h1>
 

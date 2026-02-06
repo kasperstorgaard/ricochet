@@ -61,6 +61,8 @@ export default define.page(function SolutionPage(props: PageProps<Data>) {
   const href = useSignal(props.url.href);
   const mode = useSignal<"replay">("replay");
 
+  const url = new URL(props.req.url);
+
   const navItems = [
     { name: "home", href: "/" },
     { name: "puzzles", href: "/puzzles" },
@@ -74,7 +76,7 @@ export default define.page(function SolutionPage(props: PageProps<Data>) {
   return (
     <>
       <Main>
-        <Header items={navItems} />
+        <Header url={url} items={navItems} />
 
         <h1 className="text-5 text-brand">{props.data.puzzle.name}</h1>
 
