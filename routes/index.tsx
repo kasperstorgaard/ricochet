@@ -21,7 +21,9 @@ export const handler = define.handlers({
   },
 });
 
-export default define.page(function Home() {
+export default define.page(function Home(ctx) {
+  const url = new URL(ctx.req.url);
+
   const navItems = [
     { name: "home", href: "/" },
     { name: "puzzles", href: "/puzzles" },
@@ -29,12 +31,12 @@ export default define.page(function Home() {
 
   return (
     <div class="flex flex-col col-[2/3] w-full gap-fl-2 pt-fl-2">
-      <Header items={navItems} />
+      <Header url={url} items={navItems} />
       <div className="flex gap-fl-1">
         <section className="flex flex-col gap-fl-1">
           <h2 class="text-fl-2">New to the game?</h2>
           <p>
-            Try{" "}
+            Try{"  "}
             <a className="text-link underline" href="/puzzles/tutorial">
               the tutorial
             </a>

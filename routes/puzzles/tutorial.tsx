@@ -66,6 +66,8 @@ export default define.page(function PuzzleTutorial(props: PageProps<Data>) {
     props.url.searchParams.has("replay_speed") ? "replay" : "readonly",
   );
 
+  const url = new URL(props.req.url);
+
   const navItems = [
     { name: "home", href: "/" },
   ];
@@ -73,9 +75,9 @@ export default define.page(function PuzzleTutorial(props: PageProps<Data>) {
   return (
     <>
       <Main>
-        <Header items={navItems} />
+        <Header url={url} items={navItems} />
 
-        <h1 className="text-5 text-brand">{puzzle.value.name}</h1>
+        <h1 className="text-5 text-brand mt-2">{puzzle.value.name}</h1>
 
         <Board
           href={href}

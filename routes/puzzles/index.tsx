@@ -34,32 +34,39 @@ export const handler = define.handlers<PageData>({
 export default define.page(
   function PuzzlesPage(props: PageProps<PageData>) {
     const { items, pagination, locale } = props.data;
+
+    const url = new URL(props.req.url);
+
     const navItems = [
       { name: "home", href: "/" },
+      { name: "puzzles", href: "/puzzles" },
     ];
 
     return (
       <>
-        <Main className="max-lg:row-span-full place-content-stretch lg:pb-fl-4">
-          <Header items={navItems} />
+        <Main className="max-lg:row-span-full items-stretch place-content-stretch lg:pb-fl-4">
+          <Header url={url} items={navItems} />
 
-          <h1 className="text-5 text-brand">Puzzles</h1>
+          <h1 className="text-5 text-brand mt-2 -mb-1">Puzzles</h1>
 
           <ul
             className={cn(
-              "m-0 p-0 grid grid-cols-[repeat(2,1fr)] gap-fl-2",
-              "sm:grid-cols-[repeat(3,1fr)]",
+              "p-0 grid grid-cols-[repeat(2,1fr)] gap-fl-1 gap-x-fl-2",
+              "md:grid-cols-[repeat(3,1fr)] max-lg:max-w-120",
             )}
           >
             {items.map((puzzle) => (
               <li className="list-none pl-0 min-w-0" key={puzzle.slug}>
                 <a
                   href={`puzzles/${puzzle.slug}`}
-                  className="group flex flex-col gap-1 hover:text-brand hover:no-underline"
+                  className={cn(
+                    "group flex flex-col gap-fl-1 text-text-1",
+                    "hover:text-brand hover:no-underline",
+                  )}
                 >
                   <div
                     className={cn(
-                      "flex overflow-hidden rounded-2 border-1 border-surface-4",
+                      "flex border-1 border-surface-4",
                       "group-hover:border-brand transition-colors",
                     )}
                   >
@@ -69,23 +76,30 @@ export default define.page(
                     />
                   </div>
 
-                  <time
-                    dateTime={puzzle.createdAt.toISOString()}
-                    className="text-0 uppercase tracking-wide"
-                  >
-                    {new Intl.DateTimeFormat(locale, {
-                      dateStyle: "short",
-                    }).format(puzzle.createdAt)}
-                  </time>
-                  <span className="flex flex-wrap text-2 font-3 -mt-fl-1">
-                    {puzzle.name}
-                  </span>
+                  <div className="flex flex-col">
+                    <time
+                      dateTime={puzzle.createdAt.toISOString()}
+                      className="text-0 text-text-2 group-hover:text-current uppercase tracking-wide leading-flat"
+                    >
+                      {new Intl.DateTimeFormat(locale, {
+                        dateStyle: "short",
+                      }).format(puzzle.createdAt)}
+                    </time>
+
+                    <span className="flex flex-wrap text-2 leading-tight font-4">
+                      {puzzle.name}
+                    </span>
+                  </div>
                 </a>
               </li>
             ))}
           </ul>
 
-          <Pagination {...pagination} baseUrl={props.url.href} />
+          <Pagination
+            {...pagination}
+            baseUrl={props.url.href}
+            className="mt-fl-1 max-sm:mb-fl-1 max-sm:mt-fl-3"
+          />
         </Main>
 
         <Panel>

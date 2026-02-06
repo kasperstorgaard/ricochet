@@ -4,9 +4,10 @@ type Props = {
   page: number;
   totalPages: number;
   baseUrl: string;
+  className?: string;
 };
 
-export function Pagination({ page, totalPages, baseUrl }: Props) {
+export function Pagination({ page, totalPages, baseUrl, className }: Props) {
   const hasPrevious = page > 1;
   const hasNext = page < totalPages;
 
@@ -22,13 +23,17 @@ export function Pagination({ page, totalPages, baseUrl }: Props) {
 
   return (
     <nav
-      className="flex items-center justify-center gap-fl-2 self-end max-lg:w-full"
+      className={cn(
+        "flex items-center justify-center gap-fl-2 self-end max-lg:w-full",
+        className,
+      )}
       aria-label="Pagination"
     >
       <a
         href={hasPrevious ? getPageUrl(page - 1) : undefined}
         className={cn(
-          "flex items-center rounded-1 px-2 border-[currentColor] border-1 aspect-square",
+          "flex items-center rounded-1 px-2 border-[currentColor] border-1 aspect-square text-text-1",
+          "hover:no-underline",
           !hasPrevious && "opacity-40 pointer-events-none",
         )}
         aria-disabled={!hasPrevious}
@@ -44,7 +49,8 @@ export function Pagination({ page, totalPages, baseUrl }: Props) {
       <a
         href={hasNext ? getPageUrl(page + 1) : undefined}
         className={cn(
-          "flex items-center rounded-1 px-2 border-[currentColor] border-1 aspect-square",
+          "flex items-center rounded-1 px-2 border-[currentColor] border-1 aspect-square text-text-1",
+          "hover:no-underline",
           !hasNext && "opacity-40 pointer-events-none",
         )}
         aria-disabled={!hasNext}

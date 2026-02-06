@@ -29,6 +29,8 @@ export default define.page(function EditorPage(props: PageProps<Puzzle>) {
   const href = useSignal(props.url.href);
   const mode = useSignal<"editor">("editor");
 
+  const url = new URL(props.req.url);
+
   const navItems = [
     { name: "home", href: "/" },
     { name: "puzzles", href: "/puzzles" },
@@ -39,9 +41,9 @@ export default define.page(function EditorPage(props: PageProps<Puzzle>) {
   return (
     <>
       <Main>
-        <Header items={navItems} />
+        <Header url={url} items={navItems} />
 
-        <h1 className="text-5 text-brand">Edit</h1>
+        <h1 className="text-5 text-brand mt-2">Edit</h1>
 
         <Board
           puzzle={puzzle}
