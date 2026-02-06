@@ -25,8 +25,8 @@ export const TutorialDialog = function ({ open, href, mode, solution }: Props) {
   const replaySpeed = useMemo(() => {
     const url = new URL(href.value);
 
-    const name = url.searchParams.get("replay_speed");
-    const value = name === "slow" ? 1.5 : 1;
+    const rawValue = url.searchParams.get("replay_speed");
+    const value = parseFloat(rawValue ?? "");
 
     return isNaN(value) ? 1 : value;
   }, [href.value]);
@@ -51,7 +51,7 @@ export const TutorialDialog = function ({ open, href, mode, solution }: Props) {
           "opacity-0 animate-fade-in backdrop:opacity-0 backdrop:animate-fade-in",
       )}
       style={{
-        animationDelay: `${replaySpeed * 5.15}s`,
+        animationDelay: `${(1 / replaySpeed) * solution.moves.length}s`,
       }}
     >
       <div className="grid gap-fl-3 p-fl-3">
@@ -70,7 +70,9 @@ type TutorialStepProps = {
 };
 
 function TutorialWelcomeStep({ href }: TutorialStepProps) {
-  const nextStep = useMemo(() => getStepLink(href, 1), [href]);
+  const nextStep = useMemo(() => getStepLink(href, 1), [
+    href,
+  ]);
 
   return (
     <>
@@ -113,7 +115,7 @@ function TutorialWelcomeStep({ href }: TutorialStepProps) {
 
 function TutorialPiecesStep({ href }: TutorialStepProps) {
   const prevStep = useMemo(() => getStepLink(href, 0), [href]);
-  const nextStep = useMemo(() => getStepLink(href, 2, { replay: "regular" }), [
+  const nextStep = useMemo(() => getStepLink(href, 2, { replaySpeed: 1 }), [
     href,
   ]);
 
@@ -148,6 +150,7 @@ function TutorialPiecesStep({ href }: TutorialStepProps) {
           href={nextStep}
           className="btn"
           data-router="push"
+          onClick={globalThis.location.reload}
         >
           Show me!
         </a>
@@ -161,7 +164,7 @@ function TutorialSolutionStep({ href }: TutorialStepProps & {
 }) {
   const prevStep = useMemo(() => getStepLink(href, 1), [href]);
   const reloadStep = useMemo(
-    () => getStepLink(href, 2, { replay: "slow" }),
+    () => getStepLink(href, 2, { replaySpeed: 0.667 }),
     [href],
   );
 
@@ -218,18 +221,18 @@ function TutorialSolutionStep({ href }: TutorialStepProps & {
 }
 
 type GetStepLinkOptions = {
-  replay?: "regular" | "slow";
+  replaySpeed?: number;
 };
 
 function getStepLink(
   href: string,
   step: number,
-  { replay }: GetStepLinkOptions = {},
+  { replaySpeed }: GetStepLinkOptions = {},
 ) {
   const url = new URL(href);
   url.searchParams.set("step", step.toString());
 
-  if (replay) url.searchParams.set("replay_speed", replay);
+  if (replaySpeed) url.searchParams.set("replay_speed", replaySpeed.toString());
 
   return url.href;
 }
