@@ -4,7 +4,10 @@ import { CookieBanner } from "#/islands/cookie-banner.tsx";
 import { TrackingScript } from "#/islands/tracking-script.tsx";
 
 export default define.page(
-  function AppWrapper({ Component, state }) {
+  function AppWrapper({ Component, state, url }) {
+    // Don't show the cookie dialog on tutorial, too distracting and double modal.
+    const isTutorial = url.pathname.endsWith("/tutorial");
+
     return (
       <html className="min-h-screen">
         <head>
@@ -40,9 +43,11 @@ export default define.page(
         >
           {/* @ts-ignore: Fresh 2.x Component type issue */}
           <Component />
-          <CookieBanner
-            open={!state.trackingAllowed && !state.trackingDeclined}
-          />
+          {!isTutorial && (
+            <CookieBanner
+              open={!state.trackingAllowed && !state.trackingDeclined}
+            />
+          )}
           <TrackingScript
             apiKey={Deno.env.get("POSTHOG_API_KEY")!}
             trackingAllowed={state.trackingAllowed}

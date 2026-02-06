@@ -16,7 +16,6 @@ import {
 import { useEditor } from "#/util/editor.ts";
 import { type Move, type Piece, Position, Puzzle, Wall } from "#/util/types.ts";
 import { decodeState, getActiveHref, getMoveHref } from "#/util/url.ts";
-import { getReplaySpeed } from "#/lib/replay.ts";
 
 type BoardProps = {
   href: Signal<string>;
@@ -98,8 +97,8 @@ export default function Board(
   const replaySpeed = useMemo(() => {
     const url = new URL(href.value);
 
-    const name = url.searchParams.get("replay_speed");
-    const value = getReplaySpeed(name);
+    const rawValue = url.searchParams.get("replay_speed");
+    const value = parseFloat(rawValue ?? "");
 
     return isNaN(value) ? 1 : value;
   }, [href.value]);
@@ -155,7 +154,7 @@ export default function Board(
           "--replay-len": moves.length,
           "--gap": "var(--size-1)",
           "--space-w": "clamp(44px - var(--gap), 5vw, 56px)",
-          "--replay-speed": `${replaySpeed}s`,
+          "--replay-speed": `${1 / replaySpeed}s`,
         }}
         className={cn(
           "grid gap-(--gap) w-full grid-cols-[repeat(8,var(--space-w))] grid-rows-[repeat(8,var(--space-w))]",
