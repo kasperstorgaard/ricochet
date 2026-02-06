@@ -14,6 +14,13 @@ export default define.page(
             content="width=device-width, initial-scale=1.0"
           />
           <title>Ricochet</title>
+          <link rel="icon" type="image/svg+xml" href="/favicon-light.svg" />
+          <link
+            rel="icon"
+            type="image/svg+xml"
+            href="/favicon-dark.svg"
+            media="(prefers-color-scheme: dark)"
+          />
           <link
             rel="stylesheet"
             type="text/css"
