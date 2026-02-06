@@ -132,13 +132,23 @@ export default function Board(
     [state.active, onFlick],
   );
 
+  const onSolve = useCallback(
+    () => {
+      const url = new URL(href.value);
+      url.pathname = url.pathname + "/solve";
+      url.search = "";
+      globalThis.location.href = url.href;
+    },
+    [href.value],
+  );
+
   useEditor({
     active: state.active,
     isEnabled: mode.value === "editor",
     puzzle,
   });
 
-  useArrowKeys({ onKeyUp, isEnabled: mode.value === "solve" });
+  useArrowKeys({ onKeyUp, onSolve, isEnabled: mode.value === "solve" });
 
   if (!state) return null;
 
