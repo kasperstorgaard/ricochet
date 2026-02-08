@@ -157,7 +157,7 @@ Deno.test("getMovesHref() should not include hint", () => {
   assertEquals(result.includes("hint"), false);
 });
 
-Deno.test("getActiveHref() should not include hint", () => {
+Deno.test("getActiveHref() should preserve hint", () => {
   const result = getActiveHref(
     { x: 3, y: 4 },
     {
@@ -168,7 +168,7 @@ Deno.test("getActiveHref() should not include hint", () => {
     },
   );
 
-  assertEquals(result.includes("hint"), false);
+  assertEquals(result.includes("hint=B2B8"), true);
 });
 
 Deno.test("getUndoHref() should not include hint", () => {

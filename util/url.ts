@@ -109,7 +109,7 @@ type GetActiveHrefOptions = GameState & { href: string };
 
 export function getActiveHref(
   active: Position,
-  { href, hint: _, ...state }: GetActiveHrefOptions,
+  { href, ...state }: GetActiveHrefOptions,
 ) {
   const url = new URL(href);
 
@@ -123,34 +123,28 @@ export function getActiveHref(
 
 export function getUndoHref(
   href: string,
-  { hint: _, ...state }: GameState,
+  state: GameState,
 ) {
   const url = new URL(href);
   const cursor = state.cursor != null
     ? Math.max(state.cursor - 1, 0)
     : state.moves.length - 2;
 
-  url.search = encodeState({
-    ...state,
-    cursor,
-  });
+  url.search = encodeState({ ...state, cursor, hint: undefined });
 
   return url.href;
 }
 
 export function getRedoHref(
   href: string,
-  { hint: _, ...state }: GameState,
+  state: GameState,
 ) {
   const url = new URL(href);
   const cursor = state.cursor != null
     ? Math.min(state.cursor + 1, state.moves.length)
     : state.moves.length;
 
-  url.search = encodeState({
-    ...state,
-    cursor,
-  });
+  url.search = encodeState({ ...state, cursor, hint: undefined });
 
   return url.href;
 }
