@@ -108,7 +108,8 @@ export function useSwipe(
       if (destroyed) return;
 
       const ZT = ZingTouch.default ?? ZingTouch;
-      region = new ZT.Region(boardEl, false, false);
+      // Region on document.body so swipes that end outside the board are still captured
+      region = new ZT.Region(document.body, false, false);
 
       const swipe = new ZT.Swipe({
         escapeVelocity: 0.25,
