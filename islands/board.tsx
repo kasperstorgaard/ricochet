@@ -7,6 +7,7 @@ import { useRouter } from "#/lib/router.ts";
 import { cn } from "#/lib/style.ts";
 import { Direction, useFlick } from "#/lib/touch.ts";
 import {
+  getMoveDirection,
   getTargets,
   isPositionSame,
   isValidSolution,
@@ -15,7 +16,7 @@ import {
 } from "#/util/board.ts";
 import { useEditor } from "#/util/editor.ts";
 import { type Move, type Piece, Position, Puzzle, Wall } from "#/util/types.ts";
-import { decodeState, getActiveHref, getMoveHref } from "#/util/url.ts";
+import { decodeState, getActiveHref, getMovesHref } from "#/util/url.ts";
 
 type BoardProps = {
   href: Signal<string>;
@@ -23,6 +24,11 @@ type BoardProps = {
   mode: Signal<"editor" | "replay" | "solve" | "readonly">;
 };
 
+/**
+ * TODO:
+ * - split more components out (BoardPiece etc.)
+ * - create more atomic helpers
+ */
 export default function Board(
   { href, puzzle, mode }: BoardProps,
 ) {
@@ -85,7 +91,21 @@ export default function Board(
       state.active && mode.value === "solve"
         ? getTargets(state.active, board)
         : null,
-    [state.active, board],
+    [state.active, board, mode.value],
+  );
+
+  const hint = useMemo(
+    () => {
+      if (!state.hint || mode.value !== "solve") return null;
+
+      // convert hint move to targets
+      const direction = getMoveDirection(state.hint);
+      const hintTargets: Targets = {};
+      hintTargets[direction] = state.hint[1];
+
+      return hintTargets;
+    },
+    [state.hint, mode.value],
   );
 
   const activePiece = useMemo(() => {
@@ -116,7 +136,7 @@ export default function Board(
       let updatedHref = getActiveHref(src, { ...state, href: href.value });
 
       if (possibleTarget) {
-        updatedHref = getMoveHref([src, possibleTarget], {
+        updatedHref = getMovesHref([[src, possibleTarget]], {
           ...state,
           href: updatedHref,
         });
@@ -127,9 +147,26 @@ export default function Board(
     [state, href.value],
   );
 
-  const onKeyUp = useCallback(
+  const onHint = useCallback(() => {
+    const url = new URL(globalThis.location.href);
+    url.pathname = `puzzles/${puzzle.value.slug}/hint`;
+
+    globalThis.location.href = url.href;
+  }, [state.moves, puzzle.value.slug]);
+
+  const onArrowKey = useCallback(
     (direction: Direction) => state.active && onFlick(state.active, direction),
     [state.active, onFlick],
+  );
+
+  const onCommand = useCallback(
+    (type: "hint") => {
+      switch (type) {
+        case "hint":
+          return onHint();
+      }
+    },
+    [href.value, onHint],
   );
 
   useEditor({
@@ -138,7 +175,7 @@ export default function Board(
     puzzle,
   });
 
-  useArrowKeys({ onKeyUp, isEnabled: mode.value === "solve" });
+  useArrowKeys({ onArrowKey, onCommand, isEnabled: mode.value === "solve" });
 
   if (!state) return null;
 
@@ -151,6 +188,7 @@ export default function Board(
               ? "var(--color-ui-2)"
               : "var(--color-ui-3)"
             : null,
+          "--hint-bg": "var(--color-ui-contrast)",
           "--replay-len": moves.length,
           "--gap": "var(--size-1)",
           "--space-w": "clamp(44px - var(--gap), 5vw, 56px)",
@@ -189,17 +227,41 @@ export default function Board(
         {state.active && targets && (
           <>
             {/* Backgrounds between src and destinations */}
-            <BoardTargetShaders active={state.active} targets={targets} />
+            <MovesGuide
+              active={state.active}
+              targets={targets}
+            />
 
             {Object.values(targets).map((target) => (
               <BoardTarget
                 {...target}
-                href={getMoveHref([state.active!, target], {
+                href={getMovesHref([[state.active!, target]], {
                   ...state,
                   href: href.value,
                 })}
               />
             ))}
+          </>
+        )}
+
+        {/* If we have a hint, draw the destination */}
+        {state.hint && hint && (
+          <>
+            {/* Backgrounds between src and destinations */}
+            <MovesGuide
+              active={state.hint[0]}
+              targets={hint}
+              isHint
+            />
+
+            <BoardTarget
+              {...state.hint[1]}
+              href={getMovesHref([state.hint], {
+                ...state,
+                href: href.value,
+              })}
+              isHint
+            />
           </>
         )}
 
@@ -291,26 +353,29 @@ function BoardSpace({ x, y, href, isActive }: BoardSpaceProps) {
   );
 }
 
-function BoardDestination({ x, y }: Position) {
+function BoardDestination({ x, y }: Position & { isHint?: boolean }) {
   return (
     <div
       className={cn(
         "col-[calc(var(--x)+1)] w-full row-[calc(var(--y)+1)]",
         "aspect-square place-self-center pointer-events-none",
-        "border border-2 border-ui-1",
+        "border-2 border-ui-1",
       )}
       style={{
         "--x": x,
         "--y": y,
       }}
     >
-      <svg className="text-ui-1" viewBox="0 0 100 100">
+      <svg
+        className={cn("text-ui-1")}
+        viewBox="0 0 100 100"
+      >
         <line
           x1={0}
           y1={0}
           x2={100}
           y2={100}
-          strokeWidth={2}
+          strokeWidth={3}
           stroke="currentColor"
         />
         <line
@@ -318,7 +383,7 @@ function BoardDestination({ x, y }: Position) {
           y1={100}
           x2={100}
           y2={0}
-          strokeWidth={2}
+          strokeWidth={3}
           stroke="currentColor"
         />
       </svg>
@@ -328,15 +393,17 @@ function BoardDestination({ x, y }: Position) {
 
 type TargetProps = Position & {
   href: string;
+  isHint?: boolean;
 };
 
-function BoardTarget({ x, y, href }: TargetProps) {
+function BoardTarget({ x, y, href, isHint }: TargetProps) {
   return (
     <a
       href={href}
       className={cn(
         "w-full aspect-square border-1 place-self-center col-[calc(var(--x)+1)] row-[calc(var(--y)+1)]",
         "border-(--active-bg)",
+        isHint && "border-(--hint-bg) animate-blink",
       )}
       style={{
         "--x": x,
@@ -348,12 +415,15 @@ function BoardTarget({ x, y, href }: TargetProps) {
   );
 }
 
-type BoardTargetShadersProps = {
+type MovesGuideProps = {
   active: Position;
   targets: Targets;
+  isHint?: boolean;
 };
 
-function BoardTargetShaders({ active, targets }: BoardTargetShadersProps) {
+function MovesGuide(
+  { active, targets, isHint }: MovesGuideProps,
+) {
   const up = targets.up ?? active;
   const right = targets.right ?? active;
   const down = targets.down ?? active;
@@ -362,7 +432,10 @@ function BoardTargetShaders({ active, targets }: BoardTargetShadersProps) {
   return (
     <>
       <div
-        className="bg-(--active-bg) opacity-20 pointer-events-none"
+        className={cn(
+          "bg-(--active-bg) opacity-20 pointer-events-none",
+          isHint && "bg-(--hint-bg)/50 animate-blink",
+        )}
         style={{
           gridColumnStart: `${up.x + 1}`,
           gridRowStart: `${up.y + 1}`,
@@ -371,7 +444,10 @@ function BoardTargetShaders({ active, targets }: BoardTargetShadersProps) {
       />
 
       <div
-        className="bg-(--active-bg) opacity-20 pointer-events-none"
+        className={cn(
+          "bg-(--active-bg) opacity-20 pointer-events-none",
+          isHint && "bg-(--hint-bg)/50 animate-blink",
+        )}
         style={{
           gridColumnStart: `${left.x + 1}`,
           gridColumnEnd: `${right.x + 2}`,

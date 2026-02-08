@@ -4,9 +4,10 @@ import { useCallback, useMemo } from "preact/hooks";
 import { Panel } from "#/components/panel.tsx";
 import { updateLocation } from "#/lib/router.ts";
 import { cn } from "#/lib/style.ts";
-import { useGameShortcuts } from "#/util/game.ts";
+import { useGameShortcuts } from "#/lib/game.ts";
 import {
   decodeState,
+  getHintHref,
   getRedoHref,
   getResetHref,
   getUndoHref,
@@ -32,6 +33,9 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
     onUndo: () => self.history.back(),
     onRedo: () => self.history.forward(),
     onReset,
+    onHint: () => {
+      globalThis.location.href = getHintHref(href.value);
+    },
   });
 
   return (
@@ -85,9 +89,23 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
         <div
           className={cn(
             "flex gap-x-fl-2 gap-y-fl-1 justify-center flex-wrap text-1",
-            "lg:text-fl-0 lg:place-self-start",
+            "lg:text-fl-0 lg:place-self-start lg:justify-self-center",
           )}
         >
+          {
+            /*
+            Navigates to the /hint route,
+            which provides a hint as a redirect back in the query params.
+            This is slightly expensive, so needs to be on demand, not optimistic.
+          */
+          }
+          <a
+            href={getHintHref(href.value)}
+            className="underline text-link bg-transparent hover:no-underline"
+          >
+            Get a hint
+          </a>
+
           <a
             href={getResetHref(href.value)}
             className="underline text-link bg-transparent hover:no-underline"

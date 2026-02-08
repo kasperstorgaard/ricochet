@@ -299,3 +299,11 @@ export function isValidSolution(board: Pick<Board, "destination" | "pieces">) {
 
   return false;
 }
+
+export function getMoveDirection(move: Move) {
+  if (move[0].x === move[1].x) {
+    return move[1].y > move[0].y ? "down" : "up";
+  }
+
+  return move[1].x > move[0].x ? "right" : "left";
+}

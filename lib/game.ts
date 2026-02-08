@@ -5,10 +5,22 @@ type useGameShortcutsOptions = {
   onUndo?: () => void;
   onRedo?: () => void;
   onReset?: () => void;
+  onHint?: () => void;
 };
 
+/**
+ * Registers keyboard shortcuts for in-game actions.
+ * Keys:
+ * - Enter → submit
+ * - u → undo
+ * - U → reset
+ * - r → redo
+ * - h -> hint
+ *
+ * Shortcuts are suppressed when focus is inside an input element.
+ */
 export function useGameShortcuts(
-  { onSubmit, onUndo, onRedo, onReset }: useGameShortcutsOptions,
+  { onSubmit, onUndo, onRedo, onReset, onHint }: useGameShortcutsOptions,
 ) {
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
@@ -25,6 +37,8 @@ export function useGameShortcuts(
           return onReset?.();
         case "r":
           return onRedo?.();
+        case "h":
+          return onHint?.();
       }
     };
 
