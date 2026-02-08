@@ -70,6 +70,7 @@ function findNearestPiece(
  * Mobile only — skips initialization on non-touch devices.
  */
 export function useSwipe(
+  regionRef: RefObject<HTMLElement>,
   boardRef: RefObject<HTMLElement>,
   { pieces, onSwipe, isEnabled }: UseSwipeOptions,
 ): void {
@@ -81,8 +82,9 @@ export function useSwipe(
   onSwipeRef.current = onSwipe;
 
   useEffect(() => {
+    const regionEl = regionRef.current;
     const boardEl = boardRef.current;
-    if (!boardEl || !isEnabled) return;
+    if (!regionEl || !boardEl || !isEnabled) return;
     if (!("ontouchstart" in window)) return;
 
     let touchedPiece: Position | null = null;
@@ -108,8 +110,8 @@ export function useSwipe(
       if (destroyed) return;
 
       const ZT = ZingTouch.default ?? ZingTouch;
-      // Region on document.body so swipes that end outside the board are still captured
-      region = new ZT.Region(document.body, false, false);
+      // Region on wrapper so swipes ending outside the board are still captured
+      region = new ZT.Region(regionEl, false, false);
 
       const swipe = new ZT.Swipe({
         escapeVelocity: 0.25,
@@ -136,5 +138,5 @@ export function useSwipe(
         region.unbind(boardEl);
       }
     };
-  }, [boardRef.current, isEnabled]);
+  }, [regionRef.current, boardRef.current, isEnabled]);
 }

@@ -45,7 +45,7 @@ export const TutorialDialog = function ({ open, href, mode, solution }: Props) {
     <dialog
       ref={ref}
       className={cn(
-        "m-auto rounded-1 max-w-lg shadow-4 [animation-fill-mode:forwards]",
+        "m-auto rounded-1 max-w-lg shadow-4 z-5 [animation-fill-mode:forwards]",
         "backdrop:[animation-delay:inherit] backdrop:[animation-fill-mode:forwards]",
         step === 2 &&
           "opacity-0 animate-fade-in backdrop:opacity-0 backdrop:animate-fade-in",

@@ -26,7 +26,7 @@ export function CookieBanner({ open }: Props) {
       ref={ref}
       open
       className={cn(
-        "fixed bottom-0 left-0 max-w-screen right-0 m-0 z-50 overflow-hidden",
+        "fixed bottom-0 left-0 max-w-screen right-0 m-0 z-5 overflow-hidden",
         "max-md:rounded-none max-md:shadow-3",
         "md:bottom-fl-2 md:left-fl-2 md:right-auto z-50 overflow-hidden sm:max-w-88",
       )}

@@ -33,6 +33,7 @@ export default function Board(
   { href, puzzle, mode }: BoardProps,
 ) {
   const solutionDialogRef = useRef<HTMLDialogElement>(null);
+  const swipeRegionRef = useRef<HTMLDivElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
 
   const state = useMemo(() => decodeState(href.value), [href.value]);
@@ -191,8 +192,7 @@ export default function Board(
           "--replay-speed": `${1 / replaySpeed}s`,
         }}
         className={cn(
-          "grid gap-(--gap) w-full grid-cols-[repeat(8,var(--space-w))] grid-rows-[repeat(8,var(--space-w))]",
-          mode.value === "solve" && "touch-none",
+          "relative grid gap-(--gap) w-full grid-cols-[repeat(8,var(--space-w))] grid-rows-[repeat(8,var(--space-w))]",
         )}
       >
         {spaces.map((row) =>
@@ -280,6 +280,16 @@ export default function Board(
           <BoardReplayStyles
             puzzle={puzzle.value}
             moves={moves}
+          />
+        )}
+
+        {/* Swipe region for touch detection, hidden on non-coarse pointer devices */}
+        {mode.value === "solve" && (
+          <div
+            ref={swipeRegionRef}
+            className={cn(
+              "hidden pointer-coarse:block absolute -left-fl-4 -right-fl-4 -top-fl-4 -bottom-fl-4 z-1 touch-none",
+            )}
           />
         )}
       </div>
