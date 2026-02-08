@@ -599,22 +599,43 @@
     border-radius: var(--radius-2);
   }
 
-  .btn:is(:hover, :focus) {
+  .icon-btn {
+    display: inline-flex;
+    padding: calc(var(--size-fluid-1) - 2px);
+    aspect-ratio: 1 / 1;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+
+    font-size: var(--font-size-fl-1);
+    font-weight: var(--font-weight-7);
+    line-height: 1;
+    color: var(--color-link);
+    border: var(--border-size-2) solid var(--color-link);
+    background-color: transparent;
+    border-radius: var(--radius-2);
+  }
+
+  .btn:is(:hover, :focus),
+  .icon-btn:is(:hover, :focus) {
     cursor: pointer;
     color: var(--blue-0);
     background-color: var(--color-link);
     text-decoration: none;
   }
 
-  .btn:active:not(:focus-visible) {
+  .btn:active:not(:focus-visible),
+  .icon-btn:active:not(:focus-visible) {
     position: relative;
   }
 
   @media (prefers-reduced-motion: no-preference) {
-    .btn:focus {
+    .btn:focus,
+    .icon-btn:focus {
       transition: outline-offset 0.25s ease;
     }
-    .btn:focus:not(:active) {
+    .btn:focus:not(:active),
+    .icon-btn:focus:not(:active) {
       outline-offset: 5px;
     }
   }
