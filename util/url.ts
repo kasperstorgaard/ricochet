@@ -160,6 +160,20 @@ export function getResetHref(href: string) {
   return url.href;
 }
 
+export function getHintHref(href: string) {
+  const url = new URL(href);
+  const slugMatcher = new URLPattern({ pathname: "/puzzles/:slug" });
+
+  const matches = slugMatcher.exec(url);
+  const slug = matches?.pathname.groups.slug;
+
+  if (!slug) throw new Error("Unable to get slug from URL");
+
+  url.pathname = `/puzzles/${slug}/hint`;
+
+  return url.href;
+}
+
 export function getPage(
   url: URL,
 ) {

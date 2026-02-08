@@ -86,7 +86,7 @@ export default define.page(function PuzzleTutorial(props: PageProps<Data>) {
         />
       </Main>
 
-      <ControlsPanel puzzle={puzzle} href={href} />
+      <ControlsPanel href={href} />
 
       <TutorialDialog
         open

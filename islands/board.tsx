@@ -188,7 +188,7 @@ export default function Board(
               ? "var(--color-ui-2)"
               : "var(--color-ui-3)"
             : null,
-          "--hint-bg": "var(--color-ui-5)",
+          "--hint-bg": "var(--color-ui-contrast)",
           "--replay-len": moves.length,
           "--gap": "var(--size-1)",
           "--space-w": "clamp(44px - var(--gap), 5vw, 56px)",
@@ -353,7 +353,7 @@ function BoardSpace({ x, y, href, isActive }: BoardSpaceProps) {
   );
 }
 
-function BoardDestination({ x, y, isHint }: Position & { isHint?: boolean }) {
+function BoardDestination({ x, y }: Position & { isHint?: boolean }) {
   return (
     <div
       className={cn(
@@ -367,7 +367,7 @@ function BoardDestination({ x, y, isHint }: Position & { isHint?: boolean }) {
       }}
     >
       <svg
-        className={cn("text-(--active-bg)", isHint && "text-(--hint-bg)")}
+        className={cn("text-ui-1")}
         viewBox="0 0 100 100"
       >
         <line
@@ -375,7 +375,7 @@ function BoardDestination({ x, y, isHint }: Position & { isHint?: boolean }) {
           y1={0}
           x2={100}
           y2={100}
-          strokeWidth={2}
+          strokeWidth={3}
           stroke="currentColor"
         />
         <line
@@ -383,7 +383,7 @@ function BoardDestination({ x, y, isHint }: Position & { isHint?: boolean }) {
           y1={100}
           x2={100}
           y2={0}
-          strokeWidth={2}
+          strokeWidth={3}
           stroke="currentColor"
         />
       </svg>

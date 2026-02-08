@@ -72,7 +72,7 @@ export default define.page(function PuzzleDetails(props: PageProps<Puzzle>) {
         <Board href={href} puzzle={puzzle} mode={mode} />
       </Main>
 
-      <ControlsPanel puzzle={puzzle} href={href} />
+      <ControlsPanel href={href} />
     </>
   );
 });
