@@ -1,6 +1,8 @@
 import {
+  decodeMove,
   decodeMoves,
   decodePosition,
+  encodeMove,
   encodeMoves,
   encodePosition,
 } from "#/util/strings.ts";
@@ -17,6 +19,8 @@ export type GameState = {
   // Current position in the move list (for undo/redo)
   // note: this allows for perfect undo/redo, as no state is lost.
   cursor?: number;
+  // Optional hint move to show on the board
+  hint?: Move;
 };
 
 /**
@@ -24,7 +28,7 @@ export type GameState = {
  * @param state
  * @returns search params string
  */
-export function encodeState({ moves, active, cursor }: GameState) {
+export function encodeState({ moves, active, cursor, hint }: GameState) {
   const params = new URLSearchParams();
 
   if (moves.length) {
@@ -37,6 +41,10 @@ export function encodeState({ moves, active, cursor }: GameState) {
 
   if (cursor != null) {
     params.set("cursor", cursor.toString());
+  }
+
+  if (hint != null) {
+    params.set("hint", encodeMove(hint));
   }
 
   return params.toString();
@@ -61,10 +69,14 @@ export function decodeState(urlOrHref: URL | string): GameState {
   const cursorParam = params.get("cursor");
   const cursor = cursorParam ? parseInt(cursorParam) : undefined;
 
+  const hintParam = params.get("hint");
+  const hint = hintParam ? decodeMove(hintParam) : undefined;
+
   return {
     active,
     cursor: Number.isNaN(cursor) ? 0 : cursor,
     moves,
+    hint,
   };
 }
 
@@ -77,17 +89,17 @@ type GetMoveOptions = GameState & {
  * @param param1
  * @returns
  */
-export function getMoveHref(
-  move: Move,
+export function getMovesHref(
+  newMoves: Move[],
   { href, moves, cursor }: GetMoveOptions,
 ) {
-  const updatedMoves = [...moves.slice(0, cursor ?? moves.length), move];
+  const updatedMoves = [...moves.slice(0, cursor ?? moves.length), ...newMoves];
   const url = new URL(href);
 
   url.search = encodeState({
     moves: updatedMoves,
     cursor: updatedMoves.length,
-    active: move[1],
+    active: newMoves[newMoves.length - 1][1],
   });
 
   return url.href;
@@ -97,7 +109,7 @@ type GetActiveHrefOptions = GameState & { href: string };
 
 export function getActiveHref(
   active: Position,
-  { href, ...state }: GetActiveHrefOptions,
+  { href, hint: _, ...state }: GetActiveHrefOptions,
 ) {
   const url = new URL(href);
 
@@ -111,7 +123,7 @@ export function getActiveHref(
 
 export function getUndoHref(
   href: string,
-  state: GameState,
+  { hint: _, ...state }: GameState,
 ) {
   const url = new URL(href);
   const cursor = state.cursor != null
@@ -128,7 +140,7 @@ export function getUndoHref(
 
 export function getRedoHref(
   href: string,
-  state: GameState,
+  { hint: _, ...state }: GameState,
 ) {
   const url = new URL(href);
   const cursor = state.cursor != null
@@ -149,6 +161,7 @@ export function getResetHref(href: string) {
   url.searchParams.delete("active");
   url.searchParams.delete("cursor");
   url.searchParams.delete("moves");
+  url.searchParams.delete("hint");
 
   return url.href;
 }

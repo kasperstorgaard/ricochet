@@ -1,5 +1,5 @@
 import { COLS, getTargets, isPositionSame } from "#/util/board.ts";
-import type { Board, Move, Piece, Position, Puzzle } from "#/util/types.ts";
+import type { Board, Move, Piece, Puzzle } from "#/util/types.ts";
 
 /**
  * Default solver limits.
@@ -41,14 +41,6 @@ type CompactPiece = {
 };
 
 /**
- * BFS search state with compact representation.
- */
-type SearchState = {
-  pieces: CompactPiece[];
-  moves: Move[];
-};
-
-/**
  * Solves a Ricochet puzzle using BFS to find the minimum move solution.
  *
  * @param puzzleOrBoard - The puzzle or board to solve
@@ -75,12 +67,14 @@ export function solve(
     moves: [] as Move[],
   }];
 
-  for (let queueHead = 1; queueHead < queue.length; queueHead++) {
+  let queueHead = 0;
+
+  while (queueHead < queue.length) {
     if (queueHead > maxIterations) {
       throw new SolverLimitExceededError(maxIterations);
     }
 
-    const current = queue[queueHead];
+    const current = queue[queueHead++];
 
     if (current.moves.length >= maxDepth) {
       throw new SolverDepthExceededError(maxDepth);
@@ -108,6 +102,7 @@ export function solve(
         x: rookPiece.pos % COLS,
         y: Math.floor(rookPiece.pos / COLS),
       };
+
       if (isPositionSame(rookPos, destination)) {
         return newMoves;
       }
@@ -118,6 +113,22 @@ export function solve(
   }
 
   return null;
+}
+
+/**
+ * Returns the first move of the optimal solution for a given board state.
+ * Useful for providing hints to the player.
+ *
+ * @param board - The current board state
+ * @param options - Optional solver configuration
+ * @returns A single Move or null if no solution found
+ */
+export function getHint(
+  board: Board,
+  options: SolverOptions = {},
+): Move | null {
+  const solution = solve(board, options);
+  return solution ? solution[0] : null;
 }
 
 /**

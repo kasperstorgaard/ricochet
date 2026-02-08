@@ -4,7 +4,7 @@ import {
   decodeState,
   encodeState,
   getActiveHref,
-  getMoveHref,
+  getMovesHref,
   getRedoHref,
   getResetHref,
   getUndoHref,
@@ -31,12 +31,34 @@ Deno.test("decodeState() should extract all params", () => {
     ],
     active: { x: 7, y: 7 },
     cursor: 0,
+    hint: undefined,
   });
 });
 
-Deno.test("getMoveHref() should append move and update cursor", () => {
-  const result = getMoveHref(
-    [{ x: 0, y: 0 }, { x: 0, y: 5 }],
+Deno.test("encodeState() should include hint param", () => {
+  const result = encodeState({
+    moves: [],
+    hint: [{ x: 0, y: 0 }, { x: 7, y: 0 }],
+  });
+
+  assertEquals(result, "hint=A1H1");
+});
+
+Deno.test("decodeState() should extract hint param", () => {
+  const url = new URL("http://example.com?hint=A1H1");
+  const result = decodeState(url);
+
+  assertEquals(result, {
+    moves: [],
+    active: undefined,
+    cursor: undefined,
+    hint: [{ x: 0, y: 0 }, { x: 7, y: 0 }],
+  });
+});
+
+Deno.test("getMovesHref() should append move and update cursor", () => {
+  const result = getMovesHref(
+    [[{ x: 0, y: 0 }, { x: 0, y: 5 }]],
     {
       href: "http://example.com",
       moves: [],
@@ -47,9 +69,9 @@ Deno.test("getMoveHref() should append move and update cursor", () => {
   assertEquals(result, "http://example.com/?moves=A1A6&active=A6&cursor=1");
 });
 
-Deno.test("getMoveHref() should truncate moves at cursor position", () => {
-  const result = getMoveHref(
-    [{ x: 2, y: 2 }, { x: 2, y: 7 }],
+Deno.test("getMovesHref() should truncate moves at cursor position", () => {
+  const result = getMovesHref(
+    [[{ x: 2, y: 2 }, { x: 2, y: 7 }]],
     {
       href: "http://example.com",
       moves: [
@@ -121,9 +143,57 @@ Deno.test("getRedoHref() should not exceed moves length", () => {
   assertEquals(result, "http://example.com/?moves=A1A6&cursor=1");
 });
 
-Deno.test("getResetHref() should remove all game params", () => {
+Deno.test("getMovesHref() should not include hint", () => {
+  const result = getMovesHref(
+    [[{ x: 0, y: 0 }, { x: 0, y: 5 }]],
+    {
+      href: "http://example.com",
+      moves: [],
+      cursor: 0,
+      hint: [{ x: 1, y: 1 }, { x: 1, y: 7 }],
+    },
+  );
+
+  assertEquals(result.includes("hint"), false);
+});
+
+Deno.test("getActiveHref() should not include hint", () => {
+  const result = getActiveHref(
+    { x: 3, y: 4 },
+    {
+      href: "http://example.com",
+      moves: [[{ x: 0, y: 0 }, { x: 0, y: 5 }]],
+      cursor: 1,
+      hint: [{ x: 1, y: 1 }, { x: 1, y: 7 }],
+    },
+  );
+
+  assertEquals(result.includes("hint"), false);
+});
+
+Deno.test("getUndoHref() should not include hint", () => {
+  const result = getUndoHref("http://example.com", {
+    moves: [[{ x: 0, y: 0 }, { x: 0, y: 5 }]],
+    cursor: 1,
+    hint: [{ x: 1, y: 1 }, { x: 1, y: 7 }],
+  });
+
+  assertEquals(result.includes("hint"), false);
+});
+
+Deno.test("getRedoHref() should not include hint", () => {
+  const result = getRedoHref("http://example.com", {
+    moves: [[{ x: 0, y: 0 }, { x: 0, y: 5 }]],
+    cursor: 0,
+    hint: [{ x: 1, y: 1 }, { x: 1, y: 7 }],
+  });
+
+  assertEquals(result.includes("hint"), false);
+});
+
+Deno.test("getResetHref() should remove all game params including hint", () => {
   const result = getResetHref(
-    "http://example.com/?moves=A1A6&active=F1&cursor=1&other=kept",
+    "http://example.com/?moves=A1A6&active=F1&cursor=1&hint=B2B8&other=kept",
   );
 
   assertEquals(result, "http://example.com/?other=kept");
