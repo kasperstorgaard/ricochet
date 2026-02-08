@@ -5,11 +5,10 @@ export type Direction = "up" | "right" | "down" | "left";
 type UseArrowKeysOptions = {
   isEnabled?: boolean;
   onArrowKey: (direction: Direction) => void;
-  onCommand: (type: "hint") => void;
 };
 
 export function useArrowKeys(
-  { isEnabled, onArrowKey, onCommand }: UseArrowKeysOptions,
+  { isEnabled, onArrowKey }: UseArrowKeysOptions,
 ) {
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
@@ -32,5 +31,5 @@ export function useArrowKeys(
     return () => {
       self.removeEventListener("keyup", handler);
     };
-  }, [isEnabled, onArrowKey, onCommand]);
+  }, [isEnabled, onArrowKey]);
 }

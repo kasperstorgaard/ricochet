@@ -148,26 +148,9 @@ export default function Board(
     [state, href.value],
   );
 
-  const onHint = useCallback(() => {
-    const url = new URL(globalThis.location.href);
-    url.pathname = `puzzles/${puzzle.value.slug}/hint`;
-
-    globalThis.location.href = url.href;
-  }, [state.moves, puzzle.value.slug]);
-
   const onArrowKey = useCallback(
     (direction: Direction) => state.active && onFlick(state.active, direction),
     [state.active, onFlick],
-  );
-
-  const onCommand = useCallback(
-    (type: "hint") => {
-      switch (type) {
-        case "hint":
-          return onHint();
-      }
-    },
-    [href.value, onHint],
   );
 
   useEditor({
@@ -176,14 +159,14 @@ export default function Board(
     puzzle,
   });
 
-  useArrowKeys({ onArrowKey, onCommand, isEnabled: mode.value === "solve" });
+  useArrowKeys({ onArrowKey, isEnabled: mode.value === "solve" });
 
   const onSwipe = useCallback(
     (piece: Position, direction: Direction) => onFlick(piece, direction),
     [onFlick],
   );
 
-  useSwipe(boardRef, {
+  useSwipe(swipeRegionRef, boardRef, {
     pieces: board.pieces,
     onSwipe,
     isEnabled: mode.value === "solve",
