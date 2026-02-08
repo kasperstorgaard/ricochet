@@ -27,7 +27,7 @@ export default define.page(
           <link
             rel="stylesheet"
             type="text/css"
-            href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/light/style.css"
+            href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css"
           />
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link
@@ -44,11 +44,11 @@ export default define.page(
         <body
           className={cn(
             "grow grid grid-cols-[minmax(var(--size-fluid-3),auto)_1fr_minmax(var(--size-fluid-3),auto)]",
+            "sm:grid-cols-[minmax(var(--size-fluid-3),auto)_max-content_minmax(var(--size-fluid-3),auto)]",
             "grid-rows-[repeat(3,max-content)_1fr] place-items-[flex-end_center] gap-y-fl-3",
             "lg:grid-cols-[1fr_13rem] lg:content-center",
           )}
         >
-          {/* @ts-ignore: Fresh 2.x Component type issue */}
           <Component />
           {!isTutorial && (
             <CookieBanner

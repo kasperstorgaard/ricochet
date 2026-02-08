@@ -38,27 +38,32 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
     <Panel>
       <div
         className={cn(
-          "flex max-lg:col-[2/3] items-center gap-fl-1 w-full place-content-center",
-          "lg:grid lg:grid-rows-subgrid lg:row-[3/4]",
+          "grid max-lg:col-[2/3] grid-cols-subgrid place-content-center items-center w-full gap-fl-3",
+          "lg:grid lg:row-[3/5] lg:grid-rows-subgrid lg:content-end lg:gap-fl-2",
         )}
       >
-        <div className="flex place-items-center gap-fl-1 lg:row-start-4 lg:place-self-end">
+        <div
+          className={cn(
+            "flex place-items-center gap-fl-1 justify-center w-full",
+            "lg:place-self-end",
+          )}
+        >
           <a
             href={getUndoHref(href.value, state)}
             className={cn(
-              "flex items-center rounded-1 px-2 text-text-1 border-current border-1 aspect-square",
-              "hover:no-underline",
+              "icon-btn",
               !state.cursor && "opacity-40",
             )}
             data-router="replace"
           >
-            <i className="ph-arrow-arc-left ph-light" />
+            <i className="ph-arrow-arc-left ph" />
           </a>
 
           <div
             className={cn(
               "flex items-center justify-center min-w-[2ch]",
-              "text-center font-3 text-fl-2 leading-flat",
+              "text-center font-3 text-fl-3 leading-flat",
+              "md:text-fl-2",
             )}
           >
             {count < 10 ? `0${count}` : count}
@@ -67,30 +72,30 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
           <a
             href={getRedoHref(href.value, state)}
             className={cn(
-              "flex items-center rounded-1 px-2",
-              "text-text-1 border-current border-1 aspect-square",
-              "hover:no-underline disabled:opacity-20",
+              "icon-btn",
               (state.cursor == null ||
                 state.cursor === state.moves.length) && "opacity-40",
             )}
             data-router="replace"
           >
-            <i className="ph-arrow-arc-right text-current ph-light" />
+            <i className="ph-arrow-arc-right text-current ph" />
           </a>
         </div>
 
-        <a
-          href={getResetHref(href.value)}
+        <div
           className={cn(
-            "flex items-center rounded-1 px-2 text-text-1 border-current border-1 disabled:opacity-20 aspect-square ml-auto",
-            "hover:no-underline",
-            (state.cursor == null || state.cursor === 0) && "opacity-40",
-            "lg:row-[1/3] lg:place-self-start",
+            "flex gap-x-fl-2 gap-y-fl-1 justify-center flex-wrap text-1",
+            "lg:text-fl-0 lg:place-self-start",
           )}
-          data-router="push"
         >
-          <i className="ph-arrow-counter-clockwise ph-light" />
-        </a>
+          <a
+            href={getResetHref(href.value)}
+            className="underline text-link bg-transparent hover:no-underline"
+            data-router="push"
+          >
+            Start over
+          </a>
+        </div>
       </div>
     </Panel>
   );

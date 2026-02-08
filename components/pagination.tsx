@@ -39,7 +39,7 @@ export function Pagination({ page, totalPages, baseUrl, className }: Props) {
         aria-disabled={!hasPrevious}
         aria-label="Previous page"
       >
-        <i className="ph-caret-left ph-light" />
+        <i className="ph-caret-left ph" />
       </a>
 
       <span className="text-fl-0 text-text-2">
@@ -56,7 +56,7 @@ export function Pagination({ page, totalPages, baseUrl, className }: Props) {
         aria-disabled={!hasNext}
         aria-label="Next page"
       >
-        <i className="ph-caret-right ph-light" />
+        <i className="ph-caret-right ph" />
       </a>
     </nav>
   );
