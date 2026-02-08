@@ -221,7 +221,10 @@ Deno.test("getHintHref() should rewrite pathname to hint route", () => {
     "http://example.com/puzzles/my-puzzle?moves=A1A6&cursor=1",
   );
 
-  assertEquals(result, "http://example.com/puzzles/my-puzzle/hint?moves=A1A6&cursor=1");
+  assertEquals(
+    result,
+    "http://example.com/puzzles/my-puzzle/hint?moves=A1A6&cursor=1",
+  );
 });
 
 Deno.test("getHintHref() should throw when URL has no puzzle slug", () => {
