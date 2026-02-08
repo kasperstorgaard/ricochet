@@ -85,9 +85,9 @@ type GetMoveOptions = GameState & {
 };
 
 /**
- * @param move
- * @param param1
- * @returns
+ * Builds an href reflecting new moves applied at the current cursor position,
+ * discarding any moves after the cursor (redo history).
+ * Clears the hint.
  */
 export function getMovesHref(
   newMoves: Move[],
@@ -107,6 +107,10 @@ export function getMovesHref(
 
 type GetActiveHrefOptions = GameState & { href: string };
 
+/**
+ * Builds an href with the given position set as the active (selected) piece.
+ * Preserves all other state including any active hint.
+ */
 export function getActiveHref(
   active: Position,
   { href, ...state }: GetActiveHrefOptions,
@@ -121,6 +125,7 @@ export function getActiveHref(
   return url.href;
 }
 
+/** Builds an href with the cursor moved back one step. Clears the hint. */
 export function getUndoHref(
   href: string,
   state: GameState,
@@ -135,6 +140,7 @@ export function getUndoHref(
   return url.href;
 }
 
+/** Builds an href with the cursor moved forward one step. Clears the hint. */
 export function getRedoHref(
   href: string,
   state: GameState,
@@ -149,6 +155,7 @@ export function getRedoHref(
   return url.href;
 }
 
+/** Strips all game-state params (moves, active, cursor, hint) from the URL. */
 export function getResetHref(href: string) {
   const url = new URL(href);
 
@@ -160,6 +167,10 @@ export function getResetHref(href: string) {
   return url.href;
 }
 
+/**
+ * Builds an href pointing to the server-side hint route for the current puzzle.
+ * Extracts the puzzle slug from the pathname and redirects to `/puzzles/:slug/hint`.
+ */
 export function getHintHref(href: string) {
   const url = new URL(href);
   const slugMatcher = new URLPattern({ pathname: "/puzzles/:slug" });
@@ -174,6 +185,7 @@ export function getHintHref(href: string) {
   return url.href;
 }
 
+/** Reads the `page` search param from a URL, defaulting to 1. */
 export function getPage(
   url: URL,
 ) {

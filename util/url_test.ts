@@ -1,9 +1,10 @@
-import { assertEquals } from "@std/assert";
+import { assertEquals, assertThrows } from "@std/assert";
 
 import {
   decodeState,
   encodeState,
   getActiveHref,
+  getHintHref,
   getMovesHref,
   getRedoHref,
   getResetHref,
@@ -197,4 +198,32 @@ Deno.test("getResetHref() should remove all game params including hint", () => {
   );
 
   assertEquals(result, "http://example.com/?other=kept");
+});
+
+Deno.test("getResetHref() should preserve pathname", () => {
+  const result = getResetHref(
+    "http://example.com/puzzles/my-puzzle?moves=A1A6&cursor=1",
+  );
+
+  assertEquals(result, "http://example.com/puzzles/my-puzzle");
+});
+
+Deno.test("getResetHref() should return clean URL when only game params exist", () => {
+  const result = getResetHref(
+    "http://example.com/?moves=A1A6&active=F1&cursor=2",
+  );
+
+  assertEquals(result, "http://example.com/");
+});
+
+Deno.test("getHintHref() should rewrite pathname to hint route", () => {
+  const result = getHintHref(
+    "http://example.com/puzzles/my-puzzle?moves=A1A6&cursor=1",
+  );
+
+  assertEquals(result, "http://example.com/puzzles/my-puzzle/hint?moves=A1A6&cursor=1");
+});
+
+Deno.test("getHintHref() should throw when URL has no puzzle slug", () => {
+  assertThrows(() => getHintHref("http://example.com/other/path"));
 });

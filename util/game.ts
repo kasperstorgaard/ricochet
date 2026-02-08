@@ -7,6 +7,11 @@ type useGameShortcutsOptions = {
   onReset?: () => void;
 };
 
+/**
+ * Registers keyboard shortcuts for in-game actions.
+ * Keys: Enter → submit, u → undo, U → reset, r → redo.
+ * Shortcuts are suppressed when focus is inside an input element.
+ */
 export function useGameShortcuts(
   { onSubmit, onUndo, onRedo, onReset }: useGameShortcutsOptions,
 ) {

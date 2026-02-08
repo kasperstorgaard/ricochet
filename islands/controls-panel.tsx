@@ -89,6 +89,13 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
             "lg:text-fl-0 lg:place-self-start lg:justify-self-center",
           )}
         >
+          {
+            /*
+            Navigates to the /hint route,
+            which provides a hint as a redirect back in the query params.
+            This is slightly expensive, so needs to be on demand, not optimistic.
+          */
+          }
           <a
             href={getHintHref(href.value)}
             className="underline text-link bg-transparent hover:no-underline"
