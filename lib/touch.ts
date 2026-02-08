@@ -6,7 +6,10 @@ export type Direction = "up" | "right" | "down" | "left";
 
 type UseSwipeOptions = {
   pieces: Piece[];
-  onSwipe: (piece: Position, direction: Direction) => void;
+  onSwipe: (
+    piece: Position,
+    opts: { direction: Direction; velocity: number },
+  ) => void;
   isEnabled?: boolean;
 };
 
@@ -125,7 +128,10 @@ export function useSwipe(
         if (!data) return;
 
         const direction = angleToDirection(data.currentDirection);
-        onSwipeRef.current(touchedPiece, direction);
+        onSwipeRef.current(touchedPiece, {
+          direction,
+          velocity: data.velocity,
+        });
         touchedPiece = null;
       });
     });

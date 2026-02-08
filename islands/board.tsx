@@ -126,7 +126,10 @@ export default function Board(
   }, [href.value]);
 
   const onFlick = useCallback(
-    (src: Position, direction: "up" | "right" | "down" | "left") => {
+    (src: Position, opts: {
+      direction: "up" | "right" | "down" | "left";
+      velocity?: number;
+    }) => {
       if (!src) return;
 
       const possibleTargets = getTargets(src, {
@@ -134,10 +137,27 @@ export default function Board(
         walls: board.walls,
       });
 
-      const possibleTarget = possibleTargets[direction];
+      const possibleTarget = possibleTargets[opts.direction];
       let updatedHref = getActiveHref(src, { ...state, href: href.value });
 
       if (possibleTarget) {
+        // TODO: calculate this somewhere else
+        const distanceX = Math.abs(src.x - possibleTarget.x);
+        const distanceY = Math.abs(src.y - possibleTarget.y);
+        const distance = Math.max(distanceX, distanceY) * 44; // 44px approximation
+
+        // TODO: fine-tune the minmax and factor
+        const velocity = opts.velocity
+          ? Math.min(Math.max(opts.velocity * 0.8, 1), 3)
+          : 1;
+
+        const speed = Math.max(distance / velocity, 50);
+
+        boardRef.current?.style.setProperty(
+          "--piece-speed",
+          `${speed}ms`,
+        );
+
         updatedHref = getMovesHref([[src, possibleTarget]], {
           ...state,
           href: updatedHref,
@@ -150,7 +170,8 @@ export default function Board(
   );
 
   const onArrowKey = useCallback(
-    (direction: Direction) => state.active && onFlick(state.active, direction),
+    (direction: Direction) =>
+      state.active && onFlick(state.active, { direction }),
     [state.active, onFlick],
   );
 
@@ -162,14 +183,9 @@ export default function Board(
 
   useArrowKeys({ onArrowKey, isEnabled: mode.value === "solve" });
 
-  const onSwipe = useCallback(
-    (piece: Position, direction: Direction) => onFlick(piece, direction),
-    [onFlick],
-  );
-
   useSwipe(swipeRegionRef, boardRef, {
     pieces: board.pieces,
-    onSwipe,
+    onSwipe: onFlick,
     isEnabled: mode.value === "solve",
   });
 
