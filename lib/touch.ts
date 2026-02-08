@@ -11,7 +11,7 @@ type UseSwipeOptions = {
 };
 
 /** Maximum distance (in grid cells) from touch point to match a piece. */
-const PROXIMITY_RADIUS = 0.6;
+const PROXIMITY_RADIUS = 1;
 
 /**
  * Converts a ZingTouch angle (unit circle degrees) to a cardinal direction.
@@ -103,11 +103,11 @@ export function useSwipe(
       );
     };
 
-    boardEl.addEventListener("touchstart", onTouchStart, { passive: true });
-
-    // Dynamic import to avoid SSR issues
+    // Load ZingTouch dynamically to avoid SSR issues
     import("zingtouch").then((ZingTouch) => {
       if (destroyed) return;
+
+      regionEl.addEventListener("touchstart", onTouchStart, { passive: true });
 
       const ZT = ZingTouch.default ?? ZingTouch;
       // Region on wrapper so swipes ending outside the board are still captured
@@ -118,8 +118,7 @@ export function useSwipe(
         maxRestTime: 100,
       });
 
-      // deno-lint-ignore no-explicit-any
-      region.bind(boardEl, swipe, (event: any) => {
+      region.bind(regionEl, swipe, (event: CustomEvent) => {
         if (!touchedPiece) return;
 
         const data = event.detail.data[0];
@@ -134,9 +133,7 @@ export function useSwipe(
     return () => {
       destroyed = true;
       boardEl.removeEventListener("touchstart", onTouchStart);
-      if (region) {
-        region.unbind(boardEl);
-      }
+      if (region) region.unbind(boardEl);
     };
   }, [regionRef.current, boardRef.current, isEnabled]);
 }

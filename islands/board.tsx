@@ -487,7 +487,7 @@ function BoardPiece(
         "w-full aspect-square place-self-center ml-(--ml) mt-(--mt)",
         "translate-x-[calc((var(--space-w)+var(--gap))*var(--x))]",
         "translate-y-[calc((var(--space-w)+var(--gap))*var(--y))]",
-        "transition-transform duration-200 ease-out",
+        "transition-transform duration-(--piece-speed,200ms) ease-out",
         "[--replay-duration:calc(var(--replay-len)*var(--replay-speed))]",
         isReadonly && "pointer-events-none",
       )}
