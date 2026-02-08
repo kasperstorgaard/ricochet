@@ -214,8 +214,6 @@ Navigate the rook around the middle
 
   const result = parsePuzzle(markdown);
 
-  console.log(JSON.stringify(result, null, 2));
-
   assertObjectMatch(result, {
     name: "Around the middle",
     slug: "around-the-middle",
