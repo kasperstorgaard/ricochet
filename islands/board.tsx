@@ -5,7 +5,7 @@ import { SolutionDialog } from "#/islands/solution-dialog.tsx";
 import { useArrowKeys } from "#/lib/keyboard.ts";
 import { useRouter } from "#/lib/router.ts";
 import { cn } from "#/lib/style.ts";
-import { Direction, useFlick } from "#/lib/touch.ts";
+import { Direction, useSwipe } from "#/lib/touch.ts";
 import {
   getMoveDirection,
   getTargets,
@@ -33,6 +33,7 @@ export default function Board(
   { href, puzzle, mode }: BoardProps,
 ) {
   const solutionDialogRef = useRef<HTMLDialogElement>(null);
+  const boardRef = useRef<HTMLDivElement>(null);
 
   const state = useMemo(() => decodeState(href.value), [href.value]);
   const moves = useMemo(
@@ -177,11 +178,23 @@ export default function Board(
 
   useArrowKeys({ onArrowKey, onCommand, isEnabled: mode.value === "solve" });
 
+  const onSwipe = useCallback(
+    (piece: Position, direction: Direction) => onFlick(piece, direction),
+    [onFlick],
+  );
+
+  useSwipe(boardRef, {
+    pieces: board.pieces,
+    onSwipe,
+    isEnabled: mode.value === "solve",
+  });
+
   if (!state) return null;
 
   return (
     <>
       <div
+        ref={boardRef}
         style={{
           "--active-bg": activePiece
             ? activePiece.type === "rook"
@@ -196,6 +209,7 @@ export default function Board(
         }}
         className={cn(
           "grid gap-(--gap) w-full grid-cols-[repeat(8,var(--space-w))] grid-rows-[repeat(8,var(--space-w))]",
+          mode.value === "solve" && "touch-none",
         )}
       >
         {spaces.map((row) =>
@@ -276,7 +290,6 @@ export default function Board(
               const href = (event.target as HTMLAnchorElement).href;
               updateLocation(href, { replace: true });
             }}
-            onFlick={(dir) => onFlick(piece, dir)}
           />
         ))}
 
@@ -466,21 +479,14 @@ type BoardPieceProps = {
   type: "rook" | "bouncer";
   isActive?: boolean;
   isReadonly?: boolean;
-  onFlick: (direction: Direction) => void;
   onFocus: (event: FocusEvent) => void;
 };
 
 function BoardPiece(
-  { x, y, id, href, type, isReadonly, onFlick, onFocus }: BoardPieceProps,
+  { x, y, id, href, type, isReadonly, onFocus }: BoardPieceProps,
 ) {
-  const { ref } = useFlick<HTMLAnchorElement>({
-    onFlick,
-    isEnabled: !isReadonly,
-  });
-
   return (
     <a
-      ref={ref}
       id={id}
       href={isReadonly ? "#" : href}
       className={cn(
