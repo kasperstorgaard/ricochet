@@ -7,21 +7,17 @@ import { cn } from "#/lib/style.ts";
 import { useGameShortcuts } from "#/util/game.ts";
 import {
   decodeState,
+  getHintHref,
   getRedoHref,
   getResetHref,
   getUndoHref,
 } from "#/util/url.ts";
-import { Puzzle } from "#/util/types.ts";
 
 type ControlsPanelProps = {
-  puzzle: Signal<Puzzle>;
   href: Signal<string>;
 };
 
-export function ControlsPanel({ puzzle, href }: ControlsPanelProps) {
-  const searchParams = useMemo(() => new URLSearchParams(href.value), [
-    href.value,
-  ]);
+export function ControlsPanel({ href }: ControlsPanelProps) {
   const state = useMemo(() => decodeState(href.value), [href.value]);
 
   const count = useMemo(() => Math.min(state.moves.length, state.cursor ?? 0), [
@@ -85,27 +81,21 @@ export function ControlsPanel({ puzzle, href }: ControlsPanelProps) {
           >
             <i className="ph-arrow-arc-right text-current ph" />
           </a>
-
-          <a
-            href={getResetHref(href.value)}
-            className={cn(
-              "flex items-center rounded-1 px-2 text-text-1 border-current border-1 disabled:opacity-20 aspect-square ml-auto",
-              "hover:no-underline",
-              "lg:ml-2 lg:px-1",
-              (state.cursor == null || state.cursor === 0) && "opacity-40",
-            )}
-            data-router="push"
-          >
-            <i className="ph-arrow-counter-clockwise ph-light" />
-          </a>
         </div>
 
         <div
           className={cn(
             "flex gap-x-fl-2 gap-y-fl-1 justify-center flex-wrap text-1",
-            "lg:text-fl-0 lg:place-self-start",
+            "lg:text-fl-0 lg:place-self-start lg:justify-self-center",
           )}
         >
+          <a
+            href={getHintHref(href.value)}
+            className="underline text-link bg-transparent hover:no-underline"
+          >
+            Get a hint
+          </a>
+
           <a
             href={getResetHref(href.value)}
             className="underline text-link bg-transparent hover:no-underline"
