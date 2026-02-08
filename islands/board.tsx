@@ -2,7 +2,7 @@ import type { Signal } from "@preact/signals";
 import { useCallback, useEffect, useMemo, useRef } from "preact/hooks";
 
 import { SolutionDialog } from "#/islands/solution-dialog.tsx";
-import { useKeyboard } from "#/lib/keyboard.ts";
+import { useArrowKeys } from "#/lib/keyboard.ts";
 import { useRouter } from "#/lib/router.ts";
 import { cn } from "#/lib/style.ts";
 import { Direction, useFlick } from "#/lib/touch.ts";
@@ -175,7 +175,7 @@ export default function Board(
     puzzle,
   });
 
-  useKeyboard({ onArrowKey, onCommand, isEnabled: mode.value === "solve" });
+  useArrowKeys({ onArrowKey, onCommand, isEnabled: mode.value === "solve" });
 
   if (!state) return null;
 

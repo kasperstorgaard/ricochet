@@ -4,7 +4,7 @@ import { useCallback, useMemo } from "preact/hooks";
 import { Panel } from "#/components/panel.tsx";
 import { updateLocation } from "#/lib/router.ts";
 import { cn } from "#/lib/style.ts";
-import { useGameShortcuts } from "#/util/game.ts";
+import { useGameShortcuts } from "#/lib/game.ts";
 import {
   decodeState,
   getHintHref,
@@ -33,6 +33,9 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
     onUndo: () => self.history.back(),
     onRedo: () => self.history.forward(),
     onReset,
+    onHint: () => {
+      globalThis.location.href = getHintHref(href.value);
+    },
   });
 
   return (

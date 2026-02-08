@@ -8,7 +8,7 @@ type UseArrowKeysOptions = {
   onCommand: (type: "hint") => void;
 };
 
-export function useKeyboard(
+export function useArrowKeys(
   { isEnabled, onArrowKey, onCommand }: UseArrowKeysOptions,
 ) {
   useEffect(() => {
@@ -22,9 +22,6 @@ export function useKeyboard(
           return onArrowKey("down");
         case "ArrowLeft":
           return onArrowKey("left");
-        case "h":
-        case "H":
-          return onCommand("hint");
       }
     };
 

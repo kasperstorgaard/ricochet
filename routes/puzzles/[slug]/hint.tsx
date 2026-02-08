@@ -15,8 +15,11 @@ export const handler = define.handlers({
 
     const puzzle = await getPuzzle(ctx.url.origin, slug);
 
-    const board = state.moves
-      ? resolveMoves(puzzle.board, state.moves)
+    const moves = state.moves
+      ? state.moves.slice(0, state.cursor ?? state.moves.length)
+      : null;
+    const board = moves?.length
+      ? resolveMoves(puzzle.board, moves)
       : puzzle.board;
     const hint = getHint(board);
 
