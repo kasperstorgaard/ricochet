@@ -1,6 +1,5 @@
 import { useEffect } from "preact/hooks";
-
-export type Direction = "up" | "right" | "down" | "left";
+import type { Direction } from "#/util/types.ts";
 
 type UseArrowKeysOptions = {
   isEnabled?: boolean;

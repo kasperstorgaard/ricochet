@@ -1,20 +1,28 @@
 import { useEffect, useRef } from "preact/hooks";
 import type { RefObject } from "preact";
-import type { Piece, Position } from "#/util/types.ts";
+import type { Direction, Piece, Position } from "#/util/types.ts";
 
-export type Direction = "up" | "right" | "down" | "left";
+export type { Direction };
 
 type UseSwipeOptions = {
   pieces: Piece[];
   onSwipe: (
     piece: Position,
-    opts: { direction: Direction; velocity: number },
+    opts: { direction: Direction; velocity: number; cellSize: number },
   ) => void;
   isEnabled?: boolean;
 };
 
 /** Maximum distance (in grid cells) from touch point to match a piece. */
 const PROXIMITY_RADIUS = 1;
+
+/**
+ * Velocity and speed thresholds for swipe detection and piece movement.
+ */
+const MIN_SWIPE_VELOCITY = 0.5; // px/ms
+const MAX_SWIPE_VELOCITY = 3; // px/ms
+const DEFAULT_VELOCITY = 1; // px/ms
+const MIN_PIECE_SPEED = 50; // ms
 
 /**
  * Converts a ZingTouch angle (unit circle degrees) to a cardinal direction.
@@ -30,39 +38,13 @@ function angleToDirection(angleDeg: number): Direction {
   return "down";
 }
 
-/**
- * Given a touch point on the board, find the nearest piece within the proximity radius.
- * Returns the piece's position or null.
- */
-function findNearestPiece(
-  touchX: number,
-  touchY: number,
-  boardRect: DOMRect,
-  pieces: Piece[],
-): Position | null {
-  const cellSize = boardRect.width / 8;
-
-  // Convert touch coordinates to grid position (0-7 fractional)
-  const gridX = (touchX - boardRect.left) / cellSize;
-  const gridY = (touchY - boardRect.top) / cellSize;
-
-  let closest: Piece | null = null;
-  let closestDist = Infinity;
-
-  for (const piece of pieces) {
-    // Piece center is at (piece.x + 0.5, piece.y + 0.5) in grid space
-    const dx = gridX - (piece.x + 0.5);
-    const dy = gridY - (piece.y + 0.5);
-    const dist = Math.sqrt(dx * dx + dy * dy);
-
-    if (dist < closestDist && dist <= PROXIMITY_RADIUS) {
-      closest = piece;
-      closestDist = dist;
-    }
-  }
-
-  return closest;
-}
+type findNearestPieceOptions = {
+  touchX: number;
+  touchY: number;
+  boardRect: DOMRect;
+  pieces: Piece[];
+  cellSize: number;
+};
 
 /**
  * Board-level swipe detection using ZingTouch.
@@ -94,16 +76,21 @@ export function useSwipe(
     // deno-lint-ignore no-explicit-any
     let region: any = null;
     let destroyed = false;
+    let cellSize: number | null = null;
 
     const onTouchStart = (e: TouchEvent) => {
       const touch = e.touches[0];
+
       const boardRect = boardEl.getBoundingClientRect();
-      touchedPiece = findNearestPiece(
-        touch.clientX,
-        touch.clientY,
+      cellSize = boardRect.width / 8;
+
+      touchedPiece = findNearestPiece({
+        touchX: touch.clientX,
+        touchY: touch.clientY,
         boardRect,
-        piecesRef.current,
-      );
+        pieces: piecesRef.current,
+        cellSize,
+      });
     };
 
     // Load ZingTouch dynamically to avoid SSR issues
@@ -125,12 +112,13 @@ export function useSwipe(
         if (!touchedPiece) return;
 
         const data = event.detail.data[0];
-        if (!data) return;
+        if (!data || !cellSize) return;
 
         const direction = angleToDirection(data.currentDirection);
         onSwipeRef.current(touchedPiece, {
           direction,
           velocity: data.velocity,
+          cellSize,
         });
         touchedPiece = null;
       });
@@ -142,4 +130,57 @@ export function useSwipe(
       if (region) region.unbind(boardEl);
     };
   }, [regionRef.current, boardRef.current, isEnabled]);
+}
+
+/**
+ * Calculates animation duration (ms) for a piece move based on swipe velocity.
+ * Clamps velocity to [1, 3] px/ms range. Returns at least 50ms.
+ */
+export function calculateMoveSpeed(
+  src: Position,
+  target: Position,
+  opts: { velocity?: number; cellSize: number },
+): number {
+  const diffX = Math.abs(src.x - target.x);
+  const diffY = Math.abs(src.y - target.y);
+  const distance = Math.max(diffX, diffY) * opts.cellSize;
+
+  const velocity = opts.velocity
+    ? Math.min(Math.max(opts.velocity, MIN_SWIPE_VELOCITY), MAX_SWIPE_VELOCITY)
+    : DEFAULT_VELOCITY;
+
+  return Math.max(distance / velocity, MIN_PIECE_SPEED);
+}
+
+/**
+ * Given a touch point on the board, find the nearest piece within the proximity radius.
+ * Returns the piece's position or null.
+ */
+function findNearestPiece({
+  touchX,
+  touchY,
+  boardRect,
+  pieces,
+  cellSize,
+}: findNearestPieceOptions): Position | null {
+  // Convert touch coordinates to grid position (0-7 fractional)
+  const gridX = (touchX - boardRect.left) / cellSize;
+  const gridY = (touchY - boardRect.top) / cellSize;
+
+  let closest: Piece | null = null;
+  let closestDist = Infinity;
+
+  for (const piece of pieces) {
+    // Piece center is at (piece.x + 0.5, piece.y + 0.5) in grid space
+    const dx = gridX - (piece.x + 0.5);
+    const dy = gridY - (piece.y + 0.5);
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    if (dist < closestDist && dist <= PROXIMITY_RADIUS) {
+      closest = piece;
+      closestDist = dist;
+    }
+  }
+
+  return closest;
 }

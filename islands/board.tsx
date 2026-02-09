@@ -5,7 +5,7 @@ import { SolutionDialog } from "#/islands/solution-dialog.tsx";
 import { useArrowKeys } from "#/lib/keyboard.ts";
 import { useRouter } from "#/lib/router.ts";
 import { cn } from "#/lib/style.ts";
-import { Direction, useSwipe } from "#/lib/touch.ts";
+import { calculateMoveSpeed, useSwipe } from "#/lib/touch.ts";
 import {
   getMoveDirection,
   getTargets,
@@ -15,7 +15,14 @@ import {
   Targets,
 } from "#/util/board.ts";
 import { useEditor } from "#/util/editor.ts";
-import { type Move, type Piece, Position, Puzzle, Wall } from "#/util/types.ts";
+import {
+  type Direction,
+  type Move,
+  type Piece,
+  Position,
+  Puzzle,
+  Wall,
+} from "#/util/types.ts";
 import { decodeState, getActiveHref, getMovesHref } from "#/util/url.ts";
 
 type BoardProps = {
@@ -25,9 +32,9 @@ type BoardProps = {
 };
 
 /**
- * TODO:
- * - split more components out (BoardPiece etc.)
- * - create more atomic helpers
+ * TODO (part 2):
+ * - extract generic replay keyframe builder (keep board-specific mapping here)
+ * - consolidate keyboard hook (useArrowKeys) to share move logic with touch
  */
 export default function Board(
   { href, puzzle, mode }: BoardProps,
@@ -127,8 +134,9 @@ export default function Board(
 
   const onFlick = useCallback(
     (src: Position, opts: {
-      direction: "up" | "right" | "down" | "left";
+      direction: Direction;
       velocity?: number;
+      cellSize?: number;
     }) => {
       if (!src) return;
 
@@ -137,28 +145,21 @@ export default function Board(
         walls: board.walls,
       });
 
-      const possibleTarget = possibleTargets[opts.direction];
+      const target = possibleTargets[opts.direction];
       let updatedHref = getActiveHref(src, { ...state, href: href.value });
 
-      if (possibleTarget) {
-        // TODO: calculate this somewhere else
-        const distanceX = Math.abs(src.x - possibleTarget.x);
-        const distanceY = Math.abs(src.y - possibleTarget.y);
-        const distance = Math.max(distanceX, distanceY) * 44; // 44px approximation
+      if (target) {
+        const cellSize = opts.cellSize ??
+          boardRef.current!.getBoundingClientRect().width! / 8;
 
-        // TODO: fine-tune the minmax and factor
-        const velocity = opts.velocity
-          ? Math.min(Math.max(opts.velocity * 0.8, 1), 3)
-          : 1;
+        const speed = calculateMoveSpeed(src, target, {
+          velocity: opts.velocity,
+          cellSize,
+        });
 
-        const speed = Math.max(distance / velocity, 50);
+        boardRef.current?.style.setProperty("--piece-speed", `${speed}ms`);
 
-        boardRef.current?.style.setProperty(
-          "--piece-speed",
-          `${speed}ms`,
-        );
-
-        updatedHref = getMovesHref([[src, possibleTarget]], {
+        updatedHref = getMovesHref([[src, target]], {
           ...state,
           href: updatedHref,
         });
