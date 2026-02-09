@@ -8,8 +8,8 @@ import { useRouter } from "#/lib/router.ts";
 import { cn } from "#/lib/style.ts";
 import { calculateMoveSpeed } from "#/lib/touch.ts";
 import {
-  getGuides,
   getGrid,
+  getGuides,
   getTargets,
   Guide,
   isPositionSame,

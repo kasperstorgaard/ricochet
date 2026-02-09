@@ -34,17 +34,15 @@ export function buildReplayKeyframes(
       return [
         `@keyframes replay-${id} {`,
         `  ${writeKeyframeMove(0, pieceStops[0].stop.from)}`,
-        ...pieceStops.flatMap(({ idx, stop }) =>
-          /*
-           * Set a start position just before animating,
-           * to make sure the animation happens in single steps,
-           * not all the way from the start, then animate to position.
-           */
-          [
-            `  ${writeKeyframeMove(idx * increment, stop.from)}`,
-            `  ${writeKeyframeMove((idx + 1) * increment, stop.to)}`,
-          ]
-        ),
+        ...pieceStops.flatMap(({ idx, stop }) => /*
+         * Set a start position just before animating,
+         * to make sure the animation happens in single steps,
+         * not all the way from the start, then animate to position.
+         */
+        [
+          `  ${writeKeyframeMove(idx * increment, stop.from)}`,
+          `  ${writeKeyframeMove((idx + 1) * increment, stop.to)}`,
+        ]),
         "}",
       ].join("");
     })
