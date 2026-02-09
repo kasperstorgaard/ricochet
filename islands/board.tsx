@@ -153,8 +153,6 @@ export default function Board(
     isEnabled: mode.value === "solve",
   });
 
-  if (!state) return null;
-
   return (
     <>
       <div
@@ -312,7 +310,7 @@ function BoardSpace({ x, y, href, isActive }: BoardSpaceProps) {
   );
 }
 
-function BoardDestination({ x, y }: Position & { isHint?: boolean }) {
+function BoardDestination({ x, y }: Position) {
   return (
     <div
       className={cn(
