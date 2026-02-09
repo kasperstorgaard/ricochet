@@ -26,7 +26,7 @@ export function SolutionDialog({ open, href, puzzle }: Props) {
       ref={ref}
       open={open}
       className={cn(
-        "m-auto rounded-1 opacity-0 open:opacity-100 transition-opacity duration-500",
+        "m-auto rounded-1 opacity-0 open:opacity-100 transition-opacity duration-500 z-5",
         "backdrop:bg-surface-1",
       )}
     >

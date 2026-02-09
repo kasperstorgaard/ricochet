@@ -58,7 +58,8 @@
     "npm:tailwind-merge@^3.4.0": "3.4.0",
     "npm:tailwindcss@^4.1.10": "4.1.18",
     "npm:vite@^7.1.4": "7.3.1_picomatch@4.0.3",
-    "npm:vite@^7.3.1": "7.3.1_picomatch@4.0.3"
+    "npm:vite@^7.3.1": "7.3.1_picomatch@4.0.3",
+    "npm:zingtouch@^1.0.6": "1.0.6"
   },
   "jsr": {
     "@deno/esbuild-plugin@1.2.1": {
@@ -1762,6 +1763,9 @@
     },
     "yallist@3.1.1": {
       "integrity": "sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g=="
+    },
+    "zingtouch@1.0.6": {
+      "integrity": "sha512-S7jcR7cSRy28VmQBO0Tq7ZJV4pzfvvrTU9FrrL0K1QPpfBal9wm0oKhoCuifc+PPCq+hQMTJr5E9XKUQDm00VA=="
     }
   },
   "workspace": {
@@ -1783,7 +1787,8 @@
       "npm:preact@^10.27.2",
       "npm:tailwind-merge@^3.4.0",
       "npm:tailwindcss@^4.1.10",
-      "npm:vite@^7.3.1"
+      "npm:vite@^7.3.1",
+      "npm:zingtouch@^1.0.6"
     ]
   }
 }

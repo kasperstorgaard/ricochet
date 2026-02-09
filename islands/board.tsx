@@ -5,7 +5,7 @@ import { SolutionDialog } from "#/islands/solution-dialog.tsx";
 import { useArrowKeys } from "#/lib/keyboard.ts";
 import { useRouter } from "#/lib/router.ts";
 import { cn } from "#/lib/style.ts";
-import { Direction, useFlick } from "#/lib/touch.ts";
+import { calculateMoveSpeed, useSwipe } from "#/lib/touch.ts";
 import {
   getMoveDirection,
   getTargets,
@@ -15,8 +15,17 @@ import {
   Targets,
 } from "#/util/board.ts";
 import { useEditor } from "#/util/editor.ts";
-import { type Move, type Piece, Position, Puzzle, Wall } from "#/util/types.ts";
+import {
+  type Direction,
+  type Move,
+  type Piece,
+  Position,
+  Puzzle,
+  Wall,
+} from "#/util/types.ts";
 import { decodeState, getActiveHref, getMovesHref } from "#/util/url.ts";
+
+const DEFAULT_VELOCITY = 1; // px/ms
 
 type BoardProps = {
   href: Signal<string>;
@@ -25,14 +34,16 @@ type BoardProps = {
 };
 
 /**
- * TODO:
- * - split more components out (BoardPiece etc.)
- * - create more atomic helpers
+ * TODO
+ * - extract generic replay keyframe builder (keep board-specific mapping here)
+ * - consolidate keyboard hook (useArrowKeys) to share move logic with touch
  */
 export default function Board(
   { href, puzzle, mode }: BoardProps,
 ) {
   const solutionDialogRef = useRef<HTMLDialogElement>(null);
+  const swipeRegionRef = useRef<HTMLDivElement>(null);
+  const boardRef = useRef<HTMLDivElement>(null);
 
   const state = useMemo(() => decodeState(href.value), [href.value]);
   const moves = useMemo(
@@ -124,19 +135,30 @@ export default function Board(
   }, [href.value]);
 
   const onFlick = useCallback(
-    (src: Position, direction: "up" | "right" | "down" | "left") => {
-      if (!src) return;
+    (src: Position, opts: {
+      direction: Direction;
+      cellSize: number;
+      velocity: number;
+    }) => {
+      if (!src || !boardRef.current) return;
 
       const possibleTargets = getTargets(src, {
         pieces: board.pieces,
         walls: board.walls,
       });
 
-      const possibleTarget = possibleTargets[direction];
+      const target = possibleTargets[opts.direction];
       let updatedHref = getActiveHref(src, { ...state, href: href.value });
 
-      if (possibleTarget) {
-        updatedHref = getMovesHref([[src, possibleTarget]], {
+      if (target) {
+        const speed = calculateMoveSpeed(src, target, {
+          velocity: opts.velocity,
+          cellSize: opts.cellSize,
+        });
+
+        boardRef.current.style.setProperty("--piece-speed", `${speed}ms`);
+
+        updatedHref = getMovesHref([[src, target]], {
           ...state,
           href: updatedHref,
         });
@@ -144,29 +166,23 @@ export default function Board(
 
       updateLocation(updatedHref);
     },
-    [state, href.value],
+    [state, href.value, mode.value],
   );
-
-  const onHint = useCallback(() => {
-    const url = new URL(globalThis.location.href);
-    url.pathname = `puzzles/${puzzle.value.slug}/hint`;
-
-    globalThis.location.href = url.href;
-  }, [state.moves, puzzle.value.slug]);
 
   const onArrowKey = useCallback(
-    (direction: Direction) => state.active && onFlick(state.active, direction),
-    [state.active, onFlick],
-  );
+    (direction: Direction) => {
+      if (!state.active || mode.value !== "solve") return;
 
-  const onCommand = useCallback(
-    (type: "hint") => {
-      switch (type) {
-        case "hint":
-          return onHint();
-      }
+      const boardWidth = boardRef.current!.getBoundingClientRect().width!;
+      const cellSize = boardWidth / 8;
+
+      onFlick(state.active, {
+        direction,
+        cellSize,
+        velocity: DEFAULT_VELOCITY,
+      });
     },
-    [href.value, onHint],
+    [state.active, mode.value, onFlick],
   );
 
   useEditor({
@@ -175,13 +191,20 @@ export default function Board(
     puzzle,
   });
 
-  useArrowKeys({ onArrowKey, onCommand, isEnabled: mode.value === "solve" });
+  useArrowKeys({ onArrowKey, isEnabled: mode.value === "solve" });
+
+  useSwipe(swipeRegionRef, boardRef, {
+    pieces: board.pieces,
+    onSwipe: onFlick,
+    isEnabled: mode.value === "solve",
+  });
 
   if (!state) return null;
 
   return (
     <>
       <div
+        ref={boardRef}
         style={{
           "--active-bg": activePiece
             ? activePiece.type === "rook"
@@ -195,7 +218,7 @@ export default function Board(
           "--replay-speed": `${1 / replaySpeed}s`,
         }}
         className={cn(
-          "grid gap-(--gap) w-full grid-cols-[repeat(8,var(--space-w))] grid-rows-[repeat(8,var(--space-w))]",
+          "relative grid gap-(--gap) w-full grid-cols-[repeat(8,var(--space-w))] grid-rows-[repeat(8,var(--space-w))]",
         )}
       >
         {spaces.map((row) =>
@@ -276,7 +299,6 @@ export default function Board(
               const href = (event.target as HTMLAnchorElement).href;
               updateLocation(href, { replace: true });
             }}
-            onFlick={(dir) => onFlick(piece, dir)}
           />
         ))}
 
@@ -284,6 +306,16 @@ export default function Board(
           <BoardReplayStyles
             puzzle={puzzle.value}
             moves={moves}
+          />
+        )}
+
+        {/* Swipe region for touch detection, hidden on non-coarse pointer devices */}
+        {mode.value === "solve" && (
+          <div
+            ref={swipeRegionRef}
+            className={cn(
+              "hidden pointer-coarse:block absolute -left-fl-4 -right-fl-4 -top-fl-4 -bottom-fl-4 z-1 touch-none",
+            )}
           />
         )}
       </div>
@@ -466,21 +498,14 @@ type BoardPieceProps = {
   type: "rook" | "bouncer";
   isActive?: boolean;
   isReadonly?: boolean;
-  onFlick: (direction: Direction) => void;
   onFocus: (event: FocusEvent) => void;
 };
 
 function BoardPiece(
-  { x, y, id, href, type, isReadonly, onFlick, onFocus }: BoardPieceProps,
+  { x, y, id, href, type, isReadonly, onFocus }: BoardPieceProps,
 ) {
-  const { ref } = useFlick<HTMLAnchorElement>({
-    onFlick,
-    isEnabled: !isReadonly,
-  });
-
   return (
     <a
-      ref={ref}
       id={id}
       href={isReadonly ? "#" : href}
       className={cn(
@@ -488,7 +513,7 @@ function BoardPiece(
         "w-full aspect-square place-self-center ml-(--ml) mt-(--mt)",
         "translate-x-[calc((var(--space-w)+var(--gap))*var(--x))]",
         "translate-y-[calc((var(--space-w)+var(--gap))*var(--y))]",
-        "transition-transform duration-200 ease-out",
+        "transition-transform duration-(--piece-speed,200ms) ease-out",
         "[--replay-duration:calc(var(--replay-len)*var(--replay-speed))]",
         isReadonly && "pointer-events-none",
       )}
