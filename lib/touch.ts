@@ -133,7 +133,7 @@ export function useSwipe(
 
 /**
  * Calculates animation duration (ms) for a piece move based on swipe velocity.
- * Clamps velocity to [1, 3] px/ms range. Returns at least 50ms.
+ * Clamps velocity to [0.5, 3] px/ms range. Returns at least 50ms.
  */
 export function calculateMoveSpeed(
   src: Position,
