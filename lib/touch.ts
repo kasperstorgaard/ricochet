@@ -121,12 +121,27 @@ export function useSwipe(
         });
         touchedPiece = null;
       });
+
+      // Forward taps through the overlay to the elements underneath
+      const tap = new ZT.Tap();
+      region.bind(regionEl, tap, (event: CustomEvent) => {
+        const input = event.detail.events[0];
+        if (!input) return;
+
+        // Temporarily disable pointer events to detect the underlying element
+        regionEl.style.pointerEvents = "none";
+        const target = document.elementFromPoint(input.clientX, input.clientY);
+        // Renable pointer events
+        regionEl.style.pointerEvents = "";
+
+        if (target instanceof HTMLElement) target.click();
+      });
     });
 
     return () => {
       destroyed = true;
-      boardEl.removeEventListener("touchstart", onTouchStart);
-      if (region) region.unbind(boardEl);
+      regionEl.removeEventListener("touchstart", onTouchStart);
+      if (region) region.unbind(regionEl);
     };
   }, [regionRef.current, boardRef.current, isEnabled]);
 }
