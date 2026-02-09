@@ -9,8 +9,9 @@ import { cn } from "#/lib/style.ts";
 import { calculateMoveSpeed } from "#/lib/touch.ts";
 import {
   getGuides,
-  getSpaces,
+  getGrid,
   getTargets,
+  Guide,
   isPositionSame,
   isValidSolution,
   resolveMoves,
@@ -82,11 +83,11 @@ export default function Board(
     onLocationUpdated,
   });
 
-  const spaces = useMemo(() => getSpaces(), []);
+  const spaces = useMemo(() => getGrid(), []);
 
   const guides = useMemo(
     () =>
-      state.active && mode.value === "solve"
+      mode.value === "solve"
         ? getGuides(board, { active: state.active, hint: state.hint })
         : [],
     [state.active, state.hint, board, mode.value],
@@ -203,13 +204,11 @@ export default function Board(
         {/* Move guides: target destinations + hint (if active) */}
         {guides.map((guide) => (
           <MoveGuide
-            active={guide.active}
-            target={guide.target}
-            href={getMovesHref([[guide.active, guide.target]], {
+            {...guide}
+            href={getMovesHref([guide.move], {
               ...state,
               href: href.value,
             })}
-            isHint={guide.isHint}
           />
         ))}
 
@@ -348,14 +347,12 @@ function BoardDestination({ x, y }: Position) {
   );
 }
 
-type MoveGuideProps = {
-  active: Position;
-  target: Position;
+type MoveGuideProps = Guide & {
   href: string;
-  isHint?: boolean;
 };
 
-function MoveGuide({ active, target, href, isHint }: MoveGuideProps) {
+function MoveGuide({ move, href, isHint }: MoveGuideProps) {
+  const [active, target] = move;
   const isVertical = active.x === target.x;
 
   return (
@@ -463,6 +460,7 @@ function BoardReplayStyles({ puzzle, moves }: BoardReplayProps) {
     const move = moves[idx];
     const state = resolveMoves(puzzle.board, moves.slice(0, idx));
     const piece = state.pieces.find((item) => isPositionSame(item, move[0]));
+
     if (!piece) continue;
 
     const id = getPieceId(piece, state.pieces.indexOf(piece));

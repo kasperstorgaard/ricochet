@@ -9,7 +9,7 @@ export const COLS = 8;
 export const ROWS = 8;
 
 /** Generates an ROWSxCOLS grid of Position objects. */
-export function getSpaces(): Position[][] {
+export function getGrid(): Position[][] {
   const positions: Position[][] = [];
   for (let y = 0; y < ROWS; y++) {
     positions[y] = [];
@@ -72,6 +72,16 @@ export function isPositionOutOfBounds(
  */
 export function isPositionSame(src: Position, target: Position) {
   return src.x === target.x && src.y === target.y;
+}
+
+/**
+ * Checks if two moves are identical.
+ * @param src The source move
+ * @param target The target move to compare against.
+ * @returns True if identical, otherwise false
+ */
+export function isMoveSame(src: Move, target: Move) {
+  return isPositionSame(src[0], target[0]) && isPositionSame(src[1], target[1]);
 }
 
 /**
@@ -321,8 +331,7 @@ export function getMoveDirection(move: Move) {
 }
 
 export type Guide = {
-  active: Position;
-  target: Position;
+  move: Move;
   isHint: boolean;
 };
 
@@ -333,23 +342,19 @@ export type Guide = {
  */
 export function getGuides(
   board: Pick<Board, "pieces" | "walls">,
-  { active, hint }: { active: Position; hint?: Move },
+  { active, hint }: { active?: Position; hint?: Move },
 ): Guide[] {
-  const targets = getTargets(active, board);
-  const hintDirection = hint ? getMoveDirection(hint) : null;
-  const hintMatchesActive = hint ? isPositionSame(active, hint[0]) : false;
-
   const result: Guide[] = [];
+  const targets = active ? getTargets(active, board) : {};
 
-  for (const [dir, target] of Object.entries(targets) as [string, Position][]) {
-    // Skip the direction that the hint replaces — it's appended last for UI stacking
-    if (hint && dir === hintDirection && hintMatchesActive) continue;
-    result.push({ active, target, isHint: false });
+  for (const target of Object.values(targets)) {
+    result.push({ move: [active!, target], isHint: false });
   }
 
-  // Hint is always last so it renders on top
   if (hint) {
-    result.push({ active: hint[0], target: hint[1], isHint: true });
+    const target = result.find((item) => isMoveSame(item.move, hint));
+    const insertIdx = target ? result.indexOf(target) : result.length;
+    result.splice(insertIdx, 1, { move: hint, isHint: true });
   }
 
   return result;
