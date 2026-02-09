@@ -8,6 +8,18 @@ import { Board, Move, Piece, Position, Wall } from "#/util/types.ts";
 export const COLS = 8;
 export const ROWS = 8;
 
+/** Generates an ROWSxCOLS grid of Position objects. */
+export function getSpaces(): Position[][] {
+  const positions: Position[][] = [];
+  for (let y = 0; y < ROWS; y++) {
+    positions[y] = [];
+    for (let x = 0; x < COLS; x++) {
+      positions[y].push({ x, y });
+    }
+  }
+  return positions;
+}
+
 /**
  * Custom error for invalid board states.
  */
@@ -306,4 +318,39 @@ export function getMoveDirection(move: Move) {
   }
 
   return move[1].x > move[0].x ? "right" : "left";
+}
+
+export type Guide = {
+  active: Position;
+  target: Position;
+  isHint: boolean;
+};
+
+/**
+ * Builds a list of move guides for the active piece.
+ * Each guide represents a direction the piece can move, with a guide strip + target.
+ * If a hint is provided and matches a target direction, it replaces that target.
+ */
+export function getGuides(
+  board: Pick<Board, "pieces" | "walls">,
+  { active, hint }: { active: Position; hint?: Move },
+): Guide[] {
+  const targets = getTargets(active, board);
+  const hintDirection = hint ? getMoveDirection(hint) : null;
+  const hintMatchesActive = hint ? isPositionSame(active, hint[0]) : false;
+
+  const result: Guide[] = [];
+
+  for (const [dir, target] of Object.entries(targets) as [string, Position][]) {
+    // Skip the direction that the hint replaces — it's appended last for UI stacking
+    if (hint && dir === hintDirection && hintMatchesActive) continue;
+    result.push({ active, target, isHint: false });
+  }
+
+  // Hint is always last so it renders on top
+  if (hint) {
+    result.push({ active: hint[0], target: hint[1], isHint: true });
+  }
+
+  return result;
 }

@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef } from "preact/hooks";
 
 import type { Solution } from "#/db/types.ts";
 import { cn } from "#/lib/style.ts";
+import { getReplaySpeed } from "#/util/url.ts";
 
 type Props = {
   href: Signal<string>;
@@ -22,14 +23,10 @@ export const TutorialDialog = function ({ open, href, mode, solution }: Props) {
     return !value || isNaN(value) ? 0 : value;
   }, [href.value]);
 
-  const replaySpeed = useMemo(() => {
-    const url = new URL(href.value);
-
-    const rawValue = url.searchParams.get("replay_speed");
-    const value = parseFloat(rawValue ?? "");
-
-    return isNaN(value) ? 1 : value;
-  }, [href.value]);
+  const replaySpeed = useMemo(
+    () => getReplaySpeed(href.value),
+    [href.value],
+  );
 
   useEffect(() => {
     ref.current?.close();
