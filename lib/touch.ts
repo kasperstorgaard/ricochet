@@ -71,6 +71,7 @@ export function useSwipe(
     if (!regionEl || !boardEl || !isEnabled) return;
     if (!("ontouchstart" in window)) return;
 
+    // currently touched piece, detected from touchstart
     let touchedPiece: Position | null = null;
     // deno-lint-ignore no-explicit-any
     let region: any = null;
@@ -108,6 +109,7 @@ export function useSwipe(
       });
 
       region.bind(regionEl, swipe, (event: CustomEvent) => {
+        // If no currently touched piece, ignore the swipe
         if (!touchedPiece) return;
 
         const data = event.detail.data[0];
@@ -119,11 +121,14 @@ export function useSwipe(
           velocity: data.velocity,
           cellSize,
         });
+
+        // reset the touched piece to get ready for next swipe
         touchedPiece = null;
       });
 
       // Forward taps through the overlay to the elements underneath
       const tap = new ZT.Tap();
+
       region.bind(regionEl, tap, (event: CustomEvent) => {
         const input = event.detail.events[0];
         if (!input) return;
@@ -135,6 +140,9 @@ export function useSwipe(
         regionEl.style.pointerEvents = "";
 
         if (target instanceof HTMLElement) target.click();
+
+        // reset touched piece, as we don't want to mix tap and swipe
+        touchedPiece = null;
       });
     });
 
