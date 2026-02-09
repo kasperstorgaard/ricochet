@@ -21,7 +21,6 @@ const PROXIMITY_RADIUS = 1;
  */
 const MIN_SWIPE_VELOCITY = 0.5; // px/ms
 const MAX_SWIPE_VELOCITY = 3; // px/ms
-const DEFAULT_VELOCITY = 1; // px/ms
 const MIN_PIECE_SPEED = 50; // ms
 
 /**
@@ -139,15 +138,16 @@ export function useSwipe(
 export function calculateMoveSpeed(
   src: Position,
   target: Position,
-  opts: { velocity?: number; cellSize: number },
+  opts: { velocity: number; cellSize: number },
 ): number {
   const diffX = Math.abs(src.x - target.x);
   const diffY = Math.abs(src.y - target.y);
   const distance = Math.max(diffX, diffY) * opts.cellSize;
 
-  const velocity = opts.velocity
-    ? Math.min(Math.max(opts.velocity, MIN_SWIPE_VELOCITY), MAX_SWIPE_VELOCITY)
-    : DEFAULT_VELOCITY;
+  const velocity = Math.min(
+    Math.max(opts.velocity, MIN_SWIPE_VELOCITY),
+    MAX_SWIPE_VELOCITY,
+  );
 
   return Math.max(distance / velocity, MIN_PIECE_SPEED);
 }

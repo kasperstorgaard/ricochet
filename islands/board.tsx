@@ -25,6 +25,8 @@ import {
 } from "#/util/types.ts";
 import { decodeState, getActiveHref, getMovesHref } from "#/util/url.ts";
 
+const DEFAULT_VELOCITY = 1; // px/ms
+
 type BoardProps = {
   href: Signal<string>;
   puzzle: Signal<Puzzle>;
@@ -32,7 +34,7 @@ type BoardProps = {
 };
 
 /**
- * TODO (part 2):
+ * TODO
  * - extract generic replay keyframe builder (keep board-specific mapping here)
  * - consolidate keyboard hook (useArrowKeys) to share move logic with touch
  */
@@ -135,10 +137,10 @@ export default function Board(
   const onFlick = useCallback(
     (src: Position, opts: {
       direction: Direction;
-      velocity?: number;
-      cellSize?: number;
+      cellSize: number;
+      velocity: number;
     }) => {
-      if (!src) return;
+      if (!src || !boardRef.current) return;
 
       const possibleTargets = getTargets(src, {
         pieces: board.pieces,
@@ -149,15 +151,12 @@ export default function Board(
       let updatedHref = getActiveHref(src, { ...state, href: href.value });
 
       if (target) {
-        const cellSize = opts.cellSize ??
-          boardRef.current!.getBoundingClientRect().width! / 8;
-
         const speed = calculateMoveSpeed(src, target, {
           velocity: opts.velocity,
-          cellSize,
+          cellSize: opts.cellSize,
         });
 
-        boardRef.current?.style.setProperty("--piece-speed", `${speed}ms`);
+        boardRef.current.style.setProperty("--piece-speed", `${speed}ms`);
 
         updatedHref = getMovesHref([[src, target]], {
           ...state,
@@ -167,13 +166,23 @@ export default function Board(
 
       updateLocation(updatedHref);
     },
-    [state, href.value],
+    [state, href.value, mode.value],
   );
 
   const onArrowKey = useCallback(
-    (direction: Direction) =>
-      state.active && onFlick(state.active, { direction }),
-    [state.active, onFlick],
+    (direction: Direction) => {
+      if (!state.active || mode.value !== "solve") return;
+
+      const boardWidth = boardRef.current!.getBoundingClientRect().width!;
+      const cellSize = boardWidth / 8;
+
+      onFlick(state.active, {
+        direction,
+        cellSize,
+        velocity: DEFAULT_VELOCITY,
+      });
+    },
+    [state.active, mode.value, onFlick],
   );
 
   useEditor({
