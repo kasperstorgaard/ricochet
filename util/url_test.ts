@@ -7,6 +7,7 @@ import {
   getHintHref,
   getMovesHref,
   getRedoHref,
+  getReplaySpeed,
   getResetHref,
   getUndoHref,
 } from "#/util/url.ts";
@@ -229,4 +230,20 @@ Deno.test("getHintHref() should rewrite pathname to hint route", () => {
 
 Deno.test("getHintHref() should throw when URL has no puzzle slug", () => {
   assertThrows(() => getHintHref("http://example.com/other/path"));
+});
+
+Deno.test("getReplaySpeed() should return the replay_speed param", () => {
+  assertEquals(getReplaySpeed("http://example.com/?replay_speed=2"), 2);
+});
+
+Deno.test("getReplaySpeed() should default to 1 when param is missing", () => {
+  assertEquals(getReplaySpeed("http://example.com/"), 1);
+});
+
+Deno.test("getReplaySpeed() should default to 1 for non-numeric value", () => {
+  assertEquals(getReplaySpeed("http://example.com/?replay_speed=abc"), 1);
+});
+
+Deno.test("getReplaySpeed() should handle fractional values", () => {
+  assertEquals(getReplaySpeed("http://example.com/?replay_speed=0.5"), 0.5);
 });
