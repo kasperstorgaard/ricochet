@@ -185,6 +185,14 @@ export function getHintHref(href: string) {
   return url.href;
 }
 
+/** Reads the `replay_speed` search param from a URL, defaulting to 1. */
+export function getReplaySpeed(url: URL | string): number {
+  const urlObj = typeof url === "string" ? new URL(url) : url;
+  const rawValue = urlObj.searchParams.get("replay_speed");
+  const value = parseFloat(rawValue ?? "");
+  return isNaN(value) ? 1 : value;
+}
+
 /** Reads the `page` search param from a URL, defaulting to 1. */
 export function getPage(
   url: URL,

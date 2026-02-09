@@ -2,17 +2,19 @@ import type { Signal } from "@preact/signals";
 import { useCallback, useEffect, useMemo, useRef } from "preact/hooks";
 
 import { SolutionDialog } from "#/islands/solution-dialog.tsx";
-import { useArrowKeys } from "#/lib/keyboard.ts";
+import { useMove } from "#/lib/move.ts";
+import { buildReplayKeyframes, type KeyframeStop } from "#/lib/replay.ts";
 import { useRouter } from "#/lib/router.ts";
 import { cn } from "#/lib/style.ts";
-import { calculateMoveSpeed, useSwipe } from "#/lib/touch.ts";
+import { calculateMoveSpeed } from "#/lib/touch.ts";
 import {
-  getMoveDirection,
+  getGrid,
+  getGuides,
   getTargets,
+  Guide,
   isPositionSame,
   isValidSolution,
   resolveMoves,
-  Targets,
 } from "#/util/board.ts";
 import { useEditor } from "#/util/editor.ts";
 import {
@@ -23,9 +25,12 @@ import {
   Puzzle,
   Wall,
 } from "#/util/types.ts";
-import { decodeState, getActiveHref, getMovesHref } from "#/util/url.ts";
-
-const DEFAULT_VELOCITY = 1; // px/ms
+import {
+  decodeState,
+  getActiveHref,
+  getMovesHref,
+  getReplaySpeed,
+} from "#/util/url.ts";
 
 type BoardProps = {
   href: Signal<string>;
@@ -33,11 +38,6 @@ type BoardProps = {
   mode: Signal<"editor" | "replay" | "solve" | "readonly">;
 };
 
-/**
- * TODO
- * - extract generic replay keyframe builder (keep board-specific mapping here)
- * - consolidate keyboard hook (useArrowKeys) to share move logic with touch
- */
 export default function Board(
   { href, puzzle, mode }: BoardProps,
 ) {
@@ -83,40 +83,14 @@ export default function Board(
     onLocationUpdated,
   });
 
-  const spaces = useMemo(() => {
-    const positions: Position[][] = [];
+  const spaces = useMemo(() => getGrid(), []);
 
-    for (let y = 0; y < 8; y++) {
-      positions[y] = [];
-
-      for (let x = 0; x < 8; x++) {
-        positions[y].push({ x, y });
-      }
-    }
-
-    return positions;
-  }, []);
-
-  const targets = useMemo(
+  const guides = useMemo(
     () =>
-      state.active && mode.value === "solve"
-        ? getTargets(state.active, board)
-        : null,
-    [state.active, board, mode.value],
-  );
-
-  const hint = useMemo(
-    () => {
-      if (!state.hint || mode.value !== "solve") return null;
-
-      // convert hint move to targets
-      const direction = getMoveDirection(state.hint);
-      const hintTargets: Targets = {};
-      hintTargets[direction] = state.hint[1];
-
-      return hintTargets;
-    },
-    [state.hint, mode.value],
+      mode.value === "solve"
+        ? getGuides(board, { active: state.active, hint: state.hint })
+        : [],
+    [state.active, state.hint, board, mode.value],
   );
 
   const activePiece = useMemo(() => {
@@ -125,16 +99,12 @@ export default function Board(
     return board.pieces.find((piece) => isPositionSame(piece, state.active!));
   }, [state.active, puzzle.value.board.pieces]);
 
-  const replaySpeed = useMemo(() => {
-    const url = new URL(href.value);
+  const replaySpeed = useMemo(
+    () => getReplaySpeed(href.value),
+    [href.value],
+  );
 
-    const rawValue = url.searchParams.get("replay_speed");
-    const value = parseFloat(rawValue ?? "");
-
-    return isNaN(value) ? 1 : value;
-  }, [href.value]);
-
-  const onFlick = useCallback(
+  const onMove = useCallback(
     (src: Position, opts: {
       direction: Direction;
       cellSize: number;
@@ -151,11 +121,7 @@ export default function Board(
       let updatedHref = getActiveHref(src, { ...state, href: href.value });
 
       if (target) {
-        const speed = calculateMoveSpeed(src, target, {
-          velocity: opts.velocity,
-          cellSize: opts.cellSize,
-        });
-
+        const speed = calculateMoveSpeed(src, target, opts);
         boardRef.current.style.setProperty("--piece-speed", `${speed}ms`);
 
         updatedHref = getMovesHref([[src, target]], {
@@ -169,42 +135,30 @@ export default function Board(
     [state, href.value, mode.value],
   );
 
-  const onArrowKey = useCallback(
-    (direction: Direction) => {
-      if (!state.active || mode.value !== "solve") return;
-
-      const boardWidth = boardRef.current!.getBoundingClientRect().width!;
-      const cellSize = boardWidth / 8;
-
-      onFlick(state.active, {
-        direction,
-        cellSize,
-        velocity: DEFAULT_VELOCITY,
-      });
-    },
-    [state.active, mode.value, onFlick],
-  );
-
+  // Optional editor state, since board is used across both editor and solve modes
   useEditor({
     active: state.active,
     isEnabled: mode.value === "editor",
     puzzle,
   });
 
-  useArrowKeys({ onArrowKey, isEnabled: mode.value === "solve" });
-
-  useSwipe(swipeRegionRef, boardRef, {
+  /*
+    Core move state for solve mode, including:
+    - touch gestures
+    - keyboard controls
+  */
+  useMove(swipeRegionRef, boardRef, {
     pieces: board.pieces,
-    onSwipe: onFlick,
+    active: state.active,
+    onMove,
     isEnabled: mode.value === "solve",
   });
-
-  if (!state) return null;
 
   return (
     <>
       <div
         ref={boardRef}
+        // Reusable board style variables
         style={{
           "--active-bg": activePiece
             ? activePiece.type === "rook"
@@ -218,6 +172,7 @@ export default function Board(
           "--replay-speed": `${1 / replaySpeed}s`,
         }}
         className={cn(
+          // Relative for the touch region positioning
           "relative grid gap-(--gap) w-full grid-cols-[repeat(8,var(--space-w))] grid-rows-[repeat(8,var(--space-w))]",
         )}
       >
@@ -246,47 +201,16 @@ export default function Board(
           />
         ))}
 
-        {/* If we have an active space/piece, draw the possible destinations  */}
-        {state.active && targets && (
-          <>
-            {/* Backgrounds between src and destinations */}
-            <MovesGuide
-              active={state.active}
-              targets={targets}
-            />
-
-            {Object.values(targets).map((target) => (
-              <BoardTarget
-                {...target}
-                href={getMovesHref([[state.active!, target]], {
-                  ...state,
-                  href: href.value,
-                })}
-              />
-            ))}
-          </>
-        )}
-
-        {/* If we have a hint, draw the destination */}
-        {state.hint && hint && (
-          <>
-            {/* Backgrounds between src and destinations */}
-            <MovesGuide
-              active={state.hint[0]}
-              targets={hint}
-              isHint
-            />
-
-            <BoardTarget
-              {...state.hint[1]}
-              href={getMovesHref([state.hint], {
-                ...state,
-                href: href.value,
-              })}
-              isHint
-            />
-          </>
-        )}
+        {/* Move guides: target destinations + hint (if active) */}
+        {guides.map((guide) => (
+          <MoveGuide
+            {...guide}
+            href={getMovesHref([guide.move], {
+              ...state,
+              href: href.value,
+            })}
+          />
+        ))}
 
         {board.pieces.map((piece, idx) => (
           <BoardPiece
@@ -385,7 +309,7 @@ function BoardSpace({ x, y, href, isActive }: BoardSpaceProps) {
   );
 }
 
-function BoardDestination({ x, y }: Position & { isHint?: boolean }) {
+function BoardDestination({ x, y }: Position) {
   return (
     <div
       className={cn(
@@ -423,68 +347,49 @@ function BoardDestination({ x, y }: Position & { isHint?: boolean }) {
   );
 }
 
-type TargetProps = Position & {
+type MoveGuideProps = Guide & {
   href: string;
-  isHint?: boolean;
 };
 
-function BoardTarget({ x, y, href, isHint }: TargetProps) {
-  return (
-    <a
-      href={href}
-      className={cn(
-        "w-full aspect-square border-1 place-self-center col-[calc(var(--x)+1)] row-[calc(var(--y)+1)]",
-        "border-(--active-bg)",
-        isHint && "border-(--hint-bg) animate-blink",
-      )}
-      style={{
-        "--x": x,
-        "--y": y,
-      }}
-      tabIndex={-1}
-      data-router="push"
-    />
-  );
-}
-
-type MovesGuideProps = {
-  active: Position;
-  targets: Targets;
-  isHint?: boolean;
-};
-
-function MovesGuide(
-  { active, targets, isHint }: MovesGuideProps,
-) {
-  const up = targets.up ?? active;
-  const right = targets.right ?? active;
-  const down = targets.down ?? active;
-  const left = targets.left ?? active;
+function MoveGuide({ move, href, isHint }: MoveGuideProps) {
+  const [active, target] = move;
+  const isVertical = active.x === target.x;
 
   return (
     <>
+      {/* Guide strip from active to target */}
       <div
         className={cn(
           "bg-(--active-bg) opacity-20 pointer-events-none",
           isHint && "bg-(--hint-bg)/50 animate-blink",
         )}
-        style={{
-          gridColumnStart: `${up.x + 1}`,
-          gridRowStart: `${up.y + 1}`,
-          gridRowEnd: `${down.y + 2}`,
-        }}
+        style={isVertical
+          ? {
+            gridColumnStart: `${active.x + 1}`,
+            gridRowStart: `${Math.min(active.y, target.y) + 1}`,
+            gridRowEnd: `${Math.max(active.y, target.y) + 2}`,
+          }
+          : {
+            gridColumnStart: `${Math.min(active.x, target.x) + 1}`,
+            gridColumnEnd: `${Math.max(active.x, target.x) + 2}`,
+            gridRowStart: `${active.y + 1}`,
+          }}
       />
 
-      <div
+      {/* Clickable target position */}
+      <a
+        href={href}
         className={cn(
-          "bg-(--active-bg) opacity-20 pointer-events-none",
-          isHint && "bg-(--hint-bg)/50 animate-blink",
+          "w-full aspect-square border-1 place-self-center col-[calc(var(--x)+1)] row-[calc(var(--y)+1)]",
+          "border-(--active-bg)",
+          isHint && "border-(--hint-bg) animate-blink",
         )}
         style={{
-          gridColumnStart: `${left.x + 1}`,
-          gridColumnEnd: `${right.x + 2}`,
-          gridRowStart: `${left.y + 1}`,
+          "--x": target.x,
+          "--y": target.y,
         }}
+        tabIndex={-1}
+        data-router="push"
       />
     </>
   );
@@ -518,6 +423,7 @@ function BoardPiece(
         isReadonly && "pointer-events-none",
       )}
       style={{
+        // replay-{id} is generated by BoardReplayStyles based on moves list
         animation: `replay-${id} var(--replay-duration) ease-in-out`,
         "--x": x,
         "--y": y,
@@ -548,53 +454,22 @@ type BoardReplayProps = {
 function BoardReplayStyles({ puzzle, moves }: BoardReplayProps) {
   if (!moves.length) return null;
 
-  /**
-   * Build up a lookup of which pieces to move at which index.
-   * This is because we have to look at the moves as a whole, to determine which piece was moved.
-   */
-  const pieceMovesLookup: Record<string, { idx: number; move: Move }[]> = {};
-  const totalMoves = moves.length;
-  const increment = 100 / totalMoves;
-
+  // Resolve each move to a keyframe stop with the piece's DOM id
+  const stops: KeyframeStop[] = [];
   for (let idx = 0; idx < moves.length; idx++) {
     const move = moves[idx];
-
     const state = resolveMoves(puzzle.board, moves.slice(0, idx));
     const piece = state.pieces.find((item) => isPositionSame(item, move[0]));
+
     if (!piece) continue;
 
     const id = getPieceId(piece, state.pieces.indexOf(piece));
-
-    if (!pieceMovesLookup[id]) pieceMovesLookup[id] = [{ idx, move }];
-    else pieceMovesLookup[id].push({ idx, move });
+    stops.push({ id, from: move[0], to: move[1] });
   }
 
-  return (
-    <style>
-      {Object.entries(pieceMovesLookup).map(([id, pieceMoves]) => {
-        return [
-          `@keyframes replay-${id} {`,
-          `  ${writeKeyframeMove(0, pieceMoves[0].move[0])}`,
-          ...pieceMoves.flatMap(({ idx, move }) => /*
-                * Set a start position just before animating,
-                to make sure the animation happens in single steps, not all the way from the start,
-                then animate to position.
-                */
-          [
-            `  ${writeKeyframeMove(idx * increment, move[0])}`,
-            `  ${writeKeyframeMove((idx + 1) * increment, move[1])}`,
-          ]),
-          "}",
-        ].join("");
-      })}
-    </style>
-  );
+  return <style>{buildReplayKeyframes(stops, moves.length)}</style>;
 }
 
-function writeKeyframeMove(percentage: number, position: Position) {
-  return `${percentage}% { --x: ${position.x}; --y: ${position.y}; }`;
-}
-
-export function getPieceId(piece: Piece, idx: number) {
+function getPieceId(piece: Piece, idx: number) {
   return `${piece.type === "rook" ? "r" : "b"}_${idx}`;
 }

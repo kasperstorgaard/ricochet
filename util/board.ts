@@ -8,6 +8,18 @@ import { Board, Move, Piece, Position, Wall } from "#/util/types.ts";
 export const COLS = 8;
 export const ROWS = 8;
 
+/** Generates an ROWSxCOLS grid of Position objects. */
+export function getGrid(): Position[][] {
+  const positions: Position[][] = [];
+  for (let y = 0; y < ROWS; y++) {
+    positions[y] = [];
+    for (let x = 0; x < COLS; x++) {
+      positions[y].push({ x, y });
+    }
+  }
+  return positions;
+}
+
 /**
  * Custom error for invalid board states.
  */
@@ -60,6 +72,16 @@ export function isPositionOutOfBounds(
  */
 export function isPositionSame(src: Position, target: Position) {
   return src.x === target.x && src.y === target.y;
+}
+
+/**
+ * Checks if two moves are identical.
+ * @param src The source move
+ * @param target The target move to compare against.
+ * @returns True if identical, otherwise false
+ */
+export function isMoveSame(src: Move, target: Move) {
+  return isPositionSame(src[0], target[0]) && isPositionSame(src[1], target[1]);
 }
 
 /**
@@ -306,4 +328,34 @@ export function getMoveDirection(move: Move) {
   }
 
   return move[1].x > move[0].x ? "right" : "left";
+}
+
+export type Guide = {
+  move: Move;
+  isHint: boolean;
+};
+
+/**
+ * Builds a list of move guides for the active piece.
+ * Each guide represents a direction the piece can move, with a guide strip + target.
+ * If a hint is provided and matches a target direction, it replaces that target.
+ */
+export function getGuides(
+  board: Pick<Board, "pieces" | "walls">,
+  { active, hint }: { active?: Position; hint?: Move },
+): Guide[] {
+  const result: Guide[] = [];
+  const targets = active ? getTargets(active, board) : {};
+
+  for (const target of Object.values(targets)) {
+    result.push({ move: [active!, target], isHint: false });
+  }
+
+  if (hint) {
+    const target = result.find((item) => isMoveSame(item.move, hint));
+    const insertIdx = target ? result.indexOf(target) : result.length;
+    result.splice(insertIdx, 1, { move: hint, isHint: true });
+  }
+
+  return result;
 }
