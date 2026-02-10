@@ -39,6 +39,13 @@ export default define.page(
             href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500&display=swap"
             rel="stylesheet"
           />
+          {/* Tiny script to indicate JavaScript is enabled, needed for styling */}
+          <script
+            // deno-lint-ignore react-no-danger
+            dangerouslySetInnerHTML={{
+              __html: `document.documentElement.setAttribute("data-js","")`,
+            }}
+          />
         </head>
 
         <body

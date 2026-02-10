@@ -25,6 +25,7 @@ export const handler = define.handlers<Puzzle>({
   },
 });
 
+// TODO: if on localhost, save directly to disc
 export default define.page(function EditorPage(props: PageProps<Puzzle>) {
   const slug = props.data.slug;
   const puzzle = useSignal(props.data);

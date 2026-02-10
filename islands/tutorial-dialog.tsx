@@ -1,8 +1,9 @@
 import type { Signal } from "@preact/signals";
-import { useEffect, useMemo, useRef } from "preact/hooks";
+import { useEffect, useMemo } from "preact/hooks";
 
 import type { Solution } from "#/db/types.ts";
 import { cn } from "#/lib/style.ts";
+import { Dialog } from "#/islands/dialog.tsx";
 import { getReplaySpeed } from "#/util/url.ts";
 
 type Props = {
@@ -13,8 +14,6 @@ type Props = {
 };
 
 export const TutorialDialog = function ({ open, href, mode, solution }: Props) {
-  const ref = useRef<HTMLDialogElement>(null);
-
   const step = useMemo(() => {
     const url = new URL(href.value);
     const rawValue = url.searchParams.get("step");
@@ -29,20 +28,14 @@ export const TutorialDialog = function ({ open, href, mode, solution }: Props) {
   );
 
   useEffect(() => {
-    ref.current?.close();
-
-    if (open) ref.current?.showModal();
-  }, [open]);
-
-  useEffect(() => {
     mode.value = step === 2 ? "replay" : "readonly";
   }, [step]);
 
   return (
-    <dialog
-      ref={ref}
+    <Dialog
+      open={open}
       className={cn(
-        "m-auto rounded-1 max-w-lg shadow-4 z-5 [animation-fill-mode:forwards]",
+        "[animation-fill-mode:forwards]",
         "backdrop:[animation-delay:inherit] backdrop:[animation-fill-mode:forwards]",
         step === 2 &&
           "opacity-0 animate-fade-in backdrop:opacity-0 backdrop:animate-fade-in",
@@ -51,14 +44,12 @@ export const TutorialDialog = function ({ open, href, mode, solution }: Props) {
         animationDelay: `${(1 / replaySpeed) * solution.moves.length}s`,
       }}
     >
-      <div className="grid gap-fl-3 p-fl-3">
-        {step === 0 && <TutorialWelcomeStep href={href.value} />}
-        {step === 1 && <TutorialPiecesStep href={href.value} />}
-        {step === 2 && (
-          <TutorialSolutionStep href={href.value} solution={solution} />
-        )}
-      </div>
-    </dialog>
+      {step === 0 && <TutorialWelcomeStep href={href.value} />}
+      {step === 1 && <TutorialPiecesStep href={href.value} />}
+      {step === 2 && (
+        <TutorialSolutionStep href={href.value} solution={solution} />
+      )}
+    </Dialog>
   );
 };
 

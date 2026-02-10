@@ -289,6 +289,21 @@
   --animate-float: var(--animation-float);
   --animate-bounce: var(--animation-bounce);
   --animate-pulse: var(--animation-pulse);
+  --animate-sneak-in-bottom: sneak-in-bottom 2s ease 500ms both;
+  --animate-sneak-in-left: sneak-in-left 2s ease 500ms both;
+
+  --keyframes-sneak-in-bottom: {
+    0% { transform: translateY(100%); }
+    60% { transform: translateY(80%); }
+    80% { transform: translateY(85%); }
+    100% { transform: translateY(0); }
+  };
+  --keyframes-sneak-in-left: {
+    0% { transform: translateX(-110%); }
+    60% { transform: translateX(-90%); }
+    80% { transform: translateX(-92%); }
+    100% { transform: translateX(0); }
+  };
 
   /* Easings (transition-timing-function) */
   --ease-1: var(--ease-1);
@@ -584,6 +599,31 @@
 
   :where(h1, h2, h3, h4, h5, h6) {
     font-weight: 400;
+  }
+
+  dialog[open] {
+    opacity: 1;
+    transition: opacity 200ms ease;
+  }
+
+  dialog::backdrop {
+    background-color: rgb(0 0 0 / 0.4);
+    transition: background-color 200ms ease;
+  }
+
+  [data-js] dialog[data-modal][open]:not(:modal) {
+    opacity: 0;
+  }
+
+  /* Not supported in tailwind yet, so we add it here */
+  @starting-style {
+    dialog[open] {
+      opacity: 0;
+    }
+
+    dialog::backdrop {
+      background-color: rgb(0 0 0 / 0);
+    }
   }
 }
 
