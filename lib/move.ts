@@ -30,6 +30,7 @@ export function useMove(
   const onArrowKey = useCallback(
     (direction: Direction) => {
       if (!active) return;
+
       const boardWidth = boardRef.current?.getBoundingClientRect().width ?? 0;
       const cellSize = boardWidth / 8;
       onMove(active, { direction, cellSize, velocity: DEFAULT_VELOCITY });
