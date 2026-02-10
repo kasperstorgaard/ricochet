@@ -1,6 +1,6 @@
 ---
-name: "Pelle6"
-slug: "pelle6"
+name: "Layers"
+slug: "layers"
 createdAt: 2026-02-10T19:25:31.392Z
 ---
 
