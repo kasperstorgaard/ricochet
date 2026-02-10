@@ -1,6 +1,7 @@
 import { assertEquals, assertThrows } from "@std/assert";
 import {
   BoardError,
+  flipBoard,
   getGrid,
   getGuides,
   getTargets,
@@ -10,6 +11,7 @@ import {
   isValidMove,
   isValidSolution,
   resolveMoves,
+  rotateBoard,
   validateBoard,
 } from "./board.ts";
 
@@ -469,6 +471,26 @@ Deno.test("validateBoard() should throw with wall out of bounds", () => {
   }, BoardError);
 });
 
+Deno.test("validateBoard() should throw with redundant edge wall (horizontal y=0)", () => {
+  assertThrows(() => {
+    validateBoard({
+      destination: { x: 0, y: 3 },
+      pieces: [{ x: 0, y: 1, type: "rook" }],
+      walls: [{ x: 3, y: 0, orientation: "horizontal" }],
+    });
+  }, BoardError);
+});
+
+Deno.test("validateBoard() should throw with redundant edge wall (vertical x=0)", () => {
+  assertThrows(() => {
+    validateBoard({
+      destination: { x: 0, y: 3 },
+      pieces: [{ x: 0, y: 1, type: "rook" }],
+      walls: [{ x: 0, y: 3, orientation: "vertical" }],
+    });
+  }, BoardError);
+});
+
 Deno.test("validateBoard() should throw with identical pieces", () => {
   assertThrows(() => {
     validateBoard({
@@ -787,3 +809,183 @@ Deno.test("getGuides() should return hint guide when no active piece", () => {
     { move: [{ x: 3, y: 3 }, { x: 3, y: 0 }], isHint: true },
   ]);
 });
+
+// --- rotateBoard ---
+
+Deno.test("rotateBoard() right should rotate positions 90° clockwise", () => {
+  const result = rotateBoard({
+    destination: { x: 1, y: 2 },
+    pieces: [
+      { x: 3, y: 5, type: "rook" },
+      { x: 6, y: 1, type: "bouncer" },
+    ],
+    walls: [],
+  }, "right");
+
+  assertEquals(result.destination, { x: 5, y: 1 });
+  assertEquals(result.pieces, [
+    { x: 2, y: 3, type: "rook" },
+    { x: 6, y: 6, type: "bouncer" },
+  ]);
+});
+
+Deno.test("rotateBoard() right should swap wall orientations", () => {
+  const result = rotateBoard({
+    destination: { x: 0, y: 0 },
+    pieces: [{ x: 0, y: 0, type: "rook" }],
+    walls: [
+      { x: 3, y: 4, orientation: "horizontal" },
+      { x: 5, y: 2, orientation: "vertical" },
+    ],
+  }, "right");
+
+  assertEquals(result.walls, [
+    { x: 4, y: 3, orientation: "vertical" },
+    { x: 5, y: 5, orientation: "horizontal" },
+  ]);
+});
+
+Deno.test("rotateBoard() right applied 4 times returns the original board", () => {
+  const board = {
+    destination: { x: 2, y: 5 },
+    pieces: [
+      { x: 3, y: 1, type: "rook" as const },
+      { x: 6, y: 4, type: "bouncer" as const },
+    ],
+    walls: [
+      { x: 4, y: 3, orientation: "horizontal" as const },
+      { x: 5, y: 2, orientation: "vertical" as const },
+    ],
+  };
+
+  const result = rotateBoard(
+    rotateBoard(rotateBoard(rotateBoard(board, "right"), "right"), "right"),
+    "right",
+  );
+
+  assertEquals(result, board);
+});
+
+Deno.test("rotateBoard() left should be the reverse of cw", () => {
+  const board = {
+    destination: { x: 2, y: 5 },
+    pieces: [
+      { x: 3, y: 1, type: "rook" as const },
+      { x: 6, y: 4, type: "bouncer" as const },
+    ],
+    walls: [
+      { x: 4, y: 3, orientation: "horizontal" as const },
+      { x: 5, y: 2, orientation: "vertical" as const },
+    ],
+  };
+
+  const rotated = rotateBoard(board, "right");
+  const result = rotateBoard(rotated, "left");
+
+  assertEquals(result, board);
+});
+
+// --- flipBoard ---
+
+Deno.test("flipBoard() horizontal should mirror positions left/right", () => {
+  const result = flipBoard({
+    destination: { x: 1, y: 3 },
+    pieces: [
+      { x: 2, y: 5, type: "rook" },
+      { x: 6, y: 1, type: "bouncer" },
+    ],
+    walls: [],
+  }, "horizontal");
+
+  assertEquals(result.destination, { x: 6, y: 3 });
+  assertEquals(result.pieces, [
+    { x: 5, y: 5, type: "rook" },
+    { x: 1, y: 1, type: "bouncer" },
+  ]);
+});
+
+Deno.test("flipBoard() horizontal should keep wall orientations and shift positions", () => {
+  const result = flipBoard({
+    destination: { x: 0, y: 0 },
+    pieces: [{ x: 0, y: 0, type: "rook" }],
+    walls: [
+      { x: 3, y: 4, orientation: "horizontal" },
+      { x: 5, y: 2, orientation: "vertical" },
+    ],
+  }, "horizontal");
+
+  assertEquals(result.walls, [
+    { x: 4, y: 4, orientation: "horizontal" },
+    { x: 3, y: 2, orientation: "vertical" },
+  ]);
+});
+
+Deno.test("flipBoard() horizontal applied twice returns the original board", () => {
+  const board = {
+    destination: { x: 2, y: 5 },
+    pieces: [
+      { x: 3, y: 1, type: "rook" as const },
+      { x: 6, y: 4, type: "bouncer" as const },
+    ],
+    walls: [
+      { x: 4, y: 3, orientation: "horizontal" as const },
+      { x: 5, y: 2, orientation: "vertical" as const },
+    ],
+  };
+
+  const result = flipBoard(flipBoard(board, "horizontal"), "horizontal");
+
+  assertEquals(result, board);
+});
+
+Deno.test("flipBoard() vertical should mirror positions up/down", () => {
+  const result = flipBoard({
+    destination: { x: 1, y: 2 },
+    pieces: [
+      { x: 3, y: 5, type: "rook" },
+      { x: 6, y: 1, type: "bouncer" },
+    ],
+    walls: [],
+  }, "vertical");
+
+  assertEquals(result.destination, { x: 1, y: 5 });
+  assertEquals(result.pieces, [
+    { x: 3, y: 2, type: "rook" },
+    { x: 6, y: 6, type: "bouncer" },
+  ]);
+});
+
+Deno.test("flipBoard() vertical should keep wall orientations and shift positions", () => {
+  const result = flipBoard({
+    destination: { x: 0, y: 0 },
+    pieces: [{ x: 0, y: 0, type: "rook" }],
+    walls: [
+      { x: 3, y: 4, orientation: "horizontal" },
+      { x: 5, y: 2, orientation: "vertical" },
+    ],
+  }, "vertical");
+
+  assertEquals(result.walls, [
+    { x: 3, y: 4, orientation: "horizontal" },
+    { x: 5, y: 5, orientation: "vertical" },
+  ]);
+});
+
+Deno.test("flipBoard() vertical applied twice returns the original board", () => {
+  const board = {
+    destination: { x: 2, y: 5 },
+    pieces: [
+      { x: 3, y: 1, type: "rook" as const },
+      { x: 6, y: 4, type: "bouncer" as const },
+    ],
+    walls: [
+      { x: 4, y: 3, orientation: "horizontal" as const },
+      { x: 5, y: 2, orientation: "vertical" as const },
+    ],
+  };
+
+  const result = flipBoard(flipBoard(board, "vertical"), "vertical");
+
+  assertEquals(result, board);
+});
+
