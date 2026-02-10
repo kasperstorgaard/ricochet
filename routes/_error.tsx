@@ -14,6 +14,10 @@ export default define.page(function ErrorPage(props: PageProps) {
   let title = "Something went wrong";
   let message = "An unexpected error occurred.";
 
+  if (error instanceof Error) {
+    message = error.message;
+  }
+
   if (error instanceof HttpError) {
     status = error.status;
     message = error.message;
