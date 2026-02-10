@@ -7,7 +7,6 @@ import { Panel } from "#/components/panel.tsx";
 import { cn } from "#/lib/style.ts";
 import { define } from "#/core.ts";
 import { posthog } from "#/lib/posthog.ts";
-import { useEffect } from "preact/hooks";
 
 export default define.page(function ErrorPage(props) {
   const error = props.error;
