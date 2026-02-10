@@ -1,5 +1,5 @@
 import type { Signal } from "@preact/signals";
-import { useCallback, useEffect, useMemo, useRef } from "preact/hooks";
+import { useCallback, useMemo, useRef } from "preact/hooks";
 
 import { SolutionDialog } from "#/islands/solution-dialog.tsx";
 import { useMove } from "#/lib/move.ts";
@@ -41,7 +41,6 @@ type BoardProps = {
 export default function Board(
   { href, puzzle, mode }: BoardProps,
 ) {
-  const solutionDialogRef = useRef<HTMLDialogElement>(null);
   const swipeRegionRef = useRef<HTMLDivElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
 
@@ -66,18 +65,6 @@ export default function Board(
   const onLocationUpdated = useCallback((url: URL) => {
     href.value = url.href;
   }, [board]);
-
-  useEffect(() => {
-    solutionDialogRef.current?.close();
-
-    if (mode.value === "solve" && hasSolution) {
-      /**
-       * Need to close and re-open the modal, since `open` prop gives the behavior
-       * of a non-modal dialog.
-       */
-      solutionDialogRef.current?.showModal();
-    }
-  }, [mode, hasSolution]);
 
   const { updateLocation } = useRouter({
     onLocationUpdated,
@@ -245,9 +232,7 @@ export default function Board(
       </div>
 
       <SolutionDialog
-        open={mode.value === "solve" &&
-          !solutionDialogRef.current &&
-          hasSolution}
+        open={mode.value === "solve" && hasSolution}
         href={href}
         puzzle={puzzle}
       />
