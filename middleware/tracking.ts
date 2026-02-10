@@ -25,7 +25,7 @@ export const tracking = define.middleware(async (ctx) => {
 
   // Capture page views on server
   // if not allowed, will show up as anonymous user
-  posthog.capture({
+  posthog?.capture({
     distinctId: trackingId ?? undefined,
     event: "$pageview",
     properties: {

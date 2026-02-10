@@ -42,7 +42,7 @@ export default define.page(function ErrorPage(props) {
   };
 
   // Track error to posthog
-  posthog.captureException(error, trackingId, trackingData);
+  posthog?.captureException(error, trackingId, trackingData);
 
   const navItems = [
     { name: "home", href: "/" },
