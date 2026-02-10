@@ -1,5 +1,5 @@
 import { useSignal } from "@preact/signals";
-import { page, PageProps } from "fresh";
+import { HttpError, page, PageProps } from "fresh";
 
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
@@ -16,7 +16,9 @@ export const handler = define.handlers<Puzzle>({
     const { slug } = ctx.params;
 
     const puzzle = await getPuzzle(ctx.url.origin, slug);
-    if (!puzzle) throw new Error(`Unable to find puzzle with slug: ${slug}`);
+    if (!puzzle) {
+      throw new HttpError(404, `Unable to find puzzle with slug: ${slug}`);
+    }
 
     return page(puzzle);
   },
@@ -27,16 +29,18 @@ export const handler = define.handlers<Puzzle>({
     const form = await req.formData();
     const name = form.get("name")?.toString();
 
-    if (!name) throw new Error("Must provide a username");
-
     const puzzle = await getPuzzle(ctx.url.origin, slug);
-    if (!puzzle) throw new Error(`Puzzle with id: ${slug} not found`);
+    if (!puzzle) {
+      throw new HttpError(404, `Unable to find puzzle with slug: ${slug}`);
+    }
+
+    if (!name) throw new HttpError(400, "Must provide a username");
 
     const rawMoves = form.get("moves")?.toString() ?? "";
     const moves = JSON.parse(rawMoves);
 
     if (!isValidSolution(resolveMoves(puzzle.board, moves))) {
-      throw new Error("Solution is not valid");
+      throw new HttpError(400, "Solution is not valid");
     }
 
     const solution = await addSolution({ puzzleSlug: slug, name, moves });

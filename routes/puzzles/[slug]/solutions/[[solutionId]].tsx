@@ -1,5 +1,5 @@
 import { useSignal } from "@preact/signals";
-import { page, PageProps } from "fresh";
+import { HttpError, page, PageProps } from "fresh";
 
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
@@ -25,7 +25,7 @@ export const handler = define.handlers<Data>({
 
     const puzzle = await getPuzzle(ctx.url.origin, slug);
     if (!puzzle) {
-      throw new Error(`Unable to find a puzzle with slug: ${slug}`);
+      throw new HttpError(404, `Unable to find a puzzle with slug: ${slug}`);
     }
 
     const solutions = await listPuzzleSolutions(slug, {
@@ -38,7 +38,7 @@ export const handler = define.handlers<Data>({
       : solutions[0];
 
     if (solutions.length && !solution) {
-      throw new Error(`Unable to find solution with id: ${solutionId}`);
+      throw new HttpError(404, `Unable to find solution with id: ${solutionId}`);
     }
 
     const url = new URL(req.url);
