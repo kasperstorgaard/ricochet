@@ -1,13 +1,15 @@
-import { HttpError, PageProps } from "fresh";
+import { HttpError } from "fresh";
+import { ComponentChildren } from "preact";
 
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { cn } from "#/lib/style.ts";
 import { define } from "#/core.ts";
-import { ComponentChildren } from "preact";
+import { posthog } from "#/lib/posthog.ts";
+import { useEffect } from "preact/hooks";
 
-export default define.page(function ErrorPage(props: PageProps) {
+export default define.page(function ErrorPage(props) {
   const error = props.error;
 
   let status = 500;
@@ -31,10 +33,17 @@ export default define.page(function ErrorPage(props: PageProps) {
 
   if (status === 400) {
     title = "That's not good";
-    if (!message) {
-      message = "The request doesn't seem to be valid.";
-    }
+    if (!message) message = "The request doesn't seem to be valid.";
   }
+
+  const trackingId = props.state.trackingId ?? undefined;
+  const trackingData = {
+    $current_url: props.url.href,
+    status,
+  };
+
+  // Track error to posthog
+  posthog.captureException(error, trackingId, trackingData);
 
   const navItems = [
     { name: "home", href: "/" },

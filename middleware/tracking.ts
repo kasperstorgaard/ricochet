@@ -1,15 +1,6 @@
-import { PostHog } from "posthog-node";
-
 import { define } from "#/core.ts";
+import { posthog } from "#/lib/posthog.ts";
 import { getTrackingCookie } from "#/util/cookies.ts";
-
-/** PostHog server-side client for capturing analytics events. */
-const client = new PostHog(
-  Deno.env.get("POSTHOG_API_KEY") as string,
-  {
-    host: "https://eu.i.posthog.com",
-  },
-);
 
 /**
  * Middleware that evaluates tracking consent and captures pageviews.
@@ -34,7 +25,7 @@ export const tracking = define.middleware(async (ctx) => {
 
   // Capture page views on server
   // if not allowed, will show up as anonymous user
-  client.capture({
+  posthog.capture({
     distinctId: trackingId ?? undefined,
     event: "$pageview",
     properties: {
