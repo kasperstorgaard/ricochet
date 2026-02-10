@@ -10,9 +10,8 @@ something.
 
 ## Demo
 
-<!-- TODO: replace with actual recording -->
+https://github.com/user-attachments/assets/fd58db7c-5ef1-4da5-859d-7ad3683543c4
 
-https://github.com/user-attachments/assets/PLACEHOLDER
 
 ## Features
 
