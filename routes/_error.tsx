@@ -5,6 +5,7 @@ import { Main } from "#/components/main.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { cn } from "#/lib/style.ts";
 import { define } from "#/core.ts";
+import { ComponentChildren } from "preact";
 
 export default define.page(function ErrorPage(props: PageProps) {
   const error = props.error;
@@ -21,13 +22,11 @@ export default define.page(function ErrorPage(props: PageProps) {
   if (status === 404) {
     title = "Page not found";
 
-    if (!message) {
-      message = "The page you were looking for doesn't exist.";
-    }
+    message = "The page you were looking for doesn't exist.";
   }
 
   if (status === 400) {
-    title = "Huh? That's not supposed to happen";
+    title = "That's not good";
     if (!message) {
       message = "The request doesn't seem to be valid.";
     }
@@ -43,10 +42,15 @@ export default define.page(function ErrorPage(props: PageProps) {
         <Header url={props.url} items={navItems} />
 
         <div className="flex flex-col gap-fl-2 py-fl-3">
-          <ErrorAnimation />
+          <ErrorAnimation status={status}>
+            <div className="flex col-[2/8] row-[2/4] items-center justify-center bg-surface-2 h-full w-full px-2">
+              <h1 className="text-brand text-fl-2 leading-flat">
+                {title}
+              </h1>
+            </div>
+          </ErrorAnimation>
 
-          <h1 className="text-fl-2">{title}</h1>
-          <p className="text-fl-1 text-text-2">{message} ({status})</p>
+          <p className="text-fl-1 text-text-2">{message}</p>
         </div>
       </Main>
 
@@ -57,22 +61,18 @@ export default define.page(function ErrorPage(props: PageProps) {
   );
 });
 
-const CELLS = 8;
-const WALL_COL = 4;
+type ErrorAnimationProps = {
+  children?: ComponentChildren;
+  status: number;
+};
 
-function ErrorAnimation() {
+function ErrorAnimation({ children, status }: ErrorAnimationProps) {
+  const wallX = status === 404 ? null : 4;
+  const cols = 8;
+  const rows = 4;
+
   return (
     <>
-      <style>
-        {`
-        @keyframes error-rook {
-          0%, 10% { --x: 0 }
-          35%, 60% { --x: ${WALL_COL} }
-          85%, 100% { --x: 0 }
-        }
-      `}
-      </style>
-
       <div
         style={{
           "--gap": "var(--size-1)",
@@ -81,61 +81,98 @@ function ErrorAnimation() {
         className="grid gap-(--gap) grid-cols-[repeat(8,var(--space-w))] grid-rows-[repeat(2,var(--space-w))]"
       >
         {/* Board spaces */}
-        {Array.from({ length: CELLS + 5 }).map((_, i) => (
+        {Array.from({ length: cols * rows }).map((_, i) => (
           <div
             key={i}
             className={cn(
               "aspect-square rounded-1",
               "border-1 border-stone-9 border-r-stone-7 border-b-stone-7",
-              i === WALL_COL + 2 && "border-l-2 border-l-ui-4",
+              wallX && i === wallX + 1 && "border-l-2 border-l-ui-4",
             )}
             style={{
-              gridColumn: i % CELLS,
-              gridColumnEnd: i % CELLS + 1,
-              gridRow: Math.ceil(i / CELLS),
-              gridRowEnd: Math.ceil(i / CELLS) + 1,
+              gridColumnStart: `${i % cols + 1}`,
+              gridColumnEnd: `${i % cols + 2}`,
+              gridRowStart: `${Math.floor(i / cols) + 1}`,
+              gridRowEnd: `${Math.floor(i / cols) + 2}`,
             }}
           />
         ))}
 
-        {/* Destination (X marker) */}
-        <div className="col-7 row-1 aspect-square place-self-center border-2 border-ui-1 pointer-events-none">
-          <svg className="text-ui-1" viewBox="0 0 100 100">
-            <line
-              x1={0}
-              y1={0}
-              x2={100}
-              y2={100}
-              strokeWidth={3}
-              stroke="currentColor"
-            />
-            <line
-              x1={0}
-              y1={100}
-              x2={100}
-              y2={0}
-              strokeWidth={3}
-              stroke="currentColor"
-            />
-          </svg>
-        </div>
+        {/* Destination */}
+        {status !== 404 && (
+          <div className="col-7 row-1 aspect-square place-self-center border-2 border-ui-1 pointer-events-none">
+            <svg className="text-ui-1" viewBox="0 0 100 100">
+              <line
+                x1={0}
+                y1={0}
+                x2={100}
+                y2={100}
+                strokeWidth={3}
+                stroke="currentColor"
+              />
+              <line
+                x1={0}
+                y1={100}
+                x2={100}
+                y2={0}
+                strokeWidth={3}
+                stroke="currentColor"
+              />
+            </svg>
+          </div>
+        )}
 
-        {/* Rook (animated) */}
+        {/* Rook */}
         <div
           className={cn(
             "col-1 row-1 p-(--pad)",
             "w-full aspect-square place-self-center",
             "translate-x-[calc((var(--space-w)+var(--gap))*var(--x))]",
-            "transition-[--x] ease-out",
+            "translate-y-[calc((var(--space-w)+var(--gap))*var(--y,0))]",
+            "transition-transform ease-out",
           )}
           style={{
             "--pad": "var(--size-2)",
-            animation: "error-rook 3s ease-in-out infinite",
+            animation: status === 404
+              ? "rook-404 4s ease-in-out infinite"
+              : "rook-500 3s ease-in-out infinite",
           }}
         >
           <div className="w-full h-full bg-ui-2 rounded-round" />
         </div>
+
+        {children}
+
+        <div className="col-1 row-[1/5] flex w-full items-center justify-center">
+          <h2 className="leading-flat text-fl-2 text-center [text-orientation:upright] [writing-mode:vertical-rl] tracking-[-0.4em]">
+            {status}
+          </h2>
+        </div>
       </div>
+
+      {
+        /*
+        Custom animations:
+        - 404: Rook moves around the perimeter of the board (no destination)
+        - 500: Rook bumps repeatedly against the wall
+      */
+      }
+      <style>
+        {`
+        @keyframes rook-404 {
+          0%, 10% { --x: 0; --y: 0 }
+          25%, 35% { --x: ${cols - 1}; --y: 0 }
+          50%, 60% { --x: ${cols - 1}; --y: ${rows - 1} }
+          75%, 85% { --x: 0; --y: ${rows - 1} }
+        }
+
+        @keyframes rook-500 {
+          0%, 10% { --x: 0 }
+          35%, 70% { --x: ${wallX} }
+          90%, 100% { --x: 0 }
+        }
+      `}
+      </style>
     </>
   );
 }
