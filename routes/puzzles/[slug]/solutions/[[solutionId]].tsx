@@ -38,7 +38,10 @@ export const handler = define.handlers<Data>({
       : solutions[0];
 
     if (solutions.length && !solution) {
-      throw new HttpError(404, `Unable to find solution with id: ${solutionId}`);
+      throw new HttpError(
+        404,
+        `Unable to find solution with id: ${solutionId}`,
+      );
     }
 
     const url = new URL(req.url);

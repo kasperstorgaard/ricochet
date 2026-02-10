@@ -21,7 +21,9 @@ type Data = {
 export const handler = define.handlers<Data>({
   async GET(ctx) {
     const solutionRaw = Deno.env.get("TUTORIAL_SOLUTION");
-    if (!solutionRaw) throw new HttpError(500, "Tutorial puzzle solution not found");
+    if (!solutionRaw) {
+      throw new HttpError(500, "Tutorial puzzle solution not found");
+    }
 
     const redirectUrl = new URL(ctx.url);
     redirectUrl.searchParams.set("moves", solutionRaw);
