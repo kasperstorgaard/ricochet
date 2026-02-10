@@ -10,8 +10,7 @@ something.
 
 ## Demo
 
-https://github.com/user-attachments/assets/fd58db7c-5ef1-4da5-859d-7ad3683543c4
-
+https://github.com/user-attachments/assets/166c9f66-bf44-42d6-af2f-8a2a0306ff30
 
 ## Features
 
