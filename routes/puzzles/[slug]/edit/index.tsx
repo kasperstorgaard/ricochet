@@ -1,5 +1,5 @@
 import { useSignal } from "@preact/signals";
-import { page, PageProps } from "fresh";
+import { HttpError, page, PageProps } from "fresh";
 
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
@@ -16,7 +16,7 @@ export const handler = define.handlers<Puzzle>({
     const puzzle = await getPuzzle(ctx.url.origin, slug);
 
     if (!puzzle) {
-      throw new Error(`Unable to find puzzle with slug: ${slug}`);
+      throw new HttpError(404, `Unable to find puzzle with slug: ${slug}`);
     }
 
     return page(puzzle);

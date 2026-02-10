@@ -1,4 +1,5 @@
 import { Board, Move, Piece, Position, Wall } from "#/util/types.ts";
+import { encodeMove } from "./strings.ts";
 
 /**
  * The board dimensions.
@@ -294,9 +295,7 @@ export function resolveMoves<
 
   for (const move of moves) {
     if (!isValidMove(move, updatedBoard)) {
-      throw new Error(
-        `Invalid move, ${move[0].x}_${move[0].y}->${move[1].x}_${move[1].y}`,
-      );
+      throw new Error(`Invalid move: ${encodeMove(move)}`);
     }
 
     updatedBoard.pieces = updatedBoard.pieces.map((piece) =>

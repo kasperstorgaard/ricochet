@@ -1,5 +1,5 @@
 import { useSignal } from "@preact/signals";
-import { page, PageProps } from "fresh";
+import { HttpError, page, PageProps } from "fresh";
 
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
@@ -21,13 +21,15 @@ type Data = {
 export const handler = define.handlers<Data>({
   async GET(ctx) {
     const solutionRaw = Deno.env.get("TUTORIAL_SOLUTION");
-    if (!solutionRaw) throw new Error("Tutorial puzzle solution not found");
+    if (!solutionRaw) {
+      throw new HttpError(500, "Tutorial puzzle solution not found");
+    }
 
     const redirectUrl = new URL(ctx.url);
     redirectUrl.searchParams.set("moves", solutionRaw);
 
     const puzzle = await getPuzzle(ctx.url.origin, "tutorial");
-    if (!puzzle) throw new Error("Tutorial puzzle not found");
+    if (!puzzle) throw new HttpError(500, "Tutorial puzzle not found");
 
     if (!ctx.url.searchParams.has("moves")) {
       return Response.redirect(redirectUrl);
