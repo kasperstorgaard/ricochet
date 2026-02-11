@@ -1,8 +1,8 @@
 import type { Signal } from "@preact/signals";
 import { useCallback, useMemo, useState } from "preact/hooks";
-import { slug as slugify } from "@annervisser/slug";
 
 import { Panel } from "#/components/panel.tsx";
+import { useRouter } from "#/lib/router.ts";
 import { flipBoard, resolveMoves, rotateBoard } from "#/util/board.ts";
 import { formatPuzzle } from "#/util/formatter.ts";
 import { Puzzle } from "#/util/types.ts";
@@ -22,6 +22,14 @@ type EditorPanelProps = {
 export function EditorPanel(
   { puzzle, href, isDev }: EditorPanelProps,
 ) {
+  const onLocationUpdated = useCallback((url: URL) => {
+    href.value = url.href;
+  }, []);
+
+  const { updateLocation } = useRouter({
+    onLocationUpdated,
+  });
+
   const board = useMemo(() => {
     const url = new URL(href.value);
     url.search = encodeState({
@@ -58,7 +66,14 @@ export function EditorPanel(
     });
 
     setMessage("puzzle saved!");
-  }, [puzzle.value.slug, formatted]);
+
+    const url = new URL(href.value);
+
+    if (url.pathname === "/puzzles/new") {
+      url.pathname = `/puzzles/${puzzle.value.slug}`;
+      updateLocation(url.href);
+    }
+  }, [href.value, puzzle.value.slug, formatted]);
 
   return (
     <Panel>
