@@ -188,15 +188,28 @@ export function EditorPanel(
             </button>
           </div>
 
-          {isDev && (
-            <button
-              type="button"
-              className="btn"
-              onClick={onSave}
-            >
-              <i className="ph-floppy-disk ph" /> Save
-            </button>
-          )}
+          {isDev
+            ? (
+              <button
+                type="button"
+                className="btn"
+                onClick={onSave}
+              >
+                <i className="ph-floppy-disk ph" /> Save
+              </button>
+            )
+            : (
+              <button
+                type="button"
+                className="btn"
+                onClick={() => {
+                  navigator.clipboard.writeText(formatted);
+                  setMessage("copied!");
+                }}
+              >
+                <i className="ph-copy ph" /> Copy text
+              </button>
+            )}
         </div>
       </div>
 
