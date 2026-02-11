@@ -3,9 +3,9 @@ import { generate } from "./generator.ts";
 
 Deno.test("generate() produces a valid, solvable board", () => {
   const result = generate({
-    solveRange: { min: 4, max: 4 },
-    wallsRange: { min: 2, max: 4 },
-    bouncersRange: { min: 1, max: 2 },
+    solveRange: [4, 4],
+    wallsRange: [5, 10],
+    bouncersRange: [4, 10],
     wallSpread: "balanced",
   });
 

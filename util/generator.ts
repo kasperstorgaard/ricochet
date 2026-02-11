@@ -8,7 +8,9 @@ import type { Board, Piece, Wall } from "#/util/types.ts";
 
 const MAX_ATTEMPTS = 500;
 
-/** How walls are distributed across the board. */
+/**
+ * How walls are distributed across the board.
+ */
 export type WallSpread = "mid" | "balanced" | "spread";
 
 /** Options for puzzle generation. */
@@ -20,7 +22,9 @@ export type GenerateOptions = {
   maxAttempts?: number;
 };
 
-/** Quadrant boundaries for zone-based wall placement. */
+/**
+ * Quadrant boundaries for zone-based wall placement.
+ */
 type Zone = { x: [number, number]; y: [number, number] };
 
 const QUADRANTS: Zone[] = [
@@ -84,7 +88,9 @@ export function generate({
   );
 }
 
-/** Single attempt at random board generation (no solver verification). */
+/**
+ * Single attempt at random board generation (no solver verification).
+ */
 function generateBoard({
   wallsRange,
   bouncersRange,
@@ -114,14 +120,16 @@ function generateBoard({
   return { destination, pieces, walls };
 }
 
-/** Places walls with spread-constrained random positions. */
+/**
+ * Places walls with spread-constrained random positions.
+ */
 function placeWalls(count: number, spread: WallSpread): Wall[] {
   const walls: Wall[] = [];
 
   const zones = getWallZones(count, spread);
 
   for (const zone of zones) {
-    const candidates = getWallPositions(zone);
+    const candidates = getPossibleWallPositions(zone);
     if (candidates.length === 0) continue;
 
     // Try a few times to avoid duplicates
@@ -185,7 +193,7 @@ function getWallZones(count: number, spread: WallSpread): Zone[] {
 /**
  * Returns all valid wall positions within a zone.
  */
-function getWallPositions(zone: Zone): Wall[] {
+function getPossibleWallPositions(zone: Zone): Wall[] {
   const positions: Wall[] = [];
 
   for (let x = zone.x[0]; x <= zone.x[1]; x++) {

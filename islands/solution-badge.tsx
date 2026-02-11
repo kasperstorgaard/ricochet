@@ -1,5 +1,4 @@
 import type { Signal } from "@preact/signals";
-import "./solution-badge.css";
 import { useEffect, useRef, useState } from "preact/hooks";
 
 import { useDebouncedCallback } from "#/lib/use-debounced-callback.ts";
