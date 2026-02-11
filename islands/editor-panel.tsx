@@ -230,7 +230,7 @@ export function EditorPanel(
             label="Walls"
             value={options.wallsRange}
             min={0}
-            max={14}
+            max={30}
             onChange={(wallsRange) => setOptions({ ...options, wallsRange })}
           />
 
@@ -239,7 +239,7 @@ export function EditorPanel(
             label="Bouncers"
             value={options.bouncersRange}
             min={0}
-            max={6}
+            max={20}
             onChange={(bouncersRange) =>
               setOptions({ ...options, bouncersRange })}
           />
