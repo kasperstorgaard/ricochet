@@ -106,6 +106,14 @@ export function useEditor(
 
   useEffect(() => {
     const onKeyUp = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement;
+      if (
+        target.isContentEditable || target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA"
+      ) {
+        return;
+      }
+
       switch (event.key) {
         case "w":
           return cycleWall();

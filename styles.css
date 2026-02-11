@@ -591,6 +591,8 @@
 @layer components {
   .btn {
     display: inline-flex;
+    align-items: center;
+    gap: var(--size-1);
     white-space: nowrap;
     font-size: var(--font-size-2);
     font-weight: var(--font-weight-7);

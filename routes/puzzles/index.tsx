@@ -7,6 +7,7 @@ import { Panel } from "#/components/panel.tsx";
 import { Thumbnail } from "#/components/thumbnail.tsx";
 import { cn } from "#/lib/style.ts";
 import { define } from "#/core.ts";
+import { isDev } from "#/lib/env.ts";
 import { listPuzzles } from "#/util/loader.ts";
 import { PaginatedData, Puzzle } from "#/util/types.ts";
 import { getPage } from "#/util/url.ts";
@@ -47,7 +48,15 @@ export default define.page(
         <Main className="max-lg:row-span-full items-stretch place-content-stretch lg:pb-fl-4">
           <Header url={url} items={navItems} />
 
-          <h1 className="text-5 text-brand mt-2 -mb-1">Puzzles</h1>
+          <div className="flex items-center justify-between gap-fl-1 mt-2 -mb-1">
+            <h1 className="text-5 text-brand">Puzzles</h1>
+
+            {isDev && (
+              <a href="/puzzles/new" className="btn">
+                <i className="ph-plus ph" /> New
+              </a>
+            )}
+          </div>
 
           <ul
             className={cn(

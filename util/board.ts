@@ -136,6 +136,12 @@ export function validateBoard(board: BoardLike): Board {
     // Check for out of bounds walls
     if (isPositionOutOfBounds(wall)) throw new BoardError();
 
+    // Reject redundant edge walls (duplicate the board boundary)
+    if (wall.orientation === "horizontal" && wall.y === 0) {
+      throw new BoardError();
+    }
+    if (wall.orientation === "vertical" && wall.x === 0) throw new BoardError();
+
     // Check for duplicate walls
     if (
       checkedWalls.some((checkedWall) =>
@@ -321,6 +327,7 @@ export function isValidSolution(board: Pick<Board, "destination" | "pieces">) {
   return false;
 }
 
+/** Returns the cardinal direction of a move based on the start and end positions. */
 export function getMoveDirection(move: Move) {
   if (move[0].x === move[1].x) {
     return move[1].y > move[0].y ? "down" : "up";
@@ -329,6 +336,7 @@ export function getMoveDirection(move: Move) {
   return move[1].x > move[0].x ? "right" : "left";
 }
 
+/** A move guide shown on the board, optionally flagged as a hint. */
 export type Guide = {
   move: Move;
   isHint: boolean;
@@ -357,4 +365,93 @@ export function getGuides(
   }
 
   return result;
+}
+
+/**
+ * Rotates a board 90° in the given direction.
+ * Wall orientations swap (horizontal ↔ vertical) and positions shift
+ * to preserve the same logical barriers on the rotated grid.
+ */
+export function rotateBoard(
+  board: Board,
+  direction: "right" | "left",
+): Board {
+  const destination = rotatePosition(board.destination, direction);
+  const pieces = board.pieces.map((piece) => rotatePosition(piece, direction));
+  const walls = board.walls.map((wall) => rotatePosition(wall, direction));
+
+  return { destination, pieces, walls };
+}
+
+/** Rotates a position or wall 90° right. Walls swap orientation and use a shifted x offset. */
+function rotatePosition<TItem extends Position | Wall>(
+  item: TItem,
+  direction: "right" | "left" = "right",
+): TItem {
+  if (direction !== "right") {
+    // Rotate right 3 times
+    return rotatePosition(rotatePosition(rotatePosition(item)));
+  }
+
+  const wall = "orientation" in item ? item as Wall : null;
+
+  if (wall) {
+    if (wall.orientation === "horizontal") {
+      return {
+        ...item,
+        x: COLS - wall.y,
+        y: wall.x,
+        orientation: "vertical",
+      };
+    } else {
+      return {
+        ...item,
+        x: COLS - 1 - wall.y,
+        y: wall.x,
+        orientation: "horizontal",
+      };
+    }
+  }
+
+  return { ...item, x: COLS - 1 - item.y, y: item.x };
+}
+
+/**
+ * Flips a board along the given axis.
+ * "horizontal" mirrors left ↔ right, "vertical" mirrors up ↔ down.
+ * Wall orientations stay the same but positions shift to preserve barriers.
+ */
+export function flipBoard(
+  board: Board,
+  axis: "horizontal" | "vertical",
+): Board {
+  const destination = flipPosition(board.destination, axis);
+  const pieces = board.pieces.map((piece) => flipPosition(piece, axis));
+  const walls = board.walls.map((wall) => flipPosition(wall, axis));
+
+  return { destination, pieces, walls };
+}
+
+/** Flips a position or wall along an axis. Cross-axis walls get a +1 offset to preserve edge alignment. */
+function flipPosition<TItem extends Position | Wall>(
+  item: TItem,
+  axis: "horizontal" | "vertical",
+): TItem {
+  const wall = "orientation" in item ? item as Wall : null;
+
+  if (wall) {
+    const offset = wall.orientation !== axis ? 1 : 0;
+
+    return {
+      ...item,
+      x: axis === "horizontal" ? COLS - 1 - item.x + offset : item.x,
+      y: axis === "vertical" ? ROWS - 1 - item.y + offset : item.y,
+    };
+  }
+
+  return {
+    ...item,
+    x: axis === "horizontal" ? COLS - 1 - item.x : item.x,
+    y: axis === "vertical" ? ROWS - 1 - item.y : item.y,
+  };
 }
