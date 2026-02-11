@@ -56,8 +56,8 @@ export function EditorPanel(
   const [message, setMessage] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [options, setOptions] = useState<GenerateOptions>({
-    solveRange: [7, 12],
-    wallsRange: [6, 8],
+    solveRange: [6, 11],
+    wallsRange: [5, 15],
     bouncersRange: [3, 5],
     wallSpread: "balanced",
   });
@@ -243,7 +243,7 @@ export function EditorPanel(
             label="Walls"
             value={options.wallsRange}
             min={0}
-            max={30}
+            max={40}
             onChange={(wallsRange) => setOptions({ ...options, wallsRange })}
           />
 
