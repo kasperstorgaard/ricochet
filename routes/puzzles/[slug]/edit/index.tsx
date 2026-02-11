@@ -6,6 +6,7 @@ import { Main } from "#/components/main.tsx";
 import Board from "#/islands/board.tsx";
 import { EditableName } from "#/islands/editable-name.tsx";
 import { EditorPanel } from "#/islands/editor-panel.tsx";
+import { SolutionBadge } from "#/islands/solution-badge.tsx";
 import { define } from "#/core.ts";
 import { isDev } from "#/lib/env.ts";
 import { getPuzzle } from "#/util/loader.ts";
@@ -45,11 +46,14 @@ export default define.page(function EditorPage(props: PageProps<Puzzle>) {
       <Main>
         <Header url={url} items={navItems} />
 
-        <EditableName
-          puzzle={puzzle}
-          defaultValue={slug}
-          className="text-5 text-brand mt-2 place-self-start pr-1"
-        />
+        <div className="w-full flex justify-between gap-fl-2 mt-2 place-self-start">
+          <EditableName
+            puzzle={puzzle}
+            defaultValue={slug}
+            className="text-5 text-brand pr-1"
+          />
+          <SolutionBadge puzzle={puzzle} />
+        </div>
 
         <Board
           puzzle={puzzle}

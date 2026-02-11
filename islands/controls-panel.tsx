@@ -58,6 +58,7 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
               "icon-btn",
               !state.cursor && "opacity-40",
             )}
+            data-size="lg"
             data-router="replace"
           >
             <i className="ph-arrow-arc-left ph" />
@@ -80,6 +81,7 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
               (state.cursor == null ||
                 state.cursor === state.moves.length) && "opacity-40",
             )}
+            data-size="lg"
             data-router="replace"
           >
             <i className="ph-arrow-arc-right text-current ph" />
