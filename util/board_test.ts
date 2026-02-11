@@ -988,4 +988,3 @@ Deno.test("flipBoard() vertical applied twice returns the original board", () =>
 
   assertEquals(result, board);
 });
-
