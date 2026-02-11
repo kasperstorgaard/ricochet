@@ -16,10 +16,10 @@ export const handler = define.handlers({
 
     if (
       !solveRange || !wallsRange || !bouncersRange || !wallSpread ||
-      solveRange.min > solveRange.max ||
-      wallsRange.min > wallsRange.max ||
-      bouncersRange.min > bouncersRange.max ||
-      solveRange.min < 1 || wallsRange.min < 0 || bouncersRange.min < 0
+      solveRange[0] > solveRange[1] ||
+      wallsRange[0] > wallsRange[1] ||
+      bouncersRange[0] > bouncersRange[1] ||
+      solveRange[0] < 1 || wallsRange[0] < 0 || bouncersRange[0] < 0
     ) {
       return new Response("Invalid options", { status: 400 });
     }
@@ -27,9 +27,7 @@ export const handler = define.handlers({
     try {
       const result = generate(body);
 
-      return new Response(JSON.stringify(result), {
-        headers: { "Content-Type": "application/json" },
-      });
+      return Response.json(result);
     } catch {
       return new Response("Generation failed", { status: 500 });
     }
