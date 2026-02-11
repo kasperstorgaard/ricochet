@@ -1,5 +1,6 @@
 import type { Signal } from "@preact/signals";
 import { useCallback, useMemo, useState } from "preact/hooks";
+import { slug as slugify } from "@annervisser/slug";
 
 import { Panel } from "#/components/panel.tsx";
 import { flipBoard, resolveMoves, rotateBoard } from "#/util/board.ts";
@@ -7,13 +8,10 @@ import { formatPuzzle } from "#/util/formatter.ts";
 import { Puzzle } from "#/util/types.ts";
 import { decodeState, encodeState } from "#/util/url.ts";
 
-/** Whether the app is running locally — used to show the save button. */
-const isLocal = globalThis.location?.hostname === "localhost" ||
-  globalThis.location?.hostname === "127.0.0.1";
-
 type EditorPanelProps = {
   href: Signal<string>;
   puzzle: Signal<Puzzle>;
+  isDev: boolean;
 };
 
 /**
@@ -22,7 +20,7 @@ type EditorPanelProps = {
  * and a save button (localhost only) that writes directly to static puzzles.
  */
 export function EditorPanel(
-  { puzzle, href }: EditorPanelProps,
+  { puzzle, href, isDev }: EditorPanelProps,
 ) {
   const board = useMemo(() => {
     const url = new URL(href.value);
@@ -56,16 +54,16 @@ export function EditorPanel(
     await fetch("/api/puzzles", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ markdown: formatted, slug: puzzle.value.slug }),
+      body: JSON.stringify({ slug: puzzle.value.slug, markdown: formatted }),
     });
 
     setMessage("puzzle saved!");
-  }, [formatted, puzzle.value.slug]);
+  }, [puzzle.value.slug, formatted]);
 
   return (
     <Panel>
       <div className="flex flex-col col-[2/3] lg:row-[3/4] gap-fl-1 place-content-between">
-        <div className="flex gap-fl-1 flex-wrap">
+        <div className="flex flex-col place-items-start gap-fl-1 flex-wrap">
           <button
             type="button"
             className="btn"
@@ -106,7 +104,7 @@ export function EditorPanel(
           </button>
         </div>
 
-        <div className="flex flex-col gap-fl-1">
+        <div className="flex flex-col place-items-start flex-wrap gap-fl-1">
           {message && (
             <p className="text-fl-0 text-purple-1 leading-tight">
               {message}
@@ -121,7 +119,7 @@ export function EditorPanel(
             <i className="ph-copy ph" /> Copy text
           </button>
 
-          {isLocal && (
+          {isDev && (
             <button
               type="button"
               className="btn"

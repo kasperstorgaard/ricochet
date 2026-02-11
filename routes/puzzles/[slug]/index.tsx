@@ -4,6 +4,7 @@ import { HttpError, page, PageProps } from "fresh";
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
 import { define } from "#/core.ts";
+import { isDev } from "#/lib/env.ts";
 import { addSolution } from "#/db/kv.ts";
 import Board from "#/islands/board.tsx";
 import { ControlsPanel } from "#/islands/controls-panel.tsx";
@@ -69,9 +70,17 @@ export default define.page(function PuzzleDetails(props: PageProps<Puzzle>) {
       <Main>
         <Header url={url} items={navItems} />
 
-        <h1 className="text-5 text-brand mt-2">
-          {props.data.slug}
-        </h1>
+        <div className="flex items-center justify-between gap-fl-1 mt-2">
+          <h1 className="text-5 text-brand">
+            {props.data.slug}
+          </h1>
+
+          {isDev && (
+            <a href={`/puzzles/${props.data.slug}/edit`} className="btn">
+              <i className="ph-pencil-simple ph" /> Edit
+            </a>
+          )}
+        </div>
 
         <Board href={href} puzzle={puzzle} mode={mode} />
       </Main>

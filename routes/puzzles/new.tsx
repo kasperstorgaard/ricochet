@@ -3,16 +3,18 @@ import { page, PageProps } from "fresh";
 
 import { Header } from "#/components/header.tsx";
 import Board from "#/islands/board.tsx";
+import { EditableName } from "#/islands/editable-name.tsx";
 import { EditorPanel } from "#/islands/editor-panel.tsx";
 import { define } from "#/core.ts";
+import { isDev } from "#/lib/env.ts";
 import { Puzzle } from "#/util/types.ts";
 import { Main } from "../../components/main.tsx";
 
 export const handler = define.handlers<Puzzle>({
   GET() {
     return page({
-      name: "",
-      slug: "",
+      name: "Untitled",
+      slug: "untitled",
       createdAt: new Date(Date.now()),
       board: {
         destination: { x: 0, y: 0 },
@@ -41,7 +43,11 @@ export default define.page(function EditorPage(props: PageProps<Puzzle>) {
       <Main>
         <Header url={url} items={navItems} />
 
-        <h1 className="text-5 text-brand mt-2">New puzzle</h1>
+        <EditableName
+          puzzle={puzzle}
+          defaultValue="Untitled"
+          className="text-5 text-brand mt-2 place-self-start pr-1"
+        />
 
         <Board
           puzzle={puzzle}
@@ -50,7 +56,7 @@ export default define.page(function EditorPage(props: PageProps<Puzzle>) {
         />
       </Main>
 
-      <EditorPanel puzzle={puzzle} href={href} />
+      <EditorPanel puzzle={puzzle} href={href} isDev={isDev} />
     </>
   );
 });

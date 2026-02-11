@@ -1,4 +1,5 @@
 import { define } from "#/core.ts";
+import { isDev } from "#/lib/env.ts";
 
 const PUZZLES_DIR = "./static/puzzles";
 
@@ -8,14 +9,14 @@ const PUZZLES_DIR = "./static/puzzles";
  */
 export const handler = define.handlers({
   async POST(ctx) {
-    const hostname = ctx.url.hostname;
-    if (hostname !== "localhost" && hostname !== "127.0.0.1") {
+    if (!isDev) {
       return new Response("Forbidden", { status: 403 });
     }
 
-    const { markdown, slug } = await ctx.req.json();
-    if (!markdown || !slug) {
-      return new Response("Missing markdown or slug", { status: 400 });
+    const { slug, markdown } = await ctx.req.json();
+
+    if (!slug || !markdown) {
+      return new Response("Missing slug, name or markdown", { status: 400 });
     }
 
     await Deno.writeTextFile(`${PUZZLES_DIR}/${slug}.md`, markdown);
