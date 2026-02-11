@@ -45,23 +45,24 @@ export function SolutionBadge({ puzzle }: SolutionBadgeProps) {
       });
 
       if (!res.ok) {
-        setMoves(null);
         setError(await res.text());
         return;
       }
 
       const { moves } = await res.json();
 
-      setError(null);
       setMoves(moves);
     } catch (err) {
-      setMoves(null);
       setError((err as Error).message);
     }
   }, 3000);
 
   useEffect(() => {
     const { board } = puzzle.value;
+
+    // Reset state
+    setMoves(null);
+    setError(null);
 
     if (board.pieces.length === 0) return;
 
