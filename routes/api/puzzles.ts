@@ -1,5 +1,6 @@
 import { define } from "#/core.ts";
 import { isDev } from "#/lib/env.ts";
+import { updateManifest } from "#/lib/manifest.ts";
 
 const PUZZLES_DIR = "./static/puzzles";
 
@@ -20,6 +21,7 @@ export const handler = define.handlers({
     }
 
     await Deno.writeTextFile(`${PUZZLES_DIR}/${slug}.md`, markdown);
+    await updateManifest();
 
     return new Response(JSON.stringify({ ok: true }), {
       headers: { "Content-Type": "application/json" },
