@@ -180,7 +180,8 @@ export function EditorPanel(
 
             <button
               type="button"
-              className="icon-btn py-1"
+              className="icon-btn"
+              data-size="md"
               onClick={() => setShowOptions(!showOptions)}
             >
               <i className="ph-gear ph" />

@@ -606,7 +606,7 @@
 
   .icon-btn {
     display: inline-flex;
-    padding: calc(var(--size-fluid-1) - 2px);
+    padding: calc(var(--size-fluid-1) - 6px);
     aspect-ratio: 1 / 1;
     align-items: center;
     justify-content: center;
@@ -619,6 +619,10 @@
     border: var(--border-size-2) solid var(--color-link);
     background-color: transparent;
     border-radius: var(--radius-2);
+  }
+
+  .icon-btn[data-size="lg"] {
+    padding: calc(var(--size-fluid-1) - 2px);
   }
 
   .btn:is(:hover, :focus),
