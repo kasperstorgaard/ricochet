@@ -1,5 +1,3 @@
-import { useEffect, useRef } from "preact/hooks";
-
 import { cn } from "#/lib/style.ts";
 
 type Props = {
@@ -12,23 +10,17 @@ type Props = {
  * Submits to /api/consent with action "accept" or "decline".
  */
 export function CookieBanner({ open }: Props) {
-  const ref = useRef<HTMLDialogElement>(null);
-
-  // Client side showModal call is needed to properly render.
-  useEffect(() => {
-    if (open) ref.current?.showModal();
-  }, [open]);
-
   if (!open) return null;
 
   return (
-    <dialog
-      ref={ref}
-      open
+    <div
       className={cn(
-        "fixed bottom-0 left-0 max-w-screen right-0 m-0 z-5 overflow-hidden",
-        "max-md:rounded-none max-md:shadow-3",
-        "md:bottom-fl-2 md:left-fl-2 md:right-auto z-50 overflow-hidden sm:max-w-88",
+        "fixed top-auto bottom-0 left-0 max-w-screen right-0 p-fl-2 m-0 z-5",
+        "rounded-cond-2 overflow-hidden bg-surface-2",
+        "sm:max-w-88 max-lg:shadow-3",
+        "md:bottom-fl-2 md:left-fl-2 md:right-auto",
+        "animate-sneak-in-bottom",
+        "md:animate-sneak-in-left",
       )}
     >
       {/* Simple circle with a bite taken out */}
@@ -41,9 +33,9 @@ export function CookieBanner({ open }: Props) {
           <clipPath id="cookie-bites">
             <path
               d="M 50 0
-                    A 50 50 0 1 1 50 100
-                    A 50 50 0 1 1 50 0
-                    M 15 60 a 15 15 0 1 0 0 0.01"
+                      A 50 50 0 1 1 50 100
+                      A 50 50 0 1 1 50 0
+                      M 15 60 a 15 15 0 1 0 0 0.01"
               fill-rule="evenodd"
             />
           </clipPath>
@@ -91,6 +83,6 @@ export function CookieBanner({ open }: Props) {
           </button>
         </form>
       </div>
-    </dialog>
+    </div>
   );
 }
