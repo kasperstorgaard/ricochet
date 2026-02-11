@@ -16,10 +16,10 @@ export function SolutionDialog({ open, href, puzzle }: Props) {
 
   return (
     <Dialog open={open}>
-      <h2 className="text-3">You found a solution!</h2>
+      <h2 className="text-fl-1">You found a solution!</h2>
 
       <form
-        className="grid gap-fl-3"
+        className="grid gap-fl-2"
         action={puzzle.value.slug}
         method="post"
       >
