@@ -72,7 +72,7 @@ export default define.page(function PuzzleDetails(props: PageProps<Puzzle>) {
 
         <div className="flex items-center justify-between gap-fl-1 mt-2">
           <h1 className="text-5 text-brand">
-            {props.data.slug}
+            {props.data.name}
           </h1>
 
           {isDev && (
