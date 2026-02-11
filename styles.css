@@ -612,7 +612,7 @@
     justify-content: center;
     min-width: 48px;
 
-    font-size: var(--font-size-fl-1);
+    font-size: var(--font-size-fluid-1);
     font-weight: var(--font-weight-7);
     line-height: 1;
     color: var(--color-link);
