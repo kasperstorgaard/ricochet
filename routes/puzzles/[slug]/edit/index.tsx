@@ -4,6 +4,7 @@ import { HttpError, page, PageProps } from "fresh";
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
 import Board from "#/islands/board.tsx";
+import { EditableName } from "#/islands/editable-name.tsx";
 import { EditorPanel } from "#/islands/editor-panel.tsx";
 import { define } from "#/core.ts";
 import { isDev } from "#/lib/env.ts";
@@ -44,10 +45,11 @@ export default define.page(function EditorPage(props: PageProps<Puzzle>) {
       <Main>
         <Header url={url} items={navItems} />
 
-        <div className="flex flex-col">
-          <p className="text-fl-0 text-text-2">Edit</p>
-          <h1 className="text-5 text-brand">{puzzle.value.name}</h1>
-        </div>
+        <EditableName
+          puzzle={puzzle}
+          defaultValue={slug}
+          className="text-5 text-brand mt-2 place-self-start pr-1"
+        />
 
         <Board
           puzzle={puzzle}

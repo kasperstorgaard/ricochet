@@ -69,8 +69,8 @@ export function EditorPanel(
 
     const url = new URL(href.value);
 
-    if (url.pathname === "/puzzles/new") {
-      url.pathname = `/puzzles/${puzzle.value.slug}`;
+    if (!url.pathname.startsWith(`/puzzles/${puzzle.value.slug}`)) {
+      url.pathname = `/puzzles/${puzzle.value.slug}/edit`;
       updateLocation(url.href);
     }
   }, [href.value, puzzle.value.slug, formatted]);
