@@ -33,7 +33,7 @@ export const handler = define.handlers({
       distinctId: trackingId ?? undefined,
       properties: {
         decision: isAllowed ? "accepted" : "declined",
-        $current_url: ctx.req.url,
+        $current_url: referer,
         $process_person_profile: isAllowed,
       },
     });
