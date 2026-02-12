@@ -5,9 +5,9 @@ type TrackingProps = {
   // PostHog API key from environment.
   apiKey: string;
   // Whether user has consented to tracking.
-  trackingAllowed: boolean;
+  cookieChoice: "accepted" | "declined" | null;
   // User's tracking ID (UUID), or null if not allowed.
-  trackingId: string | null;
+  trackingId: string;
 };
 
 /**
@@ -16,25 +16,27 @@ type TrackingProps = {
  * Pageviews are captured server-side, so capture_pageview is disabled.
  */
 export function TrackingScript(
-  { apiKey, trackingAllowed, trackingId }: TrackingProps,
+  { apiKey, cookieChoice, trackingId }: TrackingProps,
 ) {
   useEffect(() => {
-    if (apiKey && trackingAllowed && trackingId) {
+    if (!apiKey) return;
+
+    if (!posthog.__loaded) {
       posthog.init(apiKey, {
         api_host: "/ph",
         ui_host: "https://eu.posthog.com",
         defaults: "2025-11-30",
-        autocapture: true,
         cookieless_mode: "on_reject",
       });
-
-      posthog.identify(trackingId);
     }
 
-    return () => {
-      if (!trackingAllowed) posthog.opt_out_capturing();
-    };
-  }, [apiKey, trackingAllowed, trackingId]);
+    if (cookieChoice === "accepted") {
+      posthog.identify(trackingId);
+      posthog.opt_in_capturing();
+    } else if (cookieChoice === "declined") {
+      posthog.opt_out_capturing();
+    }
+  }, [apiKey, cookieChoice, trackingId]);
 
   return null;
 }

@@ -14,18 +14,6 @@ type Props = {
 export function CookieBanner({ open }: Props) {
   if (!open) return null;
 
-  // Captures the posthog opt-in/opt-out choice before submitting the form
-  const onSubmit = (event: TargetedSubmitEvent<HTMLFormElement>) => {
-    const submitter = event.submitter as HTMLButtonElement;
-    const value = submitter.value;
-
-    if (value === "accept") {
-      posthog.opt_in_capturing();
-    } else if (value === "decline") {
-      posthog.opt_out_capturing();
-    }
-  };
-
   return (
     <div
       className={clsx(
@@ -77,7 +65,6 @@ export function CookieBanner({ open }: Props) {
           action="/api/consent"
           method="POST"
           className="flex gap-fl-1 pt-fl-1"
-          onSubmit={onSubmit}
         >
           <button
             type="submit"

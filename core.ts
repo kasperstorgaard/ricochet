@@ -5,10 +5,8 @@ import { createDefine } from "fresh";
  * Set by the tracking middleware in middleware/tracking.ts.
  */
 export type State = {
-  // True if user opted in to tracking
-  trackingAllowed: boolean;
-  // True if user explicitly declined tracking.
-  trackingDeclined: boolean;
+  // The users current cookie choice;
+  cookieChoice: "accepted" | "declined" | null;
   // The user's tracking ID (UUID), either temporary or stored in cookie
   trackingId: string;
 

@@ -59,12 +59,12 @@ export default define.page(
           <Component />
           {!isTutorial && (
             <CookieBanner
-              open={!state.trackingAllowed && !state.trackingDeclined}
+              open={!state.cookieChoice}
             />
           )}
           <TrackingScript
             apiKey={Deno.env.get("POSTHOG_API_KEY")!}
-            trackingAllowed={state.trackingAllowed}
+            cookieChoice={state.cookieChoice}
             trackingId={state.trackingId}
           />
         </body>
