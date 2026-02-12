@@ -1,5 +1,6 @@
 import { define } from "#/core.ts";
 import { generateTrackingId, setTrackingCookie } from "#/util/cookies.ts";
+import { posthog } from "../../lib/posthog.ts";
 
 /**
  * Handles cookie consent form submissions from the CookieBanner.
@@ -19,12 +20,23 @@ export const handler = define.handlers({
     const headers = new Headers();
     headers.set("Location", referer);
 
-    if (action === "accept") {
-      const trackingId = generateTrackingId();
-      setTrackingCookie(headers, trackingId);
-    } else {
-      setTrackingCookie(headers, "declined");
-    }
+    // If users accepts cookies, generate a new tracking id.
+    // If not, set cookie to "declined" to avoid asking again.
+    const isAllowed = action === "accept";
+    const trackingId = isAllowed ? generateTrackingId() : null;
+
+    ctx.state.trackingId = trackingId;
+    setTrackingCookie(headers, trackingId ?? "declined");
+
+    posthog?.capture({
+      event: "cookie_consent",
+      distinctId: trackingId ?? undefined,
+      properties: {
+        decision: isAllowed ? "accepted" : "declined",
+        $current_url: ctx.req.url,
+        $process_person_profile: isAllowed,
+      },
+    });
 
     return new Response("", {
       status: 302,
