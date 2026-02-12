@@ -1,5 +1,5 @@
 import { useSignal } from "@preact/signals";
-import { page, PageProps } from "fresh";
+import { page } from "fresh";
 
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
@@ -26,7 +26,7 @@ export const handler = define.handlers<Puzzle>({
   },
 });
 
-export default define.page(function EditorPage(props: PageProps<Puzzle>) {
+export default define.page<typeof handler>(function EditorPage(props) {
   const puzzle = useSignal(props.data);
   const href = useSignal(props.url.href);
   const mode = useSignal<"editor">("editor");

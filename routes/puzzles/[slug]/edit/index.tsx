@@ -1,5 +1,5 @@
 import { useSignal } from "@preact/signals";
-import { HttpError, page, PageProps } from "fresh";
+import { HttpError, page } from "fresh";
 
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
@@ -27,7 +27,7 @@ export const handler = define.handlers<Puzzle>({
 });
 
 // TODO: if on localhost, save directly to disc
-export default define.page(function EditorPage(props: PageProps<Puzzle>) {
+export default define.page<typeof handler>(function EditorPage(props) {
   const slug = props.data.slug;
   const puzzle = useSignal(props.data);
   const href = useSignal(props.url.href);
