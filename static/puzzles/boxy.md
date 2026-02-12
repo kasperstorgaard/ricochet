@@ -2,6 +2,7 @@
 name: Boxy
 slug: boxy
 createdAt: 2026-01-26T00:00:00.000Z
+difficulty: 10
 ---
 
 ```

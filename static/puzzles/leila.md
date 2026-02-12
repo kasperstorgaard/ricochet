@@ -2,6 +2,7 @@
 name: Leila
 slug: leila
 createdAt: 2026-01-27T00:00:00.000Z
+difficulty: 7
 ---
 
 ```

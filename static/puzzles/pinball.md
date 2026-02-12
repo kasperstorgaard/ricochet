@@ -1,7 +1,8 @@
 ---
-name: "Pinball"
-slug: "pinball"
+name: Pinball
+slug: pinball
 createdAt: 2026-02-10T19:36:27.280Z
+difficulty: 12
 ---
 
 ```
