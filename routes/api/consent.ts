@@ -32,9 +32,10 @@ export const handler = define.handlers({
       event: "cookie_consent",
       distinctId: trackingId,
       properties: {
-        decision: isAllowed ? "accepted" : "declined",
         $current_url: referer,
         $process_person_profile: isAllowed,
+
+        decision: isAllowed ? "accepted" : "declined",
       },
     });
 
