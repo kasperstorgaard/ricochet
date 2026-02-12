@@ -2,14 +2,14 @@ import { useSignal } from "@preact/signals";
 import { page, PageProps } from "fresh";
 
 import { Header } from "#/components/header.tsx";
+import { Main } from "#/components/main.tsx";
+import { define } from "#/core.ts";
 import Board from "#/islands/board.tsx";
 import { EditableName } from "#/islands/editable-name.tsx";
 import { EditorPanel } from "#/islands/editor-panel.tsx";
 import { SolutionBadge } from "#/islands/solution-badge.tsx";
-import { define } from "#/core.ts";
 import { isDev } from "#/lib/env.ts";
 import { Puzzle } from "#/util/types.ts";
-import { Main } from "../../components/main.tsx";
 
 export const handler = define.handlers<Puzzle>({
   GET() {

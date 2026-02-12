@@ -22,7 +22,7 @@ type UseMoveOptions = {
  * Unified input hook for piece movement.
  * Wires up keyboard (arrow keys) and touch (swipe) to a single onMove callback.
  */
-export function useMove(
+export function useMoves(
   swipeRegionRef: RefObject<HTMLElement>,
   boardRef: RefObject<HTMLElement>,
   { pieces, active, onMove, isEnabled }: UseMoveOptions,

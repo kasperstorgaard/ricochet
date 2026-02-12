@@ -1,4 +1,4 @@
-import { cn } from "../lib/style.ts";
+import { cn } from "#/lib/style.ts";
 
 type Props = {
   url: URL;

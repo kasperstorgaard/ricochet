@@ -3,7 +3,7 @@ import { resolveMoves } from "#/util/board.ts";
 import { getPuzzle } from "#/util/loader.ts";
 import { getHint } from "#/util/solver.ts";
 import { encodeMoves } from "#/util/strings.ts";
-import { decodeState } from "../../../util/url.ts";
+import { decodeState } from "#/util/url.ts";
 
 export const handler = define.handlers({
   async GET(ctx) {

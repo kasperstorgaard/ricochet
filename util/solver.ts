@@ -11,12 +11,13 @@ const DEFAULT_MAX_ITERATIONS = 500_000;
  * Solver configuration options.
  */
 type SolverOptions = {
-  /** Maximum search depth in moves (default: 20) */
+  // Maximum search depth in moves (default: 20)
   maxDepth?: number;
-  /** Maximum states to explore (default: 100,000) */
+  // Maximum states to explore (default: 100,000)
   maxIterations?: number;
 };
 
+// Error thrown when the solver exceeds the maximum number of iterations
 export class SolverLimitExceededError extends Error {
   constructor(limit: number) {
     super(`Solver limit ${limit} exceeded`);
@@ -24,6 +25,7 @@ export class SolverLimitExceededError extends Error {
   }
 }
 
+// Error thrown when the solver exceeds the maximum search depth
 export class SolverDepthExceededError extends Error {
   constructor(depth: number) {
     super(`Solver depth ${depth} exceeded`);

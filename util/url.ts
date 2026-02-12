@@ -6,7 +6,7 @@ import {
   encodeMoves,
   encodePosition,
 } from "#/util/strings.ts";
-import { Move, Position } from "./types.ts";
+import { Move, Position } from "#/util/types.ts";
 
 /**
  * All state needed to represent the current game
@@ -125,7 +125,7 @@ export function getActiveHref(
   return url.href;
 }
 
-/** Builds an href with the cursor moved back one step. Clears the hint. */
+// Builds an href with the cursor moved back one step. Clears the hint.
 export function getUndoHref(
   href: string,
   state: GameState,
@@ -140,7 +140,7 @@ export function getUndoHref(
   return url.href;
 }
 
-/** Builds an href with the cursor moved forward one step. Clears the hint. */
+// Builds an href with the cursor moved forward one step. Clears the hint.
 export function getRedoHref(
   href: string,
   state: GameState,
@@ -155,7 +155,7 @@ export function getRedoHref(
   return url.href;
 }
 
-/** Strips all game-state params (moves, active, cursor, hint) from the URL. */
+// Strips all game-state params (moves, active, cursor, hint) from the URL.
 export function getResetHref(href: string) {
   const url = new URL(href);
 
@@ -185,7 +185,7 @@ export function getHintHref(href: string) {
   return url.href;
 }
 
-/** Reads the `replay_speed` search param from a URL, defaulting to 1. */
+// Reads the `replay_speed` search param from a URL, defaulting to 1.
 export function getReplaySpeed(url: URL | string): number {
   const urlObj = typeof url === "string" ? new URL(url) : url;
   const rawValue = urlObj.searchParams.get("replay_speed");
@@ -193,7 +193,7 @@ export function getReplaySpeed(url: URL | string): number {
   return isNaN(value) ? 1 : value;
 }
 
-/** Reads the `page` search param from a URL, defaulting to 1. */
+// Reads the `page` search param from a URL, defaulting to 1.
 export function getPage(
   url: URL,
 ) {

@@ -1,7 +1,7 @@
 import { define } from "#/core.ts";
 import { generate, type GenerateOptions } from "#/util/generator.ts";
 
-/** POST endpoint for puzzle generation. */
+// POST endpoint for puzzle generation.
 export const handler = define.handlers({
   async POST(ctx) {
     let body: GenerateOptions;

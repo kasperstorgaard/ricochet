@@ -1,5 +1,6 @@
-import { useEffect, useRef } from "preact/hooks";
 import type { RefObject } from "preact";
+import { useEffect, useRef } from "preact/hooks";
+
 import type { Direction, Piece, Position } from "#/util/types.ts";
 
 export type { Direction };
@@ -13,7 +14,7 @@ type UseSwipeOptions = {
   isEnabled?: boolean;
 };
 
-/** Maximum distance (in grid cells) from touch point to match a piece. */
+// Maximum distance (in grid cells) from touch point to match a piece.
 const PROXIMITY_RADIUS = 1;
 
 /**

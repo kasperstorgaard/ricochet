@@ -2,11 +2,11 @@ import { posthog } from "posthog-js";
 import { useEffect } from "preact/hooks";
 
 type TrackingProps = {
-  /** PostHog API key from environment. */
+  // PostHog API key from environment.
   apiKey: string;
-  /** Whether user has consented to tracking. */
+  // Whether user has consented to tracking.
   trackingAllowed: boolean;
-  /** User's tracking ID (UUID), or null if not allowed. */
+  // User's tracking ID (UUID), or null if not allowed.
   trackingId: string | null;
 };
 

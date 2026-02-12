@@ -1,7 +1,8 @@
 import { App, staticFiles } from "fresh";
-import { posthogProxy } from "./middleware/posthog-proxy.ts";
-import { tracking } from "./middleware/tracking.ts";
+
 import { State } from "#/core.ts";
+import { posthogProxy } from "#/middleware/posthog-proxy.ts";
+import { tracking } from "#/middleware/tracking.ts";
 
 export const app = new App<State>();
 

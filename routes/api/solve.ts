@@ -3,7 +3,7 @@ import { validateBoard } from "#/util/board.ts";
 import { solve } from "#/util/solver.ts";
 import type { Board } from "#/util/types.ts";
 
-/** POST endpoint that returns the shortest solution length for a board. */
+// POST endpoint that returns the shortest solution length for a board.
 export const handler = define.handlers({
   async POST(ctx) {
     let board: Board;

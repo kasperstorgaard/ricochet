@@ -5,17 +5,23 @@ import { cn } from "#/lib/style.ts";
 type SelectProps = HTMLAttributes<HTMLSelectElement> & {
   label: string;
   value: string;
+  name: string;
   options: { value: string; label: string }[];
   onChange: (value: string) => void;
 };
 
-/** Native select with custom styling to match the app's design language. */
+/**
+ * Native select with custom styling to match the app's design language.
+ */
+// TODO: make sure this works with standard form handling
 export function Select(
-  { label, value, options, onChange, ...rest }: SelectProps,
+  { label, value, name, options, onChange, ...rest }: SelectProps,
 ) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-fl-0 text-text-2">{label}</span>
+      <label htmlFor={name} className="text-fl-0 text-text-2">
+        {label}
+      </label>
 
       <div className="relative grid items-center">
         <select
@@ -24,6 +30,7 @@ export function Select(
             "text-text-1 appearance-none text-1 font-weight-7 cursor-pointer bg-surface-1",
             "hover:text-blue-0 hover:bg-surface-1/40 focus:text-blue-0 focus:bg-link",
           )}
+          name={name}
           value={value}
           onChange={(e) => onChange(e.currentTarget.value)}
           {...rest}
