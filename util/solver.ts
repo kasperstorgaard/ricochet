@@ -52,7 +52,7 @@ type CompactPiece = {
 export function solve(
   puzzleOrBoard: Puzzle | Board,
   options: SolverOptions = {},
-): Move[] | null {
+): Move[] {
   const board = "board" in puzzleOrBoard ? puzzleOrBoard.board : puzzleOrBoard;
   const { destination, walls } = board;
 
@@ -114,7 +114,7 @@ export function solve(
     }
   }
 
-  return null;
+  throw new Error("Unsolvable puzzle");
 }
 
 /**
