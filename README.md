@@ -28,7 +28,7 @@ https://github.com/user-attachments/assets/166c9f66-bf44-42d6-af2f-8a2a0306ff30
 
 ## Editor
 
-<!-- TODO: add video -->
+https://github.com/user-attachments/assets/4525f879-5b6d-450a-a2fd-c79882db2e3c
 
 The built-in editor lets you create puzzles from scratch or generate random
 solvable boards with configurable difficulty. A debounced solver runs on every
