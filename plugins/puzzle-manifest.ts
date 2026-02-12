@@ -1,6 +1,6 @@
 import { Plugin } from "vite";
 
-import { updateManifest } from "../lib/manifest.ts";
+import { updateManifest } from "#/lib/manifest.ts";
 
 /**
  * Vite build plugin that generates a file manifest at static/puzzles/manifest.json.
