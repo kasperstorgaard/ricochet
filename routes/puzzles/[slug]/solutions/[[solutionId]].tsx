@@ -1,5 +1,5 @@
 import { useSignal } from "@preact/signals";
-import { HttpError, page, PageProps } from "fresh";
+import { HttpError, page } from "fresh";
 
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
@@ -59,7 +59,7 @@ export const handler = define.handlers<Data>({
   },
 });
 
-export default define.page(function SolutionPage(props: PageProps<Data>) {
+export default define.page<typeof handler>(function SolutionPage(props) {
   const puzzle = useSignal(props.data.puzzle);
   const href = useSignal(props.url.href);
   const mode = useSignal<"replay">("replay");
