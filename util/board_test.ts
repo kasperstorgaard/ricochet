@@ -3,10 +3,8 @@ import {
   BoardError,
   flipBoard,
   getGrid,
-  getGuides,
   getTargets,
   isMoveSame,
-  isPositionAligned,
   isPositionSame,
   isValidMove,
   isValidSolution,
@@ -151,27 +149,6 @@ Deno.test("isMoveSame() should compare both positions of a move", () => {
       y: 0,
     }]),
     false,
-  );
-});
-
-Deno.test("isPositionAligned() should be false for positions that are not aligned", () => {
-  assertEquals(
-    isPositionAligned({ x: 3, y: 5 }, { x: 4, y: 6 }),
-    false,
-  );
-});
-
-Deno.test("isPositionAligned() should be true for x-aligned", () => {
-  assertEquals(
-    isPositionAligned({ x: 3, y: 5 }, { x: 3, y: 6 }),
-    true,
-  );
-});
-
-Deno.test("isPositionAligned() should be true for y-aligned", () => {
-  assertEquals(
-    isPositionAligned({ x: 2, y: 7 }, { x: 5, y: 7 }),
-    true,
   );
 });
 
@@ -720,97 +697,6 @@ Deno.test("isValidSolution() should return true for winning position", () => {
 
   assertEquals(result, true);
 });
-
-Deno.test("getGuides() should return a guide for each available direction", () => {
-  const result = getGuides(
-    { pieces: [{ x: 3, y: 3, type: "rook" }], walls: [] },
-    { active: { x: 3, y: 3 } },
-  );
-
-  assertEquals(result, [
-    { move: [{ x: 3, y: 3 }, { x: 3, y: 0 }], isHint: false },
-    { move: [{ x: 3, y: 3 }, { x: 7, y: 3 }], isHint: false },
-    { move: [{ x: 3, y: 3 }, { x: 3, y: 7 }], isHint: false },
-    { move: [{ x: 3, y: 3 }, { x: 0, y: 3 }], isHint: false },
-  ]);
-});
-
-Deno.test("getGuides() should respect walls and pieces", () => {
-  const result = getGuides(
-    {
-      pieces: [
-        { x: 3, y: 3, type: "rook" },
-        { x: 3, y: 1, type: "bouncer" },
-      ],
-      walls: [{ x: 5, y: 3, orientation: "vertical" }],
-    },
-    { active: { x: 3, y: 3 } },
-  );
-
-  assertEquals(result, [
-    { move: [{ x: 3, y: 3 }, { x: 3, y: 2 }], isHint: false },
-    { move: [{ x: 3, y: 3 }, { x: 4, y: 3 }], isHint: false },
-    { move: [{ x: 3, y: 3 }, { x: 3, y: 7 }], isHint: false },
-    { move: [{ x: 3, y: 3 }, { x: 0, y: 3 }], isHint: false },
-  ]);
-});
-
-Deno.test("getGuides() should return empty for position without a piece", () => {
-  const result = getGuides(
-    { pieces: [], walls: [] },
-    { active: { x: 4, y: 4 } },
-  );
-
-  assertEquals(result, []);
-});
-
-Deno.test("getGuides() hint should replace matching direction in place", () => {
-  const result = getGuides(
-    { pieces: [{ x: 3, y: 3, type: "rook" }], walls: [] },
-    { active: { x: 3, y: 3 }, hint: [{ x: 3, y: 3 }, { x: 3, y: 0 }] },
-  );
-
-  assertEquals(result, [
-    { move: [{ x: 3, y: 3 }, { x: 3, y: 0 }], isHint: true },
-    { move: [{ x: 3, y: 3 }, { x: 7, y: 3 }], isHint: false },
-    { move: [{ x: 3, y: 3 }, { x: 3, y: 7 }], isHint: false },
-    { move: [{ x: 3, y: 3 }, { x: 0, y: 3 }], isHint: false },
-  ]);
-});
-
-Deno.test("getGuides() hint for different piece should not replace target guides", () => {
-  const result = getGuides(
-    {
-      pieces: [
-        { x: 3, y: 3, type: "rook" },
-        { x: 5, y: 5, type: "bouncer" },
-      ],
-      walls: [],
-    },
-    { active: { x: 3, y: 3 }, hint: [{ x: 5, y: 5 }, { x: 5, y: 0 }] },
-  );
-
-  assertEquals(result, [
-    { move: [{ x: 3, y: 3 }, { x: 3, y: 0 }], isHint: false },
-    { move: [{ x: 3, y: 3 }, { x: 7, y: 3 }], isHint: false },
-    { move: [{ x: 3, y: 3 }, { x: 3, y: 7 }], isHint: false },
-    { move: [{ x: 3, y: 3 }, { x: 0, y: 3 }], isHint: false },
-    { move: [{ x: 5, y: 5 }, { x: 5, y: 0 }], isHint: true },
-  ]);
-});
-
-Deno.test("getGuides() should return hint guide when no active piece", () => {
-  const result = getGuides(
-    { pieces: [{ x: 3, y: 3, type: "rook" }], walls: [] },
-    { hint: [{ x: 3, y: 3 }, { x: 3, y: 0 }] },
-  );
-
-  assertEquals(result, [
-    { move: [{ x: 3, y: 3 }, { x: 3, y: 0 }], isHint: true },
-  ]);
-});
-
-// --- rotateBoard ---
 
 Deno.test("rotateBoard() right should rotate positions 90° clockwise", () => {
   const result = rotateBoard({

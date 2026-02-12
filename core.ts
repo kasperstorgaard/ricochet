@@ -5,11 +5,11 @@ import { createDefine } from "fresh";
  * Set by the tracking middleware in middleware/tracking.ts.
  */
 export type State = {
-  /** True if user accepted tracking (has valid tracking ID). */
+  // True if user accepted tracking (has valid tracking ID).
   trackingAllowed: boolean;
-  /** True if user explicitly declined tracking. */
+  // True if user explicitly declined tracking.
   trackingDeclined: boolean;
-  /** The user's tracking ID (UUID), or null if not allowed. */
+  // The user's tracking ID (UUID), or null if not allowed.
   trackingId: string | null;
 };
 

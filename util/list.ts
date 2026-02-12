@@ -25,6 +25,7 @@ function getSortValue<TItem extends object>(
   }
 }
 
+// Sorts a list of objects by a given key in ascending or descending order
 export function sortList<TItem extends object>(
   items: TItem[],
   options: SortOptions<TItem>,

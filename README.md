@@ -22,8 +22,17 @@ https://github.com/user-attachments/assets/166c9f66-bf44-42d6-af2f-8a2a0306ff30
 - **Smart solver** — BFS-based solver finds optimal solutions and powers the
   hint system
 - **Dark/light theme** — follows system preference
-- **Puzzle editor** — create and share your own puzzles
+- **Puzzle editor** — create, generate, and share your own puzzles with a
+  live-solving difficulty badge
 - **Leaderboards** — compare your solution against others
+
+## Editor
+
+https://github.com/user-attachments/assets/4525f879-5b6d-450a-a2fd-c79882db2e3c
+
+The built-in editor lets you create puzzles from scratch or generate random
+solvable boards with configurable difficulty. A debounced solver runs on every
+edit, showing the optimal solution length in real time.
 
 ## Tech Stack
 

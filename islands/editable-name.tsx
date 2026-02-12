@@ -1,8 +1,9 @@
-import type { Signal } from "@preact/signals";
-import type { Puzzle } from "#/util/types.ts";
-import { cn } from "#/lib/style.ts";
-import { useRef } from "preact/hooks";
 import { slug as slugify } from "@annervisser/slug";
+import type { Signal } from "@preact/signals";
+import { useRef } from "preact/hooks";
+
+import { cn } from "#/lib/style.ts";
+import type { Puzzle } from "#/util/types.ts";
 
 type EditableNameProps = {
   puzzle: Signal<Puzzle>;
@@ -10,7 +11,7 @@ type EditableNameProps = {
   className?: string;
 };
 
-/** Contenteditable heading that updates the puzzle name on input. */
+// Contenteditable heading that updates the puzzle name on input.
 export function EditableName(
   { puzzle, defaultValue, className }: EditableNameProps,
 ) {

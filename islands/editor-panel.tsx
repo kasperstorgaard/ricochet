@@ -3,7 +3,7 @@ import { useCallback, useMemo, useState } from "preact/hooks";
 
 import { NumberRange } from "#/components/number-range.tsx";
 import { Panel } from "#/components/panel.tsx";
-import { Select } from "../components/select.tsx";
+import { Select } from "#/components/select.tsx";
 import { cn } from "#/lib/style.ts";
 import { useRouter } from "#/lib/router.ts";
 import { flipBoard, resolveMoves, rotateBoard } from "#/util/board.ts";
@@ -230,7 +230,7 @@ export function EditorPanel(
 
         <div className="flex flex-col gap-fl-1">
           <NumberRange
-            id="solve_range"
+            name="solve_range"
             label="Moves"
             value={options.solveRange}
             min={1}
@@ -239,7 +239,7 @@ export function EditorPanel(
           />
 
           <NumberRange
-            id="walls_range"
+            name="walls_range"
             label="Walls"
             value={options.wallsRange}
             min={0}
@@ -248,7 +248,7 @@ export function EditorPanel(
           />
 
           <NumberRange
-            id="bouncers_range"
+            name="bouncers_range"
             label="Bouncers"
             value={options.bouncersRange}
             min={0}
@@ -258,7 +258,7 @@ export function EditorPanel(
           />
 
           <Select
-            id="wall_spread"
+            name="wall_spread"
             label="Wall spread"
             value={options.wallSpread}
             options={SPREAD_OPTIONS}

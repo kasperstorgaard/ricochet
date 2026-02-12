@@ -94,6 +94,7 @@ export function decodeMove(notation: string): Move {
   return [from, to];
 }
 
+// Decodes a dash-separated move string, supporting shorthand notation
 export function decodeMoves(encodedMoves: string): Move[] {
   const moves: Move[] = [];
 

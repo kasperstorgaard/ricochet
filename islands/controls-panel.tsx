@@ -4,7 +4,7 @@ import { useCallback, useMemo } from "preact/hooks";
 import { Panel } from "#/components/panel.tsx";
 import { updateLocation } from "#/lib/router.ts";
 import { cn } from "#/lib/style.ts";
-import { useGameShortcuts } from "#/lib/game.ts";
+import { useGameShortcuts } from "#/lib/keyboard.ts";
 import {
   decodeState,
   getHintHref,

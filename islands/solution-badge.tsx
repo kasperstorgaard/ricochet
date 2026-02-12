@@ -1,16 +1,16 @@
 import type { Signal } from "@preact/signals";
 import { useEffect, useRef, useState } from "preact/hooks";
 
+import { cn } from "#/lib/style.ts";
 import { useDebouncedCallback } from "#/lib/use-debounced-callback.ts";
 import { validateBoard } from "#/util/board.ts";
 import type { Board, Puzzle } from "#/util/types.ts";
-import { cn } from "../lib/style.ts";
 
 type SolutionBadgeProps = {
   puzzle: Signal<Puzzle>;
 };
 
-/** Displays the shortest solution length, updated on a 3s debounce with fade transition. */
+// Displays the shortest solution length, updated on a 3s debounce with fade transition.
 export function SolutionBadge({ puzzle }: SolutionBadgeProps) {
   const ref = useRef<HTMLSpanElement>(null);
 

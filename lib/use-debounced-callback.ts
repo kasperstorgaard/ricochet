@@ -1,5 +1,5 @@
-import { useEffect, useRef } from "preact/hooks";
 import { debounce } from "@std/async/debounce";
+import { useEffect, useRef } from "preact/hooks";
 
 /**
  * Returns a debounced version of `fn` that always calls the latest closure.

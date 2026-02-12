@@ -46,11 +46,13 @@ import { Board, Piece, Position, type Puzzle, Wall } from "#/util/types.ts";
  * ```
  */
 
+// Parsed puzzle containing metadata and board data
 export type ParsedPuzzle = {
   metadata: Omit<Puzzle, "board">;
   board: Board;
 };
 
+// Error thrown when puzzle parsing fails
 export class ParserError extends Error {
   constructor(message: string) {
     super(`Puzzle parse error: ${message}`);
@@ -58,7 +60,7 @@ export class ParserError extends Error {
   }
 }
 
-/** Character mappings for board elements */
+// Character mappings for board elements
 const CELL_CHARS = {
   rook: "@",
   rookWall: "@̲", // @ + U+0332 (combining low line)
@@ -71,9 +73,9 @@ const CELL_CHARS = {
   wallHorizontal: "_",
 } as const;
 
-/** Combining low line character (U+0332) */
+// Combining low line character (U+0332)
 const COMBINING_LOW_LINE = "\u0332";
-/** Combining circumflex accent (U+0302) - indicates piece is on destination */
+// Combining circumflex accent (U+0302) - indicates piece is on destination
 const COMBINING_CIRCUMFLEX = "\u0302";
 
 /**

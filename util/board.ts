@@ -1,5 +1,5 @@
+import { encodeMove } from "#/util/strings.ts";
 import { Board, Move, Piece, Position, Wall } from "#/util/types.ts";
-import { encodeMove } from "./strings.ts";
 
 /**
  * The board dimensions.
@@ -9,7 +9,7 @@ import { encodeMove } from "./strings.ts";
 export const COLS = 8;
 export const ROWS = 8;
 
-/** Generates an ROWSxCOLS grid of Position objects. */
+// Generates an ROWSxCOLS grid of Position objects.
 export function getGrid(): Position[][] {
   const positions: Position[][] = [];
   for (let y = 0; y < ROWS; y++) {
@@ -25,8 +25,8 @@ export function getGrid(): Position[][] {
  * Custom error for invalid board states.
  */
 export class BoardError extends Error {
-  constructor() {
-    super("Board is invalid");
+  constructor(message: string) {
+    super(message);
   }
 }
 
@@ -40,21 +40,11 @@ export type BoardLike = {
 };
 
 /**
- * Checks if two positions are aligned either horizontally or vertically.
- * @param src The source position
- * @param target The target position to compare against
- * @returns true if aligned, otherwise false
- */
-export function isPositionAligned(src: Position, target: Position) {
-  return src.x === target.x || src.y === target.y;
-}
-
-/**
  * Checks if a given position is out bounds of the board.
  * @param src The position to check
  * @returns true if out of bounds, otherwise false
  */
-export function isPositionOutOfBounds(
+function isPositionOutOfBounds(
   src: Position,
 ) {
   return (
@@ -90,66 +80,69 @@ export function isMoveSame(src: Move, target: Move) {
  * Can be consumed as a truthy check or a means to get a properly typed Board.
  * Will throw BoardError if invalid.
  */
-// TODO: add more specific board error messages.
 export function validateBoard(board: BoardLike): Board {
-  if (!board) throw new BoardError();
+  if (!board) throw new BoardError("Board is missing");
 
   const { destination, pieces, walls } = board;
-  if (!pieces?.length) throw new BoardError();
+  if (!pieces?.length) throw new BoardError("Board has no pieces");
 
-  if (!destination) throw new BoardError();
+  if (!destination) throw new BoardError("Board has no destination");
 
-  if (isPositionOutOfBounds(destination)) throw new BoardError();
+  if (isPositionOutOfBounds(destination)) {
+    throw new BoardError("Destination is out of bounds");
+  }
 
   const checkedPieces: Piece[] = [];
   for (const piece of pieces) {
-    // Check for invalid pieces
     if (piece == null || !piece.type || piece.x == null || piece.y == null) {
-      throw new BoardError();
+      throw new BoardError("Piece is invalid");
     }
 
-    // Check for out of bounds pieces
-    if (isPositionOutOfBounds(piece)) throw new BoardError();
+    if (isPositionOutOfBounds(piece)) {
+      throw new BoardError(
+        `Piece at (${piece.x}, ${piece.y}) is out of bounds`,
+      );
+    }
 
-    // Check for identical piece positions
     const hasIdenticalPieces = checkedPieces.some((checkedPiece) =>
       isPositionSame(piece, checkedPiece)
     );
 
-    if (hasIdenticalPieces) throw new BoardError();
+    if (hasIdenticalPieces) {
+      throw new BoardError(`Duplicate piece at (${piece.x}, ${piece.y})`);
+    }
 
     checkedPieces.push(piece);
   }
 
-  // Make sure a rook exists
   const rook = pieces.find((piece) => piece?.type === "rook");
-  if (!rook) throw new BoardError();
+  if (!rook) throw new BoardError("Board has no rook");
 
   const checkedWalls: Wall[] = [];
 
   for (const wall of walls ?? []) {
-    // Check for invalid walls
     if (wall == null || !wall.orientation || wall.x == null || wall.y == null) {
-      throw new BoardError();
+      throw new BoardError("Wall is invalid");
     }
 
-    // Check for out of bounds walls
-    if (isPositionOutOfBounds(wall)) throw new BoardError();
+    if (isPositionOutOfBounds(wall)) {
+      throw new BoardError(`Wall at (${wall.x}, ${wall.y}) is out of bounds`);
+    }
 
-    // Reject redundant edge walls (duplicate the board boundary)
     if (wall.orientation === "horizontal" && wall.y === 0) {
-      throw new BoardError();
+      throw new BoardError(`Horizontal wall at y=0 duplicates board edge`);
     }
-    if (wall.orientation === "vertical" && wall.x === 0) throw new BoardError();
+    if (wall.orientation === "vertical" && wall.x === 0) {
+      throw new BoardError(`Vertical wall at x=0 duplicates board edge`);
+    }
 
-    // Check for duplicate walls
     if (
       checkedWalls.some((checkedWall) =>
         isPositionSame(wall, checkedWall) &&
         wall.orientation === checkedWall.orientation
       )
     ) {
-      throw new BoardError();
+      throw new BoardError(`Duplicate wall at (${wall.x}, ${wall.y})`);
     }
 
     checkedWalls.push(wall);
@@ -327,46 +320,6 @@ export function isValidSolution(board: Pick<Board, "destination" | "pieces">) {
   return false;
 }
 
-/** Returns the cardinal direction of a move based on the start and end positions. */
-export function getMoveDirection(move: Move) {
-  if (move[0].x === move[1].x) {
-    return move[1].y > move[0].y ? "down" : "up";
-  }
-
-  return move[1].x > move[0].x ? "right" : "left";
-}
-
-/** A move guide shown on the board, optionally flagged as a hint. */
-export type Guide = {
-  move: Move;
-  isHint: boolean;
-};
-
-/**
- * Builds a list of move guides for the active piece.
- * Each guide represents a direction the piece can move, with a guide strip + target.
- * If a hint is provided and matches a target direction, it replaces that target.
- */
-export function getGuides(
-  board: Pick<Board, "pieces" | "walls">,
-  { active, hint }: { active?: Position; hint?: Move },
-): Guide[] {
-  const result: Guide[] = [];
-  const targets = active ? getTargets(active, board) : {};
-
-  for (const target of Object.values(targets)) {
-    result.push({ move: [active!, target], isHint: false });
-  }
-
-  if (hint) {
-    const target = result.find((item) => isMoveSame(item.move, hint));
-    const insertIdx = target ? result.indexOf(target) : result.length;
-    result.splice(insertIdx, 1, { move: hint, isHint: true });
-  }
-
-  return result;
-}
-
 /**
  * Rotates a board 90° in the given direction.
  * Wall orientations swap (horizontal ↔ vertical) and positions shift
@@ -383,7 +336,7 @@ export function rotateBoard(
   return { destination, pieces, walls };
 }
 
-/** Rotates a position or wall 90° right. Walls swap orientation and use a shifted x offset. */
+// Rotates a position or wall 90° right. Walls swap orientation and use a shifted x offset.
 function rotatePosition<TItem extends Position | Wall>(
   item: TItem,
   direction: "right" | "left" = "right",
@@ -432,7 +385,7 @@ export function flipBoard(
   return { destination, pieces, walls };
 }
 
-/** Flips a position or wall along an axis. Cross-axis walls get a +1 offset to preserve edge alignment. */
+// Flips a position or wall along an axis. Cross-axis walls get a +1 offset to preserve edge alignment.
 function flipPosition<TItem extends Position | Wall>(
   item: TItem,
   axis: "horizontal" | "vertical",

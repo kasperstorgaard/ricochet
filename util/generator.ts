@@ -13,7 +13,7 @@ const MAX_ATTEMPTS = 500;
  */
 export type WallSpread = "mid" | "balanced" | "spread";
 
-/** Options for puzzle generation. */
+// Options for puzzle generation.
 export type GenerateOptions = {
   solveRange: [number, number];
   wallsRange: [number, number];

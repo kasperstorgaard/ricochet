@@ -1,7 +1,7 @@
 import { cn } from "#/lib/style.ts";
 
 type Props = {
-  /** Whether the banner should be shown (true when user hasn't made a choice). */
+  // Whether the banner should be shown (true when user hasn't made a choice).
   open: boolean;
 };
 

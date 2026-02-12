@@ -3,10 +3,10 @@ import { stringify as stringifyYaml } from "@std/yaml";
 import { COLS, isPositionSame, ROWS } from "#/util/board.ts";
 import { Board, Position, type Puzzle } from "#/util/types.ts";
 
-/** Combining low line character (U+0332) */
+// Combining low line character (U+0332)
 const COMBINING_LOW_LINE = "\u0332";
 
-/** Combining circumflex accent (U+0302) - indicates piece is on destination */
+// Combining circumflex accent (U+0302) - indicates piece is on destination
 const COMBINING_CIRCUMFLEX = "\u0302";
 
 /**

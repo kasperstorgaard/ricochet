@@ -2,21 +2,20 @@ import type { Signal } from "@preact/signals";
 import { useCallback, useMemo, useRef } from "preact/hooks";
 
 import { SolutionDialog } from "#/islands/solution-dialog.tsx";
-import { useMove } from "#/lib/move.ts";
+import { useEditor } from "#/lib/editor.ts";
+import { useMoves } from "#/lib/moves.ts";
 import { buildReplayKeyframes, type KeyframeStop } from "#/lib/replay.ts";
 import { useRouter } from "#/lib/router.ts";
 import { cn } from "#/lib/style.ts";
 import { calculateMoveSpeed } from "#/lib/touch.ts";
 import {
   getGrid,
-  getGuides,
   getTargets,
-  Guide,
   isPositionSame,
   isValidSolution,
   resolveMoves,
 } from "#/util/board.ts";
-import { useEditor } from "#/util/editor.ts";
+import { getGuides, Guide } from "#/util/guides.ts";
 import {
   type Direction,
   type Move,
@@ -134,7 +133,7 @@ export default function Board(
     - touch gestures
     - keyboard controls
   */
-  useMove(swipeRegionRef, boardRef, {
+  useMoves(swipeRegionRef, boardRef, {
     pieces: board.pieces,
     active: state.active,
     onMove,
