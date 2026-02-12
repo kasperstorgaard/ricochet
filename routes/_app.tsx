@@ -1,4 +1,4 @@
-import { cn } from "#/lib/style.ts";
+import { clsx } from "clsx/lite";
 import { define } from "#/core.ts";
 import { CookieBanner } from "#/islands/cookie-banner.tsx";
 import { TrackingScript } from "#/islands/tracking-script.tsx";
@@ -49,7 +49,7 @@ export default define.page(
         </head>
 
         <body
-          className={cn(
+          className={clsx(
             "grow grid grid-cols-[minmax(var(--size-fluid-3),auto)_1fr_minmax(var(--size-fluid-3),auto)]",
             "sm:grid-cols-[minmax(var(--size-fluid-3),auto)_max-content_minmax(var(--size-fluid-3),auto)]",
             "grid-rows-[repeat(3,max-content)_1fr] place-items-[flex-end_center] gap-y-fl-3",

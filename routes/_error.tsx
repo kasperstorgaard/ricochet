@@ -4,7 +4,7 @@ import { ComponentChildren } from "preact";
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
 import { Panel } from "#/components/panel.tsx";
-import { cn } from "#/lib/style.ts";
+import { clsx } from "clsx/lite";
 import { define } from "#/core.ts";
 import { posthog } from "#/lib/posthog.ts";
 
@@ -96,7 +96,7 @@ function ErrorAnimation({ children, status }: ErrorAnimationProps) {
         {Array.from({ length: cols * rows }).map((_, i) => (
           <div
             key={i}
-            className={cn(
+            className={clsx(
               "aspect-square rounded-1",
               "border-1 border-stone-9 border-r-stone-7 border-b-stone-7",
               wallX && i === wallX + 1 && "border-l-2 border-l-ui-4",
@@ -136,7 +136,7 @@ function ErrorAnimation({ children, status }: ErrorAnimationProps) {
 
         {/* Rook */}
         <div
-          className={cn(
+          className={clsx(
             "col-1 row-1 p-(--pad)",
             "w-full aspect-square place-self-center",
             "translate-x-[calc((var(--space-w)+var(--gap))*var(--x))]",

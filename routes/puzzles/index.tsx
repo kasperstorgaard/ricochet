@@ -5,7 +5,7 @@ import { Main } from "#/components/main.tsx";
 import { Pagination } from "#/components/pagination.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { Thumbnail } from "#/components/thumbnail.tsx";
-import { cn } from "#/lib/style.ts";
+import { clsx } from "clsx/lite";
 import { define } from "#/core.ts";
 import { isDev } from "#/lib/env.ts";
 import { listPuzzles } from "#/util/loader.ts";
@@ -59,7 +59,7 @@ export default define.page(
           </div>
 
           <ul
-            className={cn(
+            className={clsx(
               "p-0 grid grid-cols-[repeat(2,1fr)] gap-fl-1 gap-x-fl-2",
               "md:grid-cols-[repeat(3,1fr)] max-lg:max-w-120",
             )}
@@ -68,13 +68,13 @@ export default define.page(
               <li className="list-none pl-0 min-w-0" key={puzzle.slug}>
                 <a
                   href={`puzzles/${puzzle.slug}`}
-                  className={cn(
+                  className={clsx(
                     "group flex flex-col gap-fl-1 text-text-1",
                     "hover:text-brand hover:no-underline",
                   )}
                 >
                   <div
-                    className={cn(
+                    className={clsx(
                       "flex border-1 border-surface-4",
                       "group-hover:border-brand transition-colors",
                     )}

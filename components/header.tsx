@@ -1,4 +1,4 @@
-import { cn } from "#/lib/style.ts";
+import { clsx } from "clsx/lite";
 
 type Props = {
   url: URL;
@@ -18,7 +18,7 @@ export function Header({ items }: Props) {
 
             <a
               href={item.href}
-              className={cn(
+              className={clsx(
                 "underline text-link leading-mini visited:text-link",
               )}
             >
