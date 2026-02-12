@@ -11,6 +11,7 @@ import { ControlsPanel } from "#/islands/controls-panel.tsx";
 import { isValidSolution, resolveMoves } from "#/util/board.ts";
 import { getPuzzle } from "#/util/loader.ts";
 import { Puzzle } from "#/util/types.ts";
+import { SolutionBadge } from "../../../islands/solution-badge.tsx";
 
 export const handler = define.handlers<Puzzle>({
   async GET(ctx) {
@@ -52,10 +53,12 @@ export const handler = define.handlers<Puzzle>({
   },
 });
 
-export default define.page(function PuzzleDetails(props: PageProps<Puzzle>) {
+export default define.page<typeof handler>(function PuzzleDetails(props) {
   const href = useSignal(props.url.href);
   const puzzle = useSignal(props.data);
   const mode = useSignal<"solve">("solve");
+
+  const showDifficulty = props.state.featureFlags.difficultyBadge ?? false;
 
   const url = new URL(props.req.url);
 
@@ -70,16 +73,21 @@ export default define.page(function PuzzleDetails(props: PageProps<Puzzle>) {
       <Main>
         <Header url={url} items={navItems} />
 
-        <div className="flex items-center justify-between gap-fl-1 mt-2">
+        <div className="flex items-center justify-between gap-fl-1 mt-2 flex-wrap">
           <h1 className="text-5 text-brand">
             {props.data.name}
           </h1>
 
-          {isDev && (
-            <a href={`/puzzles/${props.data.slug}/edit`} className="btn">
-              <i className="ph-pencil-simple ph" /> Edit
-            </a>
-          )}
+          <div className="flex gap-fl-1">
+            {isDev &&
+              (
+                <a href={`/puzzles/${props.data.slug}/edit`} className="btn">
+                  <i className="ph-pencil-simple ph" /> Edit
+                </a>
+              )}
+
+            {showDifficulty && <SolutionBadge puzzle={puzzle} />}
+          </div>
         </div>
 
         <Board href={href} puzzle={puzzle} mode={mode} />
