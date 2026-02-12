@@ -245,7 +245,7 @@ function BoardWall({ x, y, orientation }: Wall) {
       className={clsx(
         "place-self-start col-[calc(var(--x)+1)] row-[calc(var(--y)+1)] w-full",
         "border-ui-4 aspect-square pointer-events-none",
-        orientation === "vertical" ? "border-l-2" : "border-t-2",
+        orientation === "vertical" ? "border-l-[3px]" : "border-t-[3px]",
       )}
       style={{
         "--x": x,
@@ -298,7 +298,7 @@ function BoardDestination({ x, y }: Position) {
     <div
       className={clsx(
         "col-[calc(var(--x)+1)] w-full row-[calc(var(--y)+1)]",
-        "aspect-square place-self-center pointer-events-none",
+        "aspect-square flex items-center justify-center pointer-events-none",
         "border-2 border-ui-1",
       )}
       style={{
@@ -306,27 +306,7 @@ function BoardDestination({ x, y }: Position) {
         "--y": y,
       }}
     >
-      <svg
-        className={clsx("text-ui-1")}
-        viewBox="0 0 100 100"
-      >
-        <line
-          x1={0}
-          y1={0}
-          x2={100}
-          y2={100}
-          strokeWidth={3}
-          stroke="currentColor"
-        />
-        <line
-          x1={0}
-          y1={100}
-          x2={100}
-          y2={0}
-          strokeWidth={3}
-          stroke="currentColor"
-        />
-      </svg>
+      <i className="ph-x ph text-ui-1 text-[calc(var(--space-w)-4px)]" />
     </div>
   );
 }
