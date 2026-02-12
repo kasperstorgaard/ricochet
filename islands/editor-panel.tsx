@@ -100,8 +100,13 @@ export function EditorPanel(
 
       if (!res.ok) throw new Error("Generation failed");
 
-      const { board: newBoard } = await res.json();
-      puzzle.value = { ...puzzle.value, board: newBoard };
+      const { board: newBoard, moves } = await res.json();
+
+      puzzle.value = {
+        ...puzzle.value,
+        board: newBoard,
+        difficulty: moves.length,
+      };
     } catch {
       setMessage("generation failed, try again");
     } finally {

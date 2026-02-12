@@ -22,6 +22,7 @@ export const tracking = define.middleware(async (ctx) => {
   ctx.state.trackingDeclined = trackingDeclined;
   ctx.state.trackingAllowed = trackingAllowed;
   ctx.state.trackingId = trackingId;
+  ctx.state.featureFlags = ctx.state.featureFlags || {};
 
   // Capture page views on server
   // if not allowed, will show up as anonymous user

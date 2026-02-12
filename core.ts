@@ -11,6 +11,10 @@ export type State = {
   trackingDeclined: boolean;
   // The user's tracking ID (UUID), or null if not allowed.
   trackingId: string | null;
+
+  featureFlags: {
+    difficultyBadge?: boolean | null;
+  };
 };
 
 export const define = createDefine<State>();
