@@ -33,10 +33,7 @@ export type Puzzle = {
   name: string;
   board: Board;
   createdAt: Date;
-  description?: string;
-  author?: string;
-  difficulty?: "easy" | "medium" | "hard";
-  isTutorial?: boolean;
+  difficulty?: number;
 };
 
 // Lightweight puzzle entry used in the manifest index

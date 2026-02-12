@@ -17,7 +17,6 @@ Deno.test("formatPuzzle - formats simple puzzle", () => {
       ],
       walls: [],
     },
-    description: "A simple starting puzzle.",
   };
 
   const result = formatPuzzle(puzzle);

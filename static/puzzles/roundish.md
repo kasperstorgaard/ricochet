@@ -2,6 +2,7 @@
 name: Roundish
 slug: roundish
 createdAt: 2026-01-22T00:00:00.000Z
+difficulty: 6
 ---
 
 ```

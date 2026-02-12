@@ -1,4 +1,4 @@
-import { page, PageProps } from "fresh";
+import { page } from "fresh";
 
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
@@ -32,8 +32,8 @@ export const handler = define.handlers<PageData>({
   },
 });
 
-export default define.page(
-  function PuzzlesPage(props: PageProps<PageData>) {
+export default define.page<typeof handler>(
+  function PuzzlesPage(props) {
     const { items, pagination, locale } = props.data;
 
     const url = new URL(props.req.url);
@@ -42,6 +42,8 @@ export default define.page(
       { name: "home", href: "/" },
       { name: "puzzles", href: "/puzzles" },
     ];
+
+    const showDifficulty = props.state.featureFlags.difficultyBadge ?? false;
 
     return (
       <>
@@ -60,7 +62,7 @@ export default define.page(
 
           <ul
             className={clsx(
-              "p-0 grid grid-cols-[repeat(2,1fr)] gap-fl-1 gap-x-fl-2",
+              "p-0 grid grid-cols-[repeat(2,1fr)] gap-fl-2",
               "md:grid-cols-[repeat(3,1fr)] max-lg:max-w-120",
             )}
           >
@@ -85,19 +87,27 @@ export default define.page(
                     />
                   </div>
 
-                  <div className="flex flex-col">
-                    <time
-                      dateTime={puzzle.createdAt.toISOString()}
-                      className="text-0 text-text-2 group-hover:text-current uppercase tracking-wide leading-flat"
-                    >
-                      {new Intl.DateTimeFormat(locale, {
-                        dateStyle: "short",
-                      }).format(puzzle.createdAt)}
-                    </time>
+                  <div className="flex gap-fl-1 justify-between items-start">
+                    <div className="flex flex-col">
+                      <time
+                        dateTime={puzzle.createdAt.toISOString()}
+                        className="text-0 text-text-2 group-hover:text-current uppercase tracking-wide leading-flat"
+                      >
+                        {new Intl.DateTimeFormat(locale, {
+                          dateStyle: "short",
+                        }).format(puzzle.createdAt)}
+                      </time>
 
-                    <span className="flex flex-wrap text-2 leading-tight font-4">
-                      {puzzle.name}
-                    </span>
+                      <span className="flex flex-wrap text-2 leading-tight font-4">
+                        {puzzle.name}
+                      </span>
+                    </div>
+
+                    {showDifficulty && (
+                      <span className="bg-surface-2 rounded-blob-5 px-2 py-1 leading-tight text-fl-0 mt-0.5">
+                        {puzzle.difficulty}
+                      </span>
+                    )}
                   </div>
                 </a>
               </li>

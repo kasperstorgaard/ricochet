@@ -47,8 +47,7 @@ Deno.test("solve() returns null for unsolvable puzzle (rook trapped)", () => {
     ],
   };
 
-  const result = solve(board);
-  assertEquals(result, null);
+  assertThrows(() => solve(board));
 });
 
 Deno.test("solve() returns null for unsolvable puzzle (rook can't stop)", () => {
@@ -60,8 +59,7 @@ Deno.test("solve() returns null for unsolvable puzzle (rook can't stop)", () => 
     walls: [],
   };
 
-  const result = solve(board);
-  assertEquals(result, null);
+  assertThrows(() => solve(board));
 });
 
 Deno.test("solve() respects maxDepth option", () => {
@@ -219,9 +217,7 @@ Deno.test("getHint() returns null for unsolvable puzzle", () => {
     ],
   };
 
-  const result = getHint(board);
-
-  assertEquals(result, null);
+  assertThrows(() => getHint(board));
 });
 
 Deno.test("getHint() returns first move of a multi-move solution", () => {

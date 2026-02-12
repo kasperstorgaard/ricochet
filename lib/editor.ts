@@ -1,7 +1,7 @@
 import type { Signal } from "@preact/signals";
 import { useCallback, useEffect } from "preact/hooks";
 
-import { flipBoard, isPositionSame, rotateBoard } from "#/util/board.ts";
+import { isPositionSame } from "#/util/board.ts";
 import { Position, Puzzle } from "#/util/types.ts";
 
 /**
@@ -59,6 +59,7 @@ export function useEditor(
         ...puzzle.value.board,
         walls,
       },
+      difficulty: undefined, // clear difficulty on any edit
     };
   }, [active, puzzle.value.board]);
 
@@ -89,6 +90,7 @@ export function useEditor(
         ...puzzle.value.board,
         pieces,
       },
+      difficulty: undefined, // clear difficulty on any edit
     };
   }, [active, puzzle.value]);
 
@@ -101,6 +103,7 @@ export function useEditor(
         ...puzzle.value.board,
         destination: active,
       },
+      difficulty: undefined, // clear difficulty on any edit
     };
   }, [active, puzzle.value]);
 
@@ -121,12 +124,6 @@ export function useEditor(
           return cyclePiece();
         case "d":
           return setDestination();
-        case "f":
-          return flipBoard(puzzle.value.board, "vertical");
-        case "m":
-          return flipBoard(puzzle.value.board, "horizontal");
-        case "r":
-          return rotateBoard(puzzle.value.board, "right");
       }
     };
 

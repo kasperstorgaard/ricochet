@@ -6,8 +6,7 @@ Deno.test("parsePuzzle - parses metadata with extra fields", () => {
   const markdown = `---
 name: Advanced Puzzle
 slug: advanced-puzzle
-difficulty: hard
-author: John Doe
+difficulty: 7
 createdAt: 2025-06-15T00:00:00.000Z
 ---
 
@@ -28,7 +27,7 @@ createdAt: 2025-06-15T00:00:00.000Z
   assertObjectMatch(result, {
     name: "Advanced Puzzle",
     slug: "advanced-puzzle",
-    author: "John Doe",
+    difficulty: 7,
     board: {},
     createdAt: new Date("2025-06-15T00:00:00.000Z"),
   });
@@ -155,7 +154,6 @@ Deno.test("parsePuzzle - parses simple puzzle", () => {
   const markdown = `---
 name: Simple Puzzle
 slug: simple-puzzle
-description: A simple starting puzzle.
 createdAt: 2026-01-01T00:00:00.000Z
 ---
 
@@ -177,7 +175,6 @@ createdAt: 2026-01-01T00:00:00.000Z
     name: "Simple Puzzle",
     slug: "simple-puzzle",
     createdAt: new Date("2026-01-01T00:00:00.000Z"),
-    description: "A simple starting puzzle.",
     board: {
       destination: { x: 3, y: 7 },
       pieces: [
@@ -194,8 +191,7 @@ Deno.test("parsePuzzle - real-world example 1", () => {
 name: Around the middle
 slug: around-the-middle
 createdAt: 2025-06-15T00:00:00.000Z
-difficulty: medium
-author: Puzzle Master
+difficulty: 7
 ---
 
 Navigate the rook around the middle
@@ -217,7 +213,7 @@ Navigate the rook around the middle
   assertObjectMatch(result, {
     name: "Around the middle",
     slug: "around-the-middle",
-    author: "Puzzle Master",
+    difficulty: 7,
   });
 
   assertEquals(result.board, {
