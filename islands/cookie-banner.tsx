@@ -1,6 +1,4 @@
 import { clsx } from "clsx/lite";
-import { posthog } from "posthog-js";
-import { TargetedSubmitEvent } from "preact";
 
 type Props = {
   // Whether the banner should be shown (true when user hasn't made a choice).
