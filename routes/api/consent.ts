@@ -23,14 +23,14 @@ export const handler = define.handlers({
     // If users accepts cookies, generate a new tracking id.
     // If not, set cookie to "declined" to avoid asking again.
     const isAllowed = action === "accept";
-    const trackingId = isAllowed ? generateTrackingId() : null;
+    const trackingId = generateTrackingId();
 
     ctx.state.trackingId = trackingId;
-    setTrackingCookie(headers, trackingId ?? "declined");
+    setTrackingCookie(headers, isAllowed ? trackingId : "declined");
 
     posthog?.capture({
       event: "cookie_consent",
-      distinctId: trackingId ?? undefined,
+      distinctId: trackingId,
       properties: {
         decision: isAllowed ? "accepted" : "declined",
         $current_url: referer,

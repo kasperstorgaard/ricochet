@@ -26,7 +26,7 @@ export const handler = define.handlers({
 
     posthog?.capture({
       event: "hint_requested",
-      distinctId: trackingId ?? undefined,
+      distinctId: trackingId,
       properties: {
         $current_url: ctx.req.url,
         $process_person_profile: trackingAllowed,

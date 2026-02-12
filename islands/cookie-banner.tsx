@@ -1,4 +1,6 @@
 import { clsx } from "clsx/lite";
+import { posthog } from "posthog-js";
+import { TargetedSubmitEvent } from "preact";
 
 type Props = {
   // Whether the banner should be shown (true when user hasn't made a choice).
@@ -69,6 +71,8 @@ export function CookieBanner({ open }: Props) {
             name="action"
             value="accept"
             className="btn text-1"
+            // Opt in to client side tracking
+            onClick={() => posthog.opt_in_capturing()}
           >
             sure, why not
           </button>
@@ -78,6 +82,8 @@ export function CookieBanner({ open }: Props) {
             name="action"
             value="decline"
             className="btn text-1"
+            // Opt out of client side tracking
+            onClick={() => posthog.opt_out_capturing()}
           >
             nah, I'm good
           </button>

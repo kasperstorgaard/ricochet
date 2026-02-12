@@ -26,6 +26,7 @@ export function TrackingScript(
         defaults: "2025-11-30",
         autocapture: true,
         capture_pageview: false,
+        cookieless_mode: "on_reject",
       });
 
       posthog.identify(trackingId);

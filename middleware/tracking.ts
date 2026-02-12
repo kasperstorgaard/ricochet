@@ -1,6 +1,6 @@
 import { define } from "#/core.ts";
 import { posthog } from "#/lib/posthog.ts";
-import { getTrackingCookie } from "#/util/cookies.ts";
+import { generateTrackingId, getTrackingCookie } from "#/util/cookies.ts";
 
 /**
  * Middleware that evaluates tracking consent and captures pageviews.
@@ -17,7 +17,7 @@ export const tracking = define.middleware(async (ctx) => {
   const trackingDeclined = trackingCookie === "declined";
   const trackingAllowed = !trackingDeclined && Boolean(trackingCookie);
 
-  const trackingId = trackingAllowed ? trackingCookie : null;
+  const trackingId = trackingAllowed ? trackingCookie : generateTrackingId();
 
   ctx.state.trackingDeclined = trackingDeclined;
   ctx.state.trackingAllowed = trackingAllowed;
@@ -34,7 +34,7 @@ export const tracking = define.middleware(async (ctx) => {
   // Capture page views on server
   // if not allowed, will show up as anonymous user
   posthog?.capture({
-    distinctId: trackingId ?? undefined,
+    distinctId: trackingId,
     event: "$pageview",
     properties: {
       $current_url: ctx.req.url,
