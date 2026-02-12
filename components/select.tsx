@@ -28,7 +28,7 @@ export function Select(
           className={clsx(
             "py-1 pr-fl-2 pl-fl-1 rounded-1 ",
             "text-text-1 appearance-none text-1 font-weight-7 cursor-pointer bg-surface-1",
-            "hover:text-blue-0 hover:bg-surface-1/40 focus:text-blue-0 focus:bg-link",
+            "hover:bg-surface-3 focus:bg-surface-3",
           )}
           name={name}
           value={value}

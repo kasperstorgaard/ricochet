@@ -560,48 +560,46 @@
 }
 
 /* Dark theme */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-brand: var(--pink-7);
-    --color-link: var(--violet-4);
-    --color-link-visited: var(--link-visited);
+:root {
+  --color-brand: var(--pink-7);
+  --color-link: var(--violet-4);
+  --color-link-visited: var(--link-visited);
 
-    /* rename from open-props */
-    --color-surface-1: var(--surface-1);
-    --color-surface-2: var(--surface-2);
-    --color-surface-3: var(--surface-3);
-    --color-surface-4: var(--surface-4);
+  /* rename from open-props */
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-surface-4: var(--surface-4);
 
-    --color-text-1: var(--gray-1);
-    --color-text-2: var(--gray-4);
+  --color-text-1: var(--gray-1);
+  --color-text-2: var(--gray-4);
 
-    --color-ui-1: var(--teal-4);
-    --color-ui-2: var(--yellow-3);
-    --color-ui-3: var(--violet-6);
-    --color-ui-4: var(--orange-6);
-    --color-ui-contrast: var(--pink-7);
-  }
+  --color-ui-1: var(--teal-4);
+  --color-ui-2: var(--yellow-3);
+  --color-ui-3: var(--violet-6);
+  --color-ui-4: var(--orange-6);
+  --color-ui-contrast: var(--pink-7);
 }
 
 /* Light theme */
 @media (prefers-color-scheme: light) {
   :root {
-    --color-brand: var(--sand-11);
-    --color-link: var(--purple-5);
+    --color-brand: var(--purple-11);
+    --color-link: var(--purple-7);
     --color-link-visited: var(--link-visited);
 
-    --color-surface-1: var(--sand-1);
-    --color-surface-2: var(--sand-2);
-    --color-surface-3: var(--sand-3);
-    --color-surface-4: var(--sand-4);
+    --color-surface-1: var(--stone-1);
+    --color-surface-2: var(--stone-2);
+    --color-surface-3: var(--stone-3);
+    --color-surface-4: var(--stone-4);
 
-    --color-text-1: var(--sand-12);
-    --color-text-2: var(--sand-11);
+    --color-text-1: var(--brown-12);
+    --color-text-2: var(--brown-11);
 
-    --color-ui-1: var(--lime-7);
+    --color-ui-1: var(--teal-7);
     --color-ui-2: var(--orange-5);
-    --color-ui-3: var(--purple-5);
-    --color-ui-4: var(--choco-9);
+    --color-ui-3: var(--purple-4);
+    --color-ui-4: var(--stone-11);
     --color-ui-contrast: var(--pink-4);
   }
 }
