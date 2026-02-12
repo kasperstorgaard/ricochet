@@ -28,7 +28,7 @@ export function NumberRange(
       <div className="flex items-center gap-fl-1">
         <input
           type="number"
-          className="text-1 min-w-4ch text-center"
+          className="text-1 min-w-4ch text-center bg-surface-1"
           name={`${name}-min`}
           value={value[0]}
           min={min}
@@ -41,7 +41,7 @@ export function NumberRange(
 
         <input
           type="number"
-          className="text-1 min-w-4ch text-center"
+          className="text-1 min-w-4ch text-center bg-surface-1"
           name={`${name}-min`}
           value={value[1]}
           min={value[0]}
