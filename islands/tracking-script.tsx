@@ -25,7 +25,6 @@ export function TrackingScript(
         ui_host: "https://eu.posthog.com",
         defaults: "2025-11-30",
         autocapture: true,
-        capture_pageview: false,
         cookieless_mode: "on_reject",
       });
 

@@ -24,25 +24,5 @@ export const tracking = define.middleware(async (ctx) => {
   ctx.state.trackingId = trackingId;
   ctx.state.featureFlags = ctx.state.featureFlags || {};
 
-  // For analytics, set prop for filtering / insights
-  const cookieConsent = trackingAllowed
-    ? "accepted"
-    : trackingDeclined
-    ? "declined"
-    : "no_decision";
-
-  // Capture page views on server
-  // if not allowed, will show up as anonymous user
-  posthog?.capture({
-    distinctId: trackingId,
-    event: "$pageview",
-    properties: {
-      $current_url: ctx.req.url,
-      $process_person_profile: trackingAllowed,
-
-      cookie_consent: cookieConsent,
-    },
-  });
-
   return await ctx.next();
 });
