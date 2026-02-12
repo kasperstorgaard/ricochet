@@ -68,7 +68,7 @@ export function generate({
     try {
       const moves = solve(board, { maxDepth: solveRange[1] });
 
-      if (moves && moves.length >= solveRange[0]) {
+      if (moves.length >= solveRange[0]) {
         return { board, moves };
       }
     } catch (err) {

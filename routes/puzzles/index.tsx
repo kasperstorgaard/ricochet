@@ -1,4 +1,4 @@
-import { page, PageProps } from "fresh";
+import { page } from "fresh";
 
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
