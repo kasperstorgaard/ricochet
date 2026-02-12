@@ -128,9 +128,9 @@ export function solve(
 export function getHint(
   board: Board,
   options: SolverOptions = {},
-): Move | null {
+) {
   const solution = solve(board, options);
-  return solution ? solution[0] : null;
+  return solution[0];
 }
 
 /**
