@@ -32,6 +32,7 @@ export function SolutionDialog({ open, href, puzzle }: Props) {
             name="name"
             autocomplete="username name"
             placeholder="fx. Jungleboi87"
+            required
             className="border border-none p-2 bg-none text-2 rounded-1"
           />
         </label>
@@ -45,6 +46,7 @@ export function SolutionDialog({ open, href, puzzle }: Props) {
         <button
           className="btn place-self-start"
           type="submit"
+          disabled={!open}
         >
           Submit solution
         </button>
@@ -64,6 +66,7 @@ export function SolutionDialog({ open, href, puzzle }: Props) {
             type="submit"
             className="underline text-ui-4 bg-transparent"
             formNoValidate
+            disabled={!open}
           >
             close
           </button>

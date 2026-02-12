@@ -44,7 +44,7 @@ export const TutorialDialog = function ({ open, href, mode, solution }: Props) {
         animationDelay: `${(1 / replaySpeed) * solution.moves.length}s`,
       }}
     >
-      {step === 0 && <TutorialWelcomeStep href={href.value} />}
+      {step === 0 && <TutorialWelcomeStep href={href.value} open={open} />}
       {step === 1 && <TutorialPiecesStep href={href.value} />}
       {step === 2 && (
         <TutorialSolutionStep href={href.value} solution={solution} />
@@ -55,9 +55,10 @@ export const TutorialDialog = function ({ open, href, mode, solution }: Props) {
 
 type TutorialStepProps = {
   href: string;
+  open?: boolean;
 };
 
-function TutorialWelcomeStep({ href }: TutorialStepProps) {
+function TutorialWelcomeStep({ href, open }: TutorialStepProps) {
   const nextStep = useMemo(() => getStepLink(href, 1), [
     href,
   ]);
@@ -85,7 +86,11 @@ function TutorialWelcomeStep({ href }: TutorialStepProps) {
         method="POST"
         className="flex w-full"
       >
-        <button type="submit" className="btn mr-auto">
+        <button
+          type="submit"
+          className="btn mr-auto"
+          disabled={!open}
+        >
           Dismiss
         </button>
 
