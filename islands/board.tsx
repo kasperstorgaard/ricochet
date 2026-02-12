@@ -6,7 +6,7 @@ import { useEditor } from "#/lib/editor.ts";
 import { useMoves } from "#/lib/moves.ts";
 import { buildReplayKeyframes, type KeyframeStop } from "#/lib/replay.ts";
 import { useRouter } from "#/lib/router.ts";
-import { cn } from "#/lib/style.ts";
+import { clsx } from "clsx/lite";
 import { calculateMoveSpeed } from "#/lib/touch.ts";
 import {
   getGrid,
@@ -157,7 +157,7 @@ export default function Board(
           "--space-w": "clamp(44px - var(--gap), 5vw, 56px)",
           "--replay-speed": `${1 / replaySpeed}s`,
         }}
-        className={cn(
+        className={clsx(
           // Relative for the touch region positioning
           "relative grid gap-(--gap) w-full grid-cols-[repeat(8,var(--space-w))] grid-rows-[repeat(8,var(--space-w))]",
         )}
@@ -223,7 +223,7 @@ export default function Board(
         {mode.value === "solve" && (
           <div
             ref={swipeRegionRef}
-            className={cn(
+            className={clsx(
               "hidden pointer-coarse:block absolute -left-fl-4 -right-fl-4 -top-fl-4 -bottom-fl-4 z-1 touch-none",
             )}
           />
@@ -242,7 +242,7 @@ export default function Board(
 function BoardWall({ x, y, orientation }: Wall) {
   return (
     <div
-      className={cn(
+      className={clsx(
         "place-self-start col-[calc(var(--x)+1)] row-[calc(var(--y)+1)] w-full",
         "border-ui-4 aspect-square pointer-events-none",
         orientation === "vertical" ? "border-l-2" : "border-t-2",
@@ -265,7 +265,7 @@ function BoardSpace({ x, y, href, isActive }: BoardSpaceProps) {
     return (
       <a
         href={href}
-        className={cn(
+        className={clsx(
           "grid col-[calc(var(--x)+1)] row-[calc(var(--y)+1)] aspect-square rounded-1",
           "border-1 border-stone-9 border-b-1 border-r-1 border-r-stone-7 border-b-stone-7",
           isActive && "border-blue-6",
@@ -281,7 +281,7 @@ function BoardSpace({ x, y, href, isActive }: BoardSpaceProps) {
 
   return (
     <div
-      className={cn(
+      className={clsx(
         "grid col-[calc(var(--x)+1)] row-[calc(var(--y)+1)] aspect-square rounded-1",
         "border-1 border-stone-9 border-b-1 border-r-1 border-r-stone-7 border-b-stone-7",
       )}
@@ -296,7 +296,7 @@ function BoardSpace({ x, y, href, isActive }: BoardSpaceProps) {
 function BoardDestination({ x, y }: Position) {
   return (
     <div
-      className={cn(
+      className={clsx(
         "col-[calc(var(--x)+1)] w-full row-[calc(var(--y)+1)]",
         "aspect-square place-self-center pointer-events-none",
         "border-2 border-ui-1",
@@ -307,7 +307,7 @@ function BoardDestination({ x, y }: Position) {
       }}
     >
       <svg
-        className={cn("text-ui-1")}
+        className={clsx("text-ui-1")}
         viewBox="0 0 100 100"
       >
         <line
@@ -343,7 +343,7 @@ function MoveGuide({ move, href, isHint }: MoveGuideProps) {
     <>
       {/* Guide strip from active to target */}
       <div
-        className={cn(
+        className={clsx(
           "bg-(--active-bg) opacity-20 pointer-events-none",
           isHint && "bg-(--hint-bg)/50 animate-blink",
         )}
@@ -363,7 +363,7 @@ function MoveGuide({ move, href, isHint }: MoveGuideProps) {
       {/* Clickable target position */}
       <a
         href={href}
-        className={cn(
+        className={clsx(
           "w-full aspect-square border-1 place-self-center col-[calc(var(--x)+1)] row-[calc(var(--y)+1)]",
           "border-(--active-bg)",
           isHint && "border-(--hint-bg) animate-blink",
@@ -397,7 +397,7 @@ function BoardPiece(
     <a
       id={id}
       href={isReadonly ? "#" : href}
-      className={cn(
+      className={clsx(
         "flex place-content-center col-start-1 row-start-1 p-(--pad)",
         "w-full aspect-square place-self-center ml-(--ml) mt-(--mt)",
         "translate-x-[calc((var(--space-w)+var(--gap))*var(--x))]",
@@ -420,7 +420,7 @@ function BoardPiece(
       data-router={isReadonly ? undefined : "replace"}
     >
       <div
-        className={cn(
+        className={clsx(
           "w-full h-full",
           type === "rook" && "bg-ui-2 rounded-round",
           type === "bouncer" && "bg-ui-3 rounded-1",

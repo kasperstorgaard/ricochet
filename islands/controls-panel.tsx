@@ -1,9 +1,9 @@
 import type { Signal } from "@preact/signals";
 import { useCallback, useMemo } from "preact/hooks";
+import { clsx } from "clsx/lite";
 
 import { Panel } from "#/components/panel.tsx";
 import { updateLocation } from "#/lib/router.ts";
-import { cn } from "#/lib/style.ts";
 import { useGameShortcuts } from "#/lib/keyboard.ts";
 import {
   decodeState,
@@ -41,20 +41,20 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
   return (
     <Panel>
       <div
-        className={cn(
+        className={clsx(
           "grid max-lg:col-[2/3] grid-cols-subgrid place-content-center items-center w-full gap-fl-3",
           "lg:grid lg:row-[3/5] lg:grid-rows-subgrid lg:content-end lg:gap-fl-2",
         )}
       >
         <div
-          className={cn(
+          className={clsx(
             "flex place-items-center gap-fl-1 justify-center w-full",
             "lg:place-self-end",
           )}
         >
           <a
             href={getUndoHref(href.value, state)}
-            className={cn(
+            className={clsx(
               "icon-btn",
               !state.cursor && "opacity-40",
             )}
@@ -65,7 +65,7 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
           </a>
 
           <div
-            className={cn(
+            className={clsx(
               "flex items-center justify-center min-w-[2ch]",
               "text-center font-3 text-fl-3 leading-flat",
               "md:text-fl-2",
@@ -76,7 +76,7 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
 
           <a
             href={getRedoHref(href.value, state)}
-            className={cn(
+            className={clsx(
               "icon-btn",
               (state.cursor == null ||
                 state.cursor === state.moves.length) && "opacity-40",
@@ -89,7 +89,7 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
         </div>
 
         <div
-          className={cn(
+          className={clsx(
             "flex gap-x-fl-2 gap-y-fl-1 justify-center flex-wrap text-1",
             "lg:text-fl-0 lg:place-self-start lg:justify-self-center",
           )}

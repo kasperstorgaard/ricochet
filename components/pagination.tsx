@@ -1,4 +1,4 @@
-import { cn } from "#/lib/style.ts";
+import { clsx } from "clsx/lite";
 
 type Props = {
   page: number;
@@ -23,7 +23,7 @@ export function Pagination({ page, totalPages, baseUrl, className }: Props) {
 
   return (
     <nav
-      className={cn(
+      className={clsx(
         "flex items-center justify-center gap-fl-2 self-end max-lg:w-full",
         className,
       )}
@@ -31,7 +31,7 @@ export function Pagination({ page, totalPages, baseUrl, className }: Props) {
     >
       <a
         href={hasPrevious ? getPageUrl(page - 1) : undefined}
-        className={cn(
+        className={clsx(
           "flex items-center rounded-1 px-2 border-[currentColor] border-1 aspect-square text-text-1",
           "hover:no-underline",
           !hasPrevious && "opacity-40 pointer-events-none",
@@ -48,7 +48,7 @@ export function Pagination({ page, totalPages, baseUrl, className }: Props) {
 
       <a
         href={hasNext ? getPageUrl(page + 1) : undefined}
-        className={cn(
+        className={clsx(
           "flex items-center rounded-1 px-2 border-[currentColor] border-1 aspect-square text-text-1",
           "hover:no-underline",
           !hasNext && "opacity-40 pointer-events-none",

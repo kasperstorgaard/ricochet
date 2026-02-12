@@ -1,7 +1,7 @@
 import type { Signal } from "@preact/signals";
 import { useEffect, useRef, useState } from "preact/hooks";
+import { clsx } from "clsx/lite";
 
-import { cn } from "#/lib/style.ts";
 import { useDebouncedCallback } from "#/lib/use-debounced-callback.ts";
 import { validateBoard } from "#/util/board.ts";
 import type { Board, Puzzle } from "#/util/types.ts";
@@ -80,7 +80,7 @@ export function SolutionBadge({ puzzle }: SolutionBadgeProps) {
   return (
     <span
       ref={ref}
-      className={cn(
+      className={clsx(
         "flex items-center justify-center px-fl-1",
         "bg-surface-3 rounded-blob-3 font-mono",
         "data-animate:animate-fade-in",

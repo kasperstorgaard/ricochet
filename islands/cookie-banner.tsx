@@ -1,4 +1,4 @@
-import { cn } from "#/lib/style.ts";
+import { clsx } from "clsx/lite";
 
 type Props = {
   // Whether the banner should be shown (true when user hasn't made a choice).
@@ -14,7 +14,7 @@ export function CookieBanner({ open }: Props) {
 
   return (
     <div
-      className={cn(
+      className={clsx(
         "fixed top-auto bottom-0 left-0 max-w-screen right-0 p-fl-2 m-0 z-5",
         "rounded-cond-2 overflow-hidden bg-surface-2",
         "sm:max-w-88 max-lg:shadow-3",

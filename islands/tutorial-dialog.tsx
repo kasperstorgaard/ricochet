@@ -2,7 +2,7 @@ import type { Signal } from "@preact/signals";
 import { useEffect, useMemo } from "preact/hooks";
 
 import type { Solution } from "#/db/types.ts";
-import { cn } from "#/lib/style.ts";
+import { clsx } from "clsx/lite";
 import { Dialog } from "#/islands/dialog.tsx";
 import { getReplaySpeed } from "#/util/url.ts";
 
@@ -34,7 +34,7 @@ export const TutorialDialog = function ({ open, href, mode, solution }: Props) {
   return (
     <Dialog
       open={open}
-      className={cn(
+      className={clsx(
         "[animation-fill-mode:forwards]",
         "backdrop:[animation-delay:inherit] backdrop:[animation-fill-mode:forwards]",
         step === 2 &&

@@ -3,7 +3,7 @@ import { useCallback, useMemo } from "preact/hooks";
 
 import { Panel } from "#/components/panel.tsx";
 import type { Solution } from "#/db/types.ts";
-import { cn } from "#/lib/style.ts";
+import { clsx } from "clsx/lite";
 
 type ControlsPanelProps = {
   href: Signal<string>;
@@ -33,7 +33,7 @@ export function SolutionsPanel(
   return (
     <Panel>
       <ol
-        className={cn(
+        className={clsx(
           "grid col-[2/3] lg:col-auto w-full items-center gap-x-fl-2 gap-y-1 m-0 p-0 list-none",
           "lg:row-[3/4] lg:grid-flow-row lg:grid-rows-[auto] lg:content-start",
         )}
@@ -42,7 +42,7 @@ export function SolutionsPanel(
           item === null ? <li key="delimiter" className="p-0">...</li> : (
             <li
               key={item?.id}
-              className={cn(
+              className={clsx(
                 "p-0 px-1 border-b-1 border-gray-5",
                 item?.id === solution.id && "text-brand font-5 bg-surface-1",
               )}

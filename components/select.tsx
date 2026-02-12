@@ -1,6 +1,6 @@
 import { HTMLAttributes } from "preact";
 
-import { cn } from "#/lib/style.ts";
+import { clsx } from "clsx/lite";
 
 type SelectProps = HTMLAttributes<HTMLSelectElement> & {
   label: string;
@@ -25,7 +25,7 @@ export function Select(
 
       <div className="relative grid items-center">
         <select
-          className={cn(
+          className={clsx(
             "py-1 pr-fl-2 pl-fl-1 rounded-1 ",
             "text-text-1 appearance-none text-1 font-weight-7 cursor-pointer bg-surface-1",
             "hover:text-blue-0 hover:bg-surface-1/40 focus:text-blue-0 focus:bg-link",

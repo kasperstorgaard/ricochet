@@ -1,10 +1,10 @@
 import type { Signal } from "@preact/signals";
 import { useCallback, useMemo, useState } from "preact/hooks";
+import { clsx } from "clsx/lite";
 
 import { NumberRange } from "#/components/number-range.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { Select } from "#/components/select.tsx";
-import { cn } from "#/lib/style.ts";
 import { useRouter } from "#/lib/router.ts";
 import { flipBoard, resolveMoves, rotateBoard } from "#/util/board.ts";
 import { formatPuzzle } from "#/util/formatter.ts";
@@ -170,7 +170,7 @@ export function EditorPanel(
               onClick={onGenerate}
             >
               <i
-                className={cn(
+                className={clsx(
                   "ph",
                   isGenerating ? "ph-circle-notch animate-spin" : "ph-shuffle",
                 )}
@@ -214,7 +214,7 @@ export function EditorPanel(
       </div>
 
       <div
-        className={cn(
+        className={clsx(
           "absolute inset-0 bg-surface-2 p-fl-2 flex flex-col gap-fl-4",
           "transition-transform duration-200 ease-out",
           showOptions ? "translate-x-0" : "translate-x-full",

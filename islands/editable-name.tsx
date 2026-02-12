@@ -1,8 +1,8 @@
 import { slug as slugify } from "@annervisser/slug";
 import type { Signal } from "@preact/signals";
 import { useRef } from "preact/hooks";
+import clsx from "clsx/lite";
 
-import { cn } from "#/lib/style.ts";
 import type { Puzzle } from "#/util/types.ts";
 
 type EditableNameProps = {
@@ -19,7 +19,7 @@ export function EditableName(
 
   return (
     <h1
-      className={cn("flex items-center gap-fl-1", className)}
+      className={clsx("flex items-center gap-fl-1", className)}
     >
       <span
         ref={textRef}
