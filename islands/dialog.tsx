@@ -1,5 +1,5 @@
 import type { DialogHTMLAttributes } from "preact";
-import { useEffect, useRef } from "preact/hooks";
+import { useLayoutEffect, useRef } from "preact/hooks";
 
 import { clsx } from "clsx/lite";
 
@@ -8,7 +8,7 @@ type Props = DialogHTMLAttributes<HTMLDialogElement>;
 export function Dialog({ open, className, children, ...rest }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     ref.current?.close();
     if (open) ref.current?.showModal();
   }, [open]);
