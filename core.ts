@@ -5,12 +5,10 @@ import { createDefine } from "fresh";
  * Set by the tracking middleware in middleware/tracking.ts.
  */
 export type State = {
-  // True if user accepted tracking (has valid tracking ID).
-  trackingAllowed: boolean;
-  // True if user explicitly declined tracking.
-  trackingDeclined: boolean;
-  // The user's tracking ID (UUID), or null if not allowed.
-  trackingId: string | null;
+  // The users current cookie choice;
+  cookieChoice: "accepted" | "declined" | null;
+  // The user's tracking ID (UUID), either temporary or stored in cookie
+  trackingId: string;
 
   featureFlags: {
     difficultyBadge?: boolean | null;

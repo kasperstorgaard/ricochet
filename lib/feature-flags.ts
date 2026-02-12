@@ -6,9 +6,9 @@ import { posthog } from "#/lib/posthog.ts";
  * Defaults to false if tracking is not allowed.
  */
 export async function getDifficultyBadgeFlag(state: State) {
-  const { trackingAllowed, trackingId } = state;
+  const { cookieChoice, trackingId } = state;
 
-  if (!posthog || !trackingAllowed || !trackingId) return null;
+  if (!posthog || cookieChoice !== "accepted") return null;
 
   const flag = await posthog.getFeatureFlag("difficulty-badge", trackingId);
 

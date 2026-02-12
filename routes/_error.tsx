@@ -35,7 +35,7 @@ export default define.page(function ErrorPage(props) {
     if (!message) message = "The request doesn't seem to be valid.";
   }
 
-  const trackingId = props.state.trackingId ?? undefined;
+  const trackingId = props.state.trackingId;
   const trackingData = {
     $current_url: props.url.href,
     status,

@@ -8,7 +8,7 @@ import { posthog } from "#/lib/posthog.ts";
 
 export const handler = define.handlers({
   async GET(ctx) {
-    const { trackingAllowed, trackingId } = ctx.state;
+    const { cookieChoice, trackingId } = ctx.state;
 
     const url = new URL(ctx.req.url);
     const slug = ctx.params.slug;
@@ -26,10 +26,10 @@ export const handler = define.handlers({
 
     posthog?.capture({
       event: "hint_requested",
-      distinctId: trackingId ?? undefined,
+      distinctId: trackingId,
       properties: {
         $current_url: ctx.req.url,
-        $process_person_profile: trackingAllowed,
+        $process_person_profile: cookieChoice === "accepted",
 
         puzzle_slug: slug,
         puzzle_difficulty: puzzle.difficulty,
