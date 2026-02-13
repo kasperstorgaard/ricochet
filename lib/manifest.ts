@@ -21,6 +21,7 @@ export async function updateManifest() {
         slug: attrs.slug,
         name: attrs.name,
         createdAt: attrs.createdAt,
+        difficulty: attrs.difficulty,
       });
     }
   }

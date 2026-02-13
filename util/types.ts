@@ -37,7 +37,10 @@ export type Puzzle = {
 };
 
 // Lightweight puzzle entry used in the manifest index
-export type PuzzleManifestEntry = Pick<Puzzle, "slug" | "name" | "createdAt">;
+export type PuzzleManifestEntry = Pick<
+  Puzzle,
+  "slug" | "name" | "createdAt" | "difficulty"
+>;
 
 // Tracks current pagination position and total counts
 export type PaginationState = {

@@ -96,6 +96,10 @@ export async function listPuzzles(
   };
 }
 
+type GetPuzzleOfTheDayOptions = {
+  difficulty: [number, number];
+};
+
 /**
  * Gets puzzle of the day based on the current date.
  * Cycles through puzzles sorted by date (oldest first).
@@ -106,9 +110,16 @@ export async function listPuzzles(
 export async function getPuzzleOfTheDay(
   baseUrl: string | URL,
   date = new Date(Date.now()),
+  options: GetPuzzleOfTheDayOptions,
 ): Promise<Puzzle> {
   const entries = (await getPuzzleManifest(baseUrl))
-    .filter((p) => !p.slug.startsWith("tutorial"));
+    .filter((puzzle) => !puzzle.slug.startsWith("tutorial"))
+    // Check that the puzzle is within the difficulty range
+    .filter((puzzle) => {
+      const difficulty = puzzle.difficulty ?? 0;
+      return difficulty >= options.difficulty[0] &&
+        difficulty <= options.difficulty[1];
+    });
 
   // Sort oldest first for consistent rotation base
   const sortedEntries = entries.sort((a, b) => {
