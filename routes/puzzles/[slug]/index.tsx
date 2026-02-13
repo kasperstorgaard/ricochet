@@ -11,7 +11,8 @@ import { SolutionBadge } from "#/islands/solution-badge.tsx";
 import { isDev } from "#/lib/env.ts";
 import { isValidSolution, resolveMoves } from "#/util/board.ts";
 import { getPuzzle } from "#/util/loader.ts";
-import { Puzzle } from "#/util/types.ts";
+import { Move, Puzzle } from "#/util/types.ts";
+import { posthog } from "../../../lib/posthog.ts";
 
 export const handler = define.handlers<Puzzle>({
   async GET(ctx) {
@@ -27,6 +28,7 @@ export const handler = define.handlers<Puzzle>({
   async POST(ctx) {
     const req = ctx.req;
     const { slug } = ctx.params;
+    const referer = ctx.req.headers.get("referer");
 
     const form = await req.formData();
     const name = form.get("name")?.toString();
@@ -39,7 +41,7 @@ export const handler = define.handlers<Puzzle>({
     if (!name) throw new HttpError(400, "Must provide a username");
 
     const rawMoves = form.get("moves")?.toString() ?? "";
-    const moves = JSON.parse(rawMoves);
+    const moves = JSON.parse(rawMoves) as Move[];
 
     if (!isValidSolution(resolveMoves(puzzle.board, moves))) {
       throw new HttpError(400, "Solution is not valid");
@@ -48,6 +50,21 @@ export const handler = define.handlers<Puzzle>({
     const solution = await addSolution({ puzzleSlug: slug, name, moves });
     const url = new URL(req.url);
     url.pathname = `puzzles/${slug}/solutions/${solution.id}`;
+
+    posthog?.capture({
+      distinctId: ctx.state.trackingId,
+      event: "puzzle_solved",
+      properties: {
+        properties: {
+          $current_url: referer,
+          $process_person_profile: ctx.state.cookieChoice === "accepted",
+
+          puzzle_slug: slug,
+          puzzle_difficulty: puzzle.difficulty,
+          game_moves: moves?.length,
+        },
+      },
+    });
 
     return Response.redirect(url.href, 302);
   },
