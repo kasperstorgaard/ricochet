@@ -8,7 +8,7 @@ import { Main } from "#/components/main.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { Thumbnail } from "#/components/thumbnail.tsx";
 import { Puzzle } from "#/util/types.ts";
-import { getPuzzleOfTheDay } from "../util/loader.ts";
+import { getPuzzleOfTheDay } from "#/util/loader.ts";
 
 type PageData = {
   puzzleOfTheDay: {
