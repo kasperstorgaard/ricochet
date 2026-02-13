@@ -86,7 +86,7 @@ export default function Board(
   }, [state.active, puzzle.value.board.pieces]);
 
   const replaySpeed = useMemo(
-    () => getReplaySpeed(href.value),
+    () => getReplaySpeed(href.value) ?? 1,
     [href.value],
   );
 
