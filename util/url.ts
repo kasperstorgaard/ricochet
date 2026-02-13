@@ -185,22 +185,42 @@ export function getHintHref(href: string) {
   return url.href;
 }
 
-// Reads the `replay_speed` search param from a URL, defaulting to 1.
-export function getReplaySpeed(url: URL | string): number {
-  const urlObj = typeof url === "string" ? new URL(url) : url;
-  const rawValue = urlObj.searchParams.get("replay_speed");
+// Reads the `replay_speed` search param from a URL
+export function getReplaySpeed(urlOrHref: URL | string): number | null {
+  const url = typeof urlOrHref === "string" ? new URL(urlOrHref) : urlOrHref;
+
+  const rawValue = url.searchParams.get("replay_speed");
   const value = parseFloat(rawValue ?? "");
-  return isNaN(value) ? 1 : value;
+  return isNaN(value) ? null : value;
 }
 
-// Reads the `page` search param from a URL, defaulting to 1.
+// Reads the `difficulty` search param from a URL, returning a range
+export function getDifficulty(
+  urlOrHref: URL | string,
+): [number, number] | null {
+  const url = typeof urlOrHref === "string" ? new URL(urlOrHref) : urlOrHref;
+  const rawValue = url.searchParams.get("difficulty");
+
+  if (!rawValue) return null;
+
+  const range = rawValue?.split("-")
+    .map((value) => parseInt(value))
+    .filter((value) => !Number.isNaN(value));
+
+  if (!range.length) return null;
+
+  return range.length === 2 ? range as [number, number] : [0, range[0]];
+}
+
+// Reads the `page` search param from a URL
 export function getPage(
-  url: URL,
+  urlOrHref: URL | string,
 ) {
+  const url = typeof urlOrHref === "string" ? new URL(urlOrHref) : urlOrHref;
   const pageParam = url.searchParams.get("page");
 
-  if (!pageParam) return 1;
+  if (!pageParam) return null;
 
-  const parsed = Number.parseInt(pageParam, 10);
+  const parsed = parseInt(pageParam, 10);
   return Number.isNaN(parsed) ? 1 : parsed;
 }

@@ -4,8 +4,10 @@ import {
   decodeState,
   encodeState,
   getActiveHref,
+  getDifficulty,
   getHintHref,
   getMovesHref,
+  getPage,
   getRedoHref,
   getReplaySpeed,
   getResetHref,
@@ -233,17 +235,17 @@ Deno.test("getHintHref() should throw when URL has no puzzle slug", () => {
 });
 
 Deno.test("getReplaySpeed() should return the replay_speed param", () => {
-  assertEquals(getReplaySpeed("http://example.com/?replay_speed=2"), 2);
+  assertEquals(getReplaySpeed("http://example.com/?replay_speed=1.6"), 1.6);
 });
 
-Deno.test("getReplaySpeed() should default to 1 when param is missing", () => {
-  assertEquals(getReplaySpeed("http://example.com/"), 1);
+Deno.test("getDifficulty() should return a range", () => {
+  assertEquals(getDifficulty("http://example.com/?difficulty=3-7"), [3, 7]);
 });
 
-Deno.test("getReplaySpeed() should default to 1 for non-numeric value", () => {
-  assertEquals(getReplaySpeed("http://example.com/?replay_speed=abc"), 1);
+Deno.test("getDifficulty() should return a range from 0 when passed a single value", () => {
+  assertEquals(getDifficulty("http://example.com/?difficulty=7"), [0, 7]);
 });
 
-Deno.test("getReplaySpeed() should handle fractional values", () => {
-  assertEquals(getReplaySpeed("http://example.com/?replay_speed=0.5"), 0.5);
+Deno.test("getPage() should return the page param", () => {
+  assertEquals(getPage("http://example.com/?page=7"), 7);
 });
