@@ -1,6 +1,6 @@
 import { define } from "#/core.ts";
 import { getPuzzleOfTheDay } from "#/util/loader.ts";
-import { getDifficulty } from "../../util/url.ts";
+import { getDifficulty } from "#/util/url.ts";
 
 // Redirect route to get the daily puzzle
 export const handler = define.handlers({

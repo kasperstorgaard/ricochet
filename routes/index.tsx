@@ -8,7 +8,7 @@ import { Main } from "#/components/main.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { Thumbnail } from "#/components/thumbnail.tsx";
 import { Puzzle } from "#/util/types.ts";
-import { getPuzzleOfTheDay } from "../util/loader.ts";
+import { getPuzzleOfTheDay } from "#/util/loader.ts";
 
 type PageData = {
   puzzleOfTheDay: {
@@ -59,10 +59,11 @@ export default define.page<typeof handler>(function Home(ctx) {
       <Main className="max-lg:row-span-full items-stretch place-content-stretch lg:pb-fl-4">
         <Header url={url} items={navItems} />
 
-        <div className="flex flex-col gap-1 lg:pt-fl-2">
+        <div className="flex flex-col gap-1 lg:pt-fl-1">
           <h1 className="text-fl-3 leading-flat text-brand">
             Ricochet
           </h1>
+
           <p className="text-text-2 text-fl-0">
             A puzzle game based on{"  "}
             <a href="https://boardgamegeek.com/boardgame/51/ricochet-robots">
@@ -75,7 +76,7 @@ export default define.page<typeof handler>(function Home(ctx) {
           className={clsx(
             "p-0 grid grid-cols-[repeat(2,1fr)] gap-fl-2",
             "list-none",
-            "md:grid-cols-[repeat(3,1fr)] max-lg:max-w-120",
+            "md:grid-cols-[repeat(3,1fr)] max-lg:max-w-120 lg:mt-fl-1",
           )}
         >
           <li className="list-none pl-0 min-w-0">
@@ -134,17 +135,17 @@ export default define.page<typeof handler>(function Home(ctx) {
               </div>
             </a>
           </li>
-          <li className="list-none pl-0 min-w-0">
+          <li className="list-none pl-0 min-w-0 max-lg:col-span-2 max-lg:place-self-start">
             <a
               href="/puzzles"
               className={clsx(
-                "group flex flex-col gap-fl-1 text-text-1 p-fl-2 w-full place-content-center aspect-square col-span-2",
-                "border border-text-3",
+                "group flex gap-fl-1 p-fl-3 place-content-start place-items-center",
+                "text-text-1 leading-snug border border-surface-4 hover:border-brand",
+                "lg:aspect-square lg:p-fl-2 lg:flex-col lg:justify-center lg:place-items-start lg:gap-fl-1 lg:w-full",
                 "hover:text-brand hover:no-underline",
-                "lg:col-span-1",
               )}
             >
-              Browse all puzzles
+              Browse all puzzles <i className="ph ph-arrow-right" />
             </a>
           </li>
         </ul>
