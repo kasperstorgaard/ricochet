@@ -74,7 +74,7 @@ export default define.page<typeof handler>(function Home(ctx) {
 
         <ul
           className={clsx(
-            "p-0 grid grid-cols-[repeat(2,1fr)] gap-fl-2",
+            "p-0 grid grid-cols-[repeat(2,1fr)] gap-fl-2 gap-y-fl-3",
             "list-none",
             "md:grid-cols-[repeat(3,1fr)] max-lg:max-w-120 lg:mt-fl-1",
           )}
@@ -99,9 +99,10 @@ export default define.page<typeof handler>(function Home(ctx) {
                 />
               </div>
 
-              <div className="flex flex-col">
+              <div className="grid grid-cols-[1fr_min-content] items-center pr-fl-1">
                 Daily puzzle
-                <span className="text-text-2 text-fl-0 font-mono group-hover:text-current">
+                <i className="ph ph-arrow-right" />
+                <span className="text-text-2 text-0 font-mono group-hover:text-current">
                   MEDIUM
                 </span>
               </div>
@@ -127,9 +128,10 @@ export default define.page<typeof handler>(function Home(ctx) {
                 />
               </div>
 
-              <div className="flex flex-col">
+              <div className="grid grid-cols-[1fr_min-content] items-center pr-fl-1">
                 Daily puzzle
-                <span className="text-text-2 text-fl-0 font-mono group-hover:text-current">
+                <i className="ph ph-arrow-right" />
+                <span className="text-text-2 text-0 font-mono group-hover:text-current">
                   HARD
                 </span>
               </div>
@@ -139,9 +141,9 @@ export default define.page<typeof handler>(function Home(ctx) {
             <a
               href="/puzzles"
               className={clsx(
-                "group flex gap-fl-1 p-fl-3 place-content-start place-items-center",
+                "group flex gap-fl-1 p-fl-2 place-content-start place-items-center",
                 "text-text-1 leading-snug border border-surface-4 hover:border-brand",
-                "lg:aspect-square lg:p-fl-2 lg:flex-col lg:justify-center lg:place-items-start lg:gap-fl-1 lg:w-full",
+                "lg:aspect-square lg:flex-col lg:justify-center lg:place-items-start lg:gap-fl-1 lg:w-full",
                 "hover:text-brand hover:no-underline",
               )}
             >
