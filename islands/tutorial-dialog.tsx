@@ -23,7 +23,7 @@ export const TutorialDialog = function ({ open, href, mode, solution }: Props) {
   }, [href.value]);
 
   const replaySpeed = useMemo(
-    () => getReplaySpeed(href.value),
+    () => getReplaySpeed(href.value) ?? 1,
     [href.value],
   );
 

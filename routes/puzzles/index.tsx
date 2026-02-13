@@ -21,7 +21,7 @@ export const handler = define.handlers<PageData>({
     const { items, pagination } = await listPuzzles(ctx.url.origin, {
       sortBy: "createdAt",
       sortOrder: "descending",
-      page: getPage(ctx.url),
+      page: getPage(ctx.url) ?? 1,
       itemsPerPage: ITEMS_PER_PAGE,
     });
 
