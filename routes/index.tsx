@@ -74,8 +74,7 @@ export default define.page<typeof handler>(function Home(ctx) {
 
         <ul
           className={clsx(
-            "p-0 grid grid-cols-[repeat(2,1fr)] gap-fl-2 gap-y-fl-3",
-            "list-none mt-fl-1",
+            "p-0 grid grid-cols-[repeat(2,1fr)] gap-fl-2 gap-y-fl-3 list-none",
             "md:grid-cols-[repeat(3,1fr)] max-lg:max-w-120",
           )}
         >
