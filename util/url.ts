@@ -173,10 +173,10 @@ export function getResetHref(href: string) {
  */
 export function getHintHref(href: string) {
   const url = new URL(href);
-  const slugMatcher = new URLPattern({ pathname: "/puzzles/:slug" });
+  const slugMatcher = /\/puzzles\/([^/]+)(\/|$)/;
 
-  const matches = slugMatcher.exec(url);
-  const slug = matches?.pathname.groups.slug;
+  const matches = href.match(slugMatcher) ?? [];
+  const slug = matches[1];
 
   if (!slug) throw new Error("Unable to get slug from URL");
 
