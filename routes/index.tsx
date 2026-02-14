@@ -59,7 +59,7 @@ export default define.page<typeof handler>(function Home(ctx) {
       <Main className="max-lg:row-span-full items-stretch place-content-stretch lg:pb-fl-4">
         <Header url={url} items={navItems} />
 
-        <div className="flex flex-col gap-1 lg:pt-fl-1">
+        <div className="flex flex-col gap-1 py-fl-1 pt-fl-2">
           <h1 className="text-fl-3 leading-flat text-brand">
             Ricochet
           </h1>
@@ -74,9 +74,8 @@ export default define.page<typeof handler>(function Home(ctx) {
 
         <ul
           className={clsx(
-            "p-0 grid grid-cols-[repeat(2,1fr)] gap-fl-2 gap-y-fl-3",
-            "list-none",
-            "md:grid-cols-[repeat(3,1fr)] max-lg:max-w-120 lg:mt-fl-1",
+            "p-0 grid grid-cols-[repeat(2,1fr)] gap-fl-2 gap-y-fl-3 list-none",
+            "md:grid-cols-[repeat(3,1fr)] max-lg:max-w-120",
           )}
         >
           <li className="list-none pl-0 min-w-0">
@@ -99,7 +98,7 @@ export default define.page<typeof handler>(function Home(ctx) {
                 />
               </div>
 
-              <div className="grid grid-cols-[1fr_min-content] items-center pr-fl-1">
+              <div className="grid grid-cols-[1fr_min-content] items-center pr-fl-1 max-sm:text-fl-1">
                 Daily puzzle
                 <i className="ph ph-arrow-right" />
                 <span className="text-text-2 text-0 font-mono group-hover:text-current">
@@ -128,7 +127,7 @@ export default define.page<typeof handler>(function Home(ctx) {
                 />
               </div>
 
-              <div className="grid grid-cols-[1fr_min-content] items-center pr-fl-1">
+              <div className="grid grid-cols-[1fr_min-content] items-center pr-fl-1 max-sm:text-fl-1">
                 Daily puzzle
                 <i className="ph ph-arrow-right" />
                 <span className="text-text-2 text-0 font-mono group-hover:text-current">

@@ -9,7 +9,7 @@ export default define.page(
     const isTutorial = url.pathname.endsWith("/tutorial");
 
     return (
-      <html className="min-h-screen">
+      <html className="min-h-dvh">
         <head>
           <meta charset="utf-8" />
           <meta
