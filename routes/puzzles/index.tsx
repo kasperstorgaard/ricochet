@@ -63,7 +63,7 @@ export default define.page<typeof handler>(
           <ul
             className={clsx(
               "p-0 grid grid-cols-[repeat(2,1fr)] gap-fl-2",
-              "md:grid-cols-[repeat(3,1fr)] max-lg:max-w-120",
+              "md:grid-cols-[repeat(3,1fr)] max-lg:max-w-120 max-lg:mt-fl-2",
             )}
           >
             {items.map((puzzle) => (
