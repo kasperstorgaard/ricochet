@@ -269,7 +269,7 @@ function BoardSpace({ x, y, href, isActive }: BoardSpaceProps) {
         className={clsx(
           "grid col-[calc(var(--x)+1)] row-[calc(var(--y)+1)] aspect-square rounded-1",
           "border-1 border-stone-9 border-b-1 border-r-1 border-r-stone-7 border-b-stone-7",
-          isActive && "border-blue-6",
+          isActive && "bg-brand/30 animate-blink",
         )}
         style={{
           "--x": x,
