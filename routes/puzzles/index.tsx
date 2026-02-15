@@ -43,7 +43,7 @@ export default define.page<typeof handler>(
       { name: "puzzles", href: "/puzzles" },
     ];
 
-    const showDifficulty = props.state.featureFlags.difficultyBadge ?? false;
+    const showDifficulty = props.state.featureFlags.difficultyBadge ?? isDev;
 
     return (
       <>
