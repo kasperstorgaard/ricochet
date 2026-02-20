@@ -44,8 +44,6 @@ export const handler = define.handlers<Data>({
       );
     }
 
-    console.log({ solution });
-
     const url = new URL(req.url);
     if (!url.searchParams.has("moves") && solution) {
       url.search = encodeState(solution);
