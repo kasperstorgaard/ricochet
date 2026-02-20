@@ -35,7 +35,7 @@ export const handler = define.handlers<Data>({
 
     const solution = solutionId
       ? await getPuzzleSolution(slug, solutionId)
-      : null;
+      : solutions[0];
 
     if (solutionId && !solution) {
       throw new HttpError(
@@ -45,8 +45,8 @@ export const handler = define.handlers<Data>({
     }
 
     const url = new URL(req.url);
-    if (!url.searchParams.has("moves") && solutions.length) {
-      url.search = encodeState(solution ?? solutions[0]);
+    if (!url.searchParams.has("moves") && solution) {
+      url.search = encodeState(solution);
 
       return Response.redirect(url);
     }
