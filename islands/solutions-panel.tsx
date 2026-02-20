@@ -90,7 +90,7 @@ export function SolutionsPanel(
               href={`/puzzles/${puzzle.value.slug}`}
               className="btn"
             >
-              Play again
+              Try again
             </a>
           )}
         </div>
