@@ -39,7 +39,7 @@
     "@std/ulid": "jsr:@std/ulid@^1.0.0",
     "@std/yaml": "jsr:@std/yaml@^1.0.11",
     "@tailwindcss/vite": "npm:@tailwindcss/vite@^4.1.18",
-    "clsx": "npm:clsx@^2.1.1",
+    "clsx/lite": "npm:clsx@^2.1.1/lite",
     "fresh": "jsr:@fresh/core@^2.2.0",
     "idb-keyval": "npm:idb-keyval@6.2.1",
     "open-props": "npm:open-props@^1.7.23",
