@@ -29,15 +29,15 @@ export const handler = define.handlers<Data>({
     }
 
     const solutions = await listPuzzleSolutions(slug, {
-      limit: 10,
+      limit: 8,
       byMoves: true,
     });
 
     const solution = solutionId
       ? await getPuzzleSolution(slug, solutionId)
-      : solutions[0];
+      : null;
 
-    if (solutions.length && !solution) {
+    if (solutionId && !solution) {
       throw new HttpError(
         404,
         `Unable to find solution with id: ${solutionId}`,
@@ -95,6 +95,7 @@ export default define.page<typeof handler>(function SolutionPage(props) {
       {props.data.solutions.length
         ? (
           <SolutionsPanel
+            puzzle={puzzle}
             solutions={props.data.solutions}
             solution={props.data.solution}
             href={href}

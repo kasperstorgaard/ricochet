@@ -110,7 +110,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
         <Board href={href} puzzle={puzzle} mode={mode} />
       </Main>
 
-      <ControlsPanel href={href} />
+      <ControlsPanel puzzle={puzzle} href={href} />
     </>
   );
 });
