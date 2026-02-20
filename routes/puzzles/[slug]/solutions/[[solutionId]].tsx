@@ -45,8 +45,8 @@ export const handler = define.handlers<Data>({
     }
 
     const url = new URL(req.url);
-    if (!url.searchParams.has("moves") && solution) {
-      url.search = encodeState(solution);
+    if (!url.searchParams.has("moves") && solutions.length) {
+      url.search = encodeState(solution ?? solutions[0]);
 
       return Response.redirect(url);
     }
