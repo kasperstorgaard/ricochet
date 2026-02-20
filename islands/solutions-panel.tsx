@@ -4,21 +4,23 @@ import { useCallback, useMemo } from "preact/hooks";
 import { Panel } from "#/components/panel.tsx";
 import type { Solution } from "#/db/types.ts";
 import { clsx } from "clsx/lite";
+import { Puzzle } from "../util/types.ts";
 
-type ControlsPanelProps = {
+type SolutionsPanelProps = {
   href: Signal<string>;
+  puzzle: Signal<Puzzle>;
   solutions: Solution[];
   solution: Solution | null;
 };
 
 export function SolutionsPanel(
-  { href, solutions, solution }: ControlsPanelProps,
+  { href, puzzle, solutions, solution }: SolutionsPanelProps,
 ) {
   if (!solution) solution = solutions[0];
 
   const solutionItems = useMemo(() => {
     const isSolutionInList = solutions.some((item) => item.id === solution.id);
-    if (!isSolutionInList) return [...solutions.slice(0, 8), null, solution];
+    if (!isSolutionInList) return [...solutions.slice(0, 6), null, solution];
 
     return solutions;
   }, [solutions, solution]);
@@ -32,32 +34,65 @@ export function SolutionsPanel(
 
   return (
     <Panel>
-      <ol
+      <div
         className={clsx(
-          "grid col-[2/3] lg:col-auto w-full items-center gap-x-fl-2 gap-y-1 m-0 p-0 list-none",
-          "lg:row-[3/4] lg:grid-flow-row lg:grid-rows-[auto] lg:content-start",
+          "grid col-[2/3] lg:col-auto w-full items-center gap-fl-3 m-0 p-0 list-none",
+          "lg:row-[3/4] lg:grid-flow-row lg:grid-rows-[auto] lg:content-between",
         )}
       >
-        {solutionItems.map((item) =>
-          item === null ? <li key="delimiter" className="p-0">...</li> : (
-            <li
-              key={item?.id}
+        {solutionItems.length > 0 && (
+          <div className="flex flex-col gap-fl-1">
+            <h2 className="text-fl-1 text-text-2 max-lg:hidden">
+              Solutions
+            </h2>
+
+            <ol
               className={clsx(
-                "p-0 px-1 border-b-1 border-gray-5",
-                item?.id === solution.id && "text-brand font-5 bg-surface-1",
+                "m-0 p-0 list-none",
+                "grid items-center gap-x-fl-2 gap-y-1",
               )}
             >
-              <a
-                className="flex gap-2"
-                href={getSolutionUrl(item)}
-              >
-                <span>{item.moves.length}.</span>
-                {item.name}
-              </a>
-            </li>
-          )
+              {solutionItems.map((item) =>
+                item === null
+                  ? <li key="delimiter" className="p-0">...</li>
+                  : (
+                    <li
+                      key={item?.id}
+                      className={clsx(
+                        "p-0 px-1 border-b-1 border-gray-5",
+                        item?.id === solution.id &&
+                          "text-brand font-5 bg-surface-1",
+                      )}
+                    >
+                      <a
+                        className="flex gap-2"
+                        href={getSolutionUrl(item)}
+                      >
+                        <span>{item.moves.length}.</span>
+                        {item.name}
+                      </a>
+                    </li>
+                  )
+              )}
+            </ol>
+          </div>
         )}
-      </ol>
+
+        <div className="flex gap-2 items-start flex-wrap lg:flex-col">
+          <a href="/" className="btn">
+            More puzzles
+          </a>
+
+          {puzzle.value.slug && (
+            <a
+              href={`/puzzles/${puzzle.value.slug}`}
+              className="btn"
+            >
+              Play again
+            </a>
+          )}
+        </div>
+      </div>
     </Panel>
   );
 }

@@ -29,7 +29,7 @@ export const handler = define.handlers<Data>({
     }
 
     const solutions = await listPuzzleSolutions(slug, {
-      limit: 10,
+      limit: 8,
       byMoves: true,
     });
 
@@ -95,6 +95,7 @@ export default define.page<typeof handler>(function SolutionPage(props) {
       {props.data.solutions.length
         ? (
           <SolutionsPanel
+            puzzle={puzzle}
             solutions={props.data.solutions}
             solution={props.data.solution}
             href={href}
