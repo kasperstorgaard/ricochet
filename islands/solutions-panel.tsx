@@ -16,11 +16,13 @@ type SolutionsPanelProps = {
 export function SolutionsPanel(
   { href, puzzle, solutions, solution }: SolutionsPanelProps,
 ) {
-  if (!solution) solution = solutions[0];
-
   const solutionItems = useMemo(() => {
-    const isSolutionInList = solutions.some((item) => item.id === solution.id);
-    if (!isSolutionInList) return [...solutions.slice(0, 6), null, solution];
+    const isSolutionInList = solution &&
+      solutions.some((item) => item.id === solution.id);
+
+    if (solution && !isSolutionInList) {
+      return [...solutions.slice(0, 6), null, solution];
+    }
 
     return solutions;
   }, [solutions, solution]);
@@ -60,7 +62,7 @@ export function SolutionsPanel(
                       key={item?.id}
                       className={clsx(
                         "p-0 px-1 border-b-1 border-gray-5",
-                        item?.id === solution.id &&
+                        item?.id === solution?.id &&
                           "text-brand font-5 bg-surface-1",
                       )}
                     >

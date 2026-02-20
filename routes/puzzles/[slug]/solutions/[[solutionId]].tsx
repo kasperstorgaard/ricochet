@@ -35,14 +35,16 @@ export const handler = define.handlers<Data>({
 
     const solution = solutionId
       ? await getPuzzleSolution(slug, solutionId)
-      : solutions[0];
+      : null;
 
-    if (solutions.length && !solution) {
+    if (solutionId && !solution) {
       throw new HttpError(
         404,
         `Unable to find solution with id: ${solutionId}`,
       );
     }
+
+    console.log({ solution });
 
     const url = new URL(req.url);
     if (!url.searchParams.has("moves") && solution) {
