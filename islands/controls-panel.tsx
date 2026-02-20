@@ -12,12 +12,14 @@ import {
   getResetHref,
   getUndoHref,
 } from "#/util/url.ts";
+import { Puzzle } from "#/util/types.ts";
 
 type ControlsPanelProps = {
+  puzzle: Signal<Puzzle>;
   href: Signal<string>;
 };
 
-export function ControlsPanel({ href }: ControlsPanelProps) {
+export function ControlsPanel({ puzzle, href }: ControlsPanelProps) {
   const state = useMemo(() => decodeState(href.value), [href.value]);
 
   const count = useMemo(() => Math.min(state.moves.length, state.cursor ?? 0), [
@@ -119,12 +121,18 @@ export function ControlsPanel({ href }: ControlsPanelProps) {
           </div>
         </div>
 
-        <div className="flex place-content-center lg:place-content-start">
+        <div className="flex place-content-start gap-fl-1 flex-wrap">
           <a
             href="/"
             className="btn"
           >
             More puzzles
+          </a>
+          <a
+            href={`/puzzles/${puzzle.value.slug}/solutions`}
+            className="btn"
+          >
+            See solutions
           </a>
         </div>
       </div>
