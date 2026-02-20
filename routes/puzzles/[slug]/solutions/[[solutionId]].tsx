@@ -35,7 +35,7 @@ export const handler = define.handlers<Data>({
 
     const solution = solutionId
       ? await getPuzzleSolution(slug, solutionId)
-      : null;
+      : solutions[0];
 
     if (solutionId && !solution) {
       throw new HttpError(

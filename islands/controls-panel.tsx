@@ -132,7 +132,8 @@ export function ControlsPanel({ puzzle, href }: ControlsPanelProps) {
             href={`/puzzles/${puzzle.value.slug}/solutions`}
             className="btn"
           >
-            See solutions
+            <span className="lg:hidden">Solutions</span>
+            <span className="max-lg:hidden">See solutions</span>
           </a>
         </div>
       </div>
