@@ -225,13 +225,15 @@ export function EditorPanel(
           showOptions ? "translate-x-0" : "translate-x-full",
         )}
       >
-        <button
-          type="button"
-          className="btn self-start"
-          onClick={() => setShowOptions(false)}
-        >
-          <i className="ph-caret-left ph" />Back
-        </button>
+        <div className="flex items-start">
+          <button
+            type="button"
+            className="btn"
+            onClick={() => setShowOptions(false)}
+          >
+            <i className="ph-caret-left ph" />Back
+          </button>
+        </div>
 
         <div className="flex flex-col gap-fl-2">
           <NumberRange
