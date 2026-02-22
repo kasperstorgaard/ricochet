@@ -170,7 +170,7 @@ export function EditorPanel(
           <div className="flex">
             <button
               type="button"
-              className="btn rounded-r-none! border-r-0!"
+              className="btn rounded-r-none! border-r-0! pr-2!"
               disabled={isGenerating}
               onClick={onGenerate}
             >
@@ -180,13 +180,13 @@ export function EditorPanel(
                   isGenerating ? "ph-circle-notch animate-spin" : "ph-shuffle",
                 )}
               />
-              Random
+              Generate
             </button>
 
             <button
               type="button"
               className="icon-btn rounded-l-none! -ml-px!"
-              data-size="md"
+              data-size="sm"
               onClick={() => setShowOptions(!showOptions)}
             >
               <i className="ph-gear ph" />
