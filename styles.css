@@ -676,7 +676,7 @@
   }
 
   .icon-btn[data-size="lg"] {
-    padding: calc(var(--size-fluid-1) - 2px);
+    padding: calc(var(--size-fluid-1) - 4px);
   }
 
   .btn:is(:hover, :focus),
@@ -690,6 +690,13 @@
   .btn:active:not(:focus-visible),
   .icon-btn:active:not(:focus-visible) {
     position: relative;
+  }
+
+  @media (width < 40rem /* 640px */) {
+    .icon-btn[data-size="lg"] {
+      padding: calc(var(--size-fluid-1) + 3px);
+      font-size: var(--font-size-4);
+    }
   }
 
   @media (prefers-reduced-motion: no-preference) {
