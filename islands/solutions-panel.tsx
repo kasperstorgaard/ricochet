@@ -21,7 +21,7 @@ export function SolutionsPanel(
       solutions.some((item) => item.id === solution.id);
 
     if (solution && !isSolutionInList) {
-      return [...solutions.slice(0, 6), null, solution];
+      return [...solutions.slice(0, 8), null, solution];
     }
 
     return solutions;
@@ -43,44 +43,36 @@ export function SolutionsPanel(
         )}
       >
         {solutionItems.length > 0 && (
-          <div className="flex flex-col gap-fl-1">
-            <h2 className="text-fl-1 text-text-2 max-lg:hidden">
-              Solutions
-            </h2>
-
-            <ol
-              className={clsx(
-                "m-0 p-0 list-none",
-                "grid items-center gap-x-fl-2 gap-y-1",
-              )}
-            >
-              {solutionItems.map((item) =>
-                item === null
-                  ? <li key="delimiter" className="p-0">...</li>
-                  : (
-                    <li
-                      key={item?.id}
-                      className={clsx(
-                        "p-0 px-1 border-b-1 border-gray-5",
-                        item?.id === solution?.id &&
-                          "text-brand font-5 bg-surface-1",
-                      )}
-                    >
-                      <a
-                        className="flex gap-2"
-                        href={getSolutionUrl(item)}
-                      >
-                        <span>{item.moves.length}.</span>
-                        {item.name}
-                      </a>
-                    </li>
-                  )
-              )}
-            </ol>
-          </div>
+          <ol
+            className={clsx(
+              "m-0 p-0 list-none",
+              "grid items-center gap-x-fl-2 gap-y-1",
+            )}
+          >
+            {solutionItems.map((item) =>
+              item === null ? <li key="delimiter" className="p-0">...</li> : (
+                <li
+                  key={item?.id}
+                  className={clsx(
+                    "p-0 px-1 border-b-1 border-gray-5",
+                    item?.id === solution?.id &&
+                      "text-brand font-5 bg-surface-1",
+                  )}
+                >
+                  <a
+                    className="flex gap-2"
+                    href={getSolutionUrl(item)}
+                  >
+                    <span>{item.moves.length}.</span>
+                    {item.name}
+                  </a>
+                </li>
+              )
+            )}
+          </ol>
         )}
 
-        <div className="flex gap-2 items-start flex-wrap lg:flex-col">
+        <div className="flex gap-2 items-center flex-wrap lg:grid lg:grid-cols-1">
           <a href="/" className="btn">
             More puzzles
           </a>

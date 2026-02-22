@@ -44,7 +44,7 @@ export function ControlsPanel({ puzzle, href }: ControlsPanelProps) {
     <Panel>
       <div
         className={clsx(
-          "grid max-lg:col-[2/3] grid-cols-subgrid place-content-center items-center w-full gap-fl-3",
+          "grid max-lg:col-[2/3] grid-cols-subgrid place-content-center items-center w-full gap-fl-3 max-lg:gap-fl-4",
           "lg:grid lg:row-[3/4] lg:items-start lg:grid-rows-[1fr_auto] lg:gap-fl-3",
         )}
       >
@@ -70,8 +70,9 @@ export function ControlsPanel({ puzzle, href }: ControlsPanelProps) {
             <div
               className={clsx(
                 "flex items-center justify-center min-w-[2ch]",
-                "text-center font-3 text-fl-3 leading-flat",
-                "md:text-fl-2",
+                "text-center font-3 text-fl-1 leading-flat",
+                "max-lg:text-7",
+                "lg:text-fl-2",
               )}
             >
               {count < 10 ? `0${count}` : count}
@@ -93,7 +94,7 @@ export function ControlsPanel({ puzzle, href }: ControlsPanelProps) {
 
           <div
             className={clsx(
-              "flex gap-x-fl-2 gap-y-fl-1 justify-center flex-wrap text-1",
+              "flex gap-fl-1 justify-center flex-wrap text-1",
               "lg:text-fl-0 lg:justify-self-center",
             )}
           >
@@ -121,7 +122,7 @@ export function ControlsPanel({ puzzle, href }: ControlsPanelProps) {
           </div>
         </div>
 
-        <div className="flex justify-center lg:place-content-start gap-fl-1 flex-wrap">
+        <div className="flex justify-center gap-fl-1 flex-wrap lg:grid lg:grid-cols-1">
           <a
             href="/"
             className="btn"

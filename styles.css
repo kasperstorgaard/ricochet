@@ -646,9 +646,11 @@
   .btn {
     display: inline-flex;
     align-items: center;
-    gap: var(--size-1);
+    justify-content: center;
+    flex-wrap: nowrap;
+    gap: calc(var(--size-fluid-1) - 4px);
     white-space: nowrap;
-    font-size: var(--font-size-2);
+    font-size: var(--font-size-1);
     font-weight: var(--font-weight-7);
     padding-inline: var(--size-3);
     padding-block: var(--size-1);
@@ -656,6 +658,11 @@
     border: var(--border-size-2) solid var(--color-link);
     background-color: transparent;
     border-radius: var(--radius-2);
+  }
+
+  .btn[data-fullwidth] {
+    width: 100%;
+    justify-content: center;
   }
 
   .icon-btn {
@@ -676,7 +683,12 @@
   }
 
   .icon-btn[data-size="lg"] {
-    padding: calc(var(--size-fluid-1) - 2px);
+    padding: calc(var(--size-fluid-1) - 4px);
+  }
+
+  .icon-btn[data-size="sm"] {
+    padding: calc(var(--size-fluid-0) - 2px);
+    font-size: var(--text-3);
   }
 
   .btn:is(:hover, :focus),
@@ -690,6 +702,13 @@
   .btn:active:not(:focus-visible),
   .icon-btn:active:not(:focus-visible) {
     position: relative;
+  }
+
+  @media (width < 64rem /* 1024px */) {
+    .icon-btn[data-size="lg"] {
+      padding: calc(var(--size-fluid-1) + 3px);
+      font-size: var(--font-size-4);
+    }
   }
 
   @media (prefers-reduced-motion: no-preference) {

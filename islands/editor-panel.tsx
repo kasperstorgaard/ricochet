@@ -119,7 +119,7 @@ export function EditorPanel(
   return (
     <Panel className="relative overflow-hidden">
       <div className="flex flex-col col-[2/3] lg:row-[3/4] gap-fl-1 place-content-between">
-        <div className="flex flex-col place-items-start gap-fl-1 flex-wrap">
+        <div className="flex flex-col gap-fl-1 flex-wrap">
           <button
             type="button"
             className="btn"
@@ -143,7 +143,7 @@ export function EditorPanel(
               };
             }}
           >
-            <i className="ph-flip-horizontal ph" /> Mirror
+            <i className="ph-flip-horizontal ph" />Mirror
           </button>
 
           <button
@@ -156,21 +156,21 @@ export function EditorPanel(
               };
             }}
           >
-            <i className="ph-flip-vertical ph" /> Mirror
+            <i className="ph-flip-vertical ph" />Mirror
           </button>
         </div>
 
-        <div className="flex flex-col place-items-start flex-wrap gap-fl-1">
+        <div className="flex flex-col flex-wrap gap-fl-1">
           {message && (
             <p className="text-fl-0 text-purple-1 leading-tight">
               {message}
             </p>
           )}
 
-          <div className="flex gap-fl-1">
+          <div className="flex w-full">
             <button
               type="button"
-              className="btn rounded-r-none border-r-0"
+              className="btn rounded-r-none! border-r-0! grow!"
               disabled={isGenerating}
               onClick={onGenerate}
             >
@@ -179,14 +179,14 @@ export function EditorPanel(
                   "ph",
                   isGenerating ? "ph-circle-notch animate-spin" : "ph-shuffle",
                 )}
-              />{" "}
+              />
               Generate
             </button>
 
             <button
               type="button"
-              className="icon-btn"
-              data-size="md"
+              className="icon-btn rounded-l-none! -ml-px!"
+              data-size="sm"
               onClick={() => setShowOptions(!showOptions)}
             >
               <i className="ph-gear ph" />
@@ -200,7 +200,7 @@ export function EditorPanel(
                 className="btn"
                 onClick={onSave}
               >
-                <i className="ph-floppy-disk ph" /> Save
+                <i className="ph-floppy-disk ph" />Save
               </button>
             )
             : (
@@ -212,7 +212,7 @@ export function EditorPanel(
                   setMessage("copied!");
                 }}
               >
-                <i className="ph-copy ph" /> Copy text
+                <i className="ph-copy ph" />Copy text
               </button>
             )}
         </div>
@@ -220,20 +220,22 @@ export function EditorPanel(
 
       <div
         className={clsx(
-          "absolute inset-0 bg-surface-2 p-fl-2 flex flex-col gap-fl-4",
+          "col-[2/3] lg:row-[2/4] inset-0 bg-surface-2 grid grid-rows-subgrid px-fl-2 -mx-fl-2",
           "transition-transform duration-200 ease-out",
           showOptions ? "translate-x-0" : "translate-x-full",
         )}
       >
-        <button
-          type="button"
-          className="btn self-start"
-          onClick={() => setShowOptions(false)}
-        >
-          <i className="ph-caret-left ph" /> Back
-        </button>
+        <div className="flex items-start">
+          <button
+            type="button"
+            className="btn"
+            onClick={() => setShowOptions(false)}
+          >
+            <i className="ph-caret-left ph" />Back
+          </button>
+        </div>
 
-        <div className="flex flex-col gap-fl-1">
+        <div className="flex flex-col gap-fl-2">
           <NumberRange
             name="solve_range"
             label="Moves"
