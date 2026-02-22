@@ -81,9 +81,14 @@ export default define.page<typeof handler>(function SolutionPage(props) {
       <Main>
         <Header url={url} items={navItems} />
 
-        <h1 className="text-5 text-brand mt-2">
-          {props.data.puzzle.name}
-        </h1>
+        <div className="flex flex-col gap-0 mt-2">
+          <h1 className="text-5 text-brand leading-tight">
+            {props.data.puzzle.name}
+          </h1>
+          <p className="pl-1 text-fl-0 text-text-2 leading-tight">
+            solutions
+          </p>
+        </div>
 
         <Board
           puzzle={puzzle}
