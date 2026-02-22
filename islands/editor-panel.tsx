@@ -119,7 +119,7 @@ export function EditorPanel(
   return (
     <Panel className="relative overflow-hidden">
       <div className="flex flex-col col-[2/3] lg:row-[3/4] gap-fl-1 place-content-between">
-        <div className="flex flex-col place-items-start gap-fl-1 flex-wrap">
+        <div className="flex flex-col gap-fl-1 flex-wrap">
           <button
             type="button"
             className="btn"
@@ -160,17 +160,17 @@ export function EditorPanel(
           </button>
         </div>
 
-        <div className="flex flex-col place-items-start flex-wrap gap-fl-1">
+        <div className="flex flex-col flex-wrap gap-fl-1">
           {message && (
             <p className="text-fl-0 text-purple-1 leading-tight">
               {message}
             </p>
           )}
 
-          <div className="flex">
+          <div className="flex w-full">
             <button
               type="button"
-              className="btn rounded-r-none! border-r-0! pr-2!"
+              className="btn rounded-r-none! border-r-0! grow!"
               disabled={isGenerating}
               onClick={onGenerate}
             >
@@ -220,7 +220,7 @@ export function EditorPanel(
 
       <div
         className={clsx(
-          "absolute inset-0 bg-surface-2 p-fl-2 flex flex-col gap-fl-4",
+          "col-[2/3] lg:row-[2/4] inset-0 bg-surface-2 grid grid-rows-subgrid px-fl-2 -mx-fl-2",
           "transition-transform duration-200 ease-out",
           showOptions ? "translate-x-0" : "translate-x-full",
         )}
@@ -233,7 +233,7 @@ export function EditorPanel(
           <i className="ph-caret-left ph" />Back
         </button>
 
-        <div className="flex flex-col gap-fl-1">
+        <div className="flex flex-col gap-fl-2">
           <NumberRange
             name="solve_range"
             label="Moves"

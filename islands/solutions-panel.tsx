@@ -72,7 +72,7 @@ export function SolutionsPanel(
           </ol>
         )}
 
-        <div className="flex gap-2 items-start flex-wrap lg:flex-col">
+        <div className="flex gap-2 items-center flex-wrap lg:grid lg:grid-cols-1">
           <a href="/" className="btn">
             More puzzles
           </a>

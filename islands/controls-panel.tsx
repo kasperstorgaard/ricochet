@@ -71,7 +71,7 @@ export function ControlsPanel({ puzzle, href }: ControlsPanelProps) {
               className={clsx(
                 "flex items-center justify-center min-w-[2ch]",
                 "text-center font-3 text-fl-1 leading-flat",
-                "max-sm:text-7",
+                "max-lg:text-7",
                 "lg:text-fl-2",
               )}
             >
@@ -122,7 +122,7 @@ export function ControlsPanel({ puzzle, href }: ControlsPanelProps) {
           </div>
         </div>
 
-        <div className="flex justify-center gap-fl-1 flex-wrap">
+        <div className="flex justify-center gap-fl-1 flex-wrap lg:grid lg:grid-cols-1">
           <a
             href="/"
             className="btn"
