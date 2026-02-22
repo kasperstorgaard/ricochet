@@ -9,11 +9,12 @@ import type { Board, Puzzle } from "#/util/types.ts";
 type SolutionBadgeProps = {
   puzzle: Signal<Puzzle>;
   moves?: Signal<number | null>;
+  className?: string;
 };
 
 // Displays the shortest solution length, updated on a 3s debounce with fade transition.
 export function SolutionBadge(
-  { puzzle }: SolutionBadgeProps,
+  { puzzle, className }: SolutionBadgeProps,
 ) {
   const ref = useRef<HTMLSpanElement>(null);
 
