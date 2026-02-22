@@ -143,7 +143,7 @@ export function EditorPanel(
               };
             }}
           >
-            <i className="ph-flip-horizontal ph" /> Mirror
+            <i className="ph-flip-horizontal ph" />Mirror
           </button>
 
           <button
@@ -156,7 +156,7 @@ export function EditorPanel(
               };
             }}
           >
-            <i className="ph-flip-vertical ph" /> Mirror
+            <i className="ph-flip-vertical ph" />Mirror
           </button>
         </div>
 
@@ -167,10 +167,10 @@ export function EditorPanel(
             </p>
           )}
 
-          <div className="flex gap-fl-1">
+          <div className="flex">
             <button
               type="button"
-              className="btn rounded-r-none border-r-0"
+              className="btn rounded-r-none! border-r-0!"
               disabled={isGenerating}
               onClick={onGenerate}
             >
@@ -179,13 +179,13 @@ export function EditorPanel(
                   "ph",
                   isGenerating ? "ph-circle-notch animate-spin" : "ph-shuffle",
                 )}
-              />{" "}
-              Generate
+              />
+              Random
             </button>
 
             <button
               type="button"
-              className="icon-btn"
+              className="icon-btn rounded-l-none! -ml-px!"
               data-size="md"
               onClick={() => setShowOptions(!showOptions)}
             >
@@ -200,7 +200,7 @@ export function EditorPanel(
                 className="btn"
                 onClick={onSave}
               >
-                <i className="ph-floppy-disk ph" /> Save
+                <i className="ph-floppy-disk ph" />Save
               </button>
             )
             : (
@@ -212,7 +212,7 @@ export function EditorPanel(
                   setMessage("copied!");
                 }}
               >
-                <i className="ph-copy ph" /> Copy text
+                <i className="ph-copy ph" />Copy text
               </button>
             )}
         </div>
@@ -230,7 +230,7 @@ export function EditorPanel(
           className="btn self-start"
           onClick={() => setShowOptions(false)}
         >
-          <i className="ph-caret-left ph" /> Back
+          <i className="ph-caret-left ph" />Back
         </button>
 
         <div className="flex flex-col gap-fl-1">
