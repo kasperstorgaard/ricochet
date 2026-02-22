@@ -679,6 +679,11 @@
     padding: calc(var(--size-fluid-1) - 4px);
   }
 
+  .icon-btn[data-size="sm"] {
+    padding: calc(var(--size-fluid-0) - 2px);
+    font-size: var(--text-3);
+  }
+
   .btn:is(:hover, :focus),
   .icon-btn:is(:hover, :focus) {
     cursor: pointer;
