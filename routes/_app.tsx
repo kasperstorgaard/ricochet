@@ -53,7 +53,7 @@ export default define.page(
             "grow grid grid-cols-[minmax(var(--size-fluid-3),auto)_1fr_minmax(var(--size-fluid-3),auto)]",
             "sm:grid-cols-[minmax(var(--size-fluid-3),auto)_max-content_minmax(var(--size-fluid-3),auto)]",
             "grid-rows-[repeat(3,max-content)_1fr] place-items-[flex-end_center] gap-y-fl-3",
-            "lg:grid-cols-[1fr_14rem] lg:content-center",
+            "lg:grid-cols-[1fr_13rem] lg:content-center",
           )}
         >
           <Component />
