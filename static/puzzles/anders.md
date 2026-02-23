@@ -2,7 +2,8 @@
 name: Anders
 slug: anders
 createdAt: 2026-02-11T16:44:47.326Z
-difficulty: 9
+difficulty: hard
+minMoves: 9
 ---
 
 ```

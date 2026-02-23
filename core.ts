@@ -11,7 +11,8 @@ export type State = {
   trackingId: string;
 
   featureFlags: {
-    difficultyBadge?: boolean | null;
+    // show minimum moves
+    minMoves?: boolean | null;
   };
 };
 

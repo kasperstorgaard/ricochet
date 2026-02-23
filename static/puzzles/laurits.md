@@ -2,7 +2,8 @@
 name: Laurits
 slug: laurits
 createdAt: 2026-02-15T12:38:14.381Z
-difficulty: 7
+difficulty: easy
+minMoves: 7
 ---
 
 ```

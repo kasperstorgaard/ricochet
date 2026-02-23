@@ -67,6 +67,7 @@ export function EditorPanel(
       name: puzzle.value.name,
       slug: puzzle.value.slug,
       createdAt: puzzle.value.createdAt ?? new Date(Date.now()),
+      difficulty: puzzle.value.difficulty,
       board,
     }), [puzzle.value, board]);
 
@@ -105,7 +106,7 @@ export function EditorPanel(
       puzzle.value = {
         ...puzzle.value,
         board: newBoard,
-        difficulty: moves.length,
+        minMoves: moves.length,
       };
     } catch {
       setMessage("generation failed, try again");
@@ -238,7 +239,7 @@ export function EditorPanel(
         <div className="flex flex-col gap-fl-2">
           <NumberRange
             name="solve_range"
-            label="Moves"
+            label="Shortest solution"
             value={options.solveRange}
             min={1}
             max={20}

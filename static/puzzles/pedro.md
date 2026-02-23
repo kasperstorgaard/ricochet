@@ -2,7 +2,8 @@
 name: Pedro
 slug: pedro
 createdAt: 2026-02-15T10:38:50.254Z
-difficulty: 12
+difficulty: hard
+minMoves: 12
 ---
 
 ```

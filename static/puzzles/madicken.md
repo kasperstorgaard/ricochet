@@ -2,7 +2,8 @@
 name: Madicken
 slug: madicken
 createdAt: 2026-02-22T19:13:08.930Z
-difficulty: 10
+difficulty: medium
+minMoves: 10
 ---
 
 ```

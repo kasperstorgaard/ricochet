@@ -2,7 +2,8 @@
 name: Stig
 slug: stig
 createdAt: 2026-02-15T10:30:19.050Z
-difficulty: 7
+difficulty: medium
+minMoves: 7
 ---
 
 ```

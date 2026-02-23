@@ -2,7 +2,8 @@
 name: Mette
 slug: mette
 createdAt: 2026-02-13T12:31:39.655Z
-difficulty: 7
+difficulty: medium
+minMoves: 7
 ---
 
 ```

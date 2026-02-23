@@ -2,7 +2,8 @@
 name: Andrea
 slug: andrea
 createdAt: 2026-02-22T19:05:30.265Z
-difficulty: 8
+difficulty: medium
+minMoves: 8
 ---
 
 ```

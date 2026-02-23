@@ -43,8 +43,6 @@ export default define.page<typeof handler>(
       { name: "puzzles", href: "/puzzles" },
     ];
 
-    const showDifficulty = props.state.featureFlags.difficultyBadge ?? isDev;
-
     return (
       <>
         <Main className="max-lg:row-span-full items-stretch place-content-stretch lg:pb-fl-4">
@@ -84,6 +82,8 @@ export default define.page<typeof handler>(
                     <Thumbnail
                       board={puzzle.board}
                       class="basis-0 grow aspect-square h-full"
+                      difficulty={puzzle.difficulty}
+                      showDifficulty
                     />
                   </div>
 
@@ -102,12 +102,6 @@ export default define.page<typeof handler>(
                         {puzzle.name}
                       </span>
                     </div>
-
-                    {showDifficulty && (
-                      <span className="bg-surface-2 rounded-blob-5 px-2 py-1 leading-tight text-fl-0 mt-0.5">
-                        {puzzle.difficulty}
-                      </span>
-                    )}
                   </div>
                 </a>
               </li>

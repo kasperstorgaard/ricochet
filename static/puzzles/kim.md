@@ -2,7 +2,8 @@
 name: Kim
 slug: kim
 createdAt: 2026-02-15T13:49:38.739Z
-difficulty: 8
+difficulty: easy
+minMoves: 8
 ---
 
 ```

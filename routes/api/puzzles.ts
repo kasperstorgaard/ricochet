@@ -29,7 +29,7 @@ export const handler = define.handlers({
 
       markdown = formatPuzzle({
         ...puzzle,
-        difficulty: moves?.length,
+        minMoves: moves?.length,
       });
 
       await Deno.writeTextFile(`${PUZZLES_DIR}/${slug}.md`, markdown);

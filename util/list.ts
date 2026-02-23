@@ -1,3 +1,5 @@
+import { DIFFICULTIES, Difficulty } from "./types.ts";
+
 type SortOptions<TItem extends object> = {
   sortBy: keyof TItem;
   sortOrder: "ascending" | "descending";
@@ -9,9 +11,11 @@ function getSortValue<TItem extends object>(
 ): string | number {
   const rawValue = item[key];
 
-  if (rawValue instanceof Date) {
-    return rawValue.getTime();
+  if (key === "difficulty") {
+    return DIFFICULTIES.indexOf(rawValue as Difficulty) ?? -1;
   }
+
+  if (rawValue instanceof Date) return rawValue.getTime();
 
   const type = typeof rawValue;
 

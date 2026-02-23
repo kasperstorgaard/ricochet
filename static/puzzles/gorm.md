@@ -2,7 +2,8 @@
 name: Gorm
 slug: gorm
 createdAt: 2026-02-15T13:43:50.658Z
-difficulty: 7
+difficulty: hard
+minMoves: 7
 ---
 
 ```

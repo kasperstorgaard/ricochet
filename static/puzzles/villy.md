@@ -2,7 +2,8 @@
 name: Villy
 slug: villy
 createdAt: 2026-02-15T11:34:56.690Z
-difficulty: 10
+difficulty: hard
+minMoves: 10
 ---
 
 ```

@@ -2,7 +2,8 @@
 name: Sara
 slug: sara
 createdAt: 2026-02-13T12:19:26.320Z
-difficulty: 8
+difficulty: hard
+minMoves: 8
 ---
 
 ```

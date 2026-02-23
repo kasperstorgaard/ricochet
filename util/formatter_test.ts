@@ -9,6 +9,7 @@ Deno.test("formatPuzzle - formats simple puzzle", () => {
     name: "Simple Puzzle",
     slug: "simple-puzzle",
     createdAt: new Date("2024-06-20T00:00:00.000Z"),
+    difficulty: "medium",
     board: {
       destination: { x: 3, y: 7 },
       pieces: [
@@ -31,6 +32,7 @@ Deno.test("formatPuzzle - formats puzzle with walls", () => {
     name: "Walls Puzzle",
     slug: "walls-puzzle",
     createdAt: new Date("2024-06-20T00:00:00.000Z"),
+    difficulty: "medium",
     board: {
       destination: { x: 7, y: 7 },
       pieces: [{ x: 0, y: 0, type: "rook" }],
@@ -53,6 +55,7 @@ Deno.test("formatPuzzle - formats puzzle with piece on destination", () => {
     name: "Piece on Destination",
     slug: "piece-on-destination",
     createdAt: new Date("2024-06-20T00:00:00.000Z"),
+    difficulty: "medium",
     board: {
       destination: { x: 4, y: 4 },
       pieces: [
@@ -82,6 +85,7 @@ Deno.test("formatPuzzle - formats puzzle with piece on destination and wall", ()
     name: "Complex Piece",
     slug: "complex-piece",
     createdAt: new Date("2024-06-20T00:00:00.000Z"),
+    difficulty: "medium",
     board: {
       destination: { x: 3, y: 2 },
       pieces: [

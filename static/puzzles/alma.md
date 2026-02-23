@@ -2,7 +2,8 @@
 name: Alma
 slug: alma
 createdAt: 2026-02-15T12:00:53.695Z
-difficulty: 7
+difficulty: medium
+minMoves: 7
 ---
 
 ```

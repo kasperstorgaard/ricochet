@@ -51,7 +51,7 @@ All domain types are in `util/types.ts`. Key types:
 - `Piece` — `Position & { type: "rook" | "bouncer" }`
 - `Wall` — `Position & { orientation: "horizontal" | "vertical" }`
 - `Move` — `[Position, Position]` (from → to)
-- `Puzzle` — `{ slug, name, board, createdAt, difficulty? }`
+- `Puzzle` — `{ slug, name, board, createdAt, minMoves?, difficulty }`
 
 ## Adding Puzzles
 
@@ -62,7 +62,8 @@ Create `static/puzzles/<slug>.md` with YAML frontmatter + ASCII board:
 name: Boxy
 slug: boxy
 createdAt: 2026-01-26T00:00:00.000Z
-difficulty: 10
+difficulty: medium
+minMoves: 10
 ---
 
 + A B C D E F G H +

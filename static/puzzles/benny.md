@@ -1,8 +1,9 @@
 ---
-name: Reticle
-slug: reticle
+name: Benny
+slug: benny
 createdAt: 2026-02-10T19:03:11.838Z
-difficulty: 10
+difficulty: hard
+minMoves: 10
 ---
 
 ```

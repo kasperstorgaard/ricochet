@@ -7,9 +7,10 @@ import { define } from "#/core.ts";
 import Board from "#/islands/board.tsx";
 import { EditableName } from "#/islands/editable-name.tsx";
 import { EditorPanel } from "#/islands/editor-panel.tsx";
-import { SolutionBadge } from "#/islands/solution-badge.tsx";
+import { DifficultyBadge } from "../../islands/difficulty-badge.tsx";
 import { isDev } from "#/lib/env.ts";
 import { Puzzle } from "#/util/types.ts";
+import { clsx } from "clsx/lite";
 
 export const handler = define.handlers<Puzzle>({
   GET() {
@@ -17,6 +18,7 @@ export const handler = define.handlers<Puzzle>({
       name: "Untitled",
       slug: "untitled",
       createdAt: new Date(Date.now()),
+      difficulty: "medium",
       board: {
         destination: { x: 0, y: 0 },
         pieces: [],
@@ -44,13 +46,25 @@ export default define.page<typeof handler>(function EditorPage(props) {
       <Main>
         <Header url={url} items={navItems} />
 
-        <div className="w-full flex justify-between gap-fl-2 mt-2 place-self-start">
-          <EditableName
-            puzzle={puzzle}
-            defaultValue="Untitled"
-            className="text-5 text-brand pr-1"
-          />
-          <SolutionBadge puzzle={puzzle} />
+        <div className="flex justify-between items-center gap-fl-1 mt-2">
+          <div className="flex flex-col group">
+            <EditableName
+              puzzle={puzzle}
+              defaultValue="Untitled"
+              className="text-5 text-brand pr-1 leading-tight"
+            />
+
+            <p
+              className={clsx(
+                "text-fl-0 text-text-3 leading-tight italic -mb-[.6lh] -mt-[.4lh]",
+                "group-focus-within:opacity-0 transition-opacity",
+              )}
+            >
+              new
+            </p>
+          </div>
+
+          <DifficultyBadge puzzle={puzzle} showMinMoves className="lg:mt-1" />
         </div>
 
         <Board

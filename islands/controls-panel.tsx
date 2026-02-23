@@ -17,9 +17,10 @@ import { Puzzle } from "#/util/types.ts";
 type ControlsPanelProps = {
   puzzle: Signal<Puzzle>;
   href: Signal<string>;
+  isDev?: boolean;
 };
 
-export function ControlsPanel({ puzzle, href }: ControlsPanelProps) {
+export function ControlsPanel({ puzzle, href, isDev }: ControlsPanelProps) {
   const state = useMemo(() => decodeState(href.value), [href.value]);
 
   const count = useMemo(() => Math.min(state.moves.length, state.cursor ?? 0), [
@@ -123,6 +124,11 @@ export function ControlsPanel({ puzzle, href }: ControlsPanelProps) {
         </div>
 
         <div className="flex justify-center gap-fl-1 flex-wrap lg:grid lg:grid-cols-1">
+          {isDev && (
+            <a href={`/puzzles/${puzzle.value.slug}/edit`} className="btn">
+              <i className="ph-pencil-simple ph" /> Edit
+            </a>
+          )}
           <a
             href="/"
             className="btn"

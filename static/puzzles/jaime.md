@@ -1,8 +1,9 @@
 ---
-name: Aim
-slug: aim
+name: Jaime
+slug: jaime
 createdAt: 2026-02-10T19:03:11.838Z
-difficulty: 8
+difficulty: hard
+minMoves: 8
 ---
 
 ```

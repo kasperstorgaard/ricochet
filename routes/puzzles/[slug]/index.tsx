@@ -7,12 +7,12 @@ import { define } from "#/core.ts";
 import { addSolution } from "#/db/kv.ts";
 import Board from "#/islands/board.tsx";
 import { ControlsPanel } from "#/islands/controls-panel.tsx";
-import { SolutionBadge } from "#/islands/solution-badge.tsx";
-import { isDev } from "#/lib/env.ts";
+import { DifficultyBadge } from "#/islands/difficulty-badge.tsx";
 import { isValidSolution, resolveMoves } from "#/util/board.ts";
 import { getPuzzle } from "#/util/loader.ts";
 import { Move, Puzzle } from "#/util/types.ts";
-import { posthog } from "../../../lib/posthog.ts";
+import { posthog } from "#/lib/posthog.ts";
+import { isDev } from "#/lib/env.ts";
 
 export const handler = define.handlers<Puzzle>({
   async GET(ctx) {
@@ -61,6 +61,7 @@ export const handler = define.handlers<Puzzle>({
 
           puzzle_slug: slug,
           puzzle_difficulty: puzzle.difficulty,
+          puzzle_min_moves: puzzle.minMoves,
           game_moves: moves?.length,
         },
       },
@@ -75,7 +76,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
   const puzzle = useSignal(props.data);
   const mode = useSignal<"solve">("solve");
 
-  const showDifficulty = props.state.featureFlags.difficultyBadge ?? false;
+  const showMinMoves = props.state.featureFlags.minMoves ?? false;
 
   const url = new URL(props.req.url);
 
@@ -91,26 +92,21 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
         <Header url={url} items={navItems} />
 
         <div className="flex items-center justify-between gap-fl-1 mt-2 flex-wrap">
-          <h1 className="text-5 text-brand">
+          <h1 className="text-5 text-brand leading-tight">
             {props.data.name}
           </h1>
 
-          <div className="flex gap-fl-1">
-            {isDev &&
-              (
-                <a href={`/puzzles/${props.data.slug}/edit`} className="btn">
-                  <i className="ph-pencil-simple ph" /> Edit
-                </a>
-              )}
-
-            {showDifficulty && <SolutionBadge puzzle={puzzle} />}
-          </div>
+          <DifficultyBadge
+            puzzle={puzzle}
+            showMinMoves={showMinMoves}
+            className="lg:mt-1"
+          />
         </div>
 
         <Board href={href} puzzle={puzzle} mode={mode} />
       </Main>
 
-      <ControlsPanel puzzle={puzzle} href={href} />
+      <ControlsPanel puzzle={puzzle} href={href} isDev={isDev} />
     </>
   );
 });

@@ -257,6 +257,7 @@
   --color-surface-4: var(--color-surface-4);
   --color-text-1: var(--color-text-1);
   --color-text-2: var(--color-text-2);
+  --color-text-3: var(--color-text-3);
   --color-brand: var(--color-brand);
   --color-link: var(--color-link);
   --color-link-visited: var(--color-link-visited);
@@ -573,6 +574,7 @@
 
   --color-text-1: var(--gray-1);
   --color-text-2: var(--gray-4);
+  --color-text-3: var(--gray-5);
 
   --color-ui-1: var(--teal-4);
   --color-ui-2: var(--yellow-3);
@@ -595,6 +597,7 @@
 
     --color-text-1: var(--brown-12);
     --color-text-2: var(--brown-11);
+    --color-text-3: var(--brown-9);
 
     --color-ui-1: var(--teal-7);
     --color-ui-2: var(--orange-5);

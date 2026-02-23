@@ -12,6 +12,7 @@ import { setSkipTutorialCookie } from "#/util/cookies.ts";
 import { getPuzzle } from "#/util/loader.ts";
 import { Puzzle } from "#/util/types.ts";
 import { decodeState } from "#/util/url.ts";
+import { isDev } from "#/lib/env.ts";
 
 type Data = {
   puzzle: Puzzle;
@@ -49,7 +50,7 @@ export const handler = define.handlers<Data>({
   POST() {
     const headers = new Headers({
       // Redirect to daily puzzle
-      Location: "/puzzles/daily?difficulty=7",
+      Location: "/puzzles/daily?difficulty=easy",
     });
 
     setSkipTutorialCookie(headers, true);
@@ -88,7 +89,7 @@ export default define.page<typeof handler>(function PuzzleTutorial(props) {
         />
       </Main>
 
-      <ControlsPanel puzzle={puzzle} href={href} />
+      <ControlsPanel puzzle={puzzle} href={href} isDev={isDev} />
 
       <TutorialDialog
         open

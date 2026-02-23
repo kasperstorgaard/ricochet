@@ -2,7 +2,8 @@
 name: Lasse
 slug: lasse
 createdAt: 2026-02-22T19:34:40.598Z
-difficulty: 7
+difficulty: medium
+minMoves: 7
 ---
 
 ```

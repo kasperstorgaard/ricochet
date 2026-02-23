@@ -6,11 +6,12 @@ import { Main } from "#/components/main.tsx";
 import Board from "#/islands/board.tsx";
 import { EditableName } from "#/islands/editable-name.tsx";
 import { EditorPanel } from "#/islands/editor-panel.tsx";
-import { SolutionBadge } from "#/islands/solution-badge.tsx";
+import { DifficultyBadge } from "../../../../islands/difficulty-badge.tsx";
 import { define } from "#/core.ts";
 import { isDev } from "#/lib/env.ts";
 import { getPuzzle } from "#/util/loader.ts";
 import { Puzzle } from "#/util/types.ts";
+import clsx from "clsx/lite";
 
 export const handler = define.handlers<Puzzle>({
   async GET(ctx) {
@@ -47,16 +48,25 @@ export default define.page<typeof handler>(function EditorPage(props) {
       <Main>
         <Header url={url} items={navItems} />
 
-        <div className="flex justify-between gap-fl-2 place-self-start items-center w-full mt-2">
-          <div className="flex flex-col">
+        <div className="flex justify-between items-center gap-fl-1 place-self-start mt-2 w-full">
+          <div className="flex flex-col group">
             <EditableName
               puzzle={puzzle}
               defaultValue={slug}
               className="text-5 text-brand pr-1 leading-tight"
             />
-            <p className="pl-1 text-fl-0 text-text-2 leading-tight">edit</p>
+
+            <p
+              className={clsx(
+                "text-fl-0 text-text-3 leading-tight italic -mb-[.6lh] -mt-[.4lh]",
+                "group-focus-within:opacity-0 transition-opacity",
+              )}
+            >
+              editing
+            </p>
           </div>
-          <SolutionBadge puzzle={puzzle} />
+
+          <DifficultyBadge puzzle={puzzle} showMinMoves className="lg:mt-1" />
         </div>
 
         <Board

@@ -32,8 +32,8 @@ export const handler = define.handlers<PageData>({
     const today = new Date(Date.now());
 
     const [medium, hard] = await Promise.all([
-      getPuzzleOfTheDay(ctx.url.origin, today, { difficulty: [0, 7] }),
-      getPuzzleOfTheDay(ctx.url.origin, today, { difficulty: [8, 20] }),
+      getPuzzleOfTheDay(ctx.url.origin, today, { difficulty: ["medium"] }),
+      getPuzzleOfTheDay(ctx.url.origin, today, { difficulty: ["hard"] }),
     ]);
 
     return page({

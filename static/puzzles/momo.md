@@ -2,7 +2,8 @@
 name: Momo
 slug: momo
 createdAt: 2026-02-15T10:47:52.605Z
-difficulty: 12
+difficulty: hard
+minMoves: 12
 ---
 
 ```

@@ -8,7 +8,7 @@ export const handler = define.handlers({
     const req = ctx.req;
     const redirectUrl = new URL(req.url);
 
-    const difficulty = getDifficulty(req.url) ?? [0, 20];
+    const difficulty = getDifficulty(req.url) ?? ["easy", "medium"];
 
     const today = new Date(Date.now());
     // Don't include the toughest puzzles in puzzle of the day

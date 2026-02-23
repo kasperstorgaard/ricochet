@@ -2,7 +2,8 @@
 name: Viggo
 slug: viggo
 createdAt: 2026-02-10T19:14:42.655Z
-difficulty: 11
+difficulty: hard
+minMoves: 11
 ---
 
 ```

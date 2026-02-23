@@ -2,7 +2,8 @@
 name: Jurgen
 slug: jurgen
 createdAt: 2026-01-26T00:00:00.000Z
-difficulty: 9
+difficulty: medium
+minMoves: 9
 ---
 
 ```

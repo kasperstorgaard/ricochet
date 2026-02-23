@@ -2,7 +2,8 @@
 name: Lena
 slug: lena
 createdAt: 2026-02-15T10:37:50.664Z
-difficulty: 8
+difficulty: medium
+minMoves: 8
 ---
 
 ```

@@ -2,7 +2,8 @@
 name: Paola
 slug: paola
 createdAt: 2026-02-13T12:31:39.655Z
-difficulty: 8
+difficulty: medium
+minMoves: 8
 ---
 
 ```
