@@ -19,7 +19,7 @@ export function DifficultyBadge(
     puzzle,
     showMinMoves = false,
     className,
-    tooltip = "difficulty and shortest solution",
+    tooltip = "difficulty / shortest solution",
   }: DifficultyBadgeProps,
 ) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -95,13 +95,14 @@ export function DifficultyBadge(
     >
       {error ? <i className="ph-warning ph" /> : (
         <>
-          <span className="text-center px-2 uppercase">
+          <span className="text-center text-fl-0 pl-fl-1 pr-2 uppercase">
             {puzzle.value.difficulty ?? "unknown"}
           </span>
           {showMinMoves && minMoves && (
             <span
               className={clsx(
-                "px-1 bg-surface-3 min-w-[2ch]",
+                "px-fl-1 pl-fl-1 bg-surface-3 text-fl-0 min-w-[2ch]",
+                "[clip-path:polygon(20%_0,100%_0,100%_100%,0_100%)]",
               )}
             >
               {minMoves}
