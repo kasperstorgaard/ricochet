@@ -12,7 +12,6 @@ import { SolutionsPanel } from "#/islands/solutions-panel.tsx";
 import { getPuzzle } from "#/util/loader.ts";
 import { Puzzle } from "#/util/types.ts";
 import { encodeState } from "#/util/url.ts";
-import clsx from "clsx/lite";
 
 type Data = {
   puzzle: Puzzle;
