@@ -100,7 +100,7 @@ export default define.page<typeof handler>(function SolutionPage(props) {
           <DifficultyBadge
             puzzle={puzzle}
             showMinMoves={showMinMoves}
-            className="mt-1"
+            className="lg:mt-1"
           />
         </div>
 
