@@ -6,20 +6,26 @@ import { useDebouncedCallback } from "#/lib/use-debounced-callback.ts";
 import { validateBoard } from "#/util/board.ts";
 import type { Board, Puzzle } from "#/util/types.ts";
 
-type SolutionBadgeProps = {
+type DifficultyBadgeProps = {
   puzzle: Signal<Puzzle>;
-  moves?: Signal<number | null>;
+  showMinMoves?: boolean;
   className?: string;
+  tooltip?: string;
 };
 
 // Displays the shortest solution length, updated on a 3s debounce with fade transition.
-export function SolutionBadge(
-  { puzzle, className }: SolutionBadgeProps,
+export function DifficultyBadge(
+  {
+    puzzle,
+    showMinMoves = false,
+    className,
+    tooltip = "difficulty and shortest solution",
+  }: DifficultyBadgeProps,
 ) {
   const ref = useRef<HTMLSpanElement>(null);
 
-  const [moves, setMoves] = useState<number | null>(
-    puzzle.value.difficulty ?? null,
+  const [minMoves, setMinMoves] = useState<number | null>(
+    showMinMoves ? puzzle.value.minMoves ?? null : null,
   );
   const [error, setError] = useState<string | null>(null);
 
@@ -38,23 +44,29 @@ export function SolutionBadge(
 
       const { moves } = await res.json();
 
-      setMoves(moves);
+      setMinMoves(moves);
     } catch (err) {
       setError((err as Error).message);
     }
   }, 3000);
 
   useEffect(() => {
-    const { board, difficulty } = puzzle.value;
+    const { board, minMoves } = puzzle.value;
 
-    if (difficulty) {
-      setMoves(difficulty);
+    if (!showMinMoves) {
+      setMinMoves(null);
+      setError(null);
+      return;
+    }
+
+    if (minMoves) {
+      setMinMoves(minMoves);
       setError(null);
       return;
     }
 
     // Reset state
-    setMoves(null);
+    setMinMoves(null);
     setError(null);
 
     if (board.pieces.length === 0) return;
@@ -62,32 +74,41 @@ export function SolutionBadge(
     try {
       validateBoard(board);
     } catch (err) {
-      setMoves(null);
+      setMinMoves(null);
       setError((err as Error).message);
       return;
     }
 
     fetchSolution(board);
-  }, [puzzle.value.board]);
+  }, [puzzle.value.board, showMinMoves]);
 
   return (
     <span
       ref={ref}
       className={clsx(
-        "flex items-center justify-center px-fl-1 min-h-[2em]",
-        "bg-surface-3 rounded-blob-3 font-mono",
+        "flex items-center justify-center",
+        "bg-surface-2 font-mono cursor-help",
         error && "bg-red-700 text-white",
         className,
       )}
-      title={error ? error : undefined}
+      title={error ? error : tooltip}
     >
-      {error
-        ? <i className="ph-warning ph" />
-        : (
-          <span className="min-w-[2ch] text-center">
-            {moves ?? "?"}
+      {error ? <i className="ph-warning ph" /> : (
+        <>
+          <span className="text-center px-2 uppercase">
+            {puzzle.value.difficulty ?? "unknown"}
           </span>
-        )}
+          {showMinMoves && minMoves && (
+            <span
+              className={clsx(
+                "px-1 bg-surface-3 min-w-[2ch]",
+              )}
+            >
+              {minMoves}
+            </span>
+          )}
+        </>
+      )}
     </span>
   );
 }

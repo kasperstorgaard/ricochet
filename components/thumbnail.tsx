@@ -1,11 +1,14 @@
 import { HTMLAttributes } from "preact";
 
-import type { Board, Piece, Wall } from "#/util/types.ts";
+import { clsx } from "clsx/lite";
+import type { Board, Difficulty, Piece, Wall } from "#/util/types.ts";
 
 export type ThumbnailProps = HTMLAttributes<SVGSVGElement> & {
   board: Board;
   width?: number;
   height?: number;
+  showDifficulty?: boolean;
+  difficulty?: Difficulty;
 };
 
 /**
@@ -16,6 +19,9 @@ export function Thumbnail({
   board,
   width = 400,
   height = 400,
+  showDifficulty,
+  difficulty,
+  class: className,
   ...rest
 }: ThumbnailProps) {
   const gap = width * 0.02;
@@ -37,104 +43,118 @@ export function Thumbnail({
   const destY = cellY(board.destination.y);
 
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox={`0 0 ${width} ${height}`}
-      {...rest}
-    >
-      {/* Destination marker - border with centered X icon */}
-      <g stroke="var(--color-ui-1)" fill="none">
-        <rect
-          x={destX}
-          y={destY}
-          width={cellSize}
-          height={cellSize}
-          strokeWidth="2"
-        />
-        <line
-          x1={destX + cellSize * 0.25}
-          y1={destY + cellSize * 0.25}
-          x2={destX + cellSize * 0.75}
-          y2={destY + cellSize * 0.75}
-          strokeWidth="3"
-          stroke-linecap="round"
-        />
-        <line
-          x1={destX + cellSize * 0.25}
-          y1={destY + cellSize * 0.75}
-          x2={destX + cellSize * 0.75}
-          y2={destY + cellSize * 0.25}
-          strokeWidth="3"
-          stroke-linecap="round"
-        />
-      </g>
+    <div class={clsx("relative", className)}>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox={`0 0 ${width} ${height}`}
+        class="w-full h-full"
+        {...rest}
+      >
+        {/* Destination marker - border with centered X icon */}
+        <g stroke="var(--color-ui-1)" fill="none">
+          <rect
+            x={destX}
+            y={destY}
+            width={cellSize}
+            height={cellSize}
+            strokeWidth="2"
+          />
+          <line
+            x1={destX + cellSize * 0.25}
+            y1={destY + cellSize * 0.25}
+            x2={destX + cellSize * 0.75}
+            y2={destY + cellSize * 0.75}
+            strokeWidth="3"
+            stroke-linecap="round"
+          />
+          <line
+            x1={destX + cellSize * 0.25}
+            y1={destY + cellSize * 0.75}
+            x2={destX + cellSize * 0.75}
+            y2={destY + cellSize * 0.25}
+            strokeWidth="3"
+            stroke-linecap="round"
+          />
+        </g>
 
-      {/* Walls - with gaps to look like separate segments */}
-      {board.walls.map((wall: Wall, idx) => {
-        const px = cellX(wall.x);
-        const py = cellY(wall.y);
+        {/* Walls - with gaps to look like separate segments */}
+        {board.walls.map((wall: Wall, idx) => {
+          const px = cellX(wall.x);
+          const py = cellY(wall.y);
 
-        if (wall.orientation === "vertical") {
-          return (
-            <line
-              key={`wall-${idx}`}
-              x1={px}
-              y1={py}
-              x2={px}
-              y2={py + cellSize}
-              strokeWidth="3"
-              stroke="var(--color-ui-4)"
-            />
-          );
-        } else {
-          return (
-            <line
-              key={`wall-${idx}`}
-              x1={px}
-              y1={py}
-              x2={px + cellSize}
-              y2={py}
-              strokeWidth="3"
-              stroke="var(--color-ui-4)"
-            />
-          );
-        }
-      })}
+          if (wall.orientation === "vertical") {
+            return (
+              <line
+                key={`wall-${idx}`}
+                x1={px}
+                y1={py}
+                x2={px}
+                y2={py + cellSize}
+                strokeWidth="3"
+                stroke="var(--color-ui-4)"
+              />
+            );
+          } else {
+            return (
+              <line
+                key={`wall-${idx}`}
+                x1={px}
+                y1={py}
+                x2={px + cellSize}
+                y2={py}
+                strokeWidth="3"
+                stroke="var(--color-ui-4)"
+              />
+            );
+          }
+        })}
 
-      {/* Pieces */}
-      {board.pieces.map((piece: Piece, idx) => {
-        const { cx, cy } = getCenter(piece.x, piece.y);
-        const radius = pieceSize / 2;
+        {/* Pieces */}
+        {board.pieces.map((piece: Piece, idx) => {
+          const { cx, cy } = getCenter(piece.x, piece.y);
+          const radius = pieceSize / 2;
 
-        if (piece.type === "rook") {
-          return (
-            <circle
-              key={`piece-${idx}`}
-              cx={cx}
-              cy={cy}
-              r={radius}
-              fill="var(--color-ui-2)"
-            />
-          );
-        } else {
-          // Bouncers are same size as rooks, with rounded corners
-          const size = pieceSize;
-          const half = size / 2;
-          const cornerRadius = size * 0.15; // Slightly rounded corners
-          return (
-            <rect
-              key={`piece-${idx}`}
-              x={cx - half}
-              y={cy - half}
-              width={size}
-              height={size}
-              rx={cornerRadius}
-              ry={cornerRadius}
-              fill="var(--color-ui-3)"
-            />
-          );
-        }
-      })}
-    </svg>
+          if (piece.type === "rook") {
+            return (
+              <circle
+                key={`piece-${idx}`}
+                cx={cx}
+                cy={cy}
+                r={radius}
+                fill="var(--color-ui-2)"
+              />
+            );
+          } else {
+            // Bouncers are same size as rooks, with rounded corners
+            const size = pieceSize;
+            const half = size / 2;
+            const cornerRadius = size * 0.15; // Slightly rounded corners
+            return (
+              <rect
+                key={`piece-${idx}`}
+                x={cx - half}
+                y={cy - half}
+                width={size}
+                height={size}
+                rx={cornerRadius}
+                ry={cornerRadius}
+                fill="var(--color-ui-3)"
+              />
+            );
+          }
+        })}
+      </svg>
+      {showDifficulty && difficulty && (
+        <div
+          class={clsx(
+            "absolute bottom-0 right-0 px-fl-1 py-0.5 bg-surface-2",
+            "text-white text-0 text-center font-mono uppercase",
+            "[clip-path:polygon(10%_0,100%_0,100%_100%,0_100%)]",
+          )}
+        >
+          {difficulty}
+        </div>
+      )}
+    </div>
   );
 }

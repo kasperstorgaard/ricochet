@@ -13,6 +13,7 @@ import {
   getUndoHref,
 } from "#/util/url.ts";
 import { Puzzle } from "#/util/types.ts";
+import { isDev } from "../lib/env.ts";
 
 type ControlsPanelProps = {
   puzzle: Signal<Puzzle>;
@@ -123,6 +124,11 @@ export function ControlsPanel({ puzzle, href }: ControlsPanelProps) {
         </div>
 
         <div className="flex justify-center gap-fl-1 flex-wrap lg:grid lg:grid-cols-1">
+          {isDev && (
+            <a href={`/puzzles/${puzzle.value.slug}/edit`} className="btn">
+              <i className="ph-pencil-simple ph" /> Edit
+            </a>
+          )}
           <a
             href="/"
             className="btn"

@@ -105,7 +105,7 @@ export function EditorPanel(
       puzzle.value = {
         ...puzzle.value,
         board: newBoard,
-        difficulty: moves.length,
+        minMoves: moves.length,
       };
     } catch {
       setMessage("generation failed, try again");

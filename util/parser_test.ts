@@ -6,7 +6,7 @@ Deno.test("parsePuzzle - parses metadata with extra fields", () => {
   const markdown = `---
 name: Advanced Puzzle
 slug: advanced-puzzle
-difficulty: 7
+minMoves: 7
 createdAt: 2025-06-15T00:00:00.000Z
 ---
 
@@ -27,7 +27,7 @@ createdAt: 2025-06-15T00:00:00.000Z
   assertObjectMatch(result, {
     name: "Advanced Puzzle",
     slug: "advanced-puzzle",
-    difficulty: 7,
+    minMoves: 7,
     board: {},
     createdAt: new Date("2025-06-15T00:00:00.000Z"),
   });
@@ -191,7 +191,7 @@ Deno.test("parsePuzzle - real-world example 1", () => {
 name: Around the middle
 slug: around-the-middle
 createdAt: 2025-06-15T00:00:00.000Z
-difficulty: 7
+minMoves: 7
 ---
 
 Navigate the rook around the middle
@@ -213,7 +213,7 @@ Navigate the rook around the middle
   assertObjectMatch(result, {
     name: "Around the middle",
     slug: "around-the-middle",
-    difficulty: 7,
+    minMoves: 7,
   });
 
   assertEquals(result.board, {

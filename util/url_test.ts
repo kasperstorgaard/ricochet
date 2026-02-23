@@ -238,12 +238,15 @@ Deno.test("getReplaySpeed() should return the replay_speed param", () => {
   assertEquals(getReplaySpeed("http://example.com/?replay_speed=1.6"), 1.6);
 });
 
-Deno.test("getDifficulty() should return a range", () => {
-  assertEquals(getDifficulty("http://example.com/?difficulty=3-7"), [3, 7]);
+Deno.test("getDifficulty() should return multiple values", () => {
+  assertEquals(getDifficulty("http://example.com/?difficulty=medium,hard"), [
+    "medium",
+    "hard",
+  ]);
 });
 
-Deno.test("getDifficulty() should return a range from 0 when passed a single value", () => {
-  assertEquals(getDifficulty("http://example.com/?difficulty=7"), [0, 7]);
+Deno.test("getDifficulty() should return null when empty", () => {
+  assertEquals(getDifficulty("http://example.com/?difficulty=not-easy"), null);
 });
 
 Deno.test("getPage() should return the page param", () => {

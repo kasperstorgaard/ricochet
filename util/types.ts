@@ -24,6 +24,17 @@ export type Board = {
   pieces: Piece[];
 };
 
+export const DIFFICULTIES = ["easy", "medium", "hard"] as const;
+export type Difficulty = typeof DIFFICULTIES[number];
+
+// The full game state encoded in the URL, including move history and UI state
+export type GameState = {
+  moves: Move[]; // List of moves made so far
+  active?: Position; // Currently selected piece (if any)
+  cursor?: number; // Index in the moves array for undo/redo functionality
+  hint?: Move; // Optional hint move to display
+};
+
 // A move represented as a pair of positions [from, to]
 export type Move = [Position, Position];
 
@@ -33,13 +44,14 @@ export type Puzzle = {
   name: string;
   board: Board;
   createdAt: Date;
-  difficulty?: number;
+  difficulty: Difficulty;
+  minMoves?: number;
 };
 
 // Lightweight puzzle entry used in the manifest index
 export type PuzzleManifestEntry = Pick<
   Puzzle,
-  "slug" | "name" | "createdAt" | "difficulty"
+  "slug" | "name" | "createdAt" | "minMoves" | "difficulty"
 >;
 
 // Tracks current pagination position and total counts

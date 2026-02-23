@@ -6,7 +6,7 @@ import {
   encodeMoves,
   encodePosition,
 } from "#/util/strings.ts";
-import { Move, Position } from "#/util/types.ts";
+import { DIFFICULTIES, Difficulty, Move, Position } from "#/util/types.ts";
 
 /**
  * All state needed to represent the current game
@@ -197,19 +197,19 @@ export function getReplaySpeed(urlOrHref: URL | string): number | null {
 // Reads the `difficulty` search param from a URL, returning a range
 export function getDifficulty(
   urlOrHref: URL | string,
-): [number, number] | null {
+): Difficulty[] | null {
   const url = typeof urlOrHref === "string" ? new URL(urlOrHref) : urlOrHref;
   const rawValue = url.searchParams.get("difficulty");
 
   if (!rawValue) return null;
 
-  const range = rawValue?.split("-")
-    .map((value) => parseInt(value))
-    .filter((value) => !Number.isNaN(value));
+  const values = rawValue?.split(",").filter((value) =>
+    DIFFICULTIES.includes(value as Difficulty)
+  );
 
-  if (!range.length) return null;
+  if (!values.length) return null;
 
-  return range.length === 2 ? range as [number, number] : [0, range[0]];
+  return values as Difficulty[];
 }
 
 // Reads the `page` search param from a URL

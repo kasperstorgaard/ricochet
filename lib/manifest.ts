@@ -22,6 +22,7 @@ export async function updateManifest() {
         name: attrs.name,
         createdAt: attrs.createdAt,
         difficulty: attrs.difficulty,
+        minMoves: attrs.minMoves,
       });
     }
   }

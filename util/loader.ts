@@ -2,6 +2,7 @@ import { pickByDay } from "#/util/date.ts";
 import { sortList } from "#/util/list.ts";
 import { parsePuzzle } from "#/util/parser.ts";
 import {
+  Difficulty,
   PaginatedData,
   PaginationState,
   Puzzle,
@@ -52,7 +53,7 @@ export async function getPuzzle(
 }
 
 type ListOptions = Pick<PaginationState, "page" | "itemsPerPage"> & {
-  sortBy: "createdAt";
+  sortBy: "createdAt" | "difficulty";
   sortOrder: "ascending" | "descending";
 };
 
@@ -97,7 +98,7 @@ export async function listPuzzles(
 }
 
 type GetPuzzleOfTheDayOptions = {
-  difficulty: [number, number];
+  difficulty: Difficulty[];
 };
 
 /**
@@ -114,12 +115,8 @@ export async function getPuzzleOfTheDay(
 ): Promise<Puzzle> {
   const entries = (await getPuzzleManifest(baseUrl))
     .filter((puzzle) => !puzzle.slug.startsWith("tutorial"))
-    // Check that the puzzle is within the difficulty range
-    .filter((puzzle) => {
-      const difficulty = puzzle.difficulty ?? 0;
-      return difficulty >= options.difficulty[0] &&
-        difficulty <= options.difficulty[1];
-    });
+    // Check that the puzzle is within the difficulty options
+    .filter((puzzle) => options.difficulty.includes(puzzle.difficulty));
 
   // Sort oldest first for consistent rotation base
   const sortedEntries = entries.sort((a, b) => {

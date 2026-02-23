@@ -59,7 +59,7 @@ export function useEditor(
         ...puzzle.value.board,
         walls,
       },
-      difficulty: undefined, // clear difficulty on any edit
+      minMoves: undefined, // clear minMoves on any edit
     };
   }, [active, puzzle.value.board]);
 
@@ -90,7 +90,7 @@ export function useEditor(
         ...puzzle.value.board,
         pieces,
       },
-      difficulty: undefined, // clear difficulty on any edit
+      minMoves: undefined, // clear minMoves on any edit
     };
   }, [active, puzzle.value]);
 
@@ -103,7 +103,7 @@ export function useEditor(
         ...puzzle.value.board,
         destination: active,
       },
-      difficulty: undefined, // clear difficulty on any edit
+      minMoves: undefined, // clear minMoves on any edit
     };
   }, [active, puzzle.value]);
 
