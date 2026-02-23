@@ -86,7 +86,7 @@ export default define.page<typeof handler>(function SolutionPage(props) {
           <Header url={url} items={navItems} />
         </div>
 
-        <div className="flex items-end justify-between place-self-start mt-2 w-full flex-wrap">
+        <div className="flex items-center justify-between place-self-start mt-2 w-full flex-wrap">
           <div className="flex flex-col">
             <h1 className="text-5 text-brand leading-tight">
               {props.data.puzzle.name}
@@ -100,7 +100,7 @@ export default define.page<typeof handler>(function SolutionPage(props) {
           <DifficultyBadge
             puzzle={puzzle}
             showMinMoves={showMinMoves}
-            className="mb-2"
+            className="mt-1"
           />
         </div>
 

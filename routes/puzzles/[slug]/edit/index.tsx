@@ -11,6 +11,7 @@ import { define } from "#/core.ts";
 import { isDev } from "#/lib/env.ts";
 import { getPuzzle } from "#/util/loader.ts";
 import { Puzzle } from "#/util/types.ts";
+import clsx from "clsx/lite";
 
 export const handler = define.handlers<Puzzle>({
   async GET(ctx) {
@@ -47,20 +48,25 @@ export default define.page<typeof handler>(function EditorPage(props) {
       <Main>
         <Header url={url} items={navItems} />
 
-        <div className="flex justify-between gap-fl-1 place-self-start items-end mt-2 w-full">
-          <div className="flex flex-col">
+        <div className="flex justify-between items-center gap-fl-1 place-self-start mt-2 w-full">
+          <div className="flex flex-col group">
             <EditableName
               puzzle={puzzle}
               defaultValue={slug}
               className="text-5 text-brand pr-1 leading-tight"
             />
 
-            <p className="text-fl-0 text-text-3 leading-tight italic -mb-[.6lh] -mt-[.4lh]">
+            <p
+              className={clsx(
+                "text-fl-0 text-text-3 leading-tight italic -mb-[.6lh] -mt-[.4lh]",
+                "group-focus-within:opacity-0 transition-opacity",
+              )}
+            >
               editing
             </p>
           </div>
 
-          <DifficultyBadge puzzle={puzzle} showMinMoves className="mb-2" />
+          <DifficultyBadge puzzle={puzzle} showMinMoves className="mt-1" />
         </div>
 
         <Board

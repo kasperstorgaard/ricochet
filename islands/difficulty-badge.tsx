@@ -94,7 +94,7 @@ export function DifficultyBadge(
       {error ? <i className="ph-warning ph" /> : (
         <>
           <span
-            className="text-center text-fl-0 pl-fl-1 pr-2 uppercase cursor-help"
+            className="text-center text-fl-0 px-fl-1 uppercase cursor-help"
             title="puzzle difficulty"
           >
             {puzzle.value.difficulty ?? "unknown"}
@@ -103,7 +103,7 @@ export function DifficultyBadge(
           {showMinMoves && minMoves && (
             <span
               className={clsx(
-                "px-fl-1 pl-fl-1 bg-surface-3 text-fl-0 min-w-[2ch]",
+                "px-fl-1 pl-fl-1 bg-surface-3 text-fl-0 min-w-[2ch] -ml-1",
                 "cursor-help",
                 "[clip-path:polygon(20%_0,100%_0,100%_100%,0_100%)]",
               )}
