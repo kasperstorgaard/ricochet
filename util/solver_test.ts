@@ -6,7 +6,7 @@ import {
   SolverLimitExceededError,
 } from "./solver.ts";
 import { encodeMoves } from "./strings.ts";
-import type { Board } from "#/util/types.ts";
+import type { Board, Puzzle } from "#/util/types.ts";
 import { isValidSolution, resolveMoves } from "./board.ts";
 
 Deno.test("solve() finds 1-move solution (rook slides to destination)", () => {
@@ -92,10 +92,11 @@ Deno.test("solve() respects maxIterations option", () => {
 });
 
 Deno.test("solve() accepts Puzzle type (not just Board)", () => {
-  const puzzle = {
+  const puzzle: Puzzle = {
     slug: "test",
     name: "Test",
     createdAt: new Date(),
+    difficulty: "medium",
     board: {
       destination: { x: 7, y: 0 },
       pieces: [{ x: 0, y: 0, type: "rook" as const }],

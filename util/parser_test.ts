@@ -155,6 +155,7 @@ Deno.test("parsePuzzle - parses simple puzzle", () => {
 name: Simple Puzzle
 slug: simple-puzzle
 createdAt: 2026-01-01T00:00:00.000Z
+difficulty: medium
 ---
 
 + A B C D E F G H +
@@ -175,6 +176,7 @@ createdAt: 2026-01-01T00:00:00.000Z
     name: "Simple Puzzle",
     slug: "simple-puzzle",
     createdAt: new Date("2026-01-01T00:00:00.000Z"),
+    difficulty: "medium",
     board: {
       destination: { x: 3, y: 7 },
       pieces: [
@@ -191,6 +193,7 @@ Deno.test("parsePuzzle - real-world example 1", () => {
 name: Around the middle
 slug: around-the-middle
 createdAt: 2025-06-15T00:00:00.000Z
+difficulty: medium
 minMoves: 7
 ---
 
@@ -213,6 +216,7 @@ Navigate the rook around the middle
   assertObjectMatch(result, {
     name: "Around the middle",
     slug: "around-the-middle",
+    difficulty: "medium",
     minMoves: 7,
   });
 
@@ -255,6 +259,7 @@ Deno.test("parsePuzzle - real-world example 2", () => {
 name: Boxy
 slug: boxy
 createdAt: 2026-01-01T00:00:00.000Z
+difficulty: medium
 ---
 
 + A B C D E F G H +
