@@ -10,7 +10,6 @@ type DifficultyBadgeProps = {
   puzzle: Signal<Puzzle>;
   showMinMoves?: boolean;
   className?: string;
-  tooltip?: string;
 };
 
 // Displays the shortest solution length, updated on a 3s debounce with fade transition.
@@ -19,7 +18,6 @@ export function DifficultyBadge(
     puzzle,
     showMinMoves = false,
     className,
-    tooltip = "difficulty / shortest solution",
   }: DifficultyBadgeProps,
 ) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -91,19 +89,25 @@ export function DifficultyBadge(
         error && "bg-red-700 text-white",
         className,
       )}
-      title={error ? error : tooltip}
+      title={error ? error : undefined}
     >
       {error ? <i className="ph-warning ph" /> : (
         <>
-          <span className="text-center text-fl-0 pl-fl-1 pr-2 uppercase">
+          <span
+            className="text-center text-fl-0 pl-fl-1 pr-2 uppercase cursor-help"
+            title="puzzle difficulty"
+          >
             {puzzle.value.difficulty ?? "unknown"}
           </span>
+
           {showMinMoves && minMoves && (
             <span
               className={clsx(
                 "px-fl-1 pl-fl-1 bg-surface-3 text-fl-0 min-w-[2ch]",
+                "cursor-help",
                 "[clip-path:polygon(20%_0,100%_0,100%_100%,0_100%)]",
               )}
+              title="shortest possible solution"
             >
               {minMoves}
             </span>
