@@ -239,7 +239,7 @@ export function EditorPanel(
         <div className="flex flex-col gap-fl-2">
           <NumberRange
             name="solve_range"
-            label="Moves"
+            label="Shortest solution"
             value={options.solveRange}
             min={1}
             max={20}

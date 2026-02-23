@@ -62,6 +62,7 @@ Create `static/puzzles/<slug>.md` with YAML frontmatter + ASCII board:
 name: Boxy
 slug: boxy
 createdAt: 2026-01-26T00:00:00.000Z
+difficulty: medium
 minMoves: 10
 ---
 
