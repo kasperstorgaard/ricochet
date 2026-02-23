@@ -1,8 +1,9 @@
 ---
-name: Layers
-slug: layers
+name: Eigil
+slug: eigil
 createdAt: 2026-02-10T19:25:31.392Z
-difficulty: 7
+difficulty: medium
+minMoves: 7
 ---
 
 ```

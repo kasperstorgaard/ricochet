@@ -6,7 +6,7 @@ import { Main } from "#/components/main.tsx";
 import Board from "#/islands/board.tsx";
 import { EditableName } from "#/islands/editable-name.tsx";
 import { EditorPanel } from "#/islands/editor-panel.tsx";
-import { SolutionBadge } from "#/islands/solution-badge.tsx";
+import { DifficultyBadge } from "../../../../islands/difficulty-badge.tsx";
 import { define } from "#/core.ts";
 import { isDev } from "#/lib/env.ts";
 import { getPuzzle } from "#/util/loader.ts";
@@ -56,7 +56,8 @@ export default define.page<typeof handler>(function EditorPage(props) {
             />
             <p className="pl-1 text-fl-0 text-text-2 leading-tight">edit</p>
           </div>
-          <SolutionBadge puzzle={puzzle} />
+
+          <DifficultyBadge puzzle={puzzle} showMinMoves />
         </div>
 
         <Board

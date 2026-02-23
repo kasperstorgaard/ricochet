@@ -2,7 +2,8 @@
 name: Elisabeth
 slug: elisabeth
 createdAt: 2026-02-22T19:31:43.297Z
-difficulty: 7
+difficulty: medium
+minMoves: 7
 ---
 
 ```

@@ -24,11 +24,11 @@ async function updateDifficulties() {
 
       try {
         const moves = solve(puzzle);
-        if (moves.length === puzzle.difficulty) continue;
+        if (moves.length === puzzle.minMoves) continue;
 
         const markdown = formatPuzzle({
           ...puzzle,
-          difficulty: moves.length,
+          minMoves: moves.length,
         });
 
         await Deno.writeTextFile(`${PUZZLES_DIR}/${puzzle.slug}.md`, markdown);

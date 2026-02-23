@@ -1,8 +1,9 @@
 ---
-name: Around the middle
-slug: around-the-middle
+name: Laerke
+slug: laerke
 createdAt: 2026-01-24T00:00:00.000Z
-difficulty: 9
+difficulty: medium
+minMoves: 9
 ---
 
 ```

@@ -2,7 +2,8 @@
 name: Ulrik
 slug: ulrik
 createdAt: 2026-02-22T19:03:06.997Z
-difficulty: 6
+difficulty: easy
+minMoves: 6
 ---
 
 ```

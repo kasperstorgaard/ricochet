@@ -2,7 +2,8 @@
 name: Kalle
 slug: kalle
 createdAt: 2026-02-22T12:20:24.241Z
-difficulty: 8
+difficulty: medium
+minMoves: 8
 ---
 
 ```

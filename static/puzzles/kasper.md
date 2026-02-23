@@ -2,7 +2,8 @@
 name: Kasper
 slug: kasper
 createdAt: 2026-02-11T16:44:47.326Z
-difficulty: 8
+difficulty: medium
+minMoves: 8
 ---
 
 ```

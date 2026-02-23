@@ -7,7 +7,7 @@ import { define } from "#/core.ts";
 import Board from "#/islands/board.tsx";
 import { EditableName } from "#/islands/editable-name.tsx";
 import { EditorPanel } from "#/islands/editor-panel.tsx";
-import { SolutionBadge } from "#/islands/solution-badge.tsx";
+import { DifficultyBadge } from "../../islands/difficulty-badge.tsx";
 import { isDev } from "#/lib/env.ts";
 import { Puzzle } from "#/util/types.ts";
 
@@ -17,6 +17,7 @@ export const handler = define.handlers<Puzzle>({
       name: "Untitled",
       slug: "untitled",
       createdAt: new Date(Date.now()),
+      difficulty: "medium",
       board: {
         destination: { x: 0, y: 0 },
         pieces: [],
@@ -50,7 +51,8 @@ export default define.page<typeof handler>(function EditorPage(props) {
             defaultValue="Untitled"
             className="text-5 text-brand pr-1"
           />
-          <SolutionBadge puzzle={puzzle} />
+
+          <DifficultyBadge puzzle={puzzle} showMinMoves />
         </div>
 
         <Board

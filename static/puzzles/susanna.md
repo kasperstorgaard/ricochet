@@ -2,7 +2,8 @@
 name: Susanna
 slug: susanna
 createdAt: 2026-02-13T13:16:20.150Z
-difficulty: 7
+difficulty: medium
+minMoves: 7
 ---
 
 ```

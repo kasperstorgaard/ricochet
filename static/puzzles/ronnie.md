@@ -2,7 +2,8 @@
 name: Ronnie
 slug: ronnie
 createdAt: 2026-02-15T10:10:56.226Z
-difficulty: 10
+difficulty: hard
+minMoves: 10
 ---
 
 ```

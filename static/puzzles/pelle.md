@@ -2,7 +2,8 @@
 name: Pelle
 slug: pelle
 createdAt: 2026-02-10T18:46:31.252Z
-difficulty: 13
+difficulty: hard
+minMoves: 13
 ---
 
 ```

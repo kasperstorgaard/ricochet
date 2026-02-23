@@ -2,7 +2,8 @@
 name: Cecilie
 slug: cecilie
 createdAt: 2026-02-22T12:12:16.516Z
-difficulty: 9
+difficulty: medium
+minMoves: 9
 ---
 
 ```

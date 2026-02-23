@@ -1,8 +1,9 @@
 ---
-name: Stairs
-slug: stairs
+name: Bruno
+slug: bruno
 createdAt: 2026-02-10T18:46:31.252Z
-difficulty: 7
+difficulty: medium
+minMoves: 7
 ---
 
 ```

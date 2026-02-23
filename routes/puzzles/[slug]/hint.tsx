@@ -33,6 +33,7 @@ export const handler = define.handlers({
 
         puzzle_slug: slug,
         puzzle_difficulty: puzzle.difficulty,
+        puzzle_min_moves: puzzle.minMoves,
         game_moves: moves?.length,
       },
     });

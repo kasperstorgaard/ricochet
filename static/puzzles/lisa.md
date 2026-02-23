@@ -2,7 +2,8 @@
 name: Lisa
 slug: lisa
 createdAt: 2026-02-15T10:37:50.664Z
-difficulty: 7
+difficulty: medium
+minMoves: 7
 ---
 
 ```

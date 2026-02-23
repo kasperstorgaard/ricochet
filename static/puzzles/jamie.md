@@ -2,7 +2,8 @@
 name: Jamie
 slug: jamie
 createdAt: 2026-02-13T12:39:59.631Z
-difficulty: 7
+difficulty: medium
+minMoves: 7
 ---
 
 ```

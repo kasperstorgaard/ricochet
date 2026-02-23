@@ -2,7 +2,8 @@
 name: Alvar
 slug: alvar
 createdAt: 2026-02-15T13:38:23.385Z
-difficulty: 7
+difficulty: easy
+minMoves: 7
 ---
 
 ```

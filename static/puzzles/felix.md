@@ -1,8 +1,9 @@
 ---
-name: Boxy
-slug: boxy
+name: Felix
+slug: felix
 createdAt: 2026-01-26T00:00:00.000Z
-difficulty: 10
+difficulty: medium
+minMoves: 10
 ---
 
 ```
