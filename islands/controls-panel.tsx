@@ -13,14 +13,14 @@ import {
   getUndoHref,
 } from "#/util/url.ts";
 import { Puzzle } from "#/util/types.ts";
-import { isDev } from "../lib/env.ts";
 
 type ControlsPanelProps = {
   puzzle: Signal<Puzzle>;
   href: Signal<string>;
+  isDev?: boolean;
 };
 
-export function ControlsPanel({ puzzle, href }: ControlsPanelProps) {
+export function ControlsPanel({ puzzle, href, isDev }: ControlsPanelProps) {
   const state = useMemo(() => decodeState(href.value), [href.value]);
 
   const count = useMemo(() => Math.min(state.moves.length, state.cursor ?? 0), [
