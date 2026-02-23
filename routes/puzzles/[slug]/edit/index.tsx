@@ -47,17 +47,20 @@ export default define.page<typeof handler>(function EditorPage(props) {
       <Main>
         <Header url={url} items={navItems} />
 
-        <div className="flex justify-between gap-fl-2 place-self-start items-center w-full mt-2">
+        <div className="flex justify-between gap-fl-1 place-self-start items-end mt-2 w-full">
           <div className="flex flex-col">
             <EditableName
               puzzle={puzzle}
               defaultValue={slug}
               className="text-5 text-brand pr-1 leading-tight"
             />
-            <p className="pl-1 text-fl-0 text-text-2 leading-tight">edit</p>
+
+            <p className="text-fl-0 text-text-3 leading-tight italic -mb-[.6lh] -mt-[.4lh]">
+              editing
+            </p>
           </div>
 
-          <DifficultyBadge puzzle={puzzle} showMinMoves />
+          <DifficultyBadge puzzle={puzzle} showMinMoves className="mb-2" />
         </div>
 
         <Board

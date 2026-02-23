@@ -92,16 +92,14 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
         <Header url={url} items={navItems} />
 
         <div className="flex items-center justify-between gap-fl-1 mt-2 flex-wrap">
-          <h1 className="text-5 text-brand">
+          <h1 className="text-5 text-brand leading-tight">
             {props.data.name}
           </h1>
 
-          <div className="flex gap-fl-1">
-            <DifficultyBadge
-              puzzle={puzzle}
-              showMinMoves={showMinMoves}
-            />
-          </div>
+          <DifficultyBadge
+            puzzle={puzzle}
+            showMinMoves={showMinMoves}
+          />
         </div>
 
         <Board href={href} puzzle={puzzle} mode={mode} />
