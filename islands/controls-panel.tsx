@@ -1,5 +1,5 @@
 import type { Signal } from "@preact/signals";
-import { useCallback, useMemo } from "preact/hooks";
+import { useCallback, useEffect, useMemo } from "preact/hooks";
 import { clsx } from "clsx/lite";
 
 import { Panel } from "#/components/panel.tsx";
@@ -18,9 +18,12 @@ type ControlsPanelProps = {
   puzzle: Signal<Puzzle>;
   href: Signal<string>;
   isDev?: boolean;
+  className?: string;
 };
 
-export function ControlsPanel({ puzzle, href, isDev }: ControlsPanelProps) {
+export function ControlsPanel(
+  { puzzle, href, isDev, className }: ControlsPanelProps,
+) {
   const state = useMemo(() => decodeState(href.value), [href.value]);
 
   const count = useMemo(() => Math.min(state.moves.length, state.cursor ?? 0), [
@@ -41,8 +44,31 @@ export function ControlsPanel({ puzzle, href, isDev }: ControlsPanelProps) {
     },
   });
 
+  // Clear game state before print
+  useEffect(() => {
+    if (!("onbeforeprint" in globalThis)) return;
+
+    globalThis.addEventListener("beforeprint", onReset);
+    return () => globalThis.removeEventListener("beforeprint", onReset);
+  }, []);
+
+  // Print on load if search params has ?print
+  useEffect(() => {
+    const url = new URL(href.value);
+
+    if (!url.searchParams.has("print")) return;
+    if (!("print" in globalThis)) return;
+
+    // print the page
+    globalThis.print();
+
+    // Clear the search params to avoid weird loops
+    url.searchParams.delete("print");
+    updateLocation(url.href);
+  }, [href.value]);
+
   return (
-    <Panel>
+    <Panel className={className}>
       <div
         className={clsx(
           "grid max-lg:col-[2/3] grid-cols-subgrid place-content-center items-center w-full gap-fl-3 max-lg:gap-fl-4",
@@ -124,6 +150,13 @@ export function ControlsPanel({ puzzle, href, isDev }: ControlsPanelProps) {
         </div>
 
         <div className="flex justify-center gap-fl-1 flex-wrap lg:grid lg:grid-cols-1">
+          <button
+            type="button"
+            className="btn"
+            onClick={() => globalThis.print()}
+          >
+            <i className="ph-printer ph" /> Print
+          </button>
           {isDev && (
             <a href={`/puzzles/${puzzle.value.slug}/edit`} className="btn">
               <i className="ph-pencil-simple ph" /> Edit

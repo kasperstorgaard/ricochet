@@ -10,7 +10,7 @@ type Props = {
 
 export function Header({ items }: Props) {
   return (
-    <header>
+    <header className="print:hidden">
       <nav className="flex items-center gap-1 text-1">
         {items.map((item, idx) => (
           <>

@@ -161,6 +161,7 @@ export default function Board(
         className={clsx(
           // Relative for the touch region positioning
           "relative grid gap-(--gap) w-full grid-cols-[repeat(8,var(--space-w))] grid-rows-[repeat(8,var(--space-w))]",
+          "print:[--space-w:62px]! print:[--gap:var(--size-2)]!",
         )}
       >
         {spaces.map((row) =>
