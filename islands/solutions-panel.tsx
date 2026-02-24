@@ -42,49 +42,54 @@ export function SolutionsPanel(
           "lg:row-[3/4] lg:grid-flow-row lg:grid-rows-[auto] lg:content-between",
         )}
       >
-        {solutionItems.length > 0 && (
-          <ol
-            className={clsx(
-              "m-0 p-0 list-none",
-              "grid items-center gap-x-fl-2 gap-y-1",
-            )}
-          >
-            {solutionItems.map((item) =>
-              item === null ? <li key="delimiter" className="p-0">...</li> : (
-                <li
-                  key={item?.id}
-                  className={clsx(
-                    "p-0 px-1 border-b-1 border-gray-5",
-                    item?.id === solution?.id &&
-                      "text-brand font-5 bg-surface-1",
-                  )}
-                >
-                  <a
-                    className="flex gap-2"
-                    href={getSolutionUrl(item)}
-                  >
-                    <span>{item.moves.length}.</span>
-                    {item.name}
-                  </a>
-                </li>
-              )
-            )}
-          </ol>
-        )}
+        {solutionItems.length === 0
+          ? (
+            <p className="text-fl-1 leading-snug text-center">
+              No solutions posted yet.
+            </p>
+          )
+          : (
+            <ol
+              className={clsx(
+                "m-0 p-0 list-none",
+                "grid items-center gap-x-fl-2 gap-y-1",
+              )}
+            >
+              {solutionItems.map((item) =>
+                item === null
+                  ? <li key="delimiter" className="p-0">...</li>
+                  : (
+                    <li
+                      key={item?.id}
+                      className={clsx(
+                        "p-0 px-1 border-b-1 border-gray-5",
+                        item?.id === solution?.id &&
+                          "text-brand font-5 bg-surface-1",
+                      )}
+                    >
+                      <a
+                        className="flex gap-2"
+                        href={getSolutionUrl(item)}
+                      >
+                        <span>{item.moves.length}.</span>
+                        {item.name}
+                      </a>
+                    </li>
+                  )
+              )}
+            </ol>
+          )}
 
-        <div className="flex gap-2 items-center flex-wrap lg:grid lg:grid-cols-1">
+        <div className="flex gap-2 items-center justify-center flex-wrap lg:grid lg:grid-cols-1 lg:justify-start">
+          <a
+            href={`/puzzles/${puzzle.value.slug}`}
+            className="btn"
+          >
+            {solution ? "Play again" : "Try this puzzle"}
+          </a>
           <a href="/" className="btn">
             More puzzles
           </a>
-
-          {puzzle.value.slug && (
-            <a
-              href={`/puzzles/${puzzle.value.slug}`}
-              className="btn"
-            >
-              Try again
-            </a>
-          )}
         </div>
       </div>
     </Panel>
