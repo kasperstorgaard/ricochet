@@ -142,17 +142,16 @@ export function Thumbnail({
           }
         })}
       </svg>
-      {difficulty && (
-        <div
-          class={clsx(
-            "absolute bottom-0 right-0 px-fl-1 py-0.5 bg-surface-2",
-            "text-white text-0 text-center font-mono uppercase",
-            "[clip-path:polygon(10%_0,100%_0,100%_100%,0_100%)]",
-          )}
-        >
-          {difficulty}
-        </div>
-      )}
+
+      <div
+        class={clsx(
+          "absolute bottom-0 right-0 px-fl-1 py-0.5 bg-surface-2",
+          "text-current text-0 text-center font-mono uppercase",
+          "[clip-path:polygon(10%_0,100%_0,100%_100%,0_100%)]",
+        )}
+      >
+        {difficulty}
+      </div>
     </div>
   );
 }
