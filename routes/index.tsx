@@ -169,7 +169,7 @@ export default define.page<typeof handler>(function Home(ctx) {
             "lg:col-auto lg:row-start-3 lg:flex-col lg:items-start",
           )}
         >
-          <div className="flex gap-fl-1 lg:flex-col">
+          <div className="flex gap-fl-1 lg:flex-col max-md:text-fl-1">
             <a
               href="https://github.com/kasperstorgaard/ricochet"
               className="flex gap-1 items-center"
