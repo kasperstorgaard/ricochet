@@ -8,13 +8,11 @@ import { Main } from "#/components/main.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { Thumbnail } from "#/components/thumbnail.tsx";
 import { Puzzle } from "#/util/types.ts";
-import { getPuzzleOfTheDay } from "#/util/loader.ts";
+import { getPuzzleOfTheDay, getRandomPuzzle } from "#/util/loader.ts";
 
 type PageData = {
-  puzzleOfTheDay: {
-    medium: Puzzle;
-    hard: Puzzle;
-  };
+  dailyPuzzle: Puzzle;
+  randomPuzzle: Puzzle;
 };
 
 export const handler = define.handlers<PageData>({
@@ -31,24 +29,31 @@ export const handler = define.handlers<PageData>({
 
     const today = new Date(Date.now());
 
-    const [medium, hard] = await Promise.all([
-      getPuzzleOfTheDay(ctx.url.origin, today, { difficulty: ["medium"] }),
-      getPuzzleOfTheDay(ctx.url.origin, today, { difficulty: ["hard"] }),
+    // Using NextJS-style promise splits to avoid waterfalls
+    // (slightly overkill in this case, but good practice / safer for future additions)
+    const dailyPuzzlePromise = getPuzzleOfTheDay(ctx.url.origin, today, {
+      difficulty: ["medium", "hard"],
+    });
+    const randomPuzzlePromise = dailyPuzzlePromise.then((puzzle) =>
+      getRandomPuzzle(ctx.url.origin, {
+        difficulty: ["medium", "hard"],
+        excludeSlugs: [puzzle.slug],
+      })
+    );
+
+    const [dailyPuzzle, randomPuzzle] = await Promise.all([
+      dailyPuzzlePromise,
+      randomPuzzlePromise,
     ]);
 
-    return page({
-      puzzleOfTheDay: {
-        medium,
-        hard,
-      },
-    });
+    return page({ dailyPuzzle, randomPuzzle });
   },
 });
 
 export default define.page<typeof handler>(function Home(ctx) {
   const url = new URL(ctx.req.url);
 
-  const { puzzleOfTheDay } = ctx.data;
+  const { dailyPuzzle, randomPuzzle } = ctx.data;
 
   const navItems = [
     { name: "home", href: "/" },
@@ -80,11 +85,8 @@ export default define.page<typeof handler>(function Home(ctx) {
         >
           <li className="list-none pl-0 min-w-0">
             <a
-              href={`puzzles/${puzzleOfTheDay.medium.slug}`}
-              className={clsx(
-                "group flex flex-col gap-fl-1 text-text-1 h-full",
-                "hover:text-brand hover:no-underline",
-              )}
+              href={`puzzles/${dailyPuzzle.slug}`}
+              className="group flex flex-col gap-fl-1 text-text-1 hover:text-brand hover:no-underline"
             >
               <div
                 className={clsx(
@@ -93,27 +95,29 @@ export default define.page<typeof handler>(function Home(ctx) {
                 )}
               >
                 <Thumbnail
-                  board={puzzleOfTheDay.medium.board}
+                  board={dailyPuzzle.board}
+                  difficulty={dailyPuzzle.difficulty}
                   class="basis-0 grow aspect-square h-full"
                 />
               </div>
 
-              <div className="grid grid-cols-[1fr_min-content] items-center pr-fl-1 max-sm:text-fl-1">
-                Daily puzzle
-                <i className="ph ph-arrow-right" />
-                <span className="text-text-2 text-0 font-mono group-hover:text-current">
-                  MEDIUM
-                </span>
+              <div className="flex gap-fl-2 justify-between items-start">
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-0 text-text-2 group-hover:text-current tracking-wide leading-flat">
+                    Daily puzzle
+                  </span>
+                  <span className="flex flex-wrap text-2 leading-tight font-4">
+                    {dailyPuzzle.name}
+                  </span>
+                </div>
               </div>
             </a>
           </li>
+
           <li className="list-none pl-0 min-w-0">
             <a
-              href={`puzzles/${puzzleOfTheDay.hard.slug}`}
-              className={clsx(
-                "group flex flex-col gap-fl-1 text-text-1",
-                "hover:text-brand hover:no-underline",
-              )}
+              href={`puzzles/${randomPuzzle.slug}`}
+              className="group flex flex-col gap-fl-1 text-text-1 hover:text-brand hover:no-underline"
             >
               <div
                 className={clsx(
@@ -122,20 +126,25 @@ export default define.page<typeof handler>(function Home(ctx) {
                 )}
               >
                 <Thumbnail
-                  board={puzzleOfTheDay.hard.board}
+                  board={randomPuzzle.board}
+                  difficulty={randomPuzzle.difficulty}
                   class="basis-0 grow aspect-square h-full"
                 />
               </div>
 
-              <div className="grid grid-cols-[1fr_min-content] items-center pr-fl-1 max-sm:text-fl-1">
-                Daily puzzle
-                <i className="ph ph-arrow-right" />
-                <span className="text-text-2 text-0 font-mono group-hover:text-current">
-                  HARD
-                </span>
+              <div className="flex gap-fl-2 justify-between items-start">
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-0 text-text-2 group-hover:text-current tracking-wide leading-flat">
+                    Random puzzle
+                  </span>
+                  <span className="flex flex-wrap text-2 leading-tight font-4">
+                    {randomPuzzle.name}
+                  </span>
+                </div>
               </div>
             </a>
           </li>
+
           <li className="list-none pl-0 min-w-0 max-lg:col-span-2 max-lg:place-self-start">
             <a
               href="/puzzles"
@@ -151,8 +160,34 @@ export default define.page<typeof handler>(function Home(ctx) {
           </li>
         </ul>
       </Main>
+
       <Panel>
-        <span />
+        <div
+          className={clsx(
+            "col-[2/3] flex flex-col gap-fl-2 justify-between items-start flex-wrap text-fl-0 text-text-2",
+            "sm:flex-row sm:items-center",
+            "lg:col-auto lg:row-start-3 lg:flex-col lg:items-start",
+          )}
+        >
+          <div className="flex gap-fl-1 lg:flex-col">
+            <a
+              href="https://github.com/kasperstorgaard/ricochet"
+              className="flex gap-1 items-center"
+            >
+              <i className="ph ph-github-logo" /> GitHub
+            </a>
+            <a
+              href="https://www.linkedin.com/in/kasper-storgaard-t-lead"
+              className="flex gap-1 items-center "
+            >
+              <i className="ph ph-linkedin-logo" /> LinkedIn
+            </a>
+          </div>
+
+          <a href="/puzzles/tutorial" className="btn">
+            How do I play?
+          </a>
+        </div>
       </Panel>
     </>
   );
