@@ -110,16 +110,12 @@ export default define.page<typeof handler>(function SolutionPage(props) {
         />
       </Main>
 
-      {props.data.solutions.length
-        ? (
-          <SolutionsPanel
-            puzzle={puzzle}
-            solutions={props.data.solutions}
-            solution={props.data.solution}
-            href={href}
-          />
-        )
-        : null}
+      <SolutionsPanel
+        puzzle={puzzle}
+        solutions={props.data.solutions}
+        solution={props.data.solution}
+        href={href}
+      />
     </>
   );
 });
