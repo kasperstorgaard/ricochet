@@ -2,40 +2,26 @@ import { Panel } from "#/components/panel.tsx";
 
 export function PrintPanel() {
   return (
-    <Panel className="not-print:hidden bg-transparent pt-0 border-none mb-fl-3">
-      <table className="col-[2/3] grow border-spacing-fl-2 -m-fl-2 border-separate rounded-none border-none bg-transparent">
-        <thead className="text-fl-0">
-          <tr>
-            <td
-              align="left"
-              className="rounded-none p-0 px-fl-1 italic"
-            >
-              Moves
-            </td>
-            <td
-              align="left"
-              className="rounded-none p-0 px-fl-1 w-full italic"
-            >
-              Name
-            </td>
-          </tr>
-        </thead>
-
-        <tbody>
-          {Array.from(
-            { length: 6 },
-            (_, i) => (
-              <tr
-                key={i}
-                className=""
-              >
-                <td className="rounded-none border-b-1 border-b-text-2 py-fl-2" />
-                <td className="rounded-none border-b-1 border-b-text-2 py-fl-2" />
-              </tr>
-            ),
-          )}
-        </tbody>
-      </table>
+    <Panel className="not-print:hidden bg-transparent pt-fl-0 border-none mb-fl-3">
+      <div className="col-[2/3] grid grid-cols-2 gap-fl-3">
+        {[0, 1].map((col) => (
+          <div key={col} className="flex flex-col gap-fl-3">
+            {Array.from(
+              { length: 6 },
+              (_, row) => (
+                <div key={row} className="flex gap-fl-1 items-end">
+                  <span className="border-b border-text-3 px-fl-1 py-fl-1 w-8 font-mono text-00 leading-tight text-text-3/40">
+                    {row === 0 ? "moves" : ""}
+                  </span>
+                  <span className="border-b border-text-3 flex-1 px-fl-1 py-fl-1 font-mono text-00 leading-tight text-text-3/40">
+                    {row === 0 ? "name" : ""}
+                  </span>
+                </div>
+              ),
+            )}
+          </div>
+        ))}
+      </div>
     </Panel>
   );
 }
