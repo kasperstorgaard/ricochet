@@ -1,5 +1,5 @@
 import type { Signal } from "@preact/signals";
-import { useCallback, useMemo } from "preact/hooks";
+import { useCallback, useEffect, useMemo } from "preact/hooks";
 import { clsx } from "clsx/lite";
 
 import { Panel } from "#/components/panel.tsx";
@@ -43,6 +43,14 @@ export function ControlsPanel(
       globalThis.location.href = getHintHref(href.value);
     },
   });
+
+  // Clear game state before print
+  useEffect(() => {
+    if (!("onbeforeprint" in globalThis)) return;
+
+    globalThis.addEventListener("beforeprint", onReset);
+    return () => globalThis.removeEventListener("beforeprint", onReset);
+  }, []);
 
   return (
     <Panel className={className}>
