@@ -7,7 +7,6 @@ export type ThumbnailProps = HTMLAttributes<SVGSVGElement> & {
   board: Board;
   width?: number;
   height?: number;
-  showDifficulty?: boolean;
   difficulty?: Difficulty;
 };
 
@@ -19,7 +18,6 @@ export function Thumbnail({
   board,
   width = 400,
   height = 400,
-  showDifficulty,
   difficulty,
   class: className,
   ...rest
@@ -144,7 +142,7 @@ export function Thumbnail({
           }
         })}
       </svg>
-      {showDifficulty && difficulty && (
+      {difficulty && (
         <div
           class={clsx(
             "absolute bottom-0 right-0 px-fl-1 py-0.5 bg-surface-2",
