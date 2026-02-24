@@ -54,7 +54,7 @@ export default define.page(
             "sm:grid-cols-[minmax(var(--size-fluid-3),auto)_max-content_minmax(var(--size-fluid-3),auto)]",
             "grid-rows-[repeat(3,max-content)_1fr] place-items-[flex-end_center] gap-y-fl-3",
             "lg:grid-cols-[1fr_13rem] lg:content-center",
-            "print:grid-cols-[1fr_max-content_1fr] print:grid-rows-[auto_auto] print:gap-0",
+            "print:grid-cols-[1fr_max-content_1fr] print:grid-rows-[auto_auto] print:gap-fl-1",
           )}
         >
           <Component />
