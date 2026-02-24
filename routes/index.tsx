@@ -184,9 +184,19 @@ export default define.page<typeof handler>(function Home(ctx) {
             </a>
           </div>
 
-          <a href="/puzzles/tutorial" className="btn">
-            How do I play?
-          </a>
+          <div
+            className={clsx(
+              "flex flex-wrap gap-fl-1 items-start",
+              "lg:flex-col",
+            )}
+          >
+            <a href="/puzzles/tutorial" className="btn">
+              How do I play?
+            </a>
+            <a href={`/puzzles/${dailyPuzzle.slug}?print`} className="btn">
+              Print daily puzzle
+            </a>
+          </div>
         </div>
       </Panel>
     </>
