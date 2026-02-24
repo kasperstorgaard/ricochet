@@ -18,9 +18,12 @@ type ControlsPanelProps = {
   puzzle: Signal<Puzzle>;
   href: Signal<string>;
   isDev?: boolean;
+  className?: string;
 };
 
-export function ControlsPanel({ puzzle, href, isDev }: ControlsPanelProps) {
+export function ControlsPanel(
+  { puzzle, href, isDev, className }: ControlsPanelProps,
+) {
   const state = useMemo(() => decodeState(href.value), [href.value]);
 
   const count = useMemo(() => Math.min(state.moves.length, state.cursor ?? 0), [
@@ -42,7 +45,7 @@ export function ControlsPanel({ puzzle, href, isDev }: ControlsPanelProps) {
   });
 
   return (
-    <Panel>
+    <Panel className={className}>
       <div
         className={clsx(
           "grid max-lg:col-[2/3] grid-cols-subgrid place-content-center items-center w-full gap-fl-3 max-lg:gap-fl-4",
@@ -120,6 +123,14 @@ export function ControlsPanel({ puzzle, href, isDev }: ControlsPanelProps) {
             >
               Start over
             </a>
+
+            <button
+              type="button"
+              className="underline text-link bg-transparent hover:no-underline"
+              onClick={() => globalThis.print()}
+            >
+              Print
+            </button>
           </div>
         </div>
 

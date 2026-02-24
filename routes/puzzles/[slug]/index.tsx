@@ -13,6 +13,7 @@ import { getPuzzle } from "#/util/loader.ts";
 import { Move, Puzzle } from "#/util/types.ts";
 import { posthog } from "#/lib/posthog.ts";
 import { isDev } from "#/lib/env.ts";
+import { PrintPanel } from "#/components/print-panel.tsx";
 
 export const handler = define.handlers<Puzzle>({
   async GET(ctx) {
@@ -106,7 +107,14 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
         <Board href={href} puzzle={puzzle} mode={mode} />
       </Main>
 
-      <ControlsPanel puzzle={puzzle} href={href} isDev={isDev} />
+      <ControlsPanel
+        puzzle={puzzle}
+        href={href}
+        isDev={isDev}
+        className="print:hidden"
+      />
+
+      <PrintPanel />
     </>
   );
 });

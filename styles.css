@@ -584,7 +584,7 @@
 }
 
 /* Light theme */
-@media (prefers-color-scheme: light) {
+@media (prefers-color-scheme: light), print {
   :root {
     --color-brand: var(--purple-11);
     --color-link: var(--purple-7);
@@ -605,6 +605,19 @@
     --color-ui-3: var(--purple-4);
     --color-ui-4: var(--stone-11);
     --color-ui-contrast: var(--pink-4);
+  }
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0cm;
+  }
+
+  /* Force background colors (pieces, destination, etc.) to render in print */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 }
 
