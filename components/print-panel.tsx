@@ -8,13 +8,13 @@ export function PrintPanel() {
           <tr>
             <td
               align="left"
-              className="rounded-none p-0 pr-fl-2 italic"
+              className="rounded-none p-0 px-fl-1 italic"
             >
               Moves
             </td>
             <td
               align="left"
-              className="rounded-none p-0 w-full italic"
+              className="rounded-none p-0 px-fl-1 w-full italic"
             >
               Name
             </td>

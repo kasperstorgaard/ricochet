@@ -14,6 +14,7 @@ import { Move, Puzzle } from "#/util/types.ts";
 import { posthog } from "#/lib/posthog.ts";
 import { isDev } from "#/lib/env.ts";
 import { PrintPanel } from "#/components/print-panel.tsx";
+import clsx from "clsx/lite";
 
 export const handler = define.handlers<Puzzle>({
   async GET(ctx) {
@@ -76,6 +77,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
   const href = useSignal(props.url.href);
   const puzzle = useSignal(props.data);
   const mode = useSignal<"solve">("solve");
+  const printUrl = props.url.hostname + props.url.pathname;
 
   const showMinMoves = props.state.featureFlags.minMoves ?? false;
 
@@ -115,6 +117,17 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
       />
 
       <PrintPanel />
+
+      <a
+        href={`/puzzles/${props.data.slug}`}
+        className={clsx(
+          "not-print:hidden",
+          "fixed left-0 top-fl-3 py-fl-2",
+          "[writing-mode:vertical-rl] text-fl-0 rotate-180 font-mono",
+        )}
+      >
+        {printUrl}
+      </a>
     </>
   );
 });

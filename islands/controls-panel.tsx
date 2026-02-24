@@ -123,18 +123,17 @@ export function ControlsPanel(
             >
               Start over
             </a>
-
-            <button
-              type="button"
-              className="underline text-link bg-transparent hover:no-underline"
-              onClick={() => globalThis.print()}
-            >
-              Print
-            </button>
           </div>
         </div>
 
         <div className="flex justify-center gap-fl-1 flex-wrap lg:grid lg:grid-cols-1">
+          <button
+            type="button"
+            className="btn"
+            onClick={() => globalThis.print()}
+          >
+            <i className="ph-printer ph" /> Print
+          </button>
           {isDev && (
             <a href={`/puzzles/${puzzle.value.slug}/edit`} className="btn">
               <i className="ph-pencil-simple ph" /> Edit
