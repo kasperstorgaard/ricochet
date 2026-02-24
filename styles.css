@@ -590,10 +590,11 @@
     --color-link: var(--purple-7);
     --color-link-visited: var(--link-visited);
 
-    --color-surface-1: var(--stone-1);
-    --color-surface-2: var(--stone-2);
-    --color-surface-3: var(--stone-3);
-    --color-surface-4: var(--stone-4);
+    /* rename from open-props */
+    --color-surface-1: var(--surface-1);
+    --color-surface-2: var(--surface-2);
+    --color-surface-3: var(--surface-3);
+    --color-surface-4: var(--surface-4);
 
     --color-text-1: var(--brown-12);
     --color-text-2: var(--brown-11);
