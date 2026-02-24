@@ -101,6 +101,11 @@ type GetPuzzleOfTheDayOptions = {
   difficulty: Difficulty[];
 };
 
+type GetRandomPuzzleOptions = {
+  difficulty: Difficulty[];
+  excludeSlugs?: string[];
+};
+
 /**
  * Gets puzzle of the day based on the current date.
  * Cycles through puzzles sorted by date (oldest first).
@@ -128,6 +133,26 @@ export async function getPuzzleOfTheDay(
   const entry = pickByDay(sortedEntries, date);
 
   if (!entry) throw new Error("Unable to get puzzle of the day");
+
+  return getPuzzle(baseUrl, entry.slug);
+}
+
+/**
+ * Gets a random puzzle from the pool matching the given difficulty options.
+ * Excludes tutorial puzzles.
+ */
+export async function getRandomPuzzle(
+  baseUrl: string | URL,
+  options: GetRandomPuzzleOptions,
+): Promise<Puzzle> {
+  const entries = (await getPuzzleManifest(baseUrl))
+    .filter((puzzle) => !puzzle.slug.startsWith("tutorial"))
+    .filter((puzzle) => options.difficulty.includes(puzzle.difficulty))
+    .filter((puzzle) => !options.excludeSlugs?.includes(puzzle.slug));
+
+  if (!entries.length) throw new Error("Unable to get random puzzle");
+
+  const entry = entries[Math.floor(Math.random() * entries.length)];
 
   return getPuzzle(baseUrl, entry.slug);
 }

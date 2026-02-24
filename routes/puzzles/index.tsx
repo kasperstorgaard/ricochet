@@ -83,7 +83,6 @@ export default define.page<typeof handler>(
                       board={puzzle.board}
                       class="basis-0 grow aspect-square h-full"
                       difficulty={puzzle.difficulty}
-                      showDifficulty
                     />
                   </div>
 
