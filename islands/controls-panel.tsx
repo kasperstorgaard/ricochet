@@ -1,5 +1,5 @@
 import type { Signal } from "@preact/signals";
-import { useCallback, useEffect, useMemo } from "preact/hooks";
+import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 import { clsx } from "clsx/lite";
 
 import { Panel } from "#/components/panel.tsx";
@@ -25,6 +25,8 @@ export function ControlsPanel(
   { puzzle, href, isDev, className }: ControlsPanelProps,
 ) {
   const state = useMemo(() => decodeState(href.value), [href.value]);
+  const url = new URL(href.value);
+  const printOnLoad = url.searchParams.has("print");
 
   const count = useMemo(() => Math.min(state.moves.length, state.cursor ?? 0), [
     state.moves.length,
@@ -51,6 +53,20 @@ export function ControlsPanel(
     globalThis.addEventListener("beforeprint", onReset);
     return () => globalThis.removeEventListener("beforeprint", onReset);
   }, []);
+
+  // Print on load if search params has ?print
+  useEffect(() => {
+    const shouldPrint = !url.searchParams.has("print");
+    if (shouldPrint || !("print" in globalThis)) return;
+
+    // print the page
+    globalThis.print();
+
+    // Clear the search params to avoid weird loops
+    const newUrl = new URL(url);
+    newUrl.searchParams.delete("print");
+    updateLocation(newUrl.href);
+  }, [url]);
 
   return (
     <Panel className={className}>
