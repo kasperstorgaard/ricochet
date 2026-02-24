@@ -81,18 +81,15 @@ export function SolutionsPanel(
           )}
 
         <div className="flex gap-2 items-center justify-center flex-wrap lg:grid lg:grid-cols-1 lg:justify-start">
+          <a
+            href={`/puzzles/${puzzle.value.slug}`}
+            className="btn"
+          >
+            Play again
+          </a>
           <a href="/" className="btn">
             More puzzles
           </a>
-
-          {puzzle.value.slug && (
-            <a
-              href={`/puzzles/${puzzle.value.slug}`}
-              className="btn"
-            >
-              Try again
-            </a>
-          )}
         </div>
       </div>
     </Panel>
