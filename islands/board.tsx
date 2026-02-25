@@ -35,10 +35,11 @@ type BoardProps = {
   href: Signal<string>;
   puzzle: Signal<Puzzle>;
   mode: Signal<"editor" | "replay" | "solve" | "readonly">;
+  className?: string;
 };
 
 export default function Board(
-  { href, puzzle, mode }: BoardProps,
+  { href, puzzle, mode, className }: BoardProps,
 ) {
   const swipeRegionRef = useRef<HTMLDivElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
@@ -162,6 +163,7 @@ export default function Board(
           // Relative for the touch region positioning
           "relative grid gap-(--gap) w-full grid-cols-[repeat(8,var(--space-w))] grid-rows-[repeat(8,var(--space-w))]",
           "print:[--space-w:62px]! print:[--gap:var(--size-2)]!",
+          className,
         )}
       >
         {spaces.map((row) =>

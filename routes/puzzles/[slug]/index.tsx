@@ -13,12 +13,22 @@ import { getPuzzle } from "#/util/loader.ts";
 import { Move, Puzzle } from "#/util/types.ts";
 import { posthog } from "#/lib/posthog.ts";
 import { isDev } from "#/lib/env.ts";
+import { getStoredPuzzle } from "#/util/cookies.ts";
 import { PrintPanel } from "#/components/print-panel.tsx";
 import clsx from "clsx/lite";
 
-export const handler = define.handlers<Puzzle>({
+type PageData = Puzzle & { isPreview?: boolean };
+
+export const handler = define.handlers<PageData>({
   async GET(ctx) {
     const { slug } = ctx.params;
+
+    if (slug === "preview") {
+      const puzzle = getStoredPuzzle(ctx.req.headers);
+      if (!puzzle) throw new HttpError(404, "No puzzle in progress");
+      puzzle.slug = "preview";
+      return page({ ...puzzle, isPreview: true });
+    }
 
     const puzzle = await getPuzzle(ctx.url.origin, slug);
     if (!puzzle) {
@@ -34,6 +44,25 @@ export const handler = define.handlers<Puzzle>({
 
     const form = await req.formData();
     const name = form.get("name")?.toString();
+
+    if (slug === "preview") {
+      const puzzle = getStoredPuzzle(ctx.req.headers);
+      if (!puzzle) throw new HttpError(404, "No puzzle in progress");
+
+      if (!name) throw new HttpError(400, "Must provide a username");
+
+      const rawMoves = form.get("moves")?.toString() ?? "";
+      const moves = JSON.parse(rawMoves) as Move[];
+
+      if (!isValidSolution(resolveMoves(puzzle.board, moves))) {
+        throw new HttpError(400, "Solution is not valid");
+      }
+
+      const url = new URL(req.url);
+      url.pathname = "/puzzles/preview";
+      url.searchParams.set("solved", "true");
+      return Response.redirect(url.href, 302);
+    }
 
     const puzzle = await getPuzzle(ctx.url.origin, slug);
     if (!puzzle) {
@@ -113,6 +142,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
         puzzle={puzzle}
         href={href}
         isDev={isDev}
+        isPreview={props.data.isPreview}
         className="print:hidden"
       />
 

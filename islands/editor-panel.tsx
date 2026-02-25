@@ -205,23 +205,37 @@ export function EditorPanel(
               </button>
             )
             : (
-              <button
-                type="button"
-                className="btn"
-                onClick={() => {
-                  navigator.clipboard.writeText(formatted);
-                  setMessage("copied!");
-                }}
-              >
-                <i className="ph-copy ph" />Copy text
-              </button>
+              <>
+                <a
+                  href="/api/export"
+                  download
+                  className="btn"
+                >
+                  <i className="ph-floppy-disk ph" />Save
+                </a>
+
+                <a
+                  href="/puzzles/preview"
+                  className="btn"
+                  target="_blank"
+                >
+                  <i className="ph-eye ph" /> Preview
+                </a>
+
+                <a
+                  href="/contribute"
+                  className="text-fl-1 lg:text-fl-0  text-link underline leading-tight"
+                >
+                  How do I add the puzzle?
+                </a>
+              </>
             )}
         </div>
       </div>
 
       <div
         className={clsx(
-          "col-[2/3] lg:row-[2/4] inset-0 bg-surface-2 grid grid-rows-subgrid px-fl-2 -mx-fl-2",
+          "absolute inset-0 bg-surface-2 flex flex-col py-fl-3 px-fl-2",
           "transition-transform duration-200 ease-out",
           showOptions ? "translate-x-0" : "translate-x-full",
         )}
@@ -236,7 +250,7 @@ export function EditorPanel(
           </button>
         </div>
 
-        <div className="flex flex-col gap-fl-2">
+        <div className="flex flex-col gap-fl-2 mt-fl-2">
           <NumberRange
             name="solve_range"
             label="Shortest solution"

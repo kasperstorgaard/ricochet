@@ -18,11 +18,12 @@ type ControlsPanelProps = {
   puzzle: Signal<Puzzle>;
   href: Signal<string>;
   isDev?: boolean;
+  isPreview?: boolean;
   className?: string;
 };
 
 export function ControlsPanel(
-  { puzzle, href, isDev, className }: ControlsPanelProps,
+  { puzzle, href, isDev, isPreview, className }: ControlsPanelProps,
 ) {
   const state = useMemo(() => decodeState(href.value), [href.value]);
 
@@ -158,8 +159,11 @@ export function ControlsPanel(
             <i className="ph-printer ph" /> Print
           </button>
           {isDev && (
-            <a href={`/puzzles/${puzzle.value.slug}/edit`} className="btn">
-              <i className="ph-pencil-simple ph" /> Edit
+            <a
+              href={`/puzzles/${puzzle.value.slug}/clone`}
+              className="btn"
+            >
+              <i className="ph-copy ph" /> Clone
             </a>
           )}
           <a
@@ -168,13 +172,25 @@ export function ControlsPanel(
           >
             More puzzles
           </a>
-          <a
-            href={`/puzzles/${puzzle.value.slug}/solutions`}
-            className="btn"
-          >
-            <span className="lg:hidden">Solutions</span>
-            <span className="max-lg:hidden">See solutions</span>
-          </a>
+          {isPreview
+            ? (
+              <p className="text-fl-0 leading-tight">
+                Solved!{" "}
+                <a href="/puzzles/new" className="text-link underline">
+                  Save the puzzle
+                </a>{" "}
+                to submit solutions.
+              </p>
+            )
+            : (
+              <a
+                href={`/puzzles/${puzzle.value.slug}/solutions`}
+                className="btn"
+              >
+                <span className="lg:hidden">Solutions</span>
+                <span className="max-lg:hidden">See solutions</span>
+              </a>
+            )}
         </div>
       </div>
     </Panel>
