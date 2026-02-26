@@ -158,39 +158,38 @@ export function ControlsPanel(
           >
             <i className="ph-printer ph" /> Print
           </button>
-          {isDev && (
+          {isDev && puzzle.value.slug !== "preview" && (
             <a
               href={`/puzzles/${puzzle.value.slug}/clone`}
               className="btn"
             >
-              <i className="ph-copy ph" /> Clone
+              <i className="ph-copy ph" /> Remix
             </a>
           )}
+
+          {isPreview && (
+            <a href="/api/export" download className="btn">
+              <i className="ph-share ph" />
+              Export
+            </a>
+          )}
+
           <a
             href="/"
             className="btn"
           >
             More puzzles
           </a>
-          {isPreview
-            ? (
-              <p className="text-fl-0 leading-tight">
-                Solved!{" "}
-                <a href="/puzzles/new" className="text-link underline">
-                  Save the puzzle
-                </a>{" "}
-                to submit solutions.
-              </p>
-            )
-            : (
-              <a
-                href={`/puzzles/${puzzle.value.slug}/solutions`}
-                className="btn"
-              >
-                <span className="lg:hidden">Solutions</span>
-                <span className="max-lg:hidden">See solutions</span>
-              </a>
-            )}
+
+          {!isPreview && (
+            <a
+              href={`/puzzles/${puzzle.value.slug}/solutions`}
+              className="btn"
+            >
+              <span className="lg:hidden">Solutions</span>
+              <span className="max-lg:hidden">See solutions</span>
+            </a>
+          )}
         </div>
       </div>
     </Panel>
