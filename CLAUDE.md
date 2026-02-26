@@ -31,10 +31,6 @@ static/puzzles/  Puzzle definitions (.md files with ASCII boards)
 plugins/         Vite plugins (puzzle manifest generation)
 ```
 
-## Key Architecture Rules
-
-**Fresh 2 islands pattern**: Only components in `islands/` are hydrated client-side. `components/` is server-only. Put interactivity in islands, layout/markup in components.
-
 **Where logic lives**:
 - `util/` — pure game logic, no browser APIs, safe to import server-side
 - `lib/` — client-side only (DOM, touch, signals, browser state)
@@ -42,7 +38,7 @@ plugins/         Vite plugins (puzzle manifest generation)
 
 **Import alias**: Use `#/` for project-root imports (e.g., `import type { Board } from "#/util/types.ts"`).
 
-**State management**: Preact Signals for reactive island state. URL query string for persistent/shareable state (see `lib/router.ts`).
+For routing, state, and storage decisions → `/architecture`.
 
 ## Core Types
 
@@ -82,44 +78,16 @@ Symbols: `@` = rook (player piece), `X` = destination, `#` = bouncer, `|`/`_` = 
 
 Run `deno task update-puzzles` after adding puzzles to regenerate the manifest.
 
-## Styling
+## Styling & Components
 
-Always use Tailwind utility classes. Do not add to `styles.css` unless working on the design system itself or fixing a global UI bug that genuinely cannot be handled with utilities. Tailwind v4 has no config file — CSS-first configuration. Open Props design tokens are available as CSS custom properties. Use `clsx` for conditional class composition.
+Always use Tailwind utility classes. Use `clsx` for conditional class composition. Prefer HTML semantics and native elements first.
 
-## Components
-
-Prefer generic, reusable components over purpose-built ones. Reach for HTML semantics and native elements first — they give you accessibility for free and keep things simple. Avoid custom implementations of things the browser already does (focus management, form validation, disclosure, etc.).
-
-## Routing & Data
-
-**Server side is the default.** Use page-level `GET`/`POST` handlers in `routes/` as the first approach — they handle state via cookies and headers without any client-side wiring. Only create a route under `routes/api/` when the endpoint needs to be called client-side and is genuinely reusable across multiple pages or islands.
-
-For storage: cookies and headers are the default. Only reach for client-side storage if server-side approaches are genuinely insufficient for the use case.
-
-## Tests
-
-Keep assertions minimal — prefer a single deep equality check over multiple individual property assertions. Write realistic tests that exercise meaningful scenarios end-to-end; don't write separate tests for trivial edge cases or guard against things that can't happen in practice. A test that mirrors real usage is more valuable than exhaustive coverage of impossible states.
-
-## Comments
-
-- `//` for short inline notes on non-obvious logic
-- `/**\n * ...\n */` (multi-line) for documentation on exported functions and types
-- Never use `/** single line */` — either `//` or a proper multi-line block
-
-## Analytics (PostHog)
-
-PostHog serves two purposes:
-- **Feature flags** — used to ship features incrementally and run A/B experiments
-- **Behavioral tracking** — core user events are tracked server-side via `posthog-node`; client-side PostHog (`posthog-js`) is limited to default pageview tracking and session replay only
-
-If an interaction is not important enough to trigger a server-side handler or state change, it is not important enough to track.
+For Tailwind conventions, design tokens, component patterns, islands architecture, and progressive enhancement → `/frontend`.
 
 ## TypeScript Conventions
 
 - **File naming**: kebab-case for all files (e.g. `my-component.tsx`, `some-util.ts`)
 - **Test files**: `*_test.ts` suffix (Deno convention, e.g. `board_test.ts`)
-- **Return types**: Prefer inferred return types over explicit annotations on functions
-- **Type assertions**: Prefer `const x: SomeType = {}` over `return {} as SomeType`. `as` casts are acceptable for function return sites where inference falls short, but not as a substitute for proper typing
 - **Fresh routes**: Always use `define.handlers<PageData>()` from `core.ts` for route handlers — this wires in the shared `State` type automatically. Use `typeof handler` to infer page props rather than declaring them manually:
 
 ```ts
@@ -128,6 +96,16 @@ import { define } from "#/core.ts";
 export const handler = define.handlers<PageData>({ ... });
 export default define.page<typeof handler>();
 ```
+
+For type design, inference rules, assertion style, and comment conventions → `/typescript`.
+
+## Tests
+
+For testing philosophy, what to cover, and assertion style → `/testing`.
+
+## Analytics
+
+For PostHog usage and event tracking philosophy → `/product`.
 
 ## Environment & Deployment
 

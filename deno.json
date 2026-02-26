@@ -19,7 +19,9 @@
   },
   "fmt": {
     "exclude": [
-      "*.md"
+      "CLAUDE.md",
+      "README.md",
+      "static/*"
     ]
   },
   "exclude": [
