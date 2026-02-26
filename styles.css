@@ -763,7 +763,7 @@
   .callout {
     display: flex;
     align-items: center;
-    gap: var(--spacing-fl-1);
+    gap: calc(var(--size-fluid-2) - 6px);
 
     padding: var(--size-fluid-1) var(--size-fluid-2);
     margin: 0;
@@ -771,6 +771,7 @@
     background-color: var(--color-surface-2);
     border-radius: var(--radius-2);
     color: var(--color-text-2);
+    font-size: var(--text-fl-0);
   }
 
   .callout > i {
