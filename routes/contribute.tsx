@@ -130,7 +130,10 @@ export default define.page<typeof handler>(function ContributePage(props) {
               </li>
               <li>
                 Fork the repo (more on this{" "}
-                <a href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo">
+                <a
+                  href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo"
+                  target="_blank"
+                >
                   here
                 </a>)
               </li>
