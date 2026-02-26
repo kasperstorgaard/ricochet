@@ -17,7 +17,7 @@ import { getStoredPuzzle } from "#/util/cookies.ts";
 import { PrintPanel } from "#/components/print-panel.tsx";
 import clsx from "clsx/lite";
 
-type PageData = Puzzle & { isPreview?: boolean };
+type PageData = Puzzle;
 
 export const handler = define.handlers<PageData>({
   async GET(ctx) {
@@ -25,9 +25,12 @@ export const handler = define.handlers<PageData>({
 
     if (slug === "preview") {
       const puzzle = getStoredPuzzle(ctx.req.headers);
-      if (!puzzle) throw new HttpError(404, "No puzzle in progress");
+
+      if (!puzzle) throw new HttpError(500, "No stored puzzle");
+
       puzzle.slug = "preview";
-      return page({ ...puzzle, isPreview: true });
+
+      return page(puzzle);
     }
 
     const puzzle = await getPuzzle(ctx.url.origin, slug);
@@ -42,27 +45,12 @@ export const handler = define.handlers<PageData>({
     const { slug } = ctx.params;
     const referer = ctx.req.headers.get("referer");
 
+    if (slug === "preview") {
+      throw new HttpError(500, "Preview puzzle solutions cannot be submitted");
+    }
+
     const form = await req.formData();
     const name = form.get("name")?.toString();
-
-    if (slug === "preview") {
-      const puzzle = getStoredPuzzle(ctx.req.headers);
-      if (!puzzle) throw new HttpError(404, "No puzzle in progress");
-
-      if (!name) throw new HttpError(400, "Must provide a username");
-
-      const rawMoves = form.get("moves")?.toString() ?? "";
-      const moves = JSON.parse(rawMoves) as Move[];
-
-      if (!isValidSolution(resolveMoves(puzzle.board, moves))) {
-        throw new HttpError(400, "Solution is not valid");
-      }
-
-      const url = new URL(req.url);
-      url.pathname = "/puzzles/preview";
-      url.searchParams.set("solved", "true");
-      return Response.redirect(url.href, 302);
-    }
 
     const puzzle = await getPuzzle(ctx.url.origin, slug);
     if (!puzzle) {
@@ -103,10 +91,13 @@ export const handler = define.handlers<PageData>({
 });
 
 export default define.page<typeof handler>(function PuzzleDetails(props) {
+  const { slug } = props.params;
+
   const href = useSignal(props.url.href);
   const puzzle = useSignal(props.data);
   const mode = useSignal<"solve">("solve");
   const printUrl = props.url.hostname + props.url.pathname;
+  const isPreview = slug === "preview";
 
   const showMinMoves = props.state.featureFlags.minMoves ?? false;
 
@@ -115,7 +106,10 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
   const navItems = [
     { name: "home", href: "/" },
     { name: "puzzles", href: "/puzzles" },
-    { name: props.data.name, href: `/puzzles/${props.data.slug}` },
+    {
+      name: !isPreview ? props.data.name : "preview",
+      href: `/puzzles/${slug}`,
+    },
   ];
 
   return (
@@ -142,7 +136,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
         puzzle={puzzle}
         href={href}
         isDev={isDev}
-        isPreview={props.data.isPreview}
+        isPreview={isPreview}
         className="print:hidden"
       />
 
