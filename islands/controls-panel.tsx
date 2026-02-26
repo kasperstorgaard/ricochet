@@ -158,7 +158,7 @@ export function ControlsPanel(
           >
             <i className="ph-printer ph" /> Print
           </button>
-          {isDev && puzzle.value.slug !== "preview" && (
+          {puzzle.value.slug !== "preview" && (
             <a
               href={`/puzzles/${puzzle.value.slug}/clone`}
               className="btn"
