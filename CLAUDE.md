@@ -78,7 +78,7 @@ minMoves: 10
 +-----------------+
 ```
 
-Symbols: `X` = rook (player piece), `@` = destination, `#` = bouncer, `|`/`_` = walls.
+Symbols: `@` = rook (player piece), `X` = destination, `#` = bouncer, `|`/`_` = walls.
 
 Run `deno task update-puzzles` after adding puzzles to regenerate the manifest.
 

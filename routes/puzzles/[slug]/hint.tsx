@@ -5,6 +5,9 @@ import { getHint } from "#/util/solver.ts";
 import { encodeMoves } from "#/util/strings.ts";
 import { decodeState } from "#/util/url.ts";
 import { posthog } from "#/lib/posthog.ts";
+import { getStoredPuzzle } from "../../../util/cookies.ts";
+import { Puzzle } from "../../../util/types.ts";
+import { HttpError } from "fresh";
 
 export const handler = define.handlers({
   async GET(ctx) {
@@ -15,7 +18,19 @@ export const handler = define.handlers({
     url.pathname = `/puzzles/${slug}`;
 
     const state = decodeState(url);
-    const puzzle = await getPuzzle(ctx.url.origin, slug);
+
+    let puzzle: Puzzle | null = null;
+
+    if (slug === "preview") {
+      puzzle = getStoredPuzzle(ctx.req.headers);
+    } else {
+      puzzle = await getPuzzle(ctx.url.origin, slug);
+    }
+
+    if (!puzzle) {
+      throw new HttpError(500, "Unable to get puzzle");
+    }
+
     const moves = state.moves
       ? state.moves.slice(0, state.cursor ?? state.moves.length)
       : null;

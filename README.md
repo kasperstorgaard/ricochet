@@ -32,7 +32,8 @@ https://github.com/user-attachments/assets/4525f879-5b6d-450a-a2fd-c79882db2e3c
 
 The built-in editor lets you create puzzles from scratch or generate random
 solvable boards with configurable minimum moves. A debounced solver runs on every
-edit, showing the optimal solution length in real time.
+edit, showing the optimal solution length in real time. Use **Download** to
+export a puzzle as a `.md` file and **Import** to load one back in.
 
 ## Tech Stack
 
@@ -96,9 +97,13 @@ createdAt: 2025-06-15T00:00:00.000Z
 +-----------------+
 ```
 
-Walls are placed with `|` (vertical) and `_` (horizontal). (see parser.ts for
-custom edge case characters if needed) Save it as an `.md` file in
-`static/puzzles/` and it auto-registers via a custom Vite plugin.
+Symbols: `@` = rook (player piece), `X` = destination, `#` = bouncer,
+`|` = vertical wall, `_` = horizontal wall.
+
+The easiest way to create a puzzle is via the in-app editor at `/puzzles/new`.
+Design your board, then click **Download** to save the `.md` file. Use
+**Import** to load it back into the editor later. Place it in
+`static/puzzles/` and run `deno task update-puzzles` to register it.
 
 ## Privacy
 

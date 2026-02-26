@@ -1,8 +1,6 @@
 import type { Signal } from "@preact/signals";
 import { useCallback, useMemo, useRef } from "preact/hooks";
 
-import { SolutionDialog } from "#/islands/solution-dialog.tsx";
-import { useEditor } from "#/lib/editor.ts";
 import { useMoves } from "#/lib/moves.ts";
 import { buildReplayKeyframes, type KeyframeStop } from "#/lib/replay.ts";
 import { useRouter } from "#/lib/router.ts";
@@ -12,7 +10,6 @@ import {
   getGrid,
   getTargets,
   isPositionSame,
-  isValidSolution,
   resolveMoves,
 } from "#/util/board.ts";
 import { getGuides, Guide } from "#/util/guides.ts";
@@ -35,10 +32,11 @@ type BoardProps = {
   href: Signal<string>;
   puzzle: Signal<Puzzle>;
   mode: Signal<"editor" | "replay" | "solve" | "readonly">;
+  className?: string;
 };
 
 export default function Board(
-  { href, puzzle, mode }: BoardProps,
+  { href, puzzle, mode, className }: BoardProps,
 ) {
   const swipeRegionRef = useRef<HTMLDivElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
@@ -54,12 +52,8 @@ export default function Board(
 
   const board = useMemo(() => resolveMoves(puzzle.value.board, moves), [
     puzzle.value.board,
-    state.moves,
+    moves,
   ]);
-  const hasSolution = useMemo(
-    () => isValidSolution(board),
-    [puzzle.value.board, moves],
-  );
 
   const onLocationUpdated = useCallback((url: URL) => {
     href.value = url.href;
@@ -121,13 +115,6 @@ export default function Board(
     [state, href.value, mode.value],
   );
 
-  // Optional editor state, since board is used across both editor and solve modes
-  useEditor({
-    active: state.active,
-    isEnabled: mode.value === "editor",
-    puzzle,
-  });
-
   /*
     Core move state for solve mode, including:
     - touch gestures
@@ -162,6 +149,7 @@ export default function Board(
           // Relative for the touch region positioning
           "relative grid gap-(--gap) w-full grid-cols-[repeat(8,var(--space-w))] grid-rows-[repeat(8,var(--space-w))]",
           "print:[--space-w:62px]! print:[--gap:var(--size-2)]!",
+          className,
         )}
       >
         {spaces.map((row) =>
@@ -231,12 +219,6 @@ export default function Board(
           />
         )}
       </div>
-
-      <SolutionDialog
-        open={mode.value === "solve" && hasSolution}
-        href={href}
-        puzzle={puzzle}
-      />
     </>
   );
 }

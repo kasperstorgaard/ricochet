@@ -12,13 +12,26 @@ import { isValidSolution, resolveMoves } from "#/util/board.ts";
 import { getPuzzle } from "#/util/loader.ts";
 import { Move, Puzzle } from "#/util/types.ts";
 import { posthog } from "#/lib/posthog.ts";
-import { isDev } from "#/lib/env.ts";
+import { getStoredPuzzle } from "#/util/cookies.ts";
 import { PrintPanel } from "#/components/print-panel.tsx";
 import clsx from "clsx/lite";
+import { SolutionDialog } from "../../../islands/solution-dialog.tsx";
 
-export const handler = define.handlers<Puzzle>({
+type PageData = Puzzle;
+
+export const handler = define.handlers<PageData>({
   async GET(ctx) {
     const { slug } = ctx.params;
+
+    if (slug === "preview") {
+      const puzzle = getStoredPuzzle(ctx.req.headers);
+
+      if (!puzzle) throw new HttpError(500, "No stored puzzle");
+
+      puzzle.slug = "preview";
+
+      return page(puzzle);
+    }
 
     const puzzle = await getPuzzle(ctx.url.origin, slug);
     if (!puzzle) {
@@ -31,6 +44,10 @@ export const handler = define.handlers<Puzzle>({
     const req = ctx.req;
     const { slug } = ctx.params;
     const referer = ctx.req.headers.get("referer");
+
+    if (slug === "preview") {
+      throw new HttpError(500, "Preview puzzle solutions cannot be submitted");
+    }
 
     const form = await req.formData();
     const name = form.get("name")?.toString();
@@ -74,10 +91,13 @@ export const handler = define.handlers<Puzzle>({
 });
 
 export default define.page<typeof handler>(function PuzzleDetails(props) {
+  const { slug } = props.params;
+
   const href = useSignal(props.url.href);
   const puzzle = useSignal(props.data);
   const mode = useSignal<"solve">("solve");
   const printUrl = props.url.hostname + props.url.pathname;
+  const isPreview = slug === "preview";
 
   const showMinMoves = props.state.featureFlags.minMoves ?? false;
 
@@ -86,7 +106,10 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
   const navItems = [
     { name: "home", href: "/" },
     { name: "puzzles", href: "/puzzles" },
-    { name: props.data.name, href: `/puzzles/${props.data.slug}` },
+    {
+      name: !isPreview ? props.data.name : "preview",
+      href: `/puzzles/${slug}`,
+    },
   ];
 
   return (
@@ -112,7 +135,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
       <ControlsPanel
         puzzle={puzzle}
         href={href}
-        isDev={isDev}
+        isPreview={isPreview}
         className="print:hidden"
       />
 
@@ -128,6 +151,12 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
       >
         {printUrl}
       </a>
+
+      <SolutionDialog
+        href={href}
+        puzzle={puzzle}
+        isPreview={isPreview}
+      />
     </>
   );
 });

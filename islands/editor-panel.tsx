@@ -53,7 +53,6 @@ export function EditorPanel(
     return resolveMoves(puzzle.value.board, moves);
   }, [href.value, puzzle.value.board]);
 
-  const [message, setMessage] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [options, setOptions] = useState<GenerateOptions>({
     solveRange: [6, 11],
@@ -78,8 +77,6 @@ export function EditorPanel(
       body: JSON.stringify({ slug: puzzle.value.slug, markdown: formatted }),
     });
 
-    setMessage("puzzle saved!");
-
     const url = new URL(href.value);
 
     if (!url.pathname.startsWith(`/puzzles/${puzzle.value.slug}`)) {
@@ -90,7 +87,6 @@ export function EditorPanel(
 
   const onGenerate = useCallback(async () => {
     setIsGenerating(true);
-    setMessage("");
 
     try {
       const res = await fetch("/api/generate", {
@@ -108,8 +104,6 @@ export function EditorPanel(
         board: newBoard,
         minMoves: moves.length,
       };
-    } catch {
-      setMessage("generation failed, try again");
     } finally {
       setIsGenerating(false);
     }
@@ -119,54 +113,65 @@ export function EditorPanel(
 
   return (
     <Panel className="relative overflow-hidden">
-      <div className="flex flex-col col-[2/3] lg:row-[3/4] gap-fl-1 place-content-between">
+      <a
+        href="/contribute"
+        target="_blank"
+        className={clsx(
+          "col-[2/3] text-fl-1 mb-fl-4 text-link underline leading-tight",
+          "lg:row-[1/3] lg:text-fl-0 lg:mb-0",
+        )}
+      >
+        Guide: How to add puzzles
+      </a>
+
+      <div className="flex flex-col col-[2/3] lg:row-[3/4] gap-fl-4 lg:gap-fl-1 place-content-between">
         <div className="flex flex-col gap-fl-1 flex-wrap">
-          <button
-            type="button"
-            className="btn"
-            onClick={() => {
-              puzzle.value = {
-                ...puzzle.value,
-                board: rotateBoard(puzzle.value.board, "right"),
-              };
-            }}
-          >
-            <i className="ph-arrow-clockwise ph" /> Rotate 90°
-          </button>
+          <div className="flex gap-fl-1 flex-wrap lg:justify-center">
+            <button
+              type="button"
+              className="icon-btn"
+              data-size="sm"
+              onClick={() => {
+                puzzle.value = {
+                  ...puzzle.value,
+                  board: rotateBoard(puzzle.value.board, "right"),
+                };
+              }}
+            >
+              <i className="ph-arrow-clockwise ph" />
+              <span className="sr-only">Rotate 90°</span>
+            </button>
 
-          <button
-            type="button"
-            className="btn"
-            onClick={() => {
-              puzzle.value = {
-                ...puzzle.value,
-                board: flipBoard(puzzle.value.board, "horizontal"),
-              };
-            }}
-          >
-            <i className="ph-flip-horizontal ph" />Mirror
-          </button>
+            <button
+              type="button"
+              className="icon-btn"
+              data-size="sm"
+              onClick={() => {
+                puzzle.value = {
+                  ...puzzle.value,
+                  board: flipBoard(puzzle.value.board, "horizontal"),
+                };
+              }}
+            >
+              <i className="ph-flip-horizontal ph" />
+              <span className="sr-only">Mirror Horizontally</span>
+            </button>
 
-          <button
-            type="button"
-            className="btn"
-            onClick={() => {
-              puzzle.value = {
-                ...puzzle.value,
-                board: flipBoard(puzzle.value.board, "vertical"),
-              };
-            }}
-          >
-            <i className="ph-flip-vertical ph" />Mirror
-          </button>
-        </div>
-
-        <div className="flex flex-col flex-wrap gap-fl-1">
-          {message && (
-            <p className="text-fl-0 text-purple-1 leading-tight">
-              {message}
-            </p>
-          )}
+            <button
+              type="button"
+              className="icon-btn"
+              data-size="sm"
+              onClick={() => {
+                puzzle.value = {
+                  ...puzzle.value,
+                  board: flipBoard(puzzle.value.board, "vertical"),
+                };
+              }}
+            >
+              <i className="ph-flip-vertical ph" />
+              <span className="sr-only">Mirror Vertically</span>
+            </button>
+          </div>
 
           <div className="flex w-full">
             <button
@@ -193,35 +198,63 @@ export function EditorPanel(
               <i className="ph-gear ph" />
             </button>
           </div>
+        </div>
 
-          {isDev
-            ? (
-              <button
-                type="button"
-                className="btn"
-                onClick={onSave}
-              >
-                <i className="ph-floppy-disk ph" />Save
+        <div className="flex flex-col flex-wrap gap-fl-1">
+          {isDev && (
+            <button
+              type="button"
+              className="btn"
+              onClick={onSave}
+            >
+              <i className="ph-floppy-disk ph" />Save
+            </button>
+          )}
+
+          <a
+            href="/api/export"
+            download
+            className="btn"
+          >
+            <i className="ph-download-simple ph" />Download
+          </a>
+
+          <form
+            action="/api/import"
+            method="post"
+            enctype="multipart/form-data"
+            className="flex flex-row gap-1"
+          >
+            <label className="btn cursor-pointer flex-1">
+              <i className="ph-arrow-square-in ph" />Import
+              <input
+                type="file"
+                name="file"
+                accept=".md"
+                className="sr-only"
+                onChange={(e) => e.currentTarget.form?.submit()}
+              />
+            </label>
+            <noscript>
+              <button className="icon-btn" type="submit" data-size="sm">
+                <i className="ph-arrow-right ph" />
               </button>
-            )
-            : (
-              <button
-                type="button"
-                className="btn"
-                onClick={() => {
-                  navigator.clipboard.writeText(formatted);
-                  setMessage("copied!");
-                }}
-              >
-                <i className="ph-copy ph" />Copy text
-              </button>
-            )}
+            </noscript>
+          </form>
+
+          <a
+            href="/puzzles/preview"
+            className="btn"
+            target="_blank"
+          >
+            <i className="ph-eye ph" /> Preview
+          </a>
         </div>
       </div>
 
       <div
         className={clsx(
-          "col-[2/3] lg:row-[2/4] inset-0 bg-surface-2 grid grid-rows-subgrid px-fl-2 -mx-fl-2",
+          "absolute inset-0 bg-surface-2 flex flex-col py-fl-3 px-fl-2",
           "transition-transform duration-200 ease-out",
           showOptions ? "translate-x-0" : "translate-x-full",
         )}
@@ -236,7 +269,7 @@ export function EditorPanel(
           </button>
         </div>
 
-        <div className="flex flex-col gap-fl-2">
+        <div className="flex flex-col gap-fl-2 mt-fl-2">
           <NumberRange
             name="solve_range"
             label="Shortest solution"

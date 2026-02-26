@@ -1,8 +1,8 @@
-import type { Signal } from "@preact/signals";
-import { useCallback, useEffect } from "preact/hooks";
+import { type Signal } from "@preact/signals";
+import { useCallback } from "preact/hooks";
 
 import { isPositionSame } from "#/util/board.ts";
-import { Position, Puzzle } from "#/util/types.ts";
+import type { Position, Puzzle, Wall } from "#/util/types.ts";
 
 /**
  * Current state for the editor
@@ -12,127 +12,136 @@ type UseEditorOptions = {
   puzzle: Signal<Puzzle>;
   // The active position, eg. the cell the user has selected
   active?: Position;
-  // If the editor is enabled
-  isEnabled: boolean;
 };
 
 /**
- * Hook for editor functionality, eg.
- * - cycle walls with "w"
- * - cycle pieces with "p"
- * - set destination with "d"
- * @param options
+ * Hook for editor functionality.
+ * Returns handlers for mutating the board at the active position.
  */
 export function useEditor(
-  { active, puzzle, isEnabled }: UseEditorOptions,
+  { active, puzzle }: UseEditorOptions,
 ) {
+  const toggleWall = useCallback(
+    (target: Wall["orientation"] | "both" | null) => {
+      if (!active) return;
+
+      // store matches of the active position
+      const matches = puzzle.value.board.walls.filter((wall) =>
+        isPositionSame(wall, active)
+      );
+
+      // clear the walls matching active as a starting point
+      let walls = puzzle.value.board.walls.filter((wall) =>
+        !isPositionSame(wall, active)
+      );
+
+      // No target, clear walls
+      if (!target) {
+        updateBoard(puzzle, { walls });
+        return;
+      }
+
+      // Target is the same as current matches, clear walls
+      if (
+        (matches.length === 1 && matches[0].orientation === target) ||
+        (target === "both" && matches.length === 2)
+      ) {
+        updateBoard(puzzle, { walls });
+        return;
+      }
+
+      // Add whatever walls are desired
+      if (target === "both" || target === "horizontal") {
+        walls = [...walls, { ...active, orientation: "horizontal" as const }];
+      }
+
+      if (target === "both" || target === "vertical") {
+        walls = [...walls, { ...active, orientation: "vertical" as const }];
+      }
+
+      updateBoard(puzzle, { walls });
+    },
+    [active, puzzle],
+  );
+
+  const togglePieceType = useCallback(
+    (type: "rook" | "bouncer" | null) => {
+      if (!active) return;
+
+      // find existing match of same position and type
+      const match = type &&
+        puzzle.value.board.pieces.find((piece) =>
+          isPositionSame(piece, active) && type === piece.type
+        );
+
+      // Clear the pieces
+      let pieces = puzzle.value.board.pieces.filter((piece) =>
+        !isPositionSame(piece, active)
+      );
+
+      if (type && !match) {
+        pieces = [...pieces, { ...active, type }];
+      }
+
+      updateBoard(puzzle, { pieces });
+    },
+    [active, puzzle],
+  );
+
+  const setDestination = useCallback(() => {
+    if (!active) return;
+    updateBoard(puzzle, { destination: active });
+  }, [active, puzzle]);
+
   const cycleWall = useCallback(() => {
-    // No active position, do nothing
     if (!active) return;
 
-    let { walls } = puzzle.value.board;
-    const activeWalls = puzzle.value.board.walls.filter((wall) =>
-      isPositionSame(wall, active)
-    );
+    const { walls } = puzzle.value.board;
+    const activeWalls = walls.filter((wall) => isPositionSame(wall, active));
 
     if (activeWalls.length === 0) {
-      walls.push({ ...active, orientation: "horizontal" });
+      toggleWall("horizontal");
     } else if (
-      activeWalls.length === 1 && activeWalls[0].orientation === "horizontal"
+      activeWalls.length === 1 &&
+      activeWalls[0].orientation === "horizontal"
     ) {
-      walls = walls.map((wall) =>
-        isPositionSame(wall, active)
-          ? { ...active, orientation: "vertical" }
-          : wall
-      );
+      toggleWall("vertical");
     } else if (
-      activeWalls.length === 1 && activeWalls[0].orientation === "vertical"
+      activeWalls.length === 1 &&
+      activeWalls[0].orientation === "vertical"
     ) {
-      walls.push({ ...active, orientation: "horizontal" });
+      toggleWall("both");
     } else {
-      walls = walls.filter((wall) => !isPositionSame(wall, active));
+      toggleWall(null);
     }
-
-    puzzle.value = {
-      ...puzzle.value,
-      board: {
-        ...puzzle.value.board,
-        walls,
-      },
-      minMoves: undefined, // clear minMoves on any edit
-    };
-  }, [active, puzzle.value.board]);
+  }, [active, puzzle]);
 
   const cyclePiece = useCallback(() => {
     if (!active) return;
 
-    let { pieces } = puzzle.value.board;
+    const { pieces } = puzzle.value.board;
     const activePiece = pieces.find((piece) => isPositionSame(piece, active));
 
     if (!activePiece) {
-      pieces.push({ ...active, type: "bouncer" });
+      togglePieceType("bouncer");
     } else if (activePiece.type === "bouncer") {
-      pieces = pieces.map((piece) =>
-        isPositionSame(piece, active)
-          ? {
-            ...active,
-            type: "rook",
-          }
-          : piece
-      );
+      togglePieceType("rook");
     } else {
-      pieces = pieces.filter((piece) => !isPositionSame(piece, active));
+      togglePieceType(null);
     }
+  }, [active, puzzle]);
 
-    puzzle.value = {
-      ...puzzle.value,
-      board: {
-        ...puzzle.value.board,
-        pieces,
-      },
-      minMoves: undefined, // clear minMoves on any edit
-    };
-  }, [active, puzzle.value]);
+  return { toggleWall, togglePieceType, setDestination, cycleWall, cyclePiece };
+}
 
-  const setDestination = useCallback(() => {
-    if (!active) return;
-
-    puzzle.value = {
-      ...puzzle.value,
-      board: {
-        ...puzzle.value.board,
-        destination: active,
-      },
-      minMoves: undefined, // clear minMoves on any edit
-    };
-  }, [active, puzzle.value]);
-
-  useEffect(() => {
-    const onKeyUp = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement;
-      if (
-        target.isContentEditable || target.tagName === "INPUT" ||
-        target.tagName === "TEXTAREA"
-      ) {
-        return;
-      }
-
-      switch (event.key) {
-        case "w":
-          return cycleWall();
-        case "p":
-          return cyclePiece();
-        case "d":
-          return setDestination();
-      }
-    };
-
-    if (active && isEnabled) {
-      self.addEventListener("keyup", onKeyUp);
-    }
-
-    return () => {
-      self.removeEventListener("keyup", onKeyUp);
-    };
-  }, [active, isEnabled, cyclePiece, cycleWall, setDestination]);
+// Applies a board mutation to the puzzle signal, clearing minMoves.
+function updateBoard(
+  puzzle: Signal<Puzzle>,
+  patch: Partial<Puzzle["board"]>,
+) {
+  puzzle.value = {
+    ...puzzle.value,
+    board: { ...puzzle.value.board, ...patch },
+    minMoves: undefined,
+  };
 }

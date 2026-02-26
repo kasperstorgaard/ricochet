@@ -24,6 +24,35 @@ Deno.test("formatPuzzle - formats simple puzzle", () => {
 
   // Parse it back to verify round-trip
   const parsed = parsePuzzle(result);
+
+  assertEquals(parsed, puzzle);
+});
+
+// Added to cover a bug in storage, where minMoves would be passed as undefined.
+Deno.test("formatPuzzle - formats puzzle with undefined property", () => {
+  const puzzle: Puzzle = {
+    name: "Untitled",
+    slug: "untitled",
+    createdAt: new Date("2025-07-20T00:00:00.000Z"),
+    difficulty: "easy",
+    minMoves: undefined,
+    board: {
+      destination: { x: 0, y: 0 },
+      pieces: [
+        { x: 1, y: 1, type: "rook" },
+      ],
+      walls: [],
+    },
+  };
+
+  const result = formatPuzzle(puzzle);
+
+  // Parse it back to verify round-trip
+  const parsed = parsePuzzle(result);
+
+  // clear the minMoves for matching purposes.
+  delete puzzle.minMoves;
+
   assertEquals(parsed, puzzle);
 });
 

@@ -7,7 +7,6 @@ import { Panel } from "#/components/panel.tsx";
 import { Thumbnail } from "#/components/thumbnail.tsx";
 import { clsx } from "clsx/lite";
 import { define } from "#/core.ts";
-import { isDev } from "#/lib/env.ts";
 import { listPuzzles } from "#/util/loader.ts";
 import { PaginatedData, Puzzle } from "#/util/types.ts";
 import { getPage } from "#/util/url.ts";
@@ -50,12 +49,6 @@ export default define.page<typeof handler>(
 
           <div className="flex items-center justify-between gap-fl-1 mt-2 -mb-1">
             <h1 className="text-5 text-brand">Puzzles</h1>
-
-            {isDev && (
-              <a href="/puzzles/new" className="btn">
-                <i className="ph-plus ph" /> New
-              </a>
-            )}
           </div>
 
           <ul
@@ -115,7 +108,11 @@ export default define.page<typeof handler>(
         </Main>
 
         <Panel>
-          <span />
+          <div className="col-[2/3] flex flex-col gap-fl-2 lg:row-[3/4] items-center">
+            <a href="/puzzles/new" className="btn">
+              <i className="ph-plus ph" /> Add puzzle
+            </a>
+          </div>
         </Panel>
       </>
     );
