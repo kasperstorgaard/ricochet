@@ -25,17 +25,15 @@ export const handler = define.handlers({
       return new Response("Invalid options", { status: 400 });
     }
 
-    let puzzle: Puzzle | null = null;
+    let puzzle: Puzzle;
 
     try {
       puzzle = parsePuzzle(markdown);
-
-      if (!puzzle) throw new Error("Unable to get/parse puzzle");
     } catch {
       return new Response("Invalid puzzle", { status: 400 });
     }
 
-    const headers = new Headers(ctx.req.headers);
+    const headers = new Headers();
     setStoredPuzzleCookie(headers, puzzle);
 
     return new Response("OK", { headers, status: 200 });

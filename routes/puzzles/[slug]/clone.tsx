@@ -10,7 +10,7 @@ export const handler = define.handlers({
     const puzzle = await getPuzzle(ctx.url.origin, slug);
     puzzle.name = "Untitled";
 
-    const headers = new Headers(ctx.req.headers);
+    const headers = new Headers();
     setStoredPuzzleCookie(headers, puzzle);
 
     headers.set("Location", "/puzzles/new");
