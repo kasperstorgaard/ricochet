@@ -759,6 +759,29 @@
       outline-offset: 5px;
     }
   }
+
+  blockquote {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-fl-1);
+
+    padding: var(--size-fluid-1) var(--size-fluid-2);
+    margin: 0;
+
+    background-color: var(--color-surface-2);
+    border-radius: var(--radius-2);
+    color: var(--color-text-2);
+  }
+
+  blockquote > i {
+    flex-shrink: 0;
+    font-size: var(--font-size-2);
+    line-height: var(--font-lineheight-3);
+  }
+
+  blockquote > * {
+    margin: 0;
+  }
 }
 
 /*
