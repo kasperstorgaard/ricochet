@@ -15,6 +15,11 @@ const COMBINING_CIRCUMFLEX = "\u0302";
 export function formatPuzzle(puzzle: Puzzle): string {
   const { board, ...metadata } = puzzle;
 
+  // Fix for "cannot stringify undefined" bug
+  for (const [key, value] of Object.entries(metadata)) {
+    if (value === undefined) delete metadata[key as keyof typeof metadata];
+  }
+
   // Build frontmatter using YAML stringify
   const yamlContent = stringifyYaml(metadata).trim();
   let markdown = "---\n" + yamlContent + "\n---\n\n";
