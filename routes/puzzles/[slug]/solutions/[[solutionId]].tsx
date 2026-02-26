@@ -61,10 +61,12 @@ export const handler = define.handlers<Data>({
 });
 
 export default define.page<typeof handler>(function SolutionPage(props) {
+  const slug = props.params.slug;
   const puzzle = useSignal(props.data.puzzle);
   const href = useSignal(props.url.href);
   const mode = useSignal<"replay">("replay");
   const showMinMoves = props.state.featureFlags.minMoves ?? false;
+  const isPreview = slug === "preview";
 
   const url = new URL(props.req.url);
 
@@ -107,6 +109,7 @@ export default define.page<typeof handler>(function SolutionPage(props) {
           puzzle={puzzle}
           href={href}
           mode={mode}
+          isPreview={isPreview}
         />
       </Main>
 

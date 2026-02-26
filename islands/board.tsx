@@ -54,12 +54,8 @@ export default function Board(
 
   const board = useMemo(() => resolveMoves(puzzle.value.board, moves), [
     puzzle.value.board,
-    state.moves,
+    moves,
   ]);
-  const hasSolution = useMemo(
-    () => isValidSolution(board),
-    [puzzle.value.board, moves],
-  );
 
   const onLocationUpdated = useCallback((url: URL) => {
     href.value = url.href;
@@ -225,12 +221,6 @@ export default function Board(
           />
         )}
       </div>
-
-      <SolutionDialog
-        open={mode.value === "solve" && hasSolution}
-        href={href}
-        puzzle={puzzle}
-      />
     </>
   );
 }

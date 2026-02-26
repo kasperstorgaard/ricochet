@@ -16,6 +16,7 @@ import { isDev } from "#/lib/env.ts";
 import { getStoredPuzzle } from "#/util/cookies.ts";
 import { PrintPanel } from "#/components/print-panel.tsx";
 import clsx from "clsx/lite";
+import { SolutionDialog } from "../../../islands/solution-dialog.tsx";
 
 type PageData = Puzzle;
 
@@ -152,6 +153,12 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
       >
         {printUrl}
       </a>
+
+      <SolutionDialog
+        href={href}
+        puzzle={puzzle}
+        isPreview={isPreview}
+      />
     </>
   );
 });
