@@ -1,8 +1,7 @@
 # Business model
 
-The general business model is very much inspired by Wordle the word game puzzle
-that was built in 2021 and gained a lot of popularity. Fun side project, no
-monetisation, one game a day. Bought by big media after some time.
+Inspired by Wordle: a fun side project, one puzzle a day, no monetisation —
+that went on to be acquired by a major media company.
 
 ## Monetisation approach
 
@@ -20,6 +19,5 @@ I cannot afford massive hosting fees, domains or advertising at this time.
 It could be fun to watch this grow, but not at the cost of the core experience.
 Building a community and getting word of mouth is a priority.
 
-Simplicity is key, building fx. sign in is not a priority as long as people can
-come back and play the latest puzzle once-ish a day and not care about which
-they have played before.
+Simplicity is key. Sign-in is not a priority — the game works fine if people
+just come back daily without tracking their history.

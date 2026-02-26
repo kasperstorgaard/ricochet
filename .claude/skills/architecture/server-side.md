@@ -22,12 +22,11 @@ See state.md for the storage hierarchy and rationale.
 
 ## Responsibility split
 
-Core game logic lives in util, along with core functionality such as parsing and
-formatting puzzles. Route specific logic lives in handlers, and it is ok for
-them to get medium sized and have a couple of edge case checks. Some duplication
-of logic between handlers is also ok. If the edge cases get too many or
-duplication gets high, consider if api/routes is a better fit, or if the logic
-is core enough to go into util helpers.
+Core game logic lives in `util`, along with parsing and formatting puzzles.
+Route-specific logic lives in handlers — medium-sized handlers with a few edge
+case checks are fine, and some duplication between handlers is acceptable. When
+edge cases multiply or duplication gets high, consider whether the logic belongs
+in an API route or is core enough for `util`.
 
-Lib contains anything that could be feasibly exported as a 3rd party library,
-like hooks and tracking wrappers, touch etc.
+`lib` holds client-side code that could reasonably be a standalone library:
+hooks, tracking wrappers, touch handling, etc.
