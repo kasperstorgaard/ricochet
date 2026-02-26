@@ -68,11 +68,18 @@ export function useEditor(
     (type: "rook" | "bouncer" | null) => {
       if (!active) return;
 
+      // find existing match of same position and type
+      const match = type &&
+        puzzle.value.board.pieces.find((piece) =>
+          isPositionSame(piece, active) && type === piece.type
+        );
+
+      // Clear the pieces
       let pieces = puzzle.value.board.pieces.filter((piece) =>
         !isPositionSame(piece, active)
       );
 
-      if (type) {
+      if (type && !match) {
         pieces = [...pieces, { ...active, type }];
       }
 
