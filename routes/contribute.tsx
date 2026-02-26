@@ -114,11 +114,7 @@ export default define.page<typeof handler>(function ContributePage(props) {
           </section>
 
           <section className="flex flex-col gap-fl-2">
-            <h2 className="text-3 text-text-1">3. Submit a pull request</h2>
-            <blockquote className="callout">
-              <i className="ph-info ph" />
-              <p>If you know me — just send me puzzles on email 😊</p>
-            </blockquote>
+            <h2 className="text-3 text-text-1">3a. Submit a pull request</h2>
 
             <ol className="flex flex-col gap-fl-1 text-text-2 leading-relaxed pl-fl-2">
               <li>
@@ -159,6 +155,20 @@ export default define.page<typeof handler>(function ContributePage(props) {
                 test them before creating PRs.
               </p>
             </blockquote>
+          </section>
+
+          <section className="flex flex-col gap-fl-2">
+            <h2 className="text-3 text-text-1">3b. Send me an email</h2>
+            <p>
+              If you know me — just send me puzzles on email, and I'll add the
+              puzzles 😊
+            </p>
+            <p>
+              You can also find me on{" "}
+              <a href="https://www.linkedin.com/in/kasper-storgaard-t-lead">
+                LinkedIn
+              </a>
+            </p>
           </section>
         </div>
       </Main>
