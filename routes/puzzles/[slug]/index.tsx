@@ -1,27 +1,30 @@
 import { useSignal } from "@preact/signals";
+import clsx from "clsx/lite";
 import { HttpError, page } from "fresh";
 
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
+import { PrintPanel } from "#/components/print-panel.tsx";
 import { define } from "#/core.ts";
 import { addSolution } from "#/db/kv.ts";
 import Board from "#/islands/board.tsx";
 import { ControlsPanel } from "#/islands/controls-panel.tsx";
 import { DifficultyBadge } from "#/islands/difficulty-badge.tsx";
+import { SolutionDialog } from "#/islands/solution-dialog.tsx";
+import { isDev } from "#/lib/env.ts";
+import { posthog } from "#/lib/posthog.ts";
 import { isValidSolution, resolveMoves } from "#/util/board.ts";
+import { getHintCount, getStoredPuzzle } from "#/util/cookies.ts";
 import { getPuzzle } from "#/util/loader.ts";
 import { Move, Puzzle } from "#/util/types.ts";
-import { posthog } from "#/lib/posthog.ts";
-import { getStoredPuzzle } from "#/util/cookies.ts";
-import { PrintPanel } from "#/components/print-panel.tsx";
-import clsx from "clsx/lite";
-import { SolutionDialog } from "../../../islands/solution-dialog.tsx";
 
-type PageData = Puzzle;
+type PageData = { puzzle: Puzzle; hintCount: number };
 
 export const handler = define.handlers<PageData>({
   async GET(ctx) {
     const { slug } = ctx.params;
+
+    const hintCount = getHintCount(ctx.req.headers);
 
     if (slug === "preview") {
       const puzzle = getStoredPuzzle(ctx.req.headers);
@@ -30,7 +33,7 @@ export const handler = define.handlers<PageData>({
 
       puzzle.slug = "preview";
 
-      return page(puzzle);
+      return page({ puzzle, hintCount });
     }
 
     const puzzle = await getPuzzle(ctx.url.origin, slug);
@@ -38,7 +41,7 @@ export const handler = define.handlers<PageData>({
       throw new HttpError(404, `Unable to find puzzle with slug: ${slug}`);
     }
 
-    return page(puzzle);
+    return page({ puzzle, hintCount });
   },
   async POST(ctx) {
     const req = ctx.req;
@@ -94,7 +97,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
   const { slug } = props.params;
 
   const href = useSignal(props.url.href);
-  const puzzle = useSignal(props.data);
+  const puzzle = useSignal(props.data.puzzle);
   const mode = useSignal<"solve">("solve");
   const printUrl = props.url.hostname + props.url.pathname;
   const isPreview = slug === "preview";
@@ -107,7 +110,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
     { name: "home", href: "/" },
     { name: "puzzles", href: "/puzzles" },
     {
-      name: !isPreview ? props.data.name : "preview",
+      name: !isPreview ? props.data.puzzle.name : "preview",
       href: `/puzzles/${slug}`,
     },
   ];
@@ -119,7 +122,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
 
         <div className="flex items-center justify-between gap-fl-1 mt-2 flex-wrap">
           <h1 className="text-5 text-brand leading-tight">
-            {props.data.name}
+            {props.data.puzzle.name}
           </h1>
 
           <DifficultyBadge
@@ -135,6 +138,8 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
       <ControlsPanel
         puzzle={puzzle}
         href={href}
+        hintCount={props.data.hintCount}
+        isDev={isDev}
         isPreview={isPreview}
         className="print:hidden"
       />
@@ -142,7 +147,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
       <PrintPanel />
 
       <a
-        href={`/puzzles/${props.data.slug}`}
+        href={`/puzzles/${props.data.puzzle.slug}`}
         className={clsx(
           "not-print:hidden",
           "fixed left-0 top-fl-3 py-fl-2",

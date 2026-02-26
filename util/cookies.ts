@@ -124,3 +124,39 @@ export function getStoredPuzzle(headers: Headers) {
 
   return raw ? parsePuzzle(decodeURIComponent(raw)) : null;
 }
+
+const HINT_COUNT_KEY = "hint_count";
+// 24 h in seconds
+const HINT_COUNT_DURATION = 60 * 60 * 24;
+
+/**
+ * Reads the hint count for a puzzle from the request cookies.
+ * Resets automatically after 24 hours (enforced by cookie expiry).
+ */
+export function getHintCount(headers: Headers) {
+  const cookies = getCookies(headers);
+  const raw = cookies[HINT_COUNT_KEY];
+  return raw ? parseInt(raw, 10) : 0;
+}
+
+type SetHintCookieOptions = {
+  path: string;
+  value: number | string;
+};
+
+/**
+ * Sets the hint count cookie for a specific puzzle.
+ * Path-scoped to /puzzles/<slug> and expires after 24 hours.
+ */
+export function setHintCount(
+  headers: Headers,
+  { path, value }: SetHintCookieOptions,
+) {
+  setCookie(headers, {
+    name: HINT_COUNT_KEY,
+    value: value.toString(),
+    path,
+    maxAge: HINT_COUNT_DURATION,
+    httpOnly: true,
+  });
+}

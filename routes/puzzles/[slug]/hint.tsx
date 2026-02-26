@@ -5,9 +5,10 @@ import { getHint } from "#/util/solver.ts";
 import { encodeMoves } from "#/util/strings.ts";
 import { decodeState } from "#/util/url.ts";
 import { posthog } from "#/lib/posthog.ts";
-import { getStoredPuzzle } from "../../../util/cookies.ts";
-import { Puzzle } from "../../../util/types.ts";
+import { getHintCount, getStoredPuzzle, setHintCount } from "#/util/cookies.ts";
+import { Puzzle } from "#/util/types.ts";
 import { HttpError } from "fresh";
+import { isDev } from "#/lib/env.ts";
 
 export const handler = define.handlers({
   async GET(ctx) {
@@ -29,6 +30,14 @@ export const handler = define.handlers({
 
     if (!puzzle) {
       throw new HttpError(500, "Unable to get puzzle");
+    }
+
+    const hintCount = getHintCount(ctx.req.headers);
+    const hintLimit = getHintLimit(puzzle.difficulty);
+
+    // Guard against usage if hint limit is exceeded
+    if (!isDev && slug !== "preview" && hintCount >= hintLimit) {
+      return Response.redirect(url.href);
     }
 
     const moves = state.moves
@@ -53,9 +62,21 @@ export const handler = define.handlers({
       },
     });
 
-    url.pathname = `/puzzles/${slug}`;
     url.searchParams.set("hint", encodeMoves([hint]));
 
-    return Response.redirect(url.href);
+    const headers = new Headers();
+
+    setHintCount(headers, {
+      path: `/puzzles/${slug}`,
+      value: hintCount + 1,
+    });
+
+    headers.set("Location", url.href);
+
+    return new Response(null, { headers, status: 303 });
   },
 });
+
+function getHintLimit(difficulty: string | undefined) {
+  return difficulty === "easy" ? 3 : 1;
+}
