@@ -3,11 +3,12 @@ import { HttpError, page } from "fresh";
 
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
+import { define } from "#/core.ts";
 import { Solution } from "#/db/types.ts";
 import Board from "#/islands/board.tsx";
 import { ControlsPanel } from "#/islands/controls-panel.tsx";
 import { TutorialDialog } from "#/islands/tutorial-dialog.tsx";
-import { define } from "#/core.ts";
+import { isDev } from "#/lib/env.ts";
 import { setSkipTutorialCookie } from "#/util/cookies.ts";
 import { getPuzzle } from "#/util/loader.ts";
 import { Puzzle } from "#/util/types.ts";
@@ -88,7 +89,7 @@ export default define.page<typeof handler>(function PuzzleTutorial(props) {
         />
       </Main>
 
-      <ControlsPanel puzzle={puzzle} href={href} />
+      <ControlsPanel puzzle={puzzle} href={href} isDev={isDev} hintCount={0} />
 
       <TutorialDialog
         open

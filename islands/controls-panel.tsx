@@ -17,13 +17,18 @@ import { Puzzle } from "#/util/types.ts";
 type ControlsPanelProps = {
   puzzle: Signal<Puzzle>;
   href: Signal<string>;
+  isDev: boolean;
+  hintCount: number;
   isPreview?: boolean;
   className?: string;
 };
 
 export function ControlsPanel(
-  { puzzle, href, isPreview, className }: ControlsPanelProps,
+  { puzzle, href, isDev, hintCount, isPreview, className }: ControlsPanelProps,
 ) {
+  const hintLimit = puzzle.value.difficulty === "easy" ? 3 : 1;
+  const hintsExhausted = !isDev && !isPreview && hintCount >= hintLimit;
+
   const state = useMemo(() => decodeState(href.value), [href.value]);
 
   const count = useMemo(() => Math.min(state.moves.length, state.cursor ?? 0), [
@@ -40,6 +45,7 @@ export function ControlsPanel(
     onRedo: () => self.history.forward(),
     onReset,
     onHint: () => {
+      if (hintsExhausted) return;
       globalThis.location.href = getHintHref(href.value);
     },
   });
@@ -133,8 +139,19 @@ export function ControlsPanel(
           */
             }
             <a
-              href={getHintHref(href.value)}
-              className="underline text-link bg-transparent hover:no-underline"
+              href={hintsExhausted ? "#" : getHintHref(href.value)}
+              className={clsx(
+                "underline text-link bg-transparent hover:no-underline",
+                // TODO: add better global link styles
+                "aria-disabled:cursor-help aria-disabled:opacity-50 aria-disabled:text-text-3 aria-disabled:hover:underline aria-disabled:hover:text-text-3",
+              )}
+              aria-disabled={hintsExhausted}
+              onClick={(event) => {
+                if (hintsExhausted) event.preventDefault();
+              }}
+              title={hintsExhausted
+                ? `1 hint per day per puzzle (easy: 3)`
+                : undefined}
             >
               Get a hint
             </a>
