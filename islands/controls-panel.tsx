@@ -17,13 +17,12 @@ import { Puzzle } from "#/util/types.ts";
 type ControlsPanelProps = {
   puzzle: Signal<Puzzle>;
   href: Signal<string>;
-  isDev?: boolean;
   isPreview?: boolean;
   className?: string;
 };
 
 export function ControlsPanel(
-  { puzzle, href, isDev, isPreview, className }: ControlsPanelProps,
+  { puzzle, href, isPreview, className }: ControlsPanelProps,
 ) {
   const state = useMemo(() => decodeState(href.value), [href.value]);
 
@@ -158,6 +157,7 @@ export function ControlsPanel(
           >
             <i className="ph-printer ph" /> Print
           </button>
+
           {puzzle.value.slug !== "preview" && (
             <a
               href={`/puzzles/${puzzle.value.slug}/clone`}

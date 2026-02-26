@@ -12,7 +12,6 @@ import { isValidSolution, resolveMoves } from "#/util/board.ts";
 import { getPuzzle } from "#/util/loader.ts";
 import { Move, Puzzle } from "#/util/types.ts";
 import { posthog } from "#/lib/posthog.ts";
-import { isDev } from "#/lib/env.ts";
 import { getStoredPuzzle } from "#/util/cookies.ts";
 import { PrintPanel } from "#/components/print-panel.tsx";
 import clsx from "clsx/lite";
@@ -136,7 +135,6 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
       <ControlsPanel
         puzzle={puzzle}
         href={href}
-        isDev={isDev}
         isPreview={isPreview}
         className="print:hidden"
       />
