@@ -25,7 +25,6 @@ export function EditorToolbar({ href, puzzle, className }: EditorToolbarProps) {
   const { toggleWall, togglePieceType, setDestination } = useEditor({
     puzzle,
     active,
-    isEnabled: false,
   });
 
   const disabled = active == null;
