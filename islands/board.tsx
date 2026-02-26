@@ -1,7 +1,6 @@
 import type { Signal } from "@preact/signals";
 import { useCallback, useMemo, useRef } from "preact/hooks";
 
-import { SolutionDialog } from "#/islands/solution-dialog.tsx";
 import { useMoves } from "#/lib/moves.ts";
 import { buildReplayKeyframes, type KeyframeStop } from "#/lib/replay.ts";
 import { useRouter } from "#/lib/router.ts";
@@ -11,7 +10,6 @@ import {
   getGrid,
   getTargets,
   isPositionSame,
-  isValidSolution,
   resolveMoves,
 } from "#/util/board.ts";
 import { getGuides, Guide } from "#/util/guides.ts";

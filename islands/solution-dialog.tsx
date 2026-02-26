@@ -1,4 +1,4 @@
-import { type Signal, useSignalEffect } from "@preact/signals";
+import { type Signal } from "@preact/signals";
 import { useMemo } from "preact/hooks";
 
 import { Dialog } from "#/islands/dialog.tsx";
