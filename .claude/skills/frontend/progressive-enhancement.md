@@ -1,7 +1,5 @@
 # Progressive enhancement
 
-alias: PE
-
 ## Core principle
 
 Progressive enhancement is a core philosophy, and brings a number of benefits:
@@ -11,13 +9,15 @@ brings paths for adoption and fallbacks, and it forces the developer to think
 about a wider set of use cases and to justify custom solutions when a simpler
 and native solution is available.
 
-## URL as architecture
+URL-first architecture follows naturally from PE — see architecture/state.md.
 
-Using the url as the architectural foundation of an app brings some benefits:
+## Islands architecture (Fresh 2)
 
-- it anchors and scopes functionality
-- gives a meaningful place to store temporary/less important state
-- provides a pattern of "meaningful action" -> "go to target url pattern"
+Fresh implements PE through islands: `components/` is server-rendered only, `islands/`
+is hydrated client-side. The rule is simple — put interactivity in islands, layout and
+markup in components. Default to `components/`; only reach for an island when the UI
+genuinely needs client-side behaviour. One exception: the editor is inherently
+client-side and can rely on it fully.
 
 ## HTML forms
 

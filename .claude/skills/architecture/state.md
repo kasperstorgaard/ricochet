@@ -2,13 +2,13 @@
 
 ## Decision order
 
-Shared between users: kv (fx. puzzle solutions)
+Pick the first that fits:
 
-Temporary core state: url (fx. puzzle moves)
-
-User state: cookies (fx. editor stored puzzle)
-
-Consumer order: URL > cookie > static > server-side KV > client signal
+1. **URL** — temporary core state, shareable (e.g. puzzle moves)
+2. **Cookie** — per-user state, non-essential (e.g. completed puzzles)
+3. **Static** — immutable data baked at build time (e.g. puzzles)
+4. **KV** — shared across users, no auth needed (e.g. solutions)
+5. **Signal** — client-only ephemeral state, never persisted
 
 ## URL state
 

@@ -9,4 +9,4 @@ Sub-topics:
 
 - [tailwind.md](tailwind.md) — Tailwind utilities, className, design tokens, components, CSS conventions
 - [ui-style.md](ui-style.md) — Visual language, icons, interactive elements, layout & spacing
-- [progressive-enhancement.md](progressive-enhancement.md) — PE principle, HTML forms, Web APIs, accessibility, a11y, "use the platform"
+- [progressive-enhancement.md](progressive-enhancement.md) — PE principle, islands architecture, HTML forms, Web APIs, accessibility, a11y, "use the platform"

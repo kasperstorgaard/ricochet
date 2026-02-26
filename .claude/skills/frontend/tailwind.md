@@ -2,16 +2,15 @@
 
 ## Tailwind
 
-Prefer tailwind classes on each html element over global utils. The exception is
-native-like dumb global components like .icon-btn, where it just bloats if we
-wrap it in a component. Classess should be broken into multiple lines when it
-goes too long, use clsx for this. Media queries (size, print, etc.) should be on
-their own lines (one for each size, type) Don't care much about sorting, but
-positioning and sizing first, "look" last (text, border, bg, etc.)
+- Prefer utility classes per element over global utils. Exception: native-like components like `.icon-btn` where wrapping in a component just bloats.
+- Break long class strings across multiple lines with `clsx`.
+- Media queries (`size`, `print`, etc.) each get their own line.
+- Order: positioning and sizing first, "look" last (text, border, bg, etc.).
 
-clsx is used for conditionals, preferring the style of `isSomething && "hidden"`
-over objects. classes should _never_ be extracted into consts - instead extract
-into local components for heavy duplication.
+## clsx
+
+- Use for conditionals: prefer `isSomething && "hidden"` over object syntax.
+- Never extract classes into consts — extract a local component instead if duplication gets heavy.
 
 ## Design tokens
 

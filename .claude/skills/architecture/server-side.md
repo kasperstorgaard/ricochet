@@ -3,7 +3,7 @@
 ## Default to the server
 
 Page-level GET/POST handlers are the primary way of getting data / performing
-actions. api routes are for actions that are indenpendent from routes. API
+actions. API routes are for actions that are independent from routes. API
 routes can be either triggered by url/form or client side.
 
 Client side is progressive enhancement, it cannot be the primary experience of
@@ -12,23 +12,13 @@ game, so here client side is required and relied upon.
 
 ## Static data
 
-Static data is the first storage for the games most important data -> the
-puzzles. This means that puzzles go through github, which in gives the benefit
+Static data is the first storage for the game's most important data — the
+puzzles. This means that puzzles go through GitHub, which gives the benefit
 of a PR approval flow and manual decision on how difficult each puzzle is.
-
-## KV
-
-Deno kv is the backend of the app. Data that is shared across users go here.
-This is only solutions at the moment, but can be expanded.
 
 ## Cookies
 
-Cookies is the user-data storage of the app. Since we don't have, and don't plan
-to have signed in users, we use cookies for everything tied to the user. This
-gives the benefit of sticking to the server -> client flow, and avoiding
-rehydration and localstorage syncing issues. It has the drawback of being
-limited in size, but that forces us to make the right decisions on the total
-amount of features that rely on user data.
+See state.md for the storage hierarchy and rationale.
 
 ## Responsibility split
 
