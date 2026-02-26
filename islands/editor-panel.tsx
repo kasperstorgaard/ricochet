@@ -53,7 +53,6 @@ export function EditorPanel(
     return resolveMoves(puzzle.value.board, moves);
   }, [href.value, puzzle.value.board]);
 
-  const [message, setMessage] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [options, setOptions] = useState<GenerateOptions>({
     solveRange: [6, 11],
@@ -78,8 +77,6 @@ export function EditorPanel(
       body: JSON.stringify({ slug: puzzle.value.slug, markdown: formatted }),
     });
 
-    setMessage("puzzle saved!");
-
     const url = new URL(href.value);
 
     if (!url.pathname.startsWith(`/puzzles/${puzzle.value.slug}`)) {
@@ -90,7 +87,6 @@ export function EditorPanel(
 
   const onGenerate = useCallback(async () => {
     setIsGenerating(true);
-    setMessage("");
 
     try {
       const res = await fetch("/api/generate", {
@@ -108,8 +104,6 @@ export function EditorPanel(
         board: newBoard,
         minMoves: moves.length,
       };
-    } catch {
-      setMessage("generation failed, try again");
     } finally {
       setIsGenerating(false);
     }
@@ -119,6 +113,12 @@ export function EditorPanel(
 
   return (
     <Panel className="relative overflow-hidden">
+      <a
+        href="/contribute"
+        className="text-fl-1 lg:text-fl-0  text-link underline leading-tight lg:row-[1/3]"
+      >
+        How do I submit a new puzzle?
+      </a>
       <div className="flex flex-col col-[2/3] lg:row-[3/4] gap-fl-1 place-content-between">
         <div className="flex flex-col gap-fl-1 flex-wrap">
           <button
@@ -144,7 +144,7 @@ export function EditorPanel(
               };
             }}
           >
-            <i className="ph-flip-horizontal ph" />Mirror
+            <i className="ph-flip-horizontal ph" />Mirror (h)
           </button>
 
           <button
@@ -157,16 +157,8 @@ export function EditorPanel(
               };
             }}
           >
-            <i className="ph-flip-vertical ph" />Mirror
+            <i className="ph-flip-vertical ph" />Mirror (v)
           </button>
-        </div>
-
-        <div className="flex flex-col flex-wrap gap-fl-1">
-          {message && (
-            <p className="text-fl-0 text-purple-1 leading-tight">
-              {message}
-            </p>
-          )}
 
           <div className="flex w-full">
             <button
@@ -193,43 +185,57 @@ export function EditorPanel(
               <i className="ph-gear ph" />
             </button>
           </div>
+        </div>
 
-          {!isDev
-            ? (
-              <button
-                type="button"
-                className="btn"
-                onClick={onSave}
-              >
-                <i className="ph-floppy-disk ph" />Save
+        <div className="flex flex-col flex-wrap gap-fl-1">
+          {isDev && (
+            <button
+              type="button"
+              className="btn"
+              onClick={onSave}
+            >
+              <i className="ph-floppy-disk ph" />Save
+            </button>
+          )}
+
+          <a
+            href="/api/export"
+            download
+            className="btn"
+          >
+            <i className="ph-download-simple ph" />Download
+          </a>
+
+          <form
+            action="/api/import"
+            method="post"
+            enctype="multipart/form-data"
+            className="flex flex-row gap-1"
+          >
+            <label className="btn cursor-pointer flex-1">
+              <i className="ph-arrow-square-in ph" />Import
+              <input
+                type="file"
+                name="file"
+                accept=".md"
+                className="sr-only"
+                onChange={(e) => e.currentTarget.form?.submit()}
+              />
+            </label>
+            <noscript>
+              <button className="icon-btn" type="submit" data-size="sm">
+                <i className="ph-arrow-right ph" />
               </button>
-            )
-            : (
-              <>
-                <a
-                  href="/api/export"
-                  download
-                  className="btn"
-                >
-                  <i className="ph-share ph" />Export
-                </a>
+            </noscript>
+          </form>
 
-                <a
-                  href="/puzzles/preview"
-                  className="btn"
-                  target="_blank"
-                >
-                  <i className="ph-eye ph" /> Preview
-                </a>
-
-                <a
-                  href="/contribute"
-                  className="text-fl-1 lg:text-fl-0  text-link underline leading-tight"
-                >
-                  How do I submit a new puzzle?
-                </a>
-              </>
-            )}
+          <a
+            href="/puzzles/preview"
+            className="btn"
+            target="_blank"
+          >
+            <i className="ph-eye ph" /> Preview
+          </a>
         </div>
       </div>
 

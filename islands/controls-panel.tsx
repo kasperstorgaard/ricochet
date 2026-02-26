@@ -169,8 +169,8 @@ export function ControlsPanel(
 
           {isPreview && (
             <a href="/api/export" download className="btn">
-              <i className="ph-share ph" />
-              Export
+              <i className="ph-download ph" />
+              Download
             </a>
           )}
 
