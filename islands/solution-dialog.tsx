@@ -32,7 +32,7 @@ export function SolutionDialog({ href, puzzle, isPreview }: Props) {
 
   return (
     <Dialog open={hasSolution}>
-      <h2 className="text-fl-1">You found a solution!</h2>
+      <h2 className="text-3 lg:text-fl-1">You found a solution!</h2>
 
       {!isPreview && (
         <form
