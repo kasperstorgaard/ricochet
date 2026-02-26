@@ -82,24 +82,44 @@ export default define.page<typeof handler>(function ContributePage(props) {
             </table>
 
             <p className="text-text-2">
-              Use the <strong className="text-text-1 font-4">Generate</strong>
-              {" "}
-              button to auto-generate a board, then tweak it by hand.
+              You can use the <strong>Generate</strong>{" "}
+              button to auto-generate a board, then tweak it by hand.<br />
             </p>
+            <p>
+              You can also go to an existing puzzle and click{" "}
+              <strong>Remix</strong> to use it as a starting point.
+            </p>
+
+            <blockquote className="callout">
+              <i className="ph-info ph" />
+              <p>
+                There is a <strong>Preview</strong>{" "}
+                button in the editor that you can use to test your puzzle.
+              </p>
+            </blockquote>
           </section>
 
           <section className="flex flex-col gap-fl-2">
-            <h2 className="text-3 text-text-1">2. Export the puzzle</h2>
+            <h2 className="text-3 text-text-1">2. Download the puzzle</h2>
             <p className="text-text-2">
               Once you're happy with your puzzle, click{" "}
-              <strong className="text-text-1 font-4">Copy text</strong>{" "}
-              in the editor panel. This copies the puzzle as a Markdown file
-              ready to be added to the repo.
+              <strong className="text-text-1 font-4">Download</strong>{" "}
+              in the editor panel.<br /> This saves the puzzle as a{" "}
+              <code className="bg-surface-3 px-1 rounded text-fl-0">.md</code>
+              {" "}
+              file ready to be added to the repo. You can also use{" "}
+              <strong className="text-text-1 font-4">Import</strong>{" "}
+              to load it back into the editor later.
             </p>
           </section>
 
           <section className="flex flex-col gap-fl-2">
             <h2 className="text-3 text-text-1">3. Submit a pull request</h2>
+            <blockquote className="callout">
+              <i className="ph-info ph" />
+              <p>If you know me — just send me puzzles on email 😊</p>
+            </blockquote>
+
             <ol className="flex flex-col gap-fl-1 text-text-2 leading-relaxed pl-fl-2">
               <li>
                 Go to the{" "}
@@ -112,7 +132,12 @@ export default define.page<typeof handler>(function ContributePage(props) {
                   GitHub repository
                 </a>
               </li>
-              <li>Fork the repo</li>
+              <li>
+                Fork the repo (more on this{" "}
+                <a href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo">
+                  here
+                </a>)
+              </li>
               <li>
                 Create a new file at{" "}
                 <code className="bg-surface-3 px-1 rounded text-fl-0">
@@ -120,15 +145,20 @@ export default define.page<typeof handler>(function ContributePage(props) {
                 </code>{" "}
                 and paste the copied markdown
               </li>
-              <li>Open a pull request</li>
+              <li>
+                Open a pull request, and I'll test, assign difficulty and merge
+                your puzzles in
+              </li>
             </ol>
 
-            <p className="text-text-2">
-              Note: you can follow the directions from the github README.md on
-              how to run the app locally.<br />
-              This will allow you to both save the puzzles locally and test them
-              before creating PRs.
-            </p>
+            <blockquote className="callout">
+              <i className="ph-info ph" />
+              <p>
+                You can follow the directions from the github README.md on how
+                to run the app locally — this lets you save puzzles locally and
+                test them before creating PRs.
+              </p>
+            </blockquote>
           </section>
         </div>
       </Main>
