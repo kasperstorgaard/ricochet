@@ -120,7 +120,7 @@ export function EditorPanel(
           "lg:row-[1/3] lg:text-fl-0 lg:mb-0",
         )}
       >
-        How do I add a new puzzle?
+        Guide: How to add puzzles
       </a>
 
       <div className="flex flex-col col-[2/3] lg:row-[3/4] gap-fl-4 lg:gap-fl-1 place-content-between">
