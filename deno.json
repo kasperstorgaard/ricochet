@@ -19,7 +19,7 @@
   },
   "fmt": {
     "exclude": [
-      "*.md"
+      "static/*"
     ]
   },
   "exclude": [
