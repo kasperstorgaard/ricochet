@@ -5,7 +5,7 @@ import type { Board, Move, Piece, Puzzle } from "#/util/types.ts";
  * Default solver limits.
  */
 const DEFAULT_MAX_DEPTH = 20;
-const DEFAULT_MAX_ITERATIONS = 500_000;
+const DEFAULT_MAX_ITERATIONS = 1_000_000;
 
 /**
  * Solver configuration options.
