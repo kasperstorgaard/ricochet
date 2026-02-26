@@ -2,7 +2,6 @@ import type { Signal } from "@preact/signals";
 import { useCallback, useMemo, useRef } from "preact/hooks";
 
 import { SolutionDialog } from "#/islands/solution-dialog.tsx";
-import { useEditor } from "#/lib/editor.ts";
 import { useMoves } from "#/lib/moves.ts";
 import { buildReplayKeyframes, type KeyframeStop } from "#/lib/replay.ts";
 import { useRouter } from "#/lib/router.ts";
@@ -121,13 +120,6 @@ export default function Board(
     },
     [state, href.value, mode.value],
   );
-
-  // Optional editor state, since board is used across both editor and solve modes
-  useEditor({
-    active: state.active,
-    isEnabled: mode.value === "editor",
-    puzzle,
-  });
 
   /*
     Core move state for solve mode, including:
