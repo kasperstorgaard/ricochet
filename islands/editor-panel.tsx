@@ -115,50 +115,62 @@ export function EditorPanel(
     <Panel className="relative overflow-hidden">
       <a
         href="/contribute"
-        className="text-fl-1 lg:text-fl-0  text-link underline leading-tight lg:row-[1/3]"
+        className={clsx(
+          "col-[2/3] text-fl-1 mb-fl-4 text-link underline leading-tight",
+          "lg:row-[1/3] lg:text-fl-0 lg:mb-0",
+        )}
       >
-        How do I submit a new puzzle?
+        How do I add a new puzzle?
       </a>
-      <div className="flex flex-col col-[2/3] lg:row-[3/4] gap-fl-1 place-content-between">
+
+      <div className="flex flex-col col-[2/3] lg:row-[3/4] gap-fl-4 lg:gap-fl-1 place-content-between">
         <div className="flex flex-col gap-fl-1 flex-wrap">
-          <button
-            type="button"
-            className="btn"
-            onClick={() => {
-              puzzle.value = {
-                ...puzzle.value,
-                board: rotateBoard(puzzle.value.board, "right"),
-              };
-            }}
-          >
-            <i className="ph-arrow-clockwise ph" /> Rotate 90°
-          </button>
+          <div className="flex gap-fl-1 flex-wrap lg:justify-center">
+            <button
+              type="button"
+              className="icon-btn"
+              data-size="sm"
+              onClick={() => {
+                puzzle.value = {
+                  ...puzzle.value,
+                  board: rotateBoard(puzzle.value.board, "right"),
+                };
+              }}
+            >
+              <i className="ph-arrow-clockwise ph" />
+              <span className="sr-only">Rotate 90°</span>
+            </button>
 
-          <button
-            type="button"
-            className="btn"
-            onClick={() => {
-              puzzle.value = {
-                ...puzzle.value,
-                board: flipBoard(puzzle.value.board, "horizontal"),
-              };
-            }}
-          >
-            <i className="ph-flip-horizontal ph" />Mirror (h)
-          </button>
+            <button
+              type="button"
+              className="icon-btn"
+              data-size="sm"
+              onClick={() => {
+                puzzle.value = {
+                  ...puzzle.value,
+                  board: flipBoard(puzzle.value.board, "horizontal"),
+                };
+              }}
+            >
+              <i className="ph-flip-horizontal ph" />
+              <span className="sr-only">Mirror Horizontally</span>
+            </button>
 
-          <button
-            type="button"
-            className="btn"
-            onClick={() => {
-              puzzle.value = {
-                ...puzzle.value,
-                board: flipBoard(puzzle.value.board, "vertical"),
-              };
-            }}
-          >
-            <i className="ph-flip-vertical ph" />Mirror (v)
-          </button>
+            <button
+              type="button"
+              className="icon-btn"
+              data-size="sm"
+              onClick={() => {
+                puzzle.value = {
+                  ...puzzle.value,
+                  board: flipBoard(puzzle.value.board, "vertical"),
+                };
+              }}
+            >
+              <i className="ph-flip-vertical ph" />
+              <span className="sr-only">Mirror Vertically</span>
+            </button>
+          </div>
 
           <div className="flex w-full">
             <button

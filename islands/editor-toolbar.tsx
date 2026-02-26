@@ -32,15 +32,14 @@ export function EditorToolbar({ href, puzzle, className }: EditorToolbarProps) {
   return (
     <div
       className={clsx(
-        "grid grid-cols-[repeat(6,2.5rem)] h-fit place-content-center",
-        "border border-text-2 divide-x-1 divide-text-1",
-        "lg:grid-cols-[auto_2.25rem] lg:auto-rows-[2.5rem] lg:divide-y-1 lg:divide-x-0",
+        "grid grid-cols-[repeat(6,2.5rem)] h-fit place-content-center gap-1",
+        "lg:grid-cols-[auto_1.5rem] lg:auto-rows-[2.5rem]",
         className,
       )}
     >
       <button
         type="button"
-        className="p-1.5 bg-transparent lg:col-1"
+        className="p-1.5 bg-transparent border-2 border-link rounded-2"
         aria-label="Horizontal wall"
         disabled={disabled}
         onClick={() => toggleWall("horizontal")}
@@ -50,7 +49,7 @@ export function EditorToolbar({ href, puzzle, className }: EditorToolbarProps) {
 
       <button
         type="button"
-        className="flex items-center bg-transparent"
+        className="flex items-center bg-transparent  border-2 border-link rounded-2"
         aria-label="Vertical wall"
         disabled={disabled}
         onClick={() => toggleWall("vertical")}
@@ -60,7 +59,7 @@ export function EditorToolbar({ href, puzzle, className }: EditorToolbarProps) {
 
       <button
         type="button"
-        className="flex items-center bg-transparent"
+        className="flex items-center bg-transparent  border-2 border-link rounded-2"
         aria-label="Both walls"
         disabled={disabled}
         onClick={() => toggleWall("both")}
@@ -70,18 +69,16 @@ export function EditorToolbar({ href, puzzle, className }: EditorToolbarProps) {
 
       <div
         className={clsx(
-          "not-lg:hidden col-2 row-[1/4] flex items-center justify-center p-1",
-          "border-l-1 border-l-text-2",
+          "not-lg:hidden col-2 row-[1/4] relative flex items-center justify-center p-1",
         )}
       >
-        <kbd>
-          W
-        </kbd>
+        <BracketBackground className="absolute inset-0" />
+        <kbd className="relative z-0">W</kbd>
       </div>
 
       <button
         type="button"
-        className="flex items-center justify-center bg-transparent"
+        className="flex items-center justify-center bg-transparent  border-2 border-link rounded-2"
         aria-label="Bouncer"
         disabled={disabled}
         onClick={() => togglePieceType("bouncer")}
@@ -91,7 +88,7 @@ export function EditorToolbar({ href, puzzle, className }: EditorToolbarProps) {
 
       <button
         type="button"
-        className="flex items-center justify-center bg-transparent"
+        className="flex items-center justify-center bg-transparent  border-2 border-link rounded-2"
         aria-label="Rook"
         disabled={disabled}
         onClick={() => togglePieceType("rook")}
@@ -101,18 +98,16 @@ export function EditorToolbar({ href, puzzle, className }: EditorToolbarProps) {
 
       <div
         className={clsx(
-          "not-lg:hidden col-2 row-start-4 row-span-2 flex items-center justify-center p-1",
-          "border-l-1 border-l-text-2",
+          "not-lg:hidden col-2 row-start-4 row-span-2 relative flex items-center justify-center p-1",
         )}
       >
-        <kbd>
-          P
-        </kbd>
+        <BracketBackground className="absolute inset-0" />
+        <kbd className="relative z-0">P</kbd>
       </div>
 
       <button
         type="button"
-        className="flex items-center justify-center bg-transparent"
+        className="flex items-center justify-center bg-transparent  border-2 border-link rounded-2"
         aria-label="Destination"
         disabled={disabled}
         onClick={setDestination}
@@ -124,14 +119,39 @@ export function EditorToolbar({ href, puzzle, className }: EditorToolbarProps) {
 
       <div
         className={clsx(
-          "not-lg:hidden col-2 flex items-center justify-center p-1",
-          "border-l-1 border-l-text-2",
+          "not-lg:hidden col-2 relative flex items-center justify-center p-1",
         )}
       >
-        <kbd>
-          D
-        </kbd>
+        <BracketBackground className="absolute inset-0" />
+        <kbd className="relative z-0">D</kbd>
       </div>
     </div>
+  );
+}
+
+type BracketProps = {
+  className?: string;
+};
+
+// Open-left bracket connecting button rows to their kbd shortcut on desktop.
+function BracketBackground({ className }: BracketProps) {
+  return (
+    <svg
+      className={clsx(
+        "size-full pointer-events-none py-1",
+        className,
+      )}
+      viewBox="0 0 100 100"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M 0 2 H 50 V 98 H 0"
+        stroke="var(--color-text-3)"
+        fill="none"
+        stroke-width="1"
+        vector-effect="non-scaling-stroke"
+      />
+    </svg>
   );
 }
