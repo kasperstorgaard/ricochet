@@ -5,7 +5,9 @@ import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
 import { define } from "#/core.ts";
 import Board from "#/islands/board.tsx";
+import { EditorAutosave } from "#/islands/editor-autosave.tsx";
 import { EditableName } from "#/islands/editable-name.tsx";
+import { EditorKeyboardShortcuts } from "#/islands/editor-keyboard-shortcuts.tsx";
 import { EditorPanel } from "#/islands/editor-panel.tsx";
 import { EditorToolbar } from "#/islands/editor-toolbar.tsx";
 import { DifficultyBadge } from "../../islands/difficulty-badge.tsx";
@@ -101,6 +103,8 @@ export default define.page<typeof handler>(function EditorPage(props) {
         </div>
       </Main>
       <EditorPanel puzzle={puzzle} href={href} isDev={isDev} />
+      <EditorAutosave puzzle={puzzle} />
+      <EditorKeyboardShortcuts puzzle={puzzle} href={href} />
     </>
   );
 });

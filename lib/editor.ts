@@ -1,8 +1,7 @@
 import { type Signal } from "@preact/signals";
-import { useCallback, useEffect } from "preact/hooks";
+import { useCallback } from "preact/hooks";
 
 import { isPositionSame } from "#/util/board.ts";
-import { subscribeToStore } from "#/lib/editor-store.ts";
 import type { Position, Puzzle, Wall } from "#/util/types.ts";
 
 /**
@@ -13,17 +12,14 @@ type UseEditorOptions = {
   puzzle: Signal<Puzzle>;
   // The active position, eg. the cell the user has selected
   active?: Position;
-  // If the editor is enabled — binds keyboard shortcuts when true
-  isEnabled: boolean;
 };
 
 /**
  * Hook for editor functionality.
  * Returns handlers for mutating the board at the active position.
- * When `isEnabled` is true, also binds keyboard shortcuts (W/P/D).
  */
 export function useEditor(
-  { active, puzzle, isEnabled }: UseEditorOptions,
+  { active, puzzle }: UseEditorOptions,
 ) {
   const toggleWall = useCallback(
     (target: Wall["orientation"] | "both" | null) => {
@@ -128,45 +124,7 @@ export function useEditor(
     }
   }, [active, puzzle]);
 
-  // -- keyboard binding --
-
-  useEffect(() => {
-    const onKeyUp = (event: KeyboardEvent) => {
-      const target = event.target as HTMLElement;
-      if (
-        target.isContentEditable || target.tagName === "INPUT" ||
-        target.tagName === "TEXTAREA"
-      ) {
-        return;
-      }
-
-      switch (event.key) {
-        case "w":
-          return cycleWall();
-        case "p":
-          return cyclePiece();
-        case "d":
-          return setDestination();
-      }
-    };
-
-    if (active && isEnabled) {
-      self.addEventListener("keyup", onKeyUp);
-    }
-
-    return () => {
-      self.removeEventListener("keyup", onKeyUp);
-    };
-  }, [active, isEnabled, cyclePiece, cycleWall, setDestination]);
-
-  // Subscribe to puzzle changes and persist to cookie via /api/store.
-  // Only runs when isEnabled is true (board instance), not the toolbar.
-  useEffect(() => {
-    if (!isEnabled) return;
-    return subscribeToStore(puzzle);
-  }, []);
-
-  return { toggleWall, togglePieceType, setDestination };
+  return { toggleWall, togglePieceType, setDestination, cycleWall, cyclePiece };
 }
 
 // Applies a board mutation to the puzzle signal, clearing minMoves.

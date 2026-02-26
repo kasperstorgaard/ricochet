@@ -1,0 +1,39 @@
+import type { Signal } from "@preact/signals";
+import { useEffect, useMemo } from "preact/hooks";
+
+import { useEditor } from "#/lib/editor.ts";
+import type { Puzzle } from "#/util/types.ts";
+import { decodeState } from "#/util/url.ts";
+
+type Props = { puzzle: Signal<Puzzle>; href: Signal<string> };
+
+export function EditorKeyboardShortcuts({ puzzle, href }: Props) {
+  const active = useMemo(() => decodeState(href.value).active, [href.value]);
+  const { cycleWall, cyclePiece, setDestination } = useEditor({
+    active,
+    puzzle,
+  });
+
+  useEffect(() => {
+    const onKeyUp = (event: KeyboardEvent) => {
+      const target = event.target as HTMLElement;
+      if (
+        target.isContentEditable || target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA"
+      ) return;
+      switch (event.key) {
+        case "w":
+          return cycleWall();
+        case "p":
+          return cyclePiece();
+        case "d":
+          return setDestination();
+      }
+    };
+
+    if (active) self.addEventListener("keyup", onKeyUp);
+    return () => self.removeEventListener("keyup", onKeyUp);
+  }, [active, cycleWall, cyclePiece, setDestination]);
+
+  return null;
+}
