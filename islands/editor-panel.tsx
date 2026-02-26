@@ -194,7 +194,7 @@ export function EditorPanel(
             </button>
           </div>
 
-          {isDev
+          {!isDev
             ? (
               <button
                 type="button"
@@ -211,7 +211,7 @@ export function EditorPanel(
                   download
                   className="btn"
                 >
-                  <i className="ph-floppy-disk ph" />Save
+                  <i className="ph-share ph" />Export
                 </a>
 
                 <a
@@ -226,7 +226,7 @@ export function EditorPanel(
                   href="/contribute"
                   className="text-fl-1 lg:text-fl-0  text-link underline leading-tight"
                 >
-                  How do I add the puzzle?
+                  How do I submit a new puzzle?
                 </a>
               </>
             )}
