@@ -10,11 +10,11 @@ import { EditableName } from "#/islands/editable-name.tsx";
 import { EditorKeyboardShortcuts } from "#/islands/editor-keyboard-shortcuts.tsx";
 import { EditorPanel } from "#/islands/editor-panel.tsx";
 import { EditorToolbar } from "#/islands/editor-toolbar.tsx";
-import { DifficultyBadge } from "../../islands/difficulty-badge.tsx";
+import { DifficultyBadge } from "#/islands/difficulty-badge.tsx";
 import { isDev } from "#/lib/env.ts";
-import { Puzzle } from "#/util/types.ts";
+import type { Puzzle } from "#/util/types.ts";
 import { clsx } from "clsx/lite";
-import { getStoredPuzzle } from "../../util/cookies.ts";
+import { getStoredPuzzle } from "#/util/cookies.ts";
 
 export const handler = define.handlers<Puzzle>({
   GET(ctx) {
