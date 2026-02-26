@@ -150,9 +150,9 @@ export default define.page<typeof handler>(function ContributePage(props) {
             <blockquote className="callout">
               <i className="ph-info ph" />
               <p>
-                You can follow the directions from the github README.md on how
-                to run the app locally — this lets you save puzzles locally and
-                test them before creating PRs.
+                You can also follow the directions from the github README.md on
+                how to run the app locally — this will let you save them
+                directly to your machine
               </p>
             </blockquote>
           </section>
@@ -160,11 +160,11 @@ export default define.page<typeof handler>(function ContributePage(props) {
           <section className="flex flex-col gap-fl-2">
             <h2 className="text-3 text-text-1">3b. Send me an email</h2>
             <p>
-              If you know me — just send me puzzles on email, and I'll add the
-              puzzles 😊
+              If you know me — just send me puzzles on email, and I'll add them
+              😊
             </p>
             <p>
-              You can also find me on{" "}
+              If you don't know me yet, reach out on{" "}
               <a href="https://www.linkedin.com/in/kasper-storgaard-t-lead">
                 LinkedIn
               </a>
