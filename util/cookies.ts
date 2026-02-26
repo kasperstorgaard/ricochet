@@ -96,8 +96,8 @@ export function setStoredPuzzleCookie(headers: Headers, puzzle: Puzzle) {
 
   setCookie(headers, {
     name: STORED_PUZZLE_KEY,
-    value: formatPuzzle(puzzle),
-    httpOnly: true,
+    value: encodeURIComponent(formatPuzzle(puzzle)),
+    httpOnly: isDenoDeploy,
     path: "/",
     secure: isDenoDeploy,
     maxAge: STORED_PUZZLE_DURATION,
@@ -110,5 +110,5 @@ export function getStoredPuzzle(headers: Headers) {
   const cookies = getCookies(headers);
   const raw = cookies[STORED_PUZZLE_KEY];
 
-  return raw ? parsePuzzle(raw) : null;
+  return raw ? parsePuzzle(decodeURIComponent(raw)) : null;
 }
