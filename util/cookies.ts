@@ -1,5 +1,5 @@
 import { getCookies, setCookie } from "@std/http/cookie";
-import { Puzzle } from "./types.ts";
+import type { Puzzle } from "./types.ts";
 import { formatPuzzle } from "./formatter.ts";
 import { parsePuzzle } from "./parser.ts";
 
@@ -91,6 +91,13 @@ export function getTrackingCookie(headers: Headers) {
   return cookies[TRACKING_ID_KEY];
 }
 
+/**
+ * Serializes a puzzle to markdown and stores it in a cookie for editor persistence.
+ * The value is URI-encoded to satisfy RFC2616 cookie character restrictions.
+ * @param headers - response headers to attach the Set-Cookie header to
+ * @param puzzle - the puzzle to store
+ * @returns updated headers
+ */
 export function setStoredPuzzleCookie(headers: Headers, puzzle: Puzzle) {
   const isDenoDeploy = Deno.env.get("DENO_DEPLOYMENT_ID") != null;
 
@@ -106,6 +113,11 @@ export function setStoredPuzzleCookie(headers: Headers, puzzle: Puzzle) {
   return headers;
 }
 
+/**
+ * Reads and parses the stored puzzle from cookies, if present.
+ * @param headers - request headers containing the Cookie header
+ * @returns the parsed puzzle, or null if no cookie is set
+ */
 export function getStoredPuzzle(headers: Headers) {
   const cookies = getCookies(headers);
   const raw = cookies[STORED_PUZZLE_KEY];
