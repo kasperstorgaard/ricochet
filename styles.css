@@ -760,7 +760,7 @@
     }
   }
 
-  blockquote {
+  .callout {
     display: flex;
     align-items: center;
     gap: var(--spacing-fl-1);
@@ -773,13 +773,13 @@
     color: var(--color-text-2);
   }
 
-  blockquote > i {
+  .callout > i {
     flex-shrink: 0;
     font-size: var(--font-size-2);
     line-height: var(--font-lineheight-3);
   }
 
-  blockquote > * {
+  .callout > * {
     margin: 0;
   }
 }
