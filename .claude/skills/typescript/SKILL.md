@@ -7,37 +7,41 @@ description: TypeScript conventions — type design, inference-first, avoiding o
 
 ## Inference first
 
-Prefer inferred return types — don't annotate what the compiler can already figure out.
-Explicit return type annotations add value at public API boundaries or when inference
-produces an unwanted widened type. Everywhere else, let the compiler work.
+Prefer inferred return types — don't annotate what the compiler can already
+figure out. Explicit return type annotations add value at public API boundaries
+or when inference produces an unwanted widened type. Everywhere else, let the
+compiler work.
 
 ## Type design
 
-Compose types from primitives and intersections rather than building wrapper types.
-Use discriminated unions over optional fields when a value can take distinct shapes —
-it makes narrowing explicit and exhaustive checks possible. Avoid adding type wrappers
-that carry no structural information.
+Compose types from primitives and intersections rather than building wrapper
+types. Use discriminated unions over optional fields when a value can take
+distinct shapes — it makes narrowing explicit and exhaustive checks possible.
+Avoid adding type wrappers that carry no structural information.
 
 ## Assertions & casts
 
-Prefer `const x: SomeType = value` over `return value as SomeType`. The annotation
-form is checked; the cast form silences the compiler without verifying correctness.
+Prefer `const x: SomeType = value` over `return value as SomeType`. The
+annotation form is checked; the cast form silences the compiler without
+verifying correctness.
 
-`as` is acceptable at function return sites where inference falls short and the cast
-is genuinely safe. It is never acceptable as a substitute for proper typing — if a
-cast is needed to make something compile, fix the type first.
+`as` is acceptable at function return sites where inference falls short and the
+cast is genuinely safe. It is never acceptable as a substitute for proper typing
+— if a cast is needed to make something compile, fix the type first.
 
 ## Generics
 
 Generics earn their complexity only for core utilities or highly reusable types.
-Don't parameterize something that only ever has one concrete use — a concrete type
-is simpler to read and easier to change.
+Don't parameterize something that only ever has one concrete use — a concrete
+type is simpler to read and easier to change.
 
 ## Common pitfalls
 
 Avoid:
+
 - **`enum`** — use string union types instead (`type Direction = "up" | "down"`)
-- **`interface`** — prefer `type` aliases; interfaces have surprising merging behaviour
+- **`interface`** — prefer `type` aliases; interfaces have surprising merging
+  behaviour
 - **`!` non-null assertions** — narrow explicitly instead
 - **Triple-slash references** — use standard ES imports
 - **`any`** — use `unknown` and narrow, or fix the upstream type

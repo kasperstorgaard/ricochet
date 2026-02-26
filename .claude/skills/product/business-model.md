@@ -1,7 +1,7 @@
 # Business model
 
-Inspired by Wordle: a fun side project, one puzzle a day, no monetisation —
-that went on to be acquired by a major media company.
+Inspired by Wordle: a fun side project, one puzzle a day, no monetisation — that
+went on to be acquired by a major media company.
 
 ## Monetisation approach
 

@@ -2,7 +2,8 @@
 
 ## Tailwind
 
-- Prefer utility classes per element over global utils. Exception: native-like components like `.icon-btn` where wrapping in a component just bloats.
+- Prefer utility classes per element over global utils. Exception: native-like
+  components like `.icon-btn` where wrapping in a component just bloats.
 - Break long class strings across multiple lines with `clsx`.
 - Media queries (`size`, `print`, etc.) each get their own line.
 - Order: positioning and sizing first, "look" last (text, border, bg, etc.).
@@ -10,7 +11,8 @@
 ## clsx
 
 - Use for conditionals: prefer `isSomething && "hidden"` over object syntax.
-- Never extract classes into consts — extract a local component instead if duplication gets heavy.
+- Never extract classes into consts — extract a local component instead if
+  duplication gets heavy.
 
 ## Design tokens
 
