@@ -24,6 +24,12 @@ export default {
             context.report({
               node: node.source,
               message: `Use '#/' alias instead of relative path: "${source}"`,
+              fix(fixer) {
+                const matcher = /((?:[.]{0,2}\/)+)(.*)/;
+                const corrected = source.replace(matcher, '"#/$2"');
+
+                return fixer.replaceText(node.source, corrected);
+              },
             });
           },
         };
@@ -85,6 +91,7 @@ export default {
                   node: curr,
                   message:
                     `Expected one blank line between import groups, found ${blankLines}`,
+                  // TODO: add a fixer that removes all blank in imports, adds one exactly in between the groups
                 });
               }
             }
@@ -159,7 +166,9 @@ export default {
   },
 } satisfies Deno.lint.Plugin;
 
-/** Returns the 1-indexed line number for a character offset within source text. */
+/**
+ * Returns the 1-indexed line number for a character offset within source text.
+ */
 function lineAt(text: string, offset: number): number {
   return text.slice(0, offset).split("\n").length;
 }
