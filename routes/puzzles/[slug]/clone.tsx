@@ -1,6 +1,7 @@
 import { define } from "#/core.ts";
 import { setStoredPuzzleCookie } from "#/game/cookies.ts";
 import { getPuzzle } from "#/game/loader.ts";
+import { isDev } from "#/lib/env.ts";
 
 // Redirect handler to create a new puzzle based on an existing one
 export const handler = define.handlers({
@@ -8,7 +9,7 @@ export const handler = define.handlers({
     const { slug } = ctx.params;
 
     const puzzle = await getPuzzle(ctx.url.origin, slug);
-    puzzle.name = "Untitled";
+    if (!isDev) puzzle.name = "Untitled";
 
     const headers = new Headers();
     setStoredPuzzleCookie(headers, puzzle);
