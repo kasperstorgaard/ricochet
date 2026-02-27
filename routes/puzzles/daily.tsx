@@ -17,6 +17,6 @@ export const handler = define.handlers({
     });
 
     redirectUrl.pathname = `puzzles/${puzzle.slug}`;
-    return Response.redirect(redirectUrl);
+    return Response.redirect(redirectUrl, 303);
   },
 });

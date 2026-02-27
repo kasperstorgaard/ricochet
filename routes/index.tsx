@@ -24,7 +24,7 @@ export const handler = define.handlers<PageData>({
       const redirectUrl = new URL(req.url);
       redirectUrl.pathname = "/puzzles/tutorial";
 
-      return Response.redirect(redirectUrl);
+      return Response.redirect(redirectUrl, 303);
     }
 
     const today = new Date(Date.now());

@@ -18,7 +18,7 @@ export const handler = define.handlers({
 
     return new Response("", {
       headers,
-      status: 302,
+      status: 303,
     });
   },
 });

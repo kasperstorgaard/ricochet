@@ -38,7 +38,7 @@ export const handler = define.handlers({
 
     // Guard against usage if hint limit is exceeded
     if (!isDev && slug !== "preview" && hintCount >= hintLimit) {
-      return Response.redirect(url.href);
+      return Response.redirect(url.href, 303);
     }
 
     const moves = state.moves
