@@ -1,4 +1,4 @@
-import { Move } from "#/util/types.ts";
+import { Move } from "#/game/types.ts";
 
 export type Solution = {
   id: string;

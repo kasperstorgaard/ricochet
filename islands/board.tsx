@@ -1,18 +1,17 @@
 import type { Signal } from "@preact/signals";
+import { clsx } from "clsx/lite";
 import { useCallback, useMemo, useRef } from "preact/hooks";
 
-import { useMoves } from "#/lib/moves.ts";
-import { buildReplayKeyframes, type KeyframeStop } from "#/lib/replay.ts";
-import { useRouter } from "#/lib/router.ts";
-import { clsx } from "clsx/lite";
-import { calculateMoveSpeed } from "#/lib/touch.ts";
+import { useMoves } from "#/client/moves.ts";
+import { useRouter } from "#/client/router.ts";
+import { calculateMoveSpeed } from "#/client/touch.ts";
 import {
   getGrid,
   getTargets,
   isPositionSame,
   resolveMoves,
-} from "#/util/board.ts";
-import { getGuides, Guide } from "#/util/guides.ts";
+} from "#/game/board.ts";
+import { getGuides, Guide } from "#/game/guides.ts";
 import {
   type Direction,
   type Move,
@@ -20,13 +19,14 @@ import {
   Position,
   Puzzle,
   Wall,
-} from "#/util/types.ts";
+} from "#/game/types.ts";
 import {
   decodeState,
   getActiveHref,
   getMovesHref,
   getReplaySpeed,
-} from "#/util/url.ts";
+} from "#/game/url.ts";
+import { buildReplayKeyframes, type KeyframeStop } from "#/lib/replay.ts";
 
 type BoardProps = {
   href: Signal<string>;

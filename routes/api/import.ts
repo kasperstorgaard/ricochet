@@ -1,6 +1,6 @@
 import { define } from "#/core.ts";
-import { setStoredPuzzleCookie } from "#/util/cookies.ts";
-import { parsePuzzle } from "#/util/parser.ts";
+import { setStoredPuzzleCookie } from "#/game/cookies.ts";
+import { parsePuzzle } from "#/game/parser.ts";
 
 // POST endpoint for importing a puzzle file (.md), storing it in cookies and redirecting to the editor
 export const handler = define.handlers({

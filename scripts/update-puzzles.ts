@@ -1,6 +1,6 @@
-import { parsePuzzle } from "../util/parser.ts";
-import { solve } from "../util/solver.ts";
-import { formatPuzzle } from "../util/formatter.ts";
+import { formatPuzzle } from "#/game/formatter.ts";
+import { parsePuzzle } from "#/game/parser.ts";
+import { solve } from "#/game/solver.ts";
 
 const PUZZLES_DIR = "./static/puzzles";
 

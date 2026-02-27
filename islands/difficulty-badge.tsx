@@ -1,10 +1,10 @@
 import type { Signal } from "@preact/signals";
-import { useEffect, useRef, useState } from "preact/hooks";
 import { clsx } from "clsx/lite";
+import { useEffect, useRef, useState } from "preact/hooks";
 
-import { useDebouncedCallback } from "#/lib/use-debounced-callback.ts";
-import { validateBoard } from "#/util/board.ts";
-import type { Board, Puzzle } from "#/util/types.ts";
+import { useDebouncedCallback } from "#/client/use-debounced-callback.ts";
+import { validateBoard } from "#/game/board.ts";
+import type { Board, Puzzle } from "#/game/types.ts";
 
 type DifficultyBadgeProps = {
   puzzle: Signal<Puzzle>;

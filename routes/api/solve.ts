@@ -1,7 +1,7 @@
 import { define } from "#/core.ts";
-import { validateBoard } from "#/util/board.ts";
-import { solve } from "#/util/solver.ts";
-import type { Board } from "#/util/types.ts";
+import { validateBoard } from "#/game/board.ts";
+import { solve } from "#/game/solver.ts";
+import type { Board } from "#/game/types.ts";
 
 // POST endpoint that returns the shortest solution length for a board.
 export const handler = define.handlers({

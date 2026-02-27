@@ -1,7 +1,7 @@
 import type { RefObject } from "preact";
 import { useEffect, useRef } from "preact/hooks";
 
-import type { Direction, Piece, Position } from "#/util/types.ts";
+import type { Direction, Piece, Position } from "#/game/types.ts";
 
 export type { Direction };
 

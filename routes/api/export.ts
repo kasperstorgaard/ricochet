@@ -1,6 +1,6 @@
 import { define } from "#/core.ts";
-import { getStoredPuzzle } from "#/util/cookies.ts";
-import { formatPuzzle } from "#/util/formatter.ts";
+import { getStoredPuzzle } from "#/game/cookies.ts";
+import { formatPuzzle } from "#/game/formatter.ts";
 
 // GET endpoint that returns the stored puzzle as a markdown file download
 export const handler = define.handlers({

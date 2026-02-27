@@ -1,5 +1,5 @@
 import { define } from "#/core.ts";
-import { generateTrackingId, setTrackingCookie } from "#/util/cookies.ts";
+import { generateTrackingId, setTrackingCookie } from "#/game/cookies.ts";
 import { posthog } from "#/lib/posthog.ts";
 
 /**

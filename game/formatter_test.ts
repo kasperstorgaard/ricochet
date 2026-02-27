@@ -1,6 +1,6 @@
 import { assertEquals } from "@std/assert";
 
-import type { Puzzle } from "#/util/types.ts";
+import type { Puzzle } from "#/game/types.ts";
 import { formatPuzzle } from "./formatter.ts";
 import { parsePuzzle } from "./parser.ts";
 

@@ -1,10 +1,10 @@
+import { clsx } from "clsx/lite";
 import { HttpError } from "fresh";
 import { ComponentChildren } from "preact";
 
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
 import { Panel } from "#/components/panel.tsx";
-import { clsx } from "clsx/lite";
 import { define } from "#/core.ts";
 import { posthog } from "#/lib/posthog.ts";
 

@@ -1,5 +1,5 @@
-import { encodeMove } from "#/util/strings.ts";
-import { Board, Move, Piece, Position, Wall } from "#/util/types.ts";
+import { encodeMove } from "#/game/strings.ts";
+import { Board, Move, Piece, Position, Wall } from "#/game/types.ts";
 
 /**
  * The board dimensions.

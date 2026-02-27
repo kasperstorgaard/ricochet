@@ -29,6 +29,15 @@ verifying correctness.
 cast is genuinely safe. It is never acceptable as a substitute for proper typing
 — if a cast is needed to make something compile, fix the type first.
 
+## Functions
+
+Helper functions are when a function is tightly coupled to the logic of one one
+file and lives within that file. They are encouraged, and should always live _at
+the end_ of the file to make the file easier to scan.
+
+const function declarations are discouraged, except for /client side Preact
+work.
+
 ## Generics
 
 Generics earn their complexity only for core utilities or highly reusable types.
@@ -45,6 +54,25 @@ Avoid:
 - **`!` non-null assertions** — narrow explicitly instead
 - **Triple-slash references** — use standard ES imports
 - **`any`** — use `unknown` and narrow, or fix the upstream type
+
+## Import conventions
+
+Three rules enforced by the `ricochet-imports` lint plugin
+(`plugins/lint-imports.ts`):
+
+1. **Hash alias** — cross-folder project imports must use `#/` (e.g.
+   `#/game/types.ts`). Same-folder imports (`./board.ts`) are the only allowed
+   relative form.
+
+2. **Import groups** — exactly two groups, separated by one blank line:
+   ```ts
+   import ... from "third-party"; // group 1: bare specifiers, npm:, jsr:, etc.
+
+   import ... from "#/project";   // group 2: local modules (#/ and ./)
+   ```
+
+3. **Import sort** — within each group, imports are sorted alphabetically by
+   specifier (case-insensitive). `deno lint --fix` auto-sorts.
 
 ## Comments
 

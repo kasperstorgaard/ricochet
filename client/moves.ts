@@ -1,8 +1,9 @@
-import { useCallback } from "preact/hooks";
 import type { RefObject } from "preact";
-import type { Direction, Piece, Position } from "#/util/types.ts";
-import { useArrowKeys } from "#/lib/keyboard.ts";
-import { useSwipe } from "#/lib/touch.ts";
+import { useCallback } from "preact/hooks";
+
+import { useArrowKeys } from "#/client/keyboard.ts";
+import { useSwipe } from "#/client/touch.ts";
+import type { Direction, Piece, Position } from "#/game/types.ts";
 
 const DEFAULT_VELOCITY = 1; // px/ms
 

@@ -24,25 +24,27 @@ CI runs: `deno fmt --check`, `deno lint`, `deno test -A`.
 routes/          File-system routing (pages + API endpoints)
 islands/         Interactive Preact components — hydrated client-side
 components/      Static server-rendered components — no client JS
-lib/             Client-side logic (input handling, replay, routing, analytics)
-util/            Core game logic — shared server + client (board, solver, parser)
+game/            Core game logic (board, solver, parser, types, cookies)
+client/          Browser-only code (touch, keyboard, routing)
+lib/             Portable utilities (env, analytics, replay, build tools)
 db/              Deno KV operations
 static/puzzles/  Puzzle definitions (.md files with ASCII boards)
 plugins/         Vite plugins (puzzle manifest generation)
 ```
 
 **Where logic lives**:
-- `util/` — pure game logic, no browser APIs, safe to import server-side
-- `lib/` — client-side only (DOM, touch, signals, browser state)
+- `game/` — pure game logic, no browser APIs, safe to import server-side
+- `client/` — client-side only (DOM, touch, signals, browser state)
+- `lib/` — portable utilities with no game or browser knowledge
 - `db/` — Deno KV access, server-side only
 
-**Import alias**: Use `#/` for project-root imports (e.g., `import type { Board } from "#/util/types.ts"`).
+**Import alias**: Use `#/` for project-root imports (e.g., `import type { Board } from "#/game/types.ts"`).
 
 For routing, state, and storage decisions → `/architecture`.
 
 ## Core Types
 
-All domain types are in `util/types.ts`. Key types:
+All domain types are in `game/types.ts`. Key types:
 - `Board` — `{ destination: Position, walls: Wall[], pieces: Piece[] }`
 - `Piece` — `Position & { type: "rook" | "bouncer" }`
 - `Wall` — `Position & { orientation: "horizontal" | "vertical" }`
@@ -117,5 +119,5 @@ For PostHog usage and event tracking philosophy → `/product`.
 ## Tech Notes
 
 - **Deno KV** (unstable): Enabled via `"unstable": ["kv"]` in deno.json.
-- **BFS Solver** (`util/solver.ts`): Throws `SolverLimitExceededError` / `SolverDepthExceededError` on unsolvable/too-complex boards.
+- **BFS Solver** (`game/solver.ts`): Throws `SolverLimitExceededError` / `SolverDepthExceededError` on unsolvable/too-complex boards.
 - **Progressive enhancement**: Game works fully server-side without JavaScript. Don't break this.

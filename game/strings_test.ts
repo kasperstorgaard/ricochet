@@ -7,7 +7,7 @@ import {
   encodeMove,
   encodeMoves,
   encodePosition,
-} from "#/util/strings.ts";
+} from "#/game/strings.ts";
 
 Deno.test("encodePosition() should encode position (0,0) as A1", () => {
   const result = encodePosition({ x: 0, y: 0 });

@@ -68,8 +68,9 @@ deno task preview
 routes/          File-system routes (pages + API)
 islands/         Interactive Preact components (hydrated client-side)
 components/      Static server-rendered components
-lib/             Client-side logic (touch, keyboard, replay, routing)
-util/            Core game logic (board, solver, parser, moves)
+game/            Core game logic (board, solver, parser, types, cookies)
+client/          Browser-only code (touch, keyboard, routing)
+lib/             Portable utilities (env, analytics, replay, build tools)
 db/              Deno KV database layer
 static/puzzles/  Puzzle definitions in Markdown + ASCII
 ```

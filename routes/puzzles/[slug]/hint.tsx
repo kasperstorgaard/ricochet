@@ -1,14 +1,15 @@
-import { define } from "#/core.ts";
-import { resolveMoves } from "#/util/board.ts";
-import { getPuzzle } from "#/util/loader.ts";
-import { getHint } from "#/util/solver.ts";
-import { encodeMoves } from "#/util/strings.ts";
-import { decodeState } from "#/util/url.ts";
-import { posthog } from "#/lib/posthog.ts";
-import { getHintCount, getStoredPuzzle, setHintCount } from "#/util/cookies.ts";
-import { Puzzle } from "#/util/types.ts";
 import { HttpError } from "fresh";
+
+import { define } from "#/core.ts";
+import { resolveMoves } from "#/game/board.ts";
+import { getHintCount, getStoredPuzzle, setHintCount } from "#/game/cookies.ts";
+import { getPuzzle } from "#/game/loader.ts";
+import { getHint } from "#/game/solver.ts";
+import { encodeMoves } from "#/game/strings.ts";
+import { Puzzle } from "#/game/types.ts";
+import { decodeState } from "#/game/url.ts";
 import { isDev } from "#/lib/env.ts";
+import { posthog } from "#/lib/posthog.ts";
 
 export const handler = define.handlers({
   async GET(ctx) {
