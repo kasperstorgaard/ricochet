@@ -35,7 +35,9 @@ return Response.redirect(url, 303);
 return new Response(null, { headers, status: 303 });
 ```
 
-Never use 302 — it has the same semantics in practice but is semantically
+Use **301** only for permanently renamed/moved resources — as browsers cache it.
+
+Never use 302 — it has the same semantics as 303 in practice but is semantically
 ambiguous and easy to misuse.
 
 ## Responsibility split

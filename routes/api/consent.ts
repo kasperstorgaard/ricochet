@@ -40,7 +40,7 @@ export const handler = define.handlers({
     });
 
     return new Response("", {
-      status: 302,
+      status: 303,
       headers,
     });
   },

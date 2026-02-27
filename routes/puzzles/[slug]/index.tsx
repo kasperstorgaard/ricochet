@@ -89,7 +89,7 @@ export const handler = define.handlers<PageData>({
       },
     });
 
-    return Response.redirect(url.href, 302);
+    return Response.redirect(url.href, 303);
   },
 });
 

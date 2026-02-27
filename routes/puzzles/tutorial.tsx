@@ -33,7 +33,7 @@ export const handler = define.handlers<Data>({
     if (!puzzle) throw new HttpError(500, "Tutorial puzzle not found");
 
     if (!ctx.url.searchParams.has("moves")) {
-      return Response.redirect(redirectUrl);
+      return Response.redirect(redirectUrl, 303);
     }
 
     const { moves } = decodeState(redirectUrl);
@@ -56,7 +56,7 @@ export const handler = define.handlers<Data>({
     setSkipTutorialCookie(headers, true);
 
     return new Response("", {
-      status: 302,
+      status: 303,
       headers,
     });
   },
