@@ -96,7 +96,7 @@ Deno.test("import-order - reports missing blank line between groups", () => {
 
   const result = getViolations(source, "import-order");
 
-  assertMatch(result[0], /Group and sort imports/);
+  assertMatch(result[0], /Group imports by/);
 });
 
 Deno.test("import-order - reports two blank lines between groups", () => {
@@ -108,7 +108,7 @@ Deno.test("import-order - reports two blank lines between groups", () => {
   ].join("\n");
   const result = getViolations(source, "import-order");
 
-  assertMatch(result[0], /Group and sort imports/);
+  assertMatch(result[0], /Group imports by/);
 });
 
 Deno.test("import-order - reports blank line within a group", () => {
@@ -119,7 +119,7 @@ Deno.test("import-order - reports blank line within a group", () => {
   ].join("\n");
   const result = getViolations(source, "import-order");
 
-  assertMatch(result[0], /Group and sort imports/);
+  assertMatch(result[0], /Group imports by/);
 });
 
 Deno.test("import-order - reports project before third-party", () => {
@@ -129,7 +129,7 @@ Deno.test("import-order - reports project before third-party", () => {
   ].join("\n");
   const result = getViolations(source, "import-order");
 
-  assertMatch(result[0], /Group and sort imports/);
+  assertMatch(result[0], /Group imports by/);
 });
 
 Deno.test("import-order - reports unsorted third-party imports", () => {
@@ -139,7 +139,7 @@ Deno.test("import-order - reports unsorted third-party imports", () => {
   ].join("\n");
   const result = getViolations(source, "import-order");
 
-  assertMatch(result[0], /Group and sort imports/);
+  assertMatch(result[0], /Group imports by/);
 });
 
 Deno.test("import-order - reports unsorted project imports", () => {
@@ -149,7 +149,7 @@ Deno.test("import-order - reports unsorted project imports", () => {
   ].join("\n");
   const result = getViolations(source, "import-order");
 
-  assertMatch(result[0], /Group and sort imports/);
+  assertMatch(result[0], /Group imports by/);
 });
 
 // ---------------------------------------------------------------------------
@@ -181,5 +181,5 @@ Deno.test("integration - use-hash-alias catches all three broken imports", () =>
 Deno.test("integration - import-order catches grouping and sort violations", () => {
   const result = getViolations(MOVES_BROKEN, "import-order", "client/moves.ts");
 
-  assertMatch(result[0], /Group and sort imports/);
+  assertMatch(result[0], /Group imports by/);
 });

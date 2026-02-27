@@ -84,7 +84,7 @@ export default {
               context.report({
                 node: blockImports[0],
                 message: [
-                  "Group and sort imports by third party and project, with a single line between, sorted.",
+                  "Group imports by third party and project scope, separated by a newline and sorted.",
                   "",
                   "example:",
                   "```",
