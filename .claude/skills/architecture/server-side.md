@@ -20,6 +20,24 @@ PR approval flow and manual decision on how difficult each puzzle is.
 
 See state.md for the storage hierarchy and rationale.
 
+## Redirects
+
+Always use **303 See Other** for redirects from route handlers and API routes.
+303 is correct for POST-redirect-GET and for GET handlers that redirect to a
+canonical URL — it tells the browser to follow with a GET regardless of the
+original method, and avoids re-submission on back/forward.
+
+```ts
+// GET handler redirecting to canonical URL
+return Response.redirect(url, 303);
+
+// POST handler (e.g. form submission) redirecting after action
+return new Response(null, { headers, status: 303 });
+```
+
+Never use 302 — it has the same semantics in practice but is semantically
+ambiguous and easy to misuse.
+
 ## Responsibility split
 
 Core game logic lives in `game`, along with parsing and formatting puzzles.
