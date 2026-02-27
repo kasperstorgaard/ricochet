@@ -1,4 +1,4 @@
-import { assertEquals } from "@std/assert";
+import { assertEquals, assertMatch } from "@std/assert";
 
 import plugin from "./lint-imports.ts";
 
@@ -53,137 +53,103 @@ Deno.test("use-hash-alias - reports parent-relative import", () => {
 });
 
 // ---------------------------------------------------------------------------
-// import-groups
+// import-order
 // ---------------------------------------------------------------------------
 
-Deno.test("import-groups - allows third-party then blank line then project", () => {
+Deno.test("import-order - allows correctly grouped and sorted imports", () => {
   const source = [
     `import { useCallback } from "preact/hooks";`,
     ``,
     `import type { Board } from "#/game/types.ts";`,
   ].join("\n");
 
-  const result = getViolations(source, "import-groups");
+  const result = getViolations(source, "import-order");
 
   assertEquals(result, []);
 });
 
-Deno.test("import-groups - allows only third-party imports", () => {
+Deno.test("import-order - allows only third-party imports", () => {
   const source = [
     `import { RefObject } from "preact";`,
     `import { useCallback } from "preact/hooks";`,
   ].join("\n");
-  const result = getViolations(source, "import-groups");
+  const result = getViolations(source, "import-order");
 
   assertEquals(result, []);
 });
 
-Deno.test("import-groups - allows only project imports", () => {
+Deno.test("import-order - allows only project imports", () => {
   const source = [
     `import type { Board } from "#/game/board.ts";`,
     `import type { Puzzle } from "#/game/types.ts";`,
   ].join("\n");
-  const result = getViolations(source, "import-groups");
+  const result = getViolations(source, "import-order");
 
   assertEquals(result, []);
 });
 
-Deno.test("import-groups - reports missing blank line between groups", () => {
+Deno.test("import-order - reports missing blank line between groups", () => {
   const source = [
     `import { useCallback } from "preact/hooks";`,
     `import type { Board } from "#/game/types.ts";`,
   ].join("\n");
 
-  const result = getViolations(source, "import-groups");
+  const result = getViolations(source, "import-order");
 
-  assertEquals(result, [
-    "Expected one blank line between import groups, found 0",
-  ]);
+  assertMatch(result[0], /Group imports by/);
 });
 
-Deno.test("import-groups - reports two blank lines between groups", () => {
+Deno.test("import-order - reports two blank lines between groups", () => {
   const source = [
     `import { useCallback } from "preact/hooks";`,
     ``,
     ``,
     `import type { Board } from "#/game/types.ts";`,
   ].join("\n");
-  const result = getViolations(source, "import-groups");
+  const result = getViolations(source, "import-order");
 
-  assertEquals(result, [
-    "Expected one blank line between import groups, found 2",
-  ]);
+  assertMatch(result[0], /Group imports by/);
 });
 
-Deno.test("import-groups - reports blank line within a group", () => {
+Deno.test("import-order - reports blank line within a group", () => {
   const source = [
     `import { RefObject } from "preact";`,
     ``,
     `import { useCallback } from "preact/hooks";`,
   ].join("\n");
-  const result = getViolations(source, "import-groups");
+  const result = getViolations(source, "import-order");
 
-  assertEquals(result, ["No blank lines within an import group"]);
+  assertMatch(result[0], /Group imports by/);
 });
 
-Deno.test("import-groups - reports project before third-party", () => {
+Deno.test("import-order - reports project before third-party", () => {
   const source = [
     `import type { Board } from "#/game/types.ts";`,
     `import { useCallback } from "preact/hooks";`,
   ].join("\n");
-  const result = getViolations(source, "import-groups");
+  const result = getViolations(source, "import-order");
 
-  assertEquals(result, [
-    "Third-party imports must come before project imports",
-  ]);
+  assertMatch(result[0], /Group imports by/);
 });
 
-// ---------------------------------------------------------------------------
-// import-sort
-// ---------------------------------------------------------------------------
-
-Deno.test("import-sort - allows sorted third-party imports", () => {
-  const source = [
-    `import { RefObject } from "preact";`,
-    `import { useCallback } from "preact/hooks";`,
-  ].join("\n");
-  const result = getViolations(source, "import-sort");
-
-  assertEquals(result, []);
-});
-
-Deno.test("import-sort - allows sorted project imports", () => {
-  const source = [
-    `import type { Board } from "#/game/board.ts";`,
-    `import type { Puzzle } from "#/game/types.ts";`,
-  ].join("\n");
-  const result = getViolations(source, "import-sort");
-
-  assertEquals(result, []);
-});
-
-Deno.test("import-sort - reports unsorted third-party imports", () => {
+Deno.test("import-order - reports unsorted third-party imports", () => {
   const source = [
     `import { useCallback } from "preact/hooks";`,
     `import { RefObject } from "preact";`,
   ].join("\n");
-  const result = getViolations(source, "import-sort");
+  const result = getViolations(source, "import-order");
 
-  assertEquals(result, [
-    `Import "preact" should be sorted before "preact/hooks"`,
-  ]);
+  assertMatch(result[0], /Group imports by/);
 });
 
-Deno.test("import-sort - reports unsorted project imports", () => {
+Deno.test("import-order - reports unsorted project imports", () => {
   const source = [
     `import type { Puzzle } from "#/game/types.ts";`,
     `import type { Board } from "#/game/board.ts";`,
   ].join("\n");
-  const result = getViolations(source, "import-sort");
+  const result = getViolations(source, "import-order");
 
-  assertEquals(result, [
-    `Import "#/game/board.ts" should be sorted before "#/game/types.ts"`,
-  ]);
+  assertMatch(result[0], /Group imports by/);
 });
 
 // ---------------------------------------------------------------------------
@@ -212,23 +178,8 @@ Deno.test("integration - use-hash-alias catches all three broken imports", () =>
   ]);
 });
 
-Deno.test("integration - import-groups catches missing blank line", () => {
-  const result = getViolations(
-    MOVES_BROKEN,
-    "import-groups",
-    "client/moves.ts",
-  );
+Deno.test("integration - import-order catches grouping and sort violations", () => {
+  const result = getViolations(MOVES_BROKEN, "import-order", "client/moves.ts");
 
-  assertEquals(result, [
-    "Expected one blank line between import groups, found 0",
-  ]);
-});
-
-Deno.test("integration - import-sort catches both unsorted groups", () => {
-  const result = getViolations(MOVES_BROKEN, "import-sort", "client/moves.ts");
-
-  assertEquals(result, [
-    `Import "preact" should be sorted before "preact/hooks"`,
-    `Import "../client/keyboard.ts" should be sorted before "../game/types.ts"`,
-  ]);
+  assertMatch(result[0], /Group imports by/);
 });

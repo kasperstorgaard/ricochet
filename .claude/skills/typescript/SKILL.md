@@ -57,22 +57,23 @@ Avoid:
 
 ## Import conventions
 
-Three rules enforced by the `ricochet-imports` lint plugin
+Two rules enforced by the `ricochet-imports` lint plugin
 (`plugins/lint-imports.ts`):
 
-1. **Hash alias** — cross-folder project imports must use `#/` (e.g.
-   `#/game/types.ts`). Same-folder imports (`./board.ts`) are the only allowed
-   relative form.
+1. **Hash alias** (`use-hash-alias`) — cross-folder project imports must use
+   `#/` (e.g. `#/game/types.ts`). Same-folder imports (`./board.ts`) are the
+   only allowed relative form.
 
-2. **Import groups** — exactly two groups, separated by one blank line:
+2. **Import order** (`import-order`) — exactly two groups, sorted alphabetically
+   within each, separated by one blank line:
    ```ts
-   import ... from "third-party"; // group 1: bare specifiers, npm:, jsr:, etc.
+   import clsx from "clsx/lite"; // group 1: third-party (bare, npm:, jsr:)
+   import { page } from "fresh";
 
-   import ... from "#/project";   // group 2: local modules (#/ and ./)
+   import { define } from "#/core.ts"; // group 2: project (#/ and ./)
    ```
 
-3. **Import sort** — within each group, imports are sorted alphabetically by
-   specifier (case-insensitive). `deno lint --fix` auto-sorts.
+Both grouping and sort order are fixed by `deno lint --fix`.
 
 ## Comments
 
