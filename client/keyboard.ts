@@ -1,6 +1,6 @@
 import { useEffect } from "preact/hooks";
 
-import type { Direction } from "#/util/types.ts";
+import type { Direction } from "#/game/types.ts";
 
 type UseArrowKeysOptions = {
   isEnabled?: boolean;

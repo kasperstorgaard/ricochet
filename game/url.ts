@@ -5,8 +5,8 @@ import {
   encodeMove,
   encodeMoves,
   encodePosition,
-} from "#/util/strings.ts";
-import { DIFFICULTIES, Difficulty, Move, Position } from "#/util/types.ts";
+} from "#/game/strings.ts";
+import { DIFFICULTIES, Difficulty, Move, Position } from "#/game/types.ts";
 
 /**
  * All state needed to represent the current game

@@ -1,5 +1,5 @@
-import { COLS, getTargets, isPositionSame } from "#/util/board.ts";
-import type { Board, Move, Piece, Puzzle } from "#/util/types.ts";
+import { COLS, getTargets, isPositionSame } from "#/game/board.ts";
+import type { Board, Move, Piece, Puzzle } from "#/game/types.ts";
 
 /**
  * Default solver limits.

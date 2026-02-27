@@ -6,7 +6,7 @@ import {
   SolverLimitExceededError,
 } from "./solver.ts";
 import { encodeMoves } from "./strings.ts";
-import type { Board, Puzzle } from "#/util/types.ts";
+import type { Board, Puzzle } from "#/game/types.ts";
 import { isValidSolution, resolveMoves } from "./board.ts";
 
 Deno.test("solve() finds 1-move solution (rook slides to destination)", () => {

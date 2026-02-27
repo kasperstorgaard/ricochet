@@ -1,4 +1,4 @@
-import type { Position } from "#/util/types.ts";
+import type { Position } from "#/game/types.ts";
 
 export type KeyframeStop = {
   id: string;

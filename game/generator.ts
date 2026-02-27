@@ -1,10 +1,10 @@
-import { getGrid, validateBoard } from "#/util/board.ts";
+import { getGrid, validateBoard } from "#/game/board.ts";
 import {
   solve,
   SolverDepthExceededError,
   SolverLimitExceededError,
-} from "#/util/solver.ts";
-import type { Board, Piece, Wall } from "#/util/types.ts";
+} from "#/game/solver.ts";
+import type { Board, Piece, Wall } from "#/game/types.ts";
 
 const MAX_ATTEMPTS = 500;
 

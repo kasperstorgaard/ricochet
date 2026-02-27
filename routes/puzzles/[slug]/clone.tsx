@@ -1,6 +1,6 @@
 import { define } from "#/core.ts";
-import { setStoredPuzzleCookie } from "#/util/cookies.ts";
-import { getPuzzle } from "#/util/loader.ts";
+import { setStoredPuzzleCookie } from "#/game/cookies.ts";
+import { getPuzzle } from "#/game/loader.ts";
 
 // Redirect handler to create a new puzzle based on an existing one
 export const handler = define.handlers({

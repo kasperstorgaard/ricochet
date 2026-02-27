@@ -1,8 +1,8 @@
 import { type Signal } from "@preact/signals";
 import { useCallback } from "preact/hooks";
 
-import { isPositionSame } from "#/util/board.ts";
-import type { Position, Puzzle, Wall } from "#/util/types.ts";
+import { isPositionSame } from "#/game/board.ts";
+import type { Position, Puzzle, Wall } from "#/game/types.ts";
 
 /**
  * Current state for the editor

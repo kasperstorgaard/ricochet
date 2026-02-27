@@ -13,10 +13,10 @@ import { DifficultyBadge } from "#/islands/difficulty-badge.tsx";
 import { SolutionDialog } from "#/islands/solution-dialog.tsx";
 import { isDev } from "#/lib/env.ts";
 import { posthog } from "#/lib/posthog.ts";
-import { isValidSolution, resolveMoves } from "#/util/board.ts";
-import { getHintCount, getStoredPuzzle } from "#/util/cookies.ts";
-import { getPuzzle } from "#/util/loader.ts";
-import { Move, Puzzle } from "#/util/types.ts";
+import { isValidSolution, resolveMoves } from "#/game/board.ts";
+import { getHintCount, getStoredPuzzle } from "#/game/cookies.ts";
+import { getPuzzle } from "#/game/loader.ts";
+import { Move, Puzzle } from "#/game/types.ts";
 
 type PageData = { puzzle: Puzzle; hintCount: number };
 

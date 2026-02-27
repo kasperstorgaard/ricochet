@@ -12,7 +12,7 @@ import {
   getReplaySpeed,
   getResetHref,
   getUndoHref,
-} from "#/util/url.ts";
+} from "#/game/url.ts";
 
 Deno.test("encodeState() should add all params", () => {
   const result = encodeState({

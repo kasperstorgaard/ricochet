@@ -12,9 +12,9 @@ import { EditorPanel } from "#/islands/editor-panel.tsx";
 import { EditorToolbar } from "#/islands/editor-toolbar.tsx";
 import { DifficultyBadge } from "#/islands/difficulty-badge.tsx";
 import { isDev } from "#/lib/env.ts";
-import type { Puzzle } from "#/util/types.ts";
+import type { Puzzle } from "#/game/types.ts";
 import { clsx } from "clsx/lite";
-import { getStoredPuzzle } from "#/util/cookies.ts";
+import { getStoredPuzzle } from "#/game/cookies.ts";
 
 export const handler = define.handlers<Puzzle>({
   GET(ctx) {

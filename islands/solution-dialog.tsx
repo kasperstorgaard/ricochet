@@ -2,8 +2,8 @@ import { type Signal } from "@preact/signals";
 import { useMemo } from "preact/hooks";
 
 import { Dialog } from "#/islands/dialog.tsx";
-import { Puzzle } from "#/util/types.ts";
-import { decodeState, getResetHref } from "#/util/url.ts";
+import { Puzzle } from "#/game/types.ts";
+import { decodeState, getResetHref } from "#/game/url.ts";
 import { isValidSolution, resolveMoves } from "../util/board.ts";
 
 type Props = {

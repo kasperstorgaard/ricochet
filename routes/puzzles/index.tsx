@@ -7,9 +7,9 @@ import { Panel } from "#/components/panel.tsx";
 import { Thumbnail } from "#/components/thumbnail.tsx";
 import { clsx } from "clsx/lite";
 import { define } from "#/core.ts";
-import { listPuzzles } from "#/util/loader.ts";
-import { PaginatedData, Puzzle } from "#/util/types.ts";
-import { getPage } from "#/util/url.ts";
+import { listPuzzles } from "#/game/loader.ts";
+import { PaginatedData, Puzzle } from "#/game/types.ts";
+import { getPage } from "#/game/url.ts";
 
 const ITEMS_PER_PAGE = 6;
 

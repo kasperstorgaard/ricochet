@@ -1,7 +1,7 @@
 import { stringify as stringifyYaml } from "@std/yaml";
 
-import { COLS, isPositionSame, ROWS } from "#/util/board.ts";
-import { Board, Position, type Puzzle } from "#/util/types.ts";
+import { COLS, isPositionSame, ROWS } from "#/game/board.ts";
+import { Board, Position, type Puzzle } from "#/game/types.ts";
 
 // Combining low line character (U+0332)
 const COMBINING_LOW_LINE = "\u0332";

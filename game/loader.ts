@@ -1,13 +1,13 @@
-import { pickByDay } from "#/util/date.ts";
-import { sortList } from "#/util/list.ts";
-import { parsePuzzle } from "#/util/parser.ts";
+import { pickByDay } from "#/game/date.ts";
+import { sortList } from "#/lib/list.ts";
+import { parsePuzzle } from "#/game/parser.ts";
 import {
   Difficulty,
   PaginatedData,
   PaginationState,
   Puzzle,
   PuzzleManifestEntry,
-} from "#/util/types.ts";
+} from "#/game/types.ts";
 
 // Default items per page
 const ITEMS_PER_PAGE = 6;

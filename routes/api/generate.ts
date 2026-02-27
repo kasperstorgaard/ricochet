@@ -1,5 +1,5 @@
 import { define } from "#/core.ts";
-import { generate, type GenerateOptions } from "#/util/generator.ts";
+import { generate, type GenerateOptions } from "#/game/generator.ts";
 
 // POST endpoint for puzzle generation.
 export const handler = define.handlers({

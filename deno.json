@@ -14,7 +14,8 @@
       "tags": [
         "fresh",
         "recommended"
-      ]
+      ],
+      "include": ["no-relative-parent-imports"]
     }
   },
   "fmt": {

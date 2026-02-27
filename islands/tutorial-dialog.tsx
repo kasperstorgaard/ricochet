@@ -4,7 +4,7 @@ import { useEffect, useMemo } from "preact/hooks";
 import type { Solution } from "#/db/types.ts";
 import { clsx } from "clsx/lite";
 import { Dialog } from "#/islands/dialog.tsx";
-import { getReplaySpeed } from "#/util/url.ts";
+import { getReplaySpeed } from "#/game/url.ts";
 
 type Props = {
   href: Signal<string>;

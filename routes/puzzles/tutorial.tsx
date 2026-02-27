@@ -9,10 +9,10 @@ import Board from "#/islands/board.tsx";
 import { ControlsPanel } from "#/islands/controls-panel.tsx";
 import { TutorialDialog } from "#/islands/tutorial-dialog.tsx";
 import { isDev } from "#/lib/env.ts";
-import { setSkipTutorialCookie } from "#/util/cookies.ts";
-import { getPuzzle } from "#/util/loader.ts";
-import { Puzzle } from "#/util/types.ts";
-import { decodeState } from "#/util/url.ts";
+import { setSkipTutorialCookie } from "#/game/cookies.ts";
+import { getPuzzle } from "#/game/loader.ts";
+import { Puzzle } from "#/game/types.ts";
+import { decodeState } from "#/game/url.ts";
 
 type Data = {
   puzzle: Puzzle;

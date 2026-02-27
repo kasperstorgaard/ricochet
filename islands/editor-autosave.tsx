@@ -1,9 +1,9 @@
 import { useSignalEffect } from "@preact/signals";
 import type { Signal } from "@preact/signals";
 
-import { formatPuzzle } from "#/util/formatter.ts";
-import type { Puzzle } from "#/util/types.ts";
-import { useDebouncedCallback } from "#/lib/use-debounced-callback.ts";
+import { formatPuzzle } from "#/game/formatter.ts";
+import type { Puzzle } from "#/game/types.ts";
+import { useDebouncedCallback } from "#/client/use-debounced-callback.ts";
 import { useRef } from "preact/hooks";
 
 type Props = { puzzle: Signal<Puzzle> };

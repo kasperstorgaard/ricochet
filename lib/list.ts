@@ -1,4 +1,4 @@
-import { DIFFICULTIES, Difficulty } from "./types.ts";
+import { DIFFICULTIES, Difficulty } from "#/game/types.ts";
 
 type SortOptions<TItem extends object> = {
   sortBy: keyof TItem;

@@ -13,7 +13,7 @@ import {
   validateBoard,
 } from "./board.ts";
 
-import { Piece, Position } from "#/util/types.ts";
+import { Piece, Position } from "#/game/types.ts";
 
 /*
  <irony>Prettiest test in all the land</irony>

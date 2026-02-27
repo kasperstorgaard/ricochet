@@ -22,11 +22,12 @@ See state.md for the storage hierarchy and rationale.
 
 ## Responsibility split
 
-Core game logic lives in `util`, along with parsing and formatting puzzles.
+Core game logic lives in `game`, along with parsing and formatting puzzles.
 Route-specific logic lives in handlers — medium-sized handlers with a few edge
 case checks are fine, and some duplication between handlers is acceptable. When
 edge cases multiply or duplication gets high, consider whether the logic belongs
-in an API route or is core enough for `util`.
+in an API route or is core enough for `game`.
 
-`lib` holds client-side code that could reasonably be a standalone library:
-hooks, tracking wrappers, touch handling, etc.
+`client` holds browser-only code: hooks, touch handling, keyboard handling, and
+routing. `lib` holds portable utilities that are neither game-specific nor
+browser-specific: env detection, analytics setup, replay, build tools.

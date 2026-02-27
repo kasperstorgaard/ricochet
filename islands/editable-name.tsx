@@ -3,7 +3,7 @@ import type { Signal } from "@preact/signals";
 import { useRef } from "preact/hooks";
 import clsx from "clsx/lite";
 
-import type { Puzzle } from "#/util/types.ts";
+import type { Puzzle } from "#/game/types.ts";
 
 type EditableNameProps = {
   puzzle: Signal<Puzzle>;

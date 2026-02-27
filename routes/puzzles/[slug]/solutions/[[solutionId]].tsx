@@ -9,9 +9,9 @@ import { Solution } from "#/db/types.ts";
 import Board from "#/islands/board.tsx";
 import { DifficultyBadge } from "#/islands/difficulty-badge.tsx";
 import { SolutionsPanel } from "#/islands/solutions-panel.tsx";
-import { getPuzzle } from "#/util/loader.ts";
-import { Puzzle } from "#/util/types.ts";
-import { encodeState } from "#/util/url.ts";
+import { getPuzzle } from "#/game/loader.ts";
+import { Puzzle } from "#/game/types.ts";
+import { encodeState } from "#/game/url.ts";
 
 type Data = {
   puzzle: Puzzle;

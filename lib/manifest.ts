@@ -1,5 +1,5 @@
 import { extractYaml } from "@std/front-matter";
-import { Puzzle, PuzzleManifestEntry } from "#/util/types.ts";
+import { Puzzle, PuzzleManifestEntry } from "#/game/types.ts";
 
 const PUZZLES_DIR = "./static/puzzles";
 
