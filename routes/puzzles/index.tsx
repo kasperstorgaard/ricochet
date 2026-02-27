@@ -108,10 +108,38 @@ export default define.page<typeof handler>(
         </Main>
 
         <Panel>
-          <div className="col-[2/3] flex flex-col gap-fl-2 lg:row-[3/4] items-center">
-            <a href="/puzzles/new" className="btn">
-              <i className="ph-plus ph" /> Add puzzle
-            </a>
+          <div
+            className={clsx(
+              "col-[2/3] flex flex-col gap-fl-2 justify-between items-start flex-wrap text-fl-0 text-text-2",
+              "sm:flex-row sm:items-center",
+              "lg:col-auto lg:row-start-3 lg:flex-col lg:items-start",
+            )}
+          >
+            <div className="flex gap-fl-1 lg:flex-col max-md:text-fl-1">
+              <a
+                href="https://github.com/kasperstorgaard/ricochet"
+                className="flex gap-1 items-center"
+              >
+                <i className="ph ph-github-logo" /> GitHub
+              </a>
+              <a
+                href="https://www.linkedin.com/in/kasper-storgaard-t-lead"
+                className="flex gap-1 items-center "
+              >
+                <i className="ph ph-linkedin-logo" /> LinkedIn
+              </a>
+            </div>
+
+            <div
+              className={clsx(
+                "flex flex-wrap gap-fl-1 items-start",
+                "lg:flex-col",
+              )}
+            >
+              <a href="/puzzles/new" className="btn">
+                Build your own
+              </a>
+            </div>
           </div>
         </Panel>
       </>
