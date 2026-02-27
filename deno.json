@@ -10,12 +10,12 @@
     "update-puzzles": "deno run -A ./scripts/update-puzzles.ts"
   },
   "lint": {
+    "plugins": ["./plugins/lint-imports.ts"],
     "rules": {
       "tags": [
         "fresh",
         "recommended"
-      ],
-      "include": ["no-relative-parent-imports"]
+      ]
     }
   },
   "fmt": {
