@@ -64,10 +64,10 @@ Two rules enforced by the `ricochet-imports` lint plugin
    `#/` (e.g. `#/game/types.ts`). Same-folder imports (`./board.ts`) are the
    only allowed relative form.
 
-2. **Import order** (`import-order`) — exactly two groups, sorted
-   alphabetically within each, separated by one blank line:
+2. **Import order** (`import-order`) — exactly two groups, sorted alphabetically
+   within each, separated by one blank line:
    ```ts
-   import clsx from "clsx/lite";       // group 1: third-party (bare, npm:, jsr:)
+   import clsx from "clsx/lite"; // group 1: third-party (bare, npm:, jsr:)
    import { page } from "fresh";
 
    import { define } from "#/core.ts"; // group 2: project (#/ and ./)
