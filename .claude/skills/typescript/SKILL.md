@@ -29,6 +29,13 @@ verifying correctness.
 cast is genuinely safe. It is never acceptable as a substitute for proper typing
 — if a cast is needed to make something compile, fix the type first.
 
+## Functions
+
+Helper functions are when a function is tightly coupled to the logic of one one file and lives within that file.
+They are encouraged, and should always live _at the end_ of the file to make the file easier to scan.
+
+const function declarations are discouraged, except for /client side Preact work.
+
 ## Generics
 
 Generics earn their complexity only for core utilities or highly reusable types.
