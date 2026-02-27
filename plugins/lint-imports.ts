@@ -37,17 +37,16 @@ export default {
     },
 
     /**
-     * Imports must be split into two groups separated by exactly one blank
-     * line:
-     *   1. Third-party (bare specifiers, npm:, jsr:, etc.)
-     *   2. Project (#/ and same-folder ./)
+     * Imports must form two groups separated by exactly one blank line:
+     *   1. Third-party (bare specifiers, npm:, jsr:, etc.), sorted alphabetically
+     *   2. Project (#/ and same-folder ./), sorted alphabetically
      * No blank lines are allowed within a group.
      */
-    "import-groups": {
+    "import-order": {
       create(context) {
         return {
           Program(node) {
-            const text = context.sourceCode.text;
+            const sourceCode = context.sourceCode;
             const body = node.body as Deno.lint.Node[];
 
             const importIndices: number[] = [];
@@ -55,109 +54,51 @@ export default {
               if (body[i].type === "ImportDeclaration") importIndices.push(i);
             }
 
-            for (let k = 1; k < importIndices.length; k++) {
-              // Skip if non-import code sits between these two imports
-              if (importIndices[k] - importIndices[k - 1] > 1) continue;
+            // Gather consecutive import declarations into blocks
+            const blocks: Deno.lint.ImportDeclaration[][] = [];
+            let current: Deno.lint.ImportDeclaration[] = [];
 
-              const prev =
-                body[importIndices[k - 1]] as Deno.lint.ImportDeclaration;
-              const curr =
-                body[importIndices[k]] as Deno.lint.ImportDeclaration;
-
-              const prevGroup = getImportGroup(prev.source.value);
-              const currGroup = getImportGroup(curr.source.value);
-
-              const prevEndLine = lineAt(text, prev.range[1]);
-              const currStartLine = lineAt(text, curr.range[0]);
-              const blankLines = currStartLine - prevEndLine - 1;
-
-              if (prevGroup === currGroup) {
-                if (blankLines > 0) {
-                  context.report({
-                    node: curr,
-                    message: "No blank lines within an import group",
-                  });
-                }
-              } else if (
-                prevGroup === "project" && currGroup === "third-party"
-              ) {
-                context.report({
-                  node: curr,
-                  message:
-                    "Third-party imports must come before project imports",
-                });
-              } else if (blankLines !== 1) {
-                context.report({
-                  node: curr,
-                  message:
-                    `Expected one blank line between import groups, found ${blankLines}`,
-                  // TODO: add a fixer that removes all blank in imports, adds one exactly in between the groups
-                });
+            for (let i = 0; i < importIndices.length; i++) {
+              if (i > 0 && importIndices[i] - importIndices[i - 1] > 1) {
+                blocks.push(current);
+                current = [];
               }
+
+              current.push(
+                body[importIndices[i]] as Deno.lint.ImportDeclaration,
+              );
             }
-          },
-        };
-      },
-    },
 
-    /**
-     * Within each import group, imports must be sorted alphabetically by
-     * module specifier (case-insensitive). Provides an auto-fix.
-     */
-    "import-sort": {
-      create(context) {
-        return {
-          Program(node) {
-            const imports = (node.body as Deno.lint.Node[]).filter(
-              isImportDecl,
-            );
+            if (current.length > 0) blocks.push(current);
 
-            if (imports.length <= 1) return;
+            for (const blockImports of blocks) {
+              const { range, text: canonical } = rebuildImports(
+                blockImports,
+                (imp) => sourceCode.getText(imp),
+              );
 
-            let groupStart = 0;
-
-            for (let i = 1; i <= imports.length; i++) {
-              const isEnd = i === imports.length;
-              const isNewGroup = !isEnd &&
-                getImportGroup(imports[i].source.value) !==
-                  getImportGroup(imports[groupStart].source.value);
-
-              if (isEnd || isNewGroup) {
-                const group = imports.slice(groupStart, i);
-
-                for (let j = 1; j < group.length; j++) {
-                  const prevVal = group[j - 1].source.value.toLowerCase();
-                  const currVal = group[j].source.value.toLowerCase();
-
-                  if (currVal < prevVal) {
-                    const sorted = [...group].sort((a, b) =>
-                      a.source.value
-                        .toLowerCase()
-                        .localeCompare(b.source.value.toLowerCase())
-                    );
-
-                    context.report({
-                      node: group[j].source,
-                      message: `Import "${
-                        group[j].source.value
-                      }" should be sorted before "${
-                        group[j - 1].source.value
-                      }"`,
-                      fix(fixer) {
-                        return group.map((imp, idx) =>
-                          fixer.replaceText(
-                            imp,
-                            context.sourceCode.getText(sorted[idx]),
-                          )
-                        );
-                      },
-                    });
-                    break; // One report per group; the fix sorts the whole group
-                  }
-                }
-
-                groupStart = i;
+              if (sourceCode.text.slice(range[0], range[1]) === canonical) {
+                continue;
               }
+
+              context.report({
+                node: blockImports[0],
+                message: [
+                  "Group and sort imports by third party and project, with a single line between, sorted.",
+                  "",
+                  "example:",
+                  "```",
+                  'import clsx from "clsx/lite";',
+                  'import { HttpError, page } from "fresh";',
+                  "",
+                  'import { define } from "#/core.ts";',
+                  'import { resolveMoves } from "#/game/board.ts";',
+                  "```",
+                ].join("\n"),
+                fix(fixer) {
+                  return fixer.replaceTextRange(range, canonical);
+                },
+              });
             }
           },
         };
@@ -165,13 +106,6 @@ export default {
     },
   },
 } satisfies Deno.lint.Plugin;
-
-/**
- * Returns the 1-indexed line number for a character offset within source text.
- */
-function lineAt(text: string, offset: number): number {
-  return text.slice(0, offset).split("\n").length;
-}
 
 function getImportGroup(specifier: string): ImportGroup {
   if (
@@ -185,8 +119,40 @@ function getImportGroup(specifier: string): ImportGroup {
   return "third-party";
 }
 
-function isImportDecl(
-  node: Deno.lint.Node,
-): node is Deno.lint.ImportDeclaration {
-  return node.type === "ImportDeclaration";
+/**
+ * Rebuilds a contiguous block of import declarations into canonical form:
+ * third-party imports first (sorted alphabetically), one blank line,
+ * then project imports (sorted alphabetically).
+ * Returns the range to replace and the replacement text.
+ */
+function rebuildImports(
+  imports: Deno.lint.ImportDeclaration[],
+  getText: (node: Deno.lint.ImportDeclaration) => string,
+) {
+  const range: [number, number] = [
+    imports[0].range[0],
+    imports[imports.length - 1].range[1],
+  ];
+
+  const sortImports = (imports: Deno.lint.ImportDeclaration[]) =>
+    [...imports].sort((a, b) =>
+      a.source.value.toLowerCase().localeCompare(b.source.value.toLowerCase())
+    );
+
+  const thirdPartyImports = sortImports(
+    imports.filter((imp) => getImportGroup(imp.source.value) === "third-party"),
+  );
+  const projectImports = sortImports(
+    imports.filter((imp) => getImportGroup(imp.source.value) === "project"),
+  );
+
+  const importGroups = [thirdPartyImports, projectImports].filter((group) =>
+    group.length > 0
+  );
+
+  const text = importGroups
+    .map((group) => group.map(getText).join("\n"))
+    .join("\n\n");
+
+  return { range, text };
 }
