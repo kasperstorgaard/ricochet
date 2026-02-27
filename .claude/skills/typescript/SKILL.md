@@ -46,6 +46,24 @@ Avoid:
 - **Triple-slash references** — use standard ES imports
 - **`any`** — use `unknown` and narrow, or fix the upstream type
 
+## Import conventions
+
+Three rules enforced by the `ricochet-imports` lint plugin (`plugins/lint-imports.ts`):
+
+1. **Hash alias** — cross-folder project imports must use `#/` (e.g.
+   `#/game/types.ts`). Same-folder imports (`./board.ts`) are the only allowed
+   relative form.
+
+2. **Import groups** — exactly two groups, separated by one blank line:
+   ```ts
+   import ... from "third-party"; // group 1: bare specifiers, npm:, jsr:, etc.
+
+   import ... from "#/project";   // group 2: local modules (#/ and ./)
+   ```
+
+3. **Import sort** — within each group, imports are sorted alphabetically by
+   specifier (case-insensitive). `deno lint --fix` auto-sorts.
+
 ## Comments
 
 - `//` for short inline notes on non-obvious logic
