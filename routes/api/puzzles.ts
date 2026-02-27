@@ -1,9 +1,9 @@
 import { define } from "#/core.ts";
-import { isDev } from "#/lib/env.ts";
-import { updateManifest } from "#/lib/manifest.ts";
+import { formatPuzzle } from "#/game/formatter.ts";
 import { parsePuzzle } from "#/game/parser.ts";
 import { solve } from "#/game/solver.ts";
-import { formatPuzzle } from "#/game/formatter.ts";
+import { isDev } from "#/lib/env.ts";
+import { updateManifest } from "#/lib/manifest.ts";
 
 const PUZZLES_DIR = "./static/puzzles";
 

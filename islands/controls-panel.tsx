@@ -1,10 +1,11 @@
 import type { Signal } from "@preact/signals";
-import { useCallback, useEffect, useMemo } from "preact/hooks";
 import { clsx } from "clsx/lite";
+import { useCallback, useEffect, useMemo } from "preact/hooks";
 
-import { Panel } from "#/components/panel.tsx";
-import { updateLocation } from "#/client/router.ts";
 import { useGameShortcuts } from "#/client/keyboard.ts";
+import { updateLocation } from "#/client/router.ts";
+import { Panel } from "#/components/panel.tsx";
+import { Puzzle } from "#/game/types.ts";
 import {
   decodeState,
   getHintHref,
@@ -12,7 +13,6 @@ import {
   getResetHref,
   getUndoHref,
 } from "#/game/url.ts";
-import { Puzzle } from "#/game/types.ts";
 
 type ControlsPanelProps = {
   puzzle: Signal<Puzzle>;

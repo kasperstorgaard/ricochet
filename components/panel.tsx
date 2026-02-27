@@ -1,6 +1,5 @@
-import { ComponentChildren } from "preact";
-
 import { clsx } from "clsx/lite";
+import { ComponentChildren } from "preact";
 
 type PanelProps = {
   children: ComponentChildren;

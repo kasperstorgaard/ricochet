@@ -1,5 +1,4 @@
 import { pickByDay } from "#/game/date.ts";
-import { sortList } from "#/lib/list.ts";
 import { parsePuzzle } from "#/game/parser.ts";
 import {
   Difficulty,
@@ -8,6 +7,7 @@ import {
   Puzzle,
   PuzzleManifestEntry,
 } from "#/game/types.ts";
+import { sortList } from "#/lib/list.ts";
 
 // Default items per page
 const ITEMS_PER_PAGE = 6;

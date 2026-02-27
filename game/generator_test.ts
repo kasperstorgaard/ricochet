@@ -1,4 +1,5 @@
 import { assertEquals } from "@std/assert";
+
 import { generate } from "./generator.ts";
 
 Deno.test("generate() produces a valid, solvable board", () => {

@@ -1,7 +1,7 @@
 import { slug as slugify } from "@annervisser/slug";
 import type { Signal } from "@preact/signals";
-import { useRef } from "preact/hooks";
 import clsx from "clsx/lite";
+import { useRef } from "preact/hooks";
 
 import type { Puzzle } from "#/game/types.ts";
 

@@ -6,12 +6,12 @@ import { Main } from "#/components/main.tsx";
 import { define } from "#/core.ts";
 import { getPuzzleSolution, listPuzzleSolutions } from "#/db/kv.ts";
 import { Solution } from "#/db/types.ts";
-import Board from "#/islands/board.tsx";
-import { DifficultyBadge } from "#/islands/difficulty-badge.tsx";
-import { SolutionsPanel } from "#/islands/solutions-panel.tsx";
 import { getPuzzle } from "#/game/loader.ts";
 import { Puzzle } from "#/game/types.ts";
 import { encodeState } from "#/game/url.ts";
+import Board from "#/islands/board.tsx";
+import { DifficultyBadge } from "#/islands/difficulty-badge.tsx";
+import { SolutionsPanel } from "#/islands/solutions-panel.tsx";
 
 type Data = {
   puzzle: Puzzle;
@@ -61,12 +61,10 @@ export const handler = define.handlers<Data>({
 });
 
 export default define.page<typeof handler>(function SolutionPage(props) {
-  const slug = props.params.slug;
   const puzzle = useSignal(props.data.puzzle);
   const href = useSignal(props.url.href);
   const mode = useSignal<"replay">("replay");
   const showMinMoves = props.state.featureFlags.minMoves ?? false;
-  const isPreview = slug === "preview";
 
   const url = new URL(props.req.url);
 
@@ -109,7 +107,6 @@ export default define.page<typeof handler>(function SolutionPage(props) {
           puzzle={puzzle}
           href={href}
           mode={mode}
-          isPreview={isPreview}
         />
       </Main>
 

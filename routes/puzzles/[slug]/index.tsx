@@ -7,16 +7,16 @@ import { Main } from "#/components/main.tsx";
 import { PrintPanel } from "#/components/print-panel.tsx";
 import { define } from "#/core.ts";
 import { addSolution } from "#/db/kv.ts";
+import { isValidSolution, resolveMoves } from "#/game/board.ts";
+import { getHintCount, getStoredPuzzle } from "#/game/cookies.ts";
+import { getPuzzle } from "#/game/loader.ts";
+import { Move, Puzzle } from "#/game/types.ts";
 import Board from "#/islands/board.tsx";
 import { ControlsPanel } from "#/islands/controls-panel.tsx";
 import { DifficultyBadge } from "#/islands/difficulty-badge.tsx";
 import { SolutionDialog } from "#/islands/solution-dialog.tsx";
 import { isDev } from "#/lib/env.ts";
 import { posthog } from "#/lib/posthog.ts";
-import { isValidSolution, resolveMoves } from "#/game/board.ts";
-import { getHintCount, getStoredPuzzle } from "#/game/cookies.ts";
-import { getPuzzle } from "#/game/loader.ts";
-import { Move, Puzzle } from "#/game/types.ts";
 
 type PageData = { puzzle: Puzzle; hintCount: number };
 

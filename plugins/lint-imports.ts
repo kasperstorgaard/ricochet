@@ -1,28 +1,5 @@
 type ImportGroup = "third-party" | "project";
 
-/** Returns the 1-indexed line number for a character offset within source text. */
-function lineAt(text: string, offset: number): number {
-  return text.slice(0, offset).split("\n").length;
-}
-
-function getImportGroup(specifier: string): ImportGroup {
-  if (
-    specifier.startsWith("#/") ||
-    specifier.startsWith("./") ||
-    specifier.startsWith("../") ||
-    specifier.startsWith("/")
-  ) {
-    return "project";
-  }
-  return "third-party";
-}
-
-function isImportDecl(
-  node: Deno.lint.Node,
-): node is Deno.lint.ImportDeclaration {
-  return node.type === "ImportDeclaration";
-}
-
 export default {
   name: "ricochet-imports",
   rules: {
@@ -76,8 +53,10 @@ export default {
               // Skip if non-import code sits between these two imports
               if (importIndices[k] - importIndices[k - 1] > 1) continue;
 
-              const prev = body[importIndices[k - 1]] as Deno.lint.ImportDeclaration;
-              const curr = body[importIndices[k]] as Deno.lint.ImportDeclaration;
+              const prev =
+                body[importIndices[k - 1]] as Deno.lint.ImportDeclaration;
+              const curr =
+                body[importIndices[k]] as Deno.lint.ImportDeclaration;
 
               const prevGroup = getImportGroup(prev.source.value);
               const currGroup = getImportGroup(curr.source.value);
@@ -93,10 +72,13 @@ export default {
                     message: "No blank lines within an import group",
                   });
                 }
-              } else if (prevGroup === "project" && currGroup === "third-party") {
+              } else if (
+                prevGroup === "project" && currGroup === "third-party"
+              ) {
                 context.report({
                   node: curr,
-                  message: "Third-party imports must come before project imports",
+                  message:
+                    "Third-party imports must come before project imports",
                 });
               } else if (blankLines !== 1) {
                 context.report({
@@ -119,7 +101,9 @@ export default {
       create(context) {
         return {
           Program(node) {
-            const imports = (node.body as Deno.lint.Node[]).filter(isImportDecl);
+            const imports = (node.body as Deno.lint.Node[]).filter(
+              isImportDecl,
+            );
 
             if (imports.length <= 1) return;
 
@@ -127,8 +111,7 @@ export default {
 
             for (let i = 1; i <= imports.length; i++) {
               const isEnd = i === imports.length;
-              const isNewGroup =
-                !isEnd &&
+              const isNewGroup = !isEnd &&
                 getImportGroup(imports[i].source.value) !==
                   getImportGroup(imports[groupStart].source.value);
 
@@ -148,8 +131,11 @@ export default {
 
                     context.report({
                       node: group[j].source,
-                      message:
-                        `Import "${group[j].source.value}" should be sorted before "${group[j - 1].source.value}"`,
+                      message: `Import "${
+                        group[j].source.value
+                      }" should be sorted before "${
+                        group[j - 1].source.value
+                      }"`,
                       fix(fixer) {
                         return group.map((imp, idx) =>
                           fixer.replaceText(
@@ -172,3 +158,26 @@ export default {
     },
   },
 } satisfies Deno.lint.Plugin;
+
+/** Returns the 1-indexed line number for a character offset within source text. */
+function lineAt(text: string, offset: number): number {
+  return text.slice(0, offset).split("\n").length;
+}
+
+function getImportGroup(specifier: string): ImportGroup {
+  if (
+    specifier.startsWith("#/") ||
+    specifier.startsWith("./") ||
+    specifier.startsWith("../") ||
+    specifier.startsWith("/")
+  ) {
+    return "project";
+  }
+  return "third-party";
+}
+
+function isImportDecl(
+  node: Deno.lint.Node,
+): node is Deno.lint.ImportDeclaration {
+  return node.type === "ImportDeclaration";
+}

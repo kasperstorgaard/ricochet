@@ -1,10 +1,10 @@
 import type { Signal } from "@preact/signals";
+import { clsx } from "clsx/lite";
 import { useCallback, useMemo } from "preact/hooks";
 
 import { Panel } from "#/components/panel.tsx";
 import type { Solution } from "#/db/types.ts";
-import { clsx } from "clsx/lite";
-import { Puzzle } from "../util/types.ts";
+import { Puzzle } from "#/game/types.ts";
 
 type SolutionsPanelProps = {
   href: Signal<string>;

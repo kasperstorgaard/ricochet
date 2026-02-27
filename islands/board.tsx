@@ -1,10 +1,9 @@
 import type { Signal } from "@preact/signals";
+import { clsx } from "clsx/lite";
 import { useCallback, useMemo, useRef } from "preact/hooks";
 
 import { useMoves } from "#/client/moves.ts";
-import { buildReplayKeyframes, type KeyframeStop } from "#/lib/replay.ts";
 import { useRouter } from "#/client/router.ts";
-import { clsx } from "clsx/lite";
 import { calculateMoveSpeed } from "#/client/touch.ts";
 import {
   getGrid,
@@ -27,6 +26,7 @@ import {
   getMovesHref,
   getReplaySpeed,
 } from "#/game/url.ts";
+import { buildReplayKeyframes, type KeyframeStop } from "#/lib/replay.ts";
 
 type BoardProps = {
   href: Signal<string>;

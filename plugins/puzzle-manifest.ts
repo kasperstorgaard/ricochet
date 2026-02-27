@@ -1,3 +1,8 @@
+// deno-lint-ignore-file ricochet-imports/use-hash-alias
+/**
+ * Plugin declaration to build manifest when building / developing
+ * _note: must use relative imports, as that is a Deno requirement_
+ */
 import { Plugin } from "vite";
 
 import { updateManifest } from "../lib/manifest.ts";

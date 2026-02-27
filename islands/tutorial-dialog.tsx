@@ -1,10 +1,10 @@
 import type { Signal } from "@preact/signals";
+import { clsx } from "clsx/lite";
 import { useEffect, useMemo } from "preact/hooks";
 
 import type { Solution } from "#/db/types.ts";
-import { clsx } from "clsx/lite";
-import { Dialog } from "#/islands/dialog.tsx";
 import { getReplaySpeed } from "#/game/url.ts";
+import { Dialog } from "#/islands/dialog.tsx";
 
 type Props = {
   href: Signal<string>;

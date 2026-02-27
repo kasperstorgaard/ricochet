@@ -1,6 +1,6 @@
 import type { Signal } from "@preact/signals";
-import { useEffect, useRef, useState } from "preact/hooks";
 import { clsx } from "clsx/lite";
+import { useEffect, useRef, useState } from "preact/hooks";
 
 import { useDebouncedCallback } from "#/client/use-debounced-callback.ts";
 import { validateBoard } from "#/game/board.ts";

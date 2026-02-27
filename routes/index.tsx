@@ -2,13 +2,13 @@ import clsx from "clsx/lite";
 import { page } from "fresh";
 
 import { Header } from "#/components/header.tsx";
-import { define } from "#/core.ts";
-import { getSkipTutorialCookie } from "#/game/cookies.ts";
 import { Main } from "#/components/main.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { Thumbnail } from "#/components/thumbnail.tsx";
-import { Puzzle } from "#/game/types.ts";
+import { define } from "#/core.ts";
+import { getSkipTutorialCookie } from "#/game/cookies.ts";
 import { getPuzzleOfTheDay, getRandomPuzzle } from "#/game/loader.ts";
+import { Puzzle } from "#/game/types.ts";
 
 type PageData = {
   dailyPuzzle: Puzzle;

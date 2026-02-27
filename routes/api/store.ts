@@ -1,7 +1,7 @@
 import { define } from "#/core.ts";
-import { Puzzle } from "#/game/types.ts";
 import { setStoredPuzzleCookie } from "#/game/cookies.ts";
 import { parsePuzzle } from "#/game/parser.ts";
+import { Puzzle } from "#/game/types.ts";
 
 type Payload = {
   // markdown content to store

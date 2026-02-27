@@ -1,6 +1,5 @@
-import { HTMLAttributes } from "preact";
-
 import { clsx } from "clsx/lite";
+import { HTMLAttributes } from "preact";
 
 type SelectProps = HTMLAttributes<HTMLSelectElement> & {
   label: string;

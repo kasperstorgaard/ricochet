@@ -5,14 +5,14 @@ import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
 import { define } from "#/core.ts";
 import { Solution } from "#/db/types.ts";
-import Board from "#/islands/board.tsx";
-import { ControlsPanel } from "#/islands/controls-panel.tsx";
-import { TutorialDialog } from "#/islands/tutorial-dialog.tsx";
-import { isDev } from "#/lib/env.ts";
 import { setSkipTutorialCookie } from "#/game/cookies.ts";
 import { getPuzzle } from "#/game/loader.ts";
 import { Puzzle } from "#/game/types.ts";
 import { decodeState } from "#/game/url.ts";
+import Board from "#/islands/board.tsx";
+import { ControlsPanel } from "#/islands/controls-panel.tsx";
+import { TutorialDialog } from "#/islands/tutorial-dialog.tsx";
+import { isDev } from "#/lib/env.ts";
 
 type Data = {
   puzzle: Puzzle;

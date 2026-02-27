@@ -1,7 +1,6 @@
+import { clsx } from "clsx/lite";
 import type { DialogHTMLAttributes } from "preact";
 import { useLayoutEffect, useRef } from "preact/hooks";
-
-import { clsx } from "clsx/lite";
 
 type Props = DialogHTMLAttributes<HTMLDialogElement>;
 

@@ -1,7 +1,8 @@
 import { getCookies, setCookie } from "@std/http/cookie";
-import type { Puzzle } from "./types.ts";
+
 import { formatPuzzle } from "./formatter.ts";
 import { parsePuzzle } from "./parser.ts";
+import type { Puzzle } from "./types.ts";
 
 const SKIP_TUTORIAL_KEY = "skip_tutorial";
 const TRACKING_ID_KEY = "tracking_id";

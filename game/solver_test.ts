@@ -1,4 +1,7 @@
 import { assertEquals, assertThrows } from "@std/assert";
+
+import type { Board, Puzzle } from "#/game/types.ts";
+import { isValidSolution, resolveMoves } from "./board.ts";
 import {
   getHint,
   solve,
@@ -6,8 +9,6 @@ import {
   SolverLimitExceededError,
 } from "./solver.ts";
 import { encodeMoves } from "./strings.ts";
-import type { Board, Puzzle } from "#/game/types.ts";
-import { isValidSolution, resolveMoves } from "./board.ts";
 
 Deno.test("solve() finds 1-move solution (rook slides to destination)", () => {
   // Rook at A1 (0,0) slides right to H1 (7,0) where destination is

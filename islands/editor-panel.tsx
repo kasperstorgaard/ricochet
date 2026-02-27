@@ -1,11 +1,11 @@
 import type { Signal } from "@preact/signals";
-import { useCallback, useMemo, useState } from "preact/hooks";
 import { clsx } from "clsx/lite";
+import { useCallback, useMemo, useState } from "preact/hooks";
 
+import { useRouter } from "#/client/router.ts";
 import { NumberRange } from "#/components/number-range.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { Select } from "#/components/select.tsx";
-import { useRouter } from "#/client/router.ts";
 import { flipBoard, resolveMoves, rotateBoard } from "#/game/board.ts";
 import { formatPuzzle } from "#/game/formatter.ts";
 import type { GenerateOptions } from "#/game/generator.ts";

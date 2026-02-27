@@ -1,6 +1,6 @@
+import { clsx } from "clsx/lite";
 import { HTMLAttributes } from "preact";
 
-import { clsx } from "clsx/lite";
 import type { Board, Difficulty, Piece, Wall } from "#/game/types.ts";
 
 export type ThumbnailProps = HTMLAttributes<SVGSVGElement> & {

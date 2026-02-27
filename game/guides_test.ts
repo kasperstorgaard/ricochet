@@ -1,4 +1,5 @@
 import { assertEquals } from "@std/assert/equals";
+
 import { getGuides } from "./guides.ts";
 
 Deno.test("getGuides() should return a guide for each available direction", () => {

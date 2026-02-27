@@ -1,9 +1,10 @@
 import type { Signal } from "@preact/signals";
+import clsx from "clsx/lite";
 import { useMemo } from "preact/hooks";
+
 import { useEditor } from "#/client/editor.ts";
 import type { Puzzle } from "#/game/types.ts";
 import { decodeState } from "#/game/url.ts";
-import clsx from "clsx/lite";
 
 type EditorToolbarProps = {
   href: Signal<string>;
