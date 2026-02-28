@@ -80,9 +80,9 @@ export function EditorToolbar({ href, puzzle, className }: EditorToolbarProps) {
       <button
         type="button"
         className="flex items-center justify-center bg-transparent  border-2 border-link rounded-2"
-        aria-label="Bouncer"
+        aria-label="Blocker"
         disabled={disabled}
-        onClick={() => togglePieceType("bouncer")}
+        onClick={() => togglePieceType("blocker")}
       >
         <div className="size-4 bg-ui-3 rounded-1" />
       </button>
@@ -90,9 +90,9 @@ export function EditorToolbar({ href, puzzle, className }: EditorToolbarProps) {
       <button
         type="button"
         className="flex items-center justify-center bg-transparent  border-2 border-link rounded-2"
-        aria-label="Rook"
+        aria-label="Puck"
         disabled={disabled}
-        onClick={() => togglePieceType("rook")}
+        onClick={() => togglePieceType("puck")}
       >
         <div className="size-4 bg-ui-2 rounded-round" />
       </button>

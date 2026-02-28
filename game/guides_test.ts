@@ -4,7 +4,7 @@ import { getGuides } from "./guides.ts";
 
 Deno.test("getGuides() should return a guide for each available direction", () => {
   const result = getGuides(
-    { pieces: [{ x: 3, y: 3, type: "rook" }], walls: [] },
+    { pieces: [{ x: 3, y: 3, type: "puck" }], walls: [] },
     { active: { x: 3, y: 3 } },
   );
 
@@ -20,8 +20,8 @@ Deno.test("getGuides() should respect walls and pieces", () => {
   const result = getGuides(
     {
       pieces: [
-        { x: 3, y: 3, type: "rook" },
-        { x: 3, y: 1, type: "bouncer" },
+        { x: 3, y: 3, type: "puck" },
+        { x: 3, y: 1, type: "blocker" },
       ],
       walls: [{ x: 5, y: 3, orientation: "vertical" }],
     },
@@ -47,7 +47,7 @@ Deno.test("getGuides() should return empty for position without a piece", () => 
 
 Deno.test("getGuides() hint should replace matching direction in place", () => {
   const result = getGuides(
-    { pieces: [{ x: 3, y: 3, type: "rook" }], walls: [] },
+    { pieces: [{ x: 3, y: 3, type: "puck" }], walls: [] },
     { active: { x: 3, y: 3 }, hint: [{ x: 3, y: 3 }, { x: 3, y: 0 }] },
   );
 

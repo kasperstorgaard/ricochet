@@ -1,9 +1,9 @@
-# Ricochet
+# Skub
 
 A sliding-piece puzzle game inspired by
 [Ricochet Robots](https://en.wikipedia.org/wiki/Ricochet_Robots).
 
-Guide the rook to its destination - but pieces continue until they hit
+Guide the puck to its destination - but pieces continue until they hit
 something.
 
 **[Play it now](https://ricochet.kasperstorgaard.deno.net/)**
@@ -98,7 +98,7 @@ createdAt: 2025-06-15T00:00:00.000Z
 +-----------------+
 ```
 
-Symbols: `@` = rook (player piece), `X` = destination, `#` = bouncer,
+Symbols: `@` = puck (player piece), `X` = destination, `#` = blocker,
 `|` = vertical wall, `_` = horizontal wall.
 
 The easiest way to create a puzzle is via the in-app editor at `/puzzles/new`.

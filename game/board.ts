@@ -115,8 +115,8 @@ export function validateBoard(board: BoardLike): Board {
     checkedPieces.push(piece);
   }
 
-  const rook = pieces.find((piece) => piece?.type === "rook");
-  if (!rook) throw new BoardError("Board has no rook");
+  const puck = pieces.find((piece) => piece?.type === "puck");
+  if (!puck) throw new BoardError("Board has no puck");
 
   const checkedWalls: Wall[] = [];
 
@@ -312,7 +312,7 @@ export function resolveMoves<
  */
 export function isValidSolution(board: Pick<Board, "destination" | "pieces">) {
   for (const piece of board.pieces) {
-    if (piece.type === "bouncer") continue;
+    if (piece.type === "blocker") continue;
 
     if (isPositionSame(piece, board.destination)) return true;
   }

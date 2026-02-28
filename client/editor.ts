@@ -65,7 +65,7 @@ export function useEditor(
   );
 
   const togglePieceType = useCallback(
-    (type: "rook" | "bouncer" | null) => {
+    (type: "puck" | "blocker" | null) => {
       if (!active) return;
 
       // find existing match of same position and type
@@ -123,9 +123,9 @@ export function useEditor(
     const activePiece = pieces.find((piece) => isPositionSame(piece, active));
 
     if (!activePiece) {
-      togglePieceType("bouncer");
-    } else if (activePiece.type === "bouncer") {
-      togglePieceType("rook");
+      togglePieceType("blocker");
+    } else if (activePiece.type === "blocker") {
+      togglePieceType("puck");
     } else {
       togglePieceType(null);
     }

@@ -164,7 +164,7 @@ Deno.test("getTargets() should return {} for an empty space", () => {
 Deno.test("getTargets() should get 4 positions for a center source", () => {
   const targets = getTargets({ x: 3, y: 5 }, {
     walls: [],
-    pieces: [{ type: "rook", x: 3, y: 5 }],
+    pieces: [{ type: "puck", x: 3, y: 5 }],
   });
 
   assertEquals(
@@ -181,7 +181,7 @@ Deno.test("getTargets() should get 4 positions for a center source", () => {
 Deno.test("getTargets() should ignore itself", () => {
   const targets = getTargets({ x: 3, y: 5 }, {
     walls: [],
-    pieces: [{ x: 3, y: 5, type: "rook" }],
+    pieces: [{ x: 3, y: 5, type: "puck" }],
   });
 
   assertEquals(
@@ -200,7 +200,7 @@ Deno.test("getTargets() walls should end targets", () => {
     walls: [
       { x: 6, y: 4, orientation: "horizontal" },
     ],
-    pieces: [{ x: 6, y: 6, type: "rook" }],
+    pieces: [{ x: 6, y: 6, type: "puck" }],
   });
 
   assertEquals(
@@ -222,7 +222,7 @@ Deno.test("getTargets() should respect multiple walls", () => {
       { x: 5, y: 4, orientation: "vertical" },
       { x: 3, y: 4, orientation: "vertical" },
     ],
-    pieces: [{ x: 3, y: 4, type: "rook" }],
+    pieces: [{ x: 3, y: 4, type: "puck" }],
   });
 
   assertEquals(targets, {
@@ -237,7 +237,7 @@ Deno.test("getTargets() should use the closest wall to src", () => {
       { x: 2, y: 4, orientation: "horizontal" },
       { x: 2, y: 6, orientation: "horizontal" },
     ],
-    pieces: [{ x: 2, y: 7, type: "rook" }],
+    pieces: [{ x: 2, y: 7, type: "puck" }],
   });
 
   assertEquals(
@@ -260,7 +260,7 @@ Deno.test("getTargets() is not affected by not non-aligned walls", () => {
       { x: 1, y: 3, orientation: "vertical" },
       { x: 2, y: 6, orientation: "vertical" },
     ],
-    pieces: [{ x: 4, y: 5, type: "rook" }],
+    pieces: [{ x: 4, y: 5, type: "puck" }],
   });
 
   assertEquals(
@@ -278,8 +278,8 @@ Deno.test("getTargets() pieces should end targets", () => {
   const targets = getTargets({ x: 6, y: 6 }, {
     walls: [],
     pieces: [
-      { x: 6, y: 4, type: "rook" },
-      { x: 6, y: 6, type: "bouncer" },
+      { x: 6, y: 4, type: "puck" },
+      { x: 6, y: 6, type: "blocker" },
     ],
   });
 
@@ -298,12 +298,12 @@ Deno.test("getTargets() is not affected by non-aligned pieces", () => {
   const targets = getTargets({ x: 6, y: 6 }, {
     walls: [],
     pieces: [
-      { x: 6, y: 6, type: "rook" },
-      { x: 5, y: 4, type: "bouncer" },
-      { x: 1, y: 3, type: "bouncer" },
-      { x: 5, y: 2, type: "bouncer" },
-      { x: 1, y: 3, type: "bouncer" },
-      { x: 2, y: 4, type: "bouncer" },
+      { x: 6, y: 6, type: "puck" },
+      { x: 5, y: 4, type: "blocker" },
+      { x: 1, y: 3, type: "blocker" },
+      { x: 5, y: 2, type: "blocker" },
+      { x: 1, y: 3, type: "blocker" },
+      { x: 2, y: 4, type: "blocker" },
     ],
   });
 
@@ -326,10 +326,10 @@ Deno.test("getTargets() should respect both pieces and walls", () => {
       { x: 6, y: 6, orientation: "vertical" },
     ],
     pieces: [
-      { x: 3, y: 6, type: "rook" },
-      { x: 3, y: 4, type: "bouncer" },
-      { x: 3, y: 2, type: "bouncer" },
-      { x: 0, y: 6, type: "bouncer" },
+      { x: 3, y: 6, type: "puck" },
+      { x: 3, y: 4, type: "blocker" },
+      { x: 3, y: 2, type: "blocker" },
+      { x: 0, y: 6, type: "blocker" },
     ],
   });
 
@@ -343,7 +343,7 @@ Deno.test("getTargets() should respect both pieces and walls", () => {
 Deno.test("getTargets() should not overlap with pieces a)", () => {
   const targets = getTargets({ x: 3, y: 4 }, {
     pieces: [
-      { x: 3, y: 4, type: "rook" },
+      { x: 3, y: 4, type: "puck" },
     ],
     walls: [
       { x: 3, y: 4, orientation: "vertical" },
@@ -363,8 +363,8 @@ Deno.test("getTargets() should not overlap with pieces a)", () => {
 Deno.test("getTargets() should not overlap with pieces b)", () => {
   const targets = getTargets({ x: 6, y: 7 }, {
     pieces: [
-      { x: 6, y: 7, type: "rook" },
-      { x: 7, y: 7, type: "bouncer" },
+      { x: 6, y: 7, type: "puck" },
+      { x: 7, y: 7, type: "blocker" },
     ],
     walls: [],
   });
@@ -412,7 +412,7 @@ Deno.test("validateBoard() should throw with no rooks", () => {
   assertThrows(() => {
     validateBoard({
       destination: { x: 0, y: 3 },
-      pieces: [{ x: 4, y: 1, type: "bouncer" }],
+      pieces: [{ x: 4, y: 1, type: "blocker" }],
       walls: [{ x: 1, y: 2, orientation: "horizontal" }],
     });
   }, BoardError);
@@ -422,7 +422,7 @@ Deno.test("validateBoard() should throw with destination out of bounds", () => {
   assertThrows(() => {
     validateBoard({
       destination: { x: 0, y: 8 },
-      pieces: [{ x: 4, y: 1, type: "rook" }],
+      pieces: [{ x: 4, y: 1, type: "puck" }],
       walls: [{ x: 1, y: 2, orientation: "horizontal" }],
     });
   }, BoardError);
@@ -432,7 +432,7 @@ Deno.test("validateBoard() should throw with piece out of bounds", () => {
   assertThrows(() => {
     validateBoard({
       destination: { x: 0, y: 3 },
-      pieces: [{ x: 12, y: 1, type: "rook" }],
+      pieces: [{ x: 12, y: 1, type: "puck" }],
       walls: [{ x: 1, y: 2, orientation: "horizontal" }],
     });
   }, BoardError);
@@ -442,7 +442,7 @@ Deno.test("validateBoard() should throw with wall out of bounds", () => {
   assertThrows(() => {
     validateBoard({
       destination: { x: 0, y: 3 },
-      pieces: [{ x: 0, y: 1, type: "rook" }],
+      pieces: [{ x: 0, y: 1, type: "puck" }],
       walls: [{ x: 1, y: 90, orientation: "horizontal" }],
     });
   }, BoardError);
@@ -452,7 +452,7 @@ Deno.test("validateBoard() should throw with redundant edge wall (horizontal y=0
   assertThrows(() => {
     validateBoard({
       destination: { x: 0, y: 3 },
-      pieces: [{ x: 0, y: 1, type: "rook" }],
+      pieces: [{ x: 0, y: 1, type: "puck" }],
       walls: [{ x: 3, y: 0, orientation: "horizontal" }],
     });
   }, BoardError);
@@ -462,7 +462,7 @@ Deno.test("validateBoard() should throw with redundant edge wall (vertical x=0)"
   assertThrows(() => {
     validateBoard({
       destination: { x: 0, y: 3 },
-      pieces: [{ x: 0, y: 1, type: "rook" }],
+      pieces: [{ x: 0, y: 1, type: "puck" }],
       walls: [{ x: 0, y: 3, orientation: "vertical" }],
     });
   }, BoardError);
@@ -472,7 +472,7 @@ Deno.test("validateBoard() should throw with identical pieces", () => {
   assertThrows(() => {
     validateBoard({
       destination: { x: 0, y: 3 },
-      pieces: [{ x: 4, y: 1, type: "rook" }, { x: 4, y: 1, type: "rook" }],
+      pieces: [{ x: 4, y: 1, type: "puck" }, { x: 4, y: 1, type: "puck" }],
       walls: [{ x: 1, y: 2, orientation: "horizontal" }],
     });
   }, BoardError);
@@ -482,7 +482,7 @@ Deno.test("validateBoard() should throw with identical piece positions", () => {
   assertThrows(() => {
     validateBoard({
       destination: { x: 0, y: 3 },
-      pieces: [{ x: 4, y: 1, type: "bouncer" }, { x: 4, y: 1, type: "rook" }],
+      pieces: [{ x: 4, y: 1, type: "blocker" }, { x: 4, y: 1, type: "puck" }],
       walls: [{ x: 1, y: 2, orientation: "horizontal" }],
     });
   }, BoardError);
@@ -492,7 +492,7 @@ Deno.test("validateBoard() should throw with identical walls", () => {
   assertThrows(() => {
     validateBoard({
       destination: { x: 0, y: 3 },
-      pieces: [{ x: 4, y: 1, type: "rook" }],
+      pieces: [{ x: 4, y: 1, type: "puck" }],
       walls: [
         { x: 1, y: 2, orientation: "horizontal" },
         { x: 1, y: 2, orientation: "horizontal" },
@@ -504,13 +504,13 @@ Deno.test("validateBoard() should throw with identical walls", () => {
 Deno.test("validateBoard() should return board for valid simple board", () => {
   const result = validateBoard({
     destination: { x: 0, y: 3 },
-    pieces: [{ x: 4, y: 1, type: "rook" }],
+    pieces: [{ x: 4, y: 1, type: "puck" }],
     walls: [{ x: 1, y: 2, orientation: "horizontal" }],
   });
 
   assertEquals(result, {
     destination: { x: 0, y: 3 },
-    pieces: [{ x: 4, y: 1, type: "rook" }],
+    pieces: [{ x: 4, y: 1, type: "puck" }],
     walls: [{ x: 1, y: 2, orientation: "horizontal" }],
   });
 });
@@ -519,12 +519,12 @@ Deno.test("validateBoard() should return board for valid complex board", () => {
   const result = validateBoard({
     destination: { x: 2, y: 3 },
     pieces: [
-      { x: 4, y: 1, type: "rook" },
-      { x: 2, y: 1, type: "bouncer" },
-      { x: 3, y: 2, type: "bouncer" },
-      { x: 2, y: 5, type: "bouncer" },
-      { x: 3, y: 6, type: "bouncer" },
-      { x: 4, y: 4, type: "bouncer" },
+      { x: 4, y: 1, type: "puck" },
+      { x: 2, y: 1, type: "blocker" },
+      { x: 3, y: 2, type: "blocker" },
+      { x: 2, y: 5, type: "blocker" },
+      { x: 3, y: 6, type: "blocker" },
+      { x: 4, y: 4, type: "blocker" },
     ],
     walls: [
       { x: 1, y: 2, orientation: "horizontal" },
@@ -539,12 +539,12 @@ Deno.test("validateBoard() should return board for valid complex board", () => {
   assertEquals(result, {
     destination: { x: 2, y: 3 },
     pieces: [
-      { x: 4, y: 1, type: "rook" },
-      { x: 2, y: 1, type: "bouncer" },
-      { x: 3, y: 2, type: "bouncer" },
-      { x: 2, y: 5, type: "bouncer" },
-      { x: 3, y: 6, type: "bouncer" },
-      { x: 4, y: 4, type: "bouncer" },
+      { x: 4, y: 1, type: "puck" },
+      { x: 2, y: 1, type: "blocker" },
+      { x: 3, y: 2, type: "blocker" },
+      { x: 2, y: 5, type: "blocker" },
+      { x: 3, y: 6, type: "blocker" },
+      { x: 4, y: 4, type: "blocker" },
     ],
     walls: [
       { x: 1, y: 2, orientation: "horizontal" },
@@ -563,7 +563,7 @@ Deno.test("isValidMove() should return false for move not matching a piece", () 
     { x: 6, y: 3 },
   ], {
     pieces: [
-      { x: 4, y: 1, type: "rook" },
+      { x: 4, y: 1, type: "puck" },
     ],
     walls: [],
   });
@@ -577,7 +577,7 @@ Deno.test("isValidMove() should return false for diagonal move", () => {
     { x: 6, y: 3 },
   ], {
     pieces: [
-      { x: 4, y: 1, type: "rook" },
+      { x: 4, y: 1, type: "puck" },
     ],
     walls: [],
   });
@@ -590,7 +590,7 @@ Deno.test("isValidMove() should return false for blocked move", () => {
     { x: 4, y: 1 },
     { x: 6, y: 1 },
   ], {
-    pieces: [{ x: 4, y: 1, type: "rook" }],
+    pieces: [{ x: 4, y: 1, type: "puck" }],
     walls: [{ x: 5, y: 1, orientation: "vertical" }],
   });
 
@@ -599,24 +599,24 @@ Deno.test("isValidMove() should return false for blocked move", () => {
 
 Deno.test("resolveMoves() should return the intial board with an empty list", () => {
   const result = resolveMoves({
-    pieces: [{ x: 4, y: 1, type: "rook" }],
+    pieces: [{ x: 4, y: 1, type: "puck" }],
     walls: [{ x: 5, y: 1, orientation: "vertical" }],
   }, []);
 
   assertEquals(result, {
-    pieces: [{ x: 4, y: 1, type: "rook" }],
+    pieces: [{ x: 4, y: 1, type: "puck" }],
     walls: [{ x: 5, y: 1, orientation: "vertical" }],
   });
 });
 
 Deno.test("resolveMoves() should return updated board state when passed a single move", () => {
   const result = resolveMoves({
-    pieces: [{ x: 4, y: 1, type: "rook" }],
+    pieces: [{ x: 4, y: 1, type: "puck" }],
     walls: [{ x: 5, y: 1, orientation: "vertical" }],
   }, [[{ x: 4, y: 1 }, { x: 4, y: 7 }]]);
 
   assertEquals(result, {
-    pieces: [{ x: 4, y: 7, type: "rook" }],
+    pieces: [{ x: 4, y: 7, type: "puck" }],
     walls: [{ x: 5, y: 1, orientation: "vertical" }],
   });
 });
@@ -624,7 +624,7 @@ Deno.test("resolveMoves() should return updated board state when passed a single
 Deno.test("resolveMoves() should throw if passed an illegal move (a)", () => {
   assertThrows(() =>
     resolveMoves({
-      pieces: [{ x: 4, y: 1, type: "rook" }],
+      pieces: [{ x: 4, y: 1, type: "puck" }],
       walls: [{ x: 4, y: 4, orientation: "horizontal" }],
     }, [[{ x: 4, y: 1 }, { x: 4, y: 7 }]])
   );
@@ -633,7 +633,7 @@ Deno.test("resolveMoves() should throw if passed an illegal move (a)", () => {
 Deno.test("resolveMoves() should throw if passed an illegal move (b)", () => {
   assertThrows(() =>
     resolveMoves({
-      pieces: [{ x: 4, y: 1, type: "rook" }],
+      pieces: [{ x: 4, y: 1, type: "puck" }],
       walls: [],
     }, [
       [{ x: 4, y: 1 }, { x: 4, y: 7 }],
@@ -645,8 +645,8 @@ Deno.test("resolveMoves() should throw if passed an illegal move (b)", () => {
 Deno.test("resolveMoves() should return updated board state when passed a list of moves", () => {
   const result = resolveMoves({
     pieces: [
-      { x: 4, y: 1, type: "rook" },
-      { x: 6, y: 6, type: "bouncer" },
+      { x: 4, y: 1, type: "puck" },
+      { x: 6, y: 6, type: "blocker" },
     ],
     walls: [{ x: 5, y: 4, orientation: "horizontal" }],
   }, [
@@ -658,8 +658,8 @@ Deno.test("resolveMoves() should return updated board state when passed a list o
 
   assertEquals(result, {
     pieces: [
-      { x: 5, y: 3, type: "rook" },
-      { x: 6, y: 0, type: "bouncer" },
+      { x: 5, y: 3, type: "puck" },
+      { x: 6, y: 0, type: "blocker" },
     ],
     walls: [{ x: 5, y: 4, orientation: "horizontal" }],
   });
@@ -669,18 +669,18 @@ Deno.test("isValidSolution() should return false for non matching position", () 
   const result = isValidSolution(
     {
       destination: { x: 0, y: 2 },
-      pieces: [{ x: 4, y: 1, type: "rook" }],
+      pieces: [{ x: 4, y: 1, type: "puck" }],
     },
   );
 
   assertEquals(result, false);
 });
 
-Deno.test("isValidSolution() should return false for bouncer", () => {
+Deno.test("isValidSolution() should return false for blocker", () => {
   const result = isValidSolution(
     {
       destination: { x: 0, y: 2 },
-      pieces: [{ type: "bouncer", x: 0, y: 2 }],
+      pieces: [{ type: "blocker", x: 0, y: 2 }],
     },
   );
 
@@ -691,7 +691,7 @@ Deno.test("isValidSolution() should return true for winning position", () => {
   const result = isValidSolution(
     {
       destination: { x: 0, y: 2 },
-      pieces: [{ type: "rook", x: 0, y: 2 }],
+      pieces: [{ type: "puck", x: 0, y: 2 }],
     },
   );
 
@@ -702,23 +702,23 @@ Deno.test("rotateBoard() right should rotate positions 90° clockwise", () => {
   const result = rotateBoard({
     destination: { x: 1, y: 2 },
     pieces: [
-      { x: 3, y: 5, type: "rook" },
-      { x: 6, y: 1, type: "bouncer" },
+      { x: 3, y: 5, type: "puck" },
+      { x: 6, y: 1, type: "blocker" },
     ],
     walls: [],
   }, "right");
 
   assertEquals(result.destination, { x: 5, y: 1 });
   assertEquals(result.pieces, [
-    { x: 2, y: 3, type: "rook" },
-    { x: 6, y: 6, type: "bouncer" },
+    { x: 2, y: 3, type: "puck" },
+    { x: 6, y: 6, type: "blocker" },
   ]);
 });
 
 Deno.test("rotateBoard() right should swap wall orientations", () => {
   const result = rotateBoard({
     destination: { x: 0, y: 0 },
-    pieces: [{ x: 0, y: 0, type: "rook" }],
+    pieces: [{ x: 0, y: 0, type: "puck" }],
     walls: [
       { x: 3, y: 4, orientation: "horizontal" },
       { x: 5, y: 2, orientation: "vertical" },
@@ -735,8 +735,8 @@ Deno.test("rotateBoard() right applied 4 times returns the original board", () =
   const board = {
     destination: { x: 2, y: 5 },
     pieces: [
-      { x: 3, y: 1, type: "rook" as const },
-      { x: 6, y: 4, type: "bouncer" as const },
+      { x: 3, y: 1, type: "puck" as const },
+      { x: 6, y: 4, type: "blocker" as const },
     ],
     walls: [
       { x: 4, y: 3, orientation: "horizontal" as const },
@@ -756,8 +756,8 @@ Deno.test("rotateBoard() left should be the reverse of cw", () => {
   const board = {
     destination: { x: 2, y: 5 },
     pieces: [
-      { x: 3, y: 1, type: "rook" as const },
-      { x: 6, y: 4, type: "bouncer" as const },
+      { x: 3, y: 1, type: "puck" as const },
+      { x: 6, y: 4, type: "blocker" as const },
     ],
     walls: [
       { x: 4, y: 3, orientation: "horizontal" as const },
@@ -777,23 +777,23 @@ Deno.test("flipBoard() horizontal should mirror positions left/right", () => {
   const result = flipBoard({
     destination: { x: 1, y: 3 },
     pieces: [
-      { x: 2, y: 5, type: "rook" },
-      { x: 6, y: 1, type: "bouncer" },
+      { x: 2, y: 5, type: "puck" },
+      { x: 6, y: 1, type: "blocker" },
     ],
     walls: [],
   }, "horizontal");
 
   assertEquals(result.destination, { x: 6, y: 3 });
   assertEquals(result.pieces, [
-    { x: 5, y: 5, type: "rook" },
-    { x: 1, y: 1, type: "bouncer" },
+    { x: 5, y: 5, type: "puck" },
+    { x: 1, y: 1, type: "blocker" },
   ]);
 });
 
 Deno.test("flipBoard() horizontal should keep wall orientations and shift positions", () => {
   const result = flipBoard({
     destination: { x: 0, y: 0 },
-    pieces: [{ x: 0, y: 0, type: "rook" }],
+    pieces: [{ x: 0, y: 0, type: "puck" }],
     walls: [
       { x: 3, y: 4, orientation: "horizontal" },
       { x: 5, y: 2, orientation: "vertical" },
@@ -810,8 +810,8 @@ Deno.test("flipBoard() horizontal applied twice returns the original board", () 
   const board = {
     destination: { x: 2, y: 5 },
     pieces: [
-      { x: 3, y: 1, type: "rook" as const },
-      { x: 6, y: 4, type: "bouncer" as const },
+      { x: 3, y: 1, type: "puck" as const },
+      { x: 6, y: 4, type: "blocker" as const },
     ],
     walls: [
       { x: 4, y: 3, orientation: "horizontal" as const },
@@ -828,23 +828,23 @@ Deno.test("flipBoard() vertical should mirror positions up/down", () => {
   const result = flipBoard({
     destination: { x: 1, y: 2 },
     pieces: [
-      { x: 3, y: 5, type: "rook" },
-      { x: 6, y: 1, type: "bouncer" },
+      { x: 3, y: 5, type: "puck" },
+      { x: 6, y: 1, type: "blocker" },
     ],
     walls: [],
   }, "vertical");
 
   assertEquals(result.destination, { x: 1, y: 5 });
   assertEquals(result.pieces, [
-    { x: 3, y: 2, type: "rook" },
-    { x: 6, y: 6, type: "bouncer" },
+    { x: 3, y: 2, type: "puck" },
+    { x: 6, y: 6, type: "blocker" },
   ]);
 });
 
 Deno.test("flipBoard() vertical should keep wall orientations and shift positions", () => {
   const result = flipBoard({
     destination: { x: 0, y: 0 },
-    pieces: [{ x: 0, y: 0, type: "rook" }],
+    pieces: [{ x: 0, y: 0, type: "puck" }],
     walls: [
       { x: 3, y: 4, orientation: "horizontal" },
       { x: 5, y: 2, orientation: "vertical" },
@@ -861,8 +861,8 @@ Deno.test("flipBoard() vertical applied twice returns the original board", () =>
   const board = {
     destination: { x: 2, y: 5 },
     pieces: [
-      { x: 3, y: 1, type: "rook" as const },
-      { x: 6, y: 4, type: "bouncer" as const },
+      { x: 3, y: 1, type: "puck" as const },
+      { x: 6, y: 4, type: "blocker" as const },
     ],
     walls: [
       { x: 4, y: 3, orientation: "horizontal" as const },

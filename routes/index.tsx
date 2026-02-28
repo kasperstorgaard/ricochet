@@ -65,15 +65,14 @@ export default define.page<typeof handler>(function Home(ctx) {
         <Header url={url} items={navItems} />
 
         <div className="flex flex-col gap-1 py-fl-1 pt-fl-2">
-          <h1 className="text-fl-3 leading-flat text-brand">
-            Ricochet
+          <h1 className="text-fl-3 leading-flat text-brand flex items-baseline gap-fl-1">
+            Skub
+            <span className="text-fl-0 text-text-3 font-normal">[ˈsgɔb]</span>
           </h1>
 
           <p className="text-text-2 text-fl-0">
-            A puzzle game based on{"  "}
-            <a href="https://boardgamegeek.com/boardgame/51/ricochet-robots">
-              Ricochet Robots
-            </a>
+            Slide pieces to reach the target. No stops, no turns.<br />Fewest
+            moves wins.
           </p>
         </div>
 
@@ -161,7 +160,14 @@ export default define.page<typeof handler>(function Home(ctx) {
         </ul>
       </Main>
 
-      <Panel>
+      <Panel className="max-lg:gap-fl-2">
+        <p className="col-[2/3] text-fl-0 text-text-3 lg:col-auto lg:row-start-1">
+          Inspired by{" "}
+          <a href="https://boardgamegeek.com/boardgame/51/ricochet-robots">
+            Ricochet Robots
+          </a>
+        </p>
+
         <div
           className={clsx(
             "col-[2/3] flex flex-col gap-fl-2 justify-between items-start flex-wrap text-fl-0 text-text-2",

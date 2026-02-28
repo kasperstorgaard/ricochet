@@ -73,7 +73,7 @@ function formatCell({ destination, walls, pieces }: Board, position: Position) {
   const piece = pieces.find((item) => isPositionSame(item, position));
 
   if (piece) {
-    let char = piece.type === "rook" ? "@" : "#";
+    let char = piece.type === "puck" ? "@" : "#";
     // Add underline if there's a wall below
     if (hasHorizontalWall) char += COMBINING_LOW_LINE;
     // Add circumflex if piece is on destination

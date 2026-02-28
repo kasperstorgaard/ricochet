@@ -39,11 +39,11 @@ export class SolverDepthExceededError extends Error {
  */
 type CompactPiece = {
   pos: number; // y * COLS + x
-  type: "rook" | "bouncer";
+  type: "puck" | "blocker";
 };
 
 /**
- * Solves a Ricochet puzzle using BFS to find the minimum move solution.
+ * Solves a Skub puzzle using BFS to find the minimum move solution.
  *
  * @param puzzleOrBoard - The puzzle or board to solve
  * @param options - Optional solver configuration
@@ -98,11 +98,11 @@ export function solve(
 
       const newMoves = [...current.moves, move];
 
-      // Check if this is a solution (rook at destination)
-      const rookPiece = newPieces.find((p) => p.type === "rook")!;
+      // Check if this is a solution (puck at destination)
+      const puckPiece = newPieces.find((p) => p.type === "puck")!;
       const rookPos = {
-        x: rookPiece.pos % COLS,
-        y: Math.floor(rookPiece.pos / COLS),
+        x: puckPiece.pos % COLS,
+        y: Math.floor(puckPiece.pos / COLS),
       };
 
       if (isPositionSame(rookPos, destination)) {
@@ -138,10 +138,10 @@ export function getHint(
  * Since positions are 0-63 on an 8x8 board, we can pack them efficiently.
  */
 function serializeState(pieces: CompactPiece[]): number {
-  // Sort: rook first, then by position
+  // Sort: puck first, then by position
   const sorted = [...pieces].sort((a, b) => {
-    if (a.type === "rook" && b.type !== "rook") return -1;
-    if (a.type !== "rook" && b.type === "rook") return 1;
+    if (a.type === "puck" && b.type !== "puck") return -1;
+    if (a.type !== "puck" && b.type === "puck") return 1;
     return a.pos - b.pos;
   });
 

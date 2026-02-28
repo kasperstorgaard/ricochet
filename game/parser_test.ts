@@ -180,8 +180,8 @@ difficulty: medium
     board: {
       destination: { x: 3, y: 7 },
       pieces: [
-        { x: 1, y: 1, type: "rook" },
-        { x: 4, y: 4, type: "bouncer" },
+        { x: 1, y: 1, type: "puck" },
+        { x: 4, y: 4, type: "blocker" },
       ],
       walls: [],
     },
@@ -223,11 +223,11 @@ Navigate the rook around the middle
   assertEquals(result.board, {
     destination: { x: 3, y: 6 },
     pieces: [
-      { x: 2, y: 1, type: "bouncer" },
-      { x: 5, y: 2, type: "rook" },
-      { x: 7, y: 3, type: "bouncer" },
-      { x: 0, y: 4, type: "bouncer" },
-      { x: 3, y: 6, type: "bouncer" },
+      { x: 2, y: 1, type: "blocker" },
+      { x: 5, y: 2, type: "puck" },
+      { x: 7, y: 3, type: "blocker" },
+      { x: 0, y: 4, type: "blocker" },
+      { x: 3, y: 6, type: "blocker" },
     ],
     walls: [
       { x: 1, y: 0, orientation: "vertical" },
@@ -284,10 +284,10 @@ difficulty: medium
   assertEquals(result.board, {
     destination: { x: 4, y: 5 },
     pieces: [
-      { x: 1, y: 1, type: "bouncer" },
-      { x: 6, y: 1, type: "rook" },
-      { x: 1, y: 6, type: "bouncer" },
-      { x: 6, y: 6, type: "bouncer" },
+      { x: 1, y: 1, type: "blocker" },
+      { x: 6, y: 1, type: "puck" },
+      { x: 1, y: 6, type: "blocker" },
+      { x: 6, y: 6, type: "blocker" },
     ],
     walls: [
       { x: 2, y: 2, orientation: "horizontal" },
@@ -337,10 +337,10 @@ createdAt: 2026-02-03T00:00:00.000Z
   assertEquals(result.board, {
     destination: { x: 4, y: 0 },
     pieces: [
-      { x: 4, y: 0, type: "bouncer" },
-      { x: 4, y: 4, type: "rook" },
-      { x: 2, y: 7, type: "bouncer" },
-      { x: 6, y: 7, type: "bouncer" },
+      { x: 4, y: 0, type: "blocker" },
+      { x: 4, y: 4, type: "puck" },
+      { x: 2, y: 7, type: "blocker" },
+      { x: 6, y: 7, type: "blocker" },
     ],
     walls: [
       { x: 2, y: 2, orientation: "horizontal" },

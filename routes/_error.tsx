@@ -134,7 +134,7 @@ function ErrorAnimation({ children, status }: ErrorAnimationProps) {
           </div>
         )}
 
-        {/* Rook */}
+        {/* Puck */}
         <div
           className={clsx(
             "col-1 row-1 p-(--pad)",
@@ -146,8 +146,8 @@ function ErrorAnimation({ children, status }: ErrorAnimationProps) {
           style={{
             "--pad": "var(--size-2)",
             animation: status === 404
-              ? "rook-404 4s ease-in-out infinite"
-              : "rook-500 3s ease-in-out infinite",
+              ? "puck-404 4s ease-in-out infinite"
+              : "puck-500 3s ease-in-out infinite",
           }}
         >
           <div className="w-full h-full bg-ui-2 rounded-round" />
@@ -165,20 +165,20 @@ function ErrorAnimation({ children, status }: ErrorAnimationProps) {
       {
         /*
         Custom animations:
-        - 404: Rook moves around the perimeter of the board (no destination)
-        - 500: Rook bumps repeatedly against the wall
+        - 404: Puck moves around the perimeter of the board (no destination)
+        - 500: Puck bumps repeatedly against the wall
       */
       }
       <style>
         {`
-        @keyframes rook-404 {
+        @keyframes puck-404 {
           0%, 10% { --x: 0; --y: 0 }
           25%, 35% { --x: ${cols - 1}; --y: 0 }
           50%, 60% { --x: ${cols - 1}; --y: ${rows - 1} }
           75%, 85% { --x: 0; --y: ${rows - 1} }
         }
 
-        @keyframes rook-500 {
+        @keyframes puck-500 {
           0%, 10% { --x: 0 }
           35%, 70% { --x: ${wallX} }
           90%, 100% { --x: 0 }

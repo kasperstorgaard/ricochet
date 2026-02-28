@@ -57,7 +57,7 @@ export function EditorPanel(
   const [options, setOptions] = useState<GenerateOptions>({
     solveRange: [6, 11],
     wallsRange: [5, 15],
-    bouncersRange: [3, 5],
+    blockersRange: [3, 5],
     wallSpread: "balanced",
   });
 
@@ -289,13 +289,13 @@ export function EditorPanel(
           />
 
           <NumberRange
-            name="bouncers_range"
-            label="Bouncers"
-            value={options.bouncersRange}
+            name="blockers_range"
+            label="Blockers"
+            value={options.blockersRange}
             min={0}
             max={20}
-            onChange={(bouncersRange) =>
-              setOptions({ ...options, bouncersRange })}
+            onChange={(blockersRange) =>
+              setOptions({ ...options, blockersRange })}
           />
 
           <Select

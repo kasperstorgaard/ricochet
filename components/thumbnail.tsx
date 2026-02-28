@@ -112,7 +112,7 @@ export function Thumbnail({
           const { cx, cy } = getCenter(piece.x, piece.y);
           const radius = pieceSize / 2;
 
-          if (piece.type === "rook") {
+          if (piece.type === "puck") {
             return (
               <circle
                 key={`piece-${idx}`}
@@ -123,7 +123,7 @@ export function Thumbnail({
               />
             );
           } else {
-            // Bouncers are same size as rooks, with rounded corners
+            // Blockers are same size as pucks, with rounded corners
             const size = pieceSize;
             const half = size / 2;
             const cornerRadius = size * 0.15; // Slightly rounded corners
