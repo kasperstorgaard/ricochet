@@ -71,14 +71,10 @@ export default define.page<typeof handler>(function PuzzleTutorial(props) {
 
   const url = new URL(props.req.url);
 
-  const navItems = [
-    { name: "home", href: "/" },
-  ];
-
   return (
     <>
       <Main>
-        <Header url={url} items={navItems} />
+        <Header url={url} back={{ href: "/" }} />
 
         <h1 className="text-5 text-brand mt-2">{puzzle.value.name}</h1>
 

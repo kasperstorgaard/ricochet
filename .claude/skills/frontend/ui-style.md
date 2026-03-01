@@ -6,7 +6,7 @@ The core aesthetic is bold, retro-futuristic, and playful — like a classic
 gaming console. Dark and light themes both exist; dark has the richer colour
 palette, light is more restrained. The primary font is "Chakra Petch": techno,
 sharp-angled, used for headlines, interactive elements, and sparingly for body
-text. "Dank Mono" (monospace) appears in supporting roles.
+text.
 
 ## Icons
 

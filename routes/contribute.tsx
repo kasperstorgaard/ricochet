@@ -13,17 +13,12 @@ export const handler = define.handlers({
 export default define.page<typeof handler>(function ContributePage(props) {
   const url = new URL(props.req.url);
 
-  const navItems = [
-    { name: "home", href: "/" },
-    { name: "contribute", href: "/contribute" },
-  ];
-
   const repoUrl = "https://github.com/kasperstorgaard/ricochet";
 
   return (
     <>
       <Main className="max-lg:row-span-full">
-        <Header url={url} items={navItems} />
+        <Header url={url} back={{ href: "/" }} />
 
         <h1 className="text-5 text-brand mt-2 leading-none">
           How to add a new puzzle

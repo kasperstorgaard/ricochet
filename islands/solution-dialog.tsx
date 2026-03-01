@@ -71,7 +71,7 @@ export function SolutionDialog({ href, puzzle, isPreview }: Props) {
       )}
 
       {isPreview && (
-        <p className="text-text-2 font-mono">
+        <p className="text-text-2">
           <em>Solutions cannot be submitted for previews</em>
         </p>
       )}

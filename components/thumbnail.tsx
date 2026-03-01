@@ -146,7 +146,7 @@ export function Thumbnail({
       <div
         class={clsx(
           "absolute bottom-0 right-0 px-fl-1 py-0.5 bg-surface-2",
-          "text-current text-0 text-center font-mono uppercase",
+          "text-current text-0 text-center uppercase",
           "[clip-path:polygon(10%_0,100%_0,100%_100%,0_100%)]",
         )}
       >

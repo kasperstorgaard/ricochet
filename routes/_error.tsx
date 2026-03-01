@@ -44,14 +44,10 @@ export default define.page(function ErrorPage(props) {
   // Track error to posthog
   posthog?.captureException(error, trackingId, trackingData);
 
-  const navItems = [
-    { name: "home", href: "/" },
-  ];
-
   return (
     <>
       <Main className="max-lg:row-span-full">
-        <Header url={props.url} items={navItems} />
+        <Header url={props.url} back={{ href: "/" }} />
 
         <div className="flex flex-col gap-fl-2 py-fl-3">
           <ErrorAnimation status={status}>

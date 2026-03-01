@@ -153,7 +153,11 @@ export function ControlsPanel(
                 ? `1 hint per day per puzzle (easy: 3)`
                 : undefined}
             >
-              Get a hint
+              {!hintsExhausted
+                ? "Get a hint"
+                : puzzle.value.difficulty === "easy"
+                ? "Hints used"
+                : "Hint used"}
             </a>
 
             <a
@@ -191,20 +195,12 @@ export function ControlsPanel(
             </a>
           )}
 
-          <a
-            href="/"
-            className="btn"
-          >
-            More puzzles
-          </a>
-
           {!isPreview && (
             <a
               href={`/puzzles/${puzzle.value.slug}/solutions`}
               className="btn"
             >
-              <span className="lg:hidden">Solutions</span>
-              <span className="max-lg:hidden">See solutions</span>
+              <i className="ph-trophy ph" /> Solutions
             </a>
           )}
         </div>

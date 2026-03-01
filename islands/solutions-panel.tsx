@@ -38,7 +38,7 @@ export function SolutionsPanel(
     <Panel>
       <div
         className={clsx(
-          "grid col-[2/3] lg:col-auto w-full items-center gap-fl-3 m-0 p-0 list-none",
+          "grid col-[2/3] lg:col-auto grid-cols-[minmax(auto,20rem)] w-full place-content-center gap-fl-3 m-0 p-0 list-none",
           "lg:row-[3/4] lg:grid-flow-row lg:grid-rows-[auto] lg:content-between",
         )}
       >
@@ -49,30 +49,40 @@ export function SolutionsPanel(
             </p>
           )
           : (
-            <ol
-              className={clsx(
-                "m-0 p-0 list-none",
-                "grid items-center gap-x-fl-2 gap-y-1",
-              )}
-            >
-              {solutionItems.map((item) =>
+            <ol className="m-0 p-0 list-none grid items-center gap-x-fl-2 gap-y-1">
+              {solutionItems.map((item, idx) =>
                 item === null
                   ? <li key="delimiter" className="p-0">...</li>
                   : (
-                    <li
-                      key={item?.id}
-                      className={clsx(
-                        "p-0 px-1 border-b-1 border-gray-5",
-                        item?.id === solution?.id &&
-                          "text-brand font-5 bg-surface-1",
-                      )}
-                    >
+                    <li key={item.id} className="group p-0">
                       <a
-                        className="flex gap-2"
+                        className={clsx(
+                          "flex items-center px-fl-1 pr-fl-2 py-1 gap-fl-2",
+                          "rounded-2 border-1 border-current text-text-2",
+                          "hover:bg-link hover:border-link hover:text-blue-0 hover:no-underline",
+                          "data-active:font-bold data-active:border-b-2",
+                          "lg:gap-2 lg:pr-fl-1 lg:pl-2 md:text-fl-0",
+                        )}
+                        data-active={item.id === solution?.id
+                          ? true
+                          : undefined}
                         href={getSolutionUrl(item)}
                       >
-                        <span>{item.moves.length}.</span>
-                        {item.name}
+                        <span className="shrink-0 min-w-[2ch] text-right">
+                          {item.moves.length}
+                        </span>
+
+                        <span className="grow overflow-hidden text-ellipsis whitespace-nowrap">
+                          {item.name}
+                        </span>
+
+                        {idx === 0 && (
+                          <i
+                            className={clsx(
+                              "ph ph-trophy shrink-0 text-orange-3",
+                            )}
+                          />
+                        )}
                       </a>
                     </li>
                   )
@@ -85,10 +95,8 @@ export function SolutionsPanel(
             href={`/puzzles/${puzzle.value.slug}`}
             className="btn"
           >
-            {solution ? "Play again" : "Try this puzzle"}
-          </a>
-          <a href="/" className="btn">
-            More puzzles
+            <i className="ph ph-arrow-counter-clockwise" />
+            Play again
           </a>
         </div>
       </div>

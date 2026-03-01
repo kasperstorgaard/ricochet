@@ -55,14 +55,10 @@ export default define.page<typeof handler>(function Home(ctx) {
 
   const { dailyPuzzle, randomPuzzle } = ctx.data;
 
-  const navItems = [
-    { name: "home", href: "/" },
-  ];
-
   return (
     <>
       <Main className="max-lg:row-span-full items-stretch place-content-stretch lg:pb-fl-4">
-        <Header url={url} items={navItems} />
+        <Header url={url} />
 
         <div className="flex flex-col gap-1 py-fl-1 pt-fl-2">
           <h1 className="text-fl-3 leading-flat text-brand flex items-baseline gap-fl-1">
@@ -154,7 +150,7 @@ export default define.page<typeof handler>(function Home(ctx) {
                 "hover:text-brand hover:no-underline",
               )}
             >
-              Browse all puzzles <i className="ph ph-arrow-right" />
+              Puzzle archives <i className="ph ph-arrow-right" />
             </a>
           </li>
         </ul>
