@@ -9,6 +9,16 @@ export default define.page(
     // Don't show the cookie dialog on tutorial, too distracting and double modal.
     const isTutorial = url.pathname.endsWith("/tutorial");
 
+    // Add og:image for puzzle pages (/puzzles/[slug] and /puzzles/[slug]/solutions)
+    const puzzleSlugMatch = url.pathname.match(
+      /^\/puzzles\/([^/]+)(?:\/|$)/,
+    );
+    const puzzleSlug = puzzleSlugMatch?.[1];
+    const ogExcluded = ["new", "tutorial", "daily", "preview"];
+    const ogSlug = puzzleSlug && !ogExcluded.includes(puzzleSlug)
+      ? puzzleSlug
+      : null;
+
     return (
       <html className="min-h-dvh">
         <head>
@@ -17,7 +27,18 @@ export default define.page(
             name="viewport"
             content="width=device-width, initial-scale=1.0"
           />
-          <title>Ricochet</title>
+          <title>Skub</title>
+          <meta property="og:title" content="Skub" />
+          <meta
+            property="og:description"
+            content="Slide pieces to reach the target. No stops, no turns. Fewest moves wins."
+          />
+          {ogSlug && (
+            <meta
+              property="og:image"
+              content={`${url.origin}/puzzles/${ogSlug}/og-image`}
+            />
+          )}
           <link rel="icon" type="image/svg+xml" href="/favicon-light.svg" />
           <link
             rel="icon"

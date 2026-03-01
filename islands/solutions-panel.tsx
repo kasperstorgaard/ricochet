@@ -91,6 +91,11 @@ export function SolutionsPanel(
           )}
 
         <div className="flex gap-2 items-center justify-center flex-wrap lg:grid lg:grid-cols-1 lg:justify-start">
+          {/*
+            TODO: once per-puzzle completion state is tracked (e.g. via cookie or KV),
+            use it here to show "Play again" vs "Try this puzzle" based on whether the
+            current user has actually solved this puzzle themselves.
+          */}
           <a
             href={`/puzzles/${puzzle.value.slug}`}
             className="btn"

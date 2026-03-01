@@ -563,7 +563,7 @@
 /* Dark theme */
 :root {
   --color-brand: var(--pink-7);
-  --color-link: var(--violet-4);
+  --color-link: var(--violet-5);
   --color-link-visited: var(--link-visited);
 
   /* rename from open-props */
@@ -689,7 +689,7 @@
     gap: calc(var(--size-fluid-1) - 4px);
     white-space: nowrap;
     font-size: var(--font-size-1);
-    font-weight: var(--font-weight-7);
+    font-weight: var(--font-weight-semibold);
     padding-inline: var(--size-3);
     padding-block: var(--size-1);
     color: var(--color-link);

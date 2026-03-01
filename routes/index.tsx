@@ -192,12 +192,15 @@ export default define.page<typeof handler>(function Home(ctx) {
               "lg:flex-col",
             )}
           >
-            <a href="/puzzles/tutorial" className="btn">
+            <a href="/puzzles/tutorial" className="underline text-link hover:no-underline">
               How do I play?
             </a>
-            <a href={`/puzzles/${dailyPuzzle.slug}?print`} className="btn">
-              Print daily puzzle
-            </a>
+            {/*
+              TODO: add an "Extras" page that surfaces power-user features in
+              one place — printing to play offline, remixing puzzles,
+              contributing, keyboard shortcuts, etc.
+              Link to it here as a secondary text link.
+            */}
           </div>
         </div>
       </Panel>
