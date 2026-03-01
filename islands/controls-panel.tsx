@@ -96,7 +96,7 @@ export function ControlsPanel(
     <Panel className={className}>
       <div
         className={clsx(
-          "grid max-lg:col-[2/3] grid-cols-subgrid place-content-center items-center w-full gap-fl-3 max-lg:gap-fl-5",
+          "grid max-lg:col-[2/3] grid-cols-subgrid place-content-center items-center w-full gap-fl-3 max-lg:gap-fl-4",
           "lg:grid lg:row-[3/4] lg:items-start lg:grid-rows-[1fr_auto] lg:gap-fl-3",
         )}
       >

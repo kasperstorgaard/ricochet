@@ -156,7 +156,7 @@ export default define.page<typeof handler>(function Home(ctx) {
         </ul>
       </Main>
 
-      <Panel className="max-lg:gap-fl-5">
+      <Panel className="max-lg:gap-fl-4">
         <p className="col-[2/3] text-fl-0 text-text-3 lg:col-auto lg:row-start-1">
           Inspired by{" "}
           <a href="https://boardgamegeek.com/boardgame/51/ricochet-robots">
