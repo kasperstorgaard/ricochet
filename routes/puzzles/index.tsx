@@ -69,8 +69,8 @@ export default define.page<typeof handler>(
                 <a
                   href={`puzzles/${puzzle.slug}`}
                   className={clsx(
-                    "group flex flex-col gap-1 text-text-1",
-                    "hover:text-brand hover:no-underline",
+                    "group flex flex-col gap-1 text-text-1 no-underline",
+                    "hover:text-brand",
                   )}
                 >
                   <div

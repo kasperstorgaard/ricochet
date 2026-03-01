@@ -80,8 +80,8 @@ export function SolutionsPanel(
                       <a
                         className={clsx(
                           "flex items-center px-fl-1 pr-fl-2 py-1 gap-fl-2",
-                          "rounded-2 border-1 border-current text-text-2",
-                          "hover:bg-link hover:border-link hover:text-blue-0 hover:no-underline",
+                          "rounded-2 border-1 border-current text-text-2 no-underline",
+                          "hover:bg-link hover:border-link hover:text-blue-0",
                           "data-active:font-bold data-active:border-b-2",
                           "lg:gap-2 lg:pr-fl-1 lg:pl-2 md:text-fl-0",
                         )}

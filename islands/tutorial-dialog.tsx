@@ -167,7 +167,6 @@ function TutorialSolutionStep({ href }: TutorialStepProps & {
           That's one way to solve it.{" "}
           <a
             href={reloadStep}
-            className="underline text-link"
             type="submit"
           >
             Show again

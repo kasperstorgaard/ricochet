@@ -81,7 +81,7 @@ export default define.page<typeof handler>(function Home(ctx) {
           <li className="list-none pl-0 min-w-0">
             <a
               href={`puzzles/${dailyPuzzle.slug}`}
-              className="group flex flex-col gap-fl-1 text-text-1 hover:text-brand hover:no-underline"
+              className="group flex flex-col gap-fl-1 text-text-1 no-underline hover:text-brand"
             >
               <div
                 className={clsx(
@@ -101,6 +101,7 @@ export default define.page<typeof handler>(function Home(ctx) {
                   <span className="text-0 text-text-2 group-hover:text-current tracking-wide leading-flat">
                     Daily puzzle
                   </span>
+
                   <span className="flex flex-wrap text-2 leading-tight font-4">
                     {dailyPuzzle.name}
                   </span>
@@ -112,7 +113,7 @@ export default define.page<typeof handler>(function Home(ctx) {
           <li className="list-none pl-0 min-w-0">
             <a
               href={`puzzles/${randomPuzzle.slug}`}
-              className="group flex flex-col gap-fl-1 text-text-1 hover:text-brand hover:no-underline"
+              className="group flex flex-col gap-fl-1 text-text-1 hover:text-brand no-underline hover:no-underline"
             >
               <div
                 className={clsx(
@@ -145,9 +146,9 @@ export default define.page<typeof handler>(function Home(ctx) {
               href="/puzzles"
               className={clsx(
                 "group flex gap-fl-1 p-fl-2 place-content-start place-items-center",
-                "text-text-1 leading-snug border border-surface-4 hover:border-brand",
+                "text-text-1 leading-snug border border-surface-4 no-underline",
                 "lg:aspect-square lg:flex-col lg:justify-center lg:place-items-start lg:gap-fl-1 lg:w-full",
-                "hover:text-brand hover:no-underline",
+                "hover:text-brand hover:no-underline hover:border-brand",
               )}
             >
               Puzzle archives <i className="ph ph-arrow-right" />
@@ -166,37 +167,19 @@ export default define.page<typeof handler>(function Home(ctx) {
 
         <div
           className={clsx(
-            "col-[2/3] flex flex-col gap-fl-2 justify-between items-start flex-wrap text-fl-0 text-text-2",
+            "col-[2/3] flex flex-col gap-fl-1 justify-between items-start flex-wrap text-text-2",
             "sm:flex-row sm:items-center",
             "lg:col-auto lg:row-start-3 lg:flex-col lg:items-start",
           )}
         >
-          <div className="flex gap-fl-1 lg:flex-col">
-            <a
-              href="https://github.com/kasperstorgaard/ricochet"
-              className="flex gap-1 items-center"
-            >
-              <i className="ph ph-github-logo" /> GitHub
-            </a>
-            <a
-              href="https://www.linkedin.com/in/kasper-storgaard-t-lead"
-              className="flex gap-1 items-center "
-            >
-              <i className="ph ph-linkedin-logo" /> LinkedIn
-            </a>
-          </div>
-
           <div
             className={clsx(
               "flex flex-wrap gap-fl-1 items-start",
               "lg:flex-col",
             )}
           >
-            <a
-              href="/puzzles/tutorial"
-              className="underline text-link hover:no-underline"
-            >
-              How do I play?
+            <a href="/puzzles/tutorial" className="btn">
+              <i className="ph ph-student" />Try tutorial
             </a>
             {
               /*
@@ -206,6 +189,20 @@ export default define.page<typeof handler>(function Home(ctx) {
               Link to it here as a secondary text link.
             */
             }
+          </div>
+          <div className="flex gap-2 lg:flex-col">
+            <a
+              href="https://github.com/kasperstorgaard/ricochet"
+              className="text-text-3"
+            >
+              <i className="ph ph-github-logo" /> GitHub
+            </a>
+            <a
+              href="https://www.linkedin.com/in/kasper-storgaard-t-lead"
+              className="text-text-3"
+            >
+              <i className="ph ph-linkedin-logo" /> LinkedIn
+            </a>
           </div>
         </div>
       </Panel>

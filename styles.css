@@ -260,7 +260,7 @@
   --color-text-3: var(--color-text-3);
   --color-brand: var(--color-brand);
   --color-link: var(--color-link);
-  --color-link-visited: var(--color-link-visited);
+  --color-link-visited: var(--color-link);
   --color-ui-1: var(--color-ui-1);
   --color-ui-2: var(--color-ui-2);
   --color-ui-3: var(--color-ui-3);
@@ -564,7 +564,7 @@
 :root {
   --color-brand: var(--pink-7);
   --color-link: var(--violet-5);
-  --color-link-visited: var(--link-visited);
+  --color-link-active: var(--violet-3);
 
   /* rename from open-props */
   --color-surface-1: var(--surface-1);
@@ -588,7 +588,7 @@
   :root {
     --color-brand: var(--purple-11);
     --color-link: var(--purple-7);
-    --color-link-visited: var(--link-visited);
+    --color-link-active: var(--purple-8);
 
     /* rename from open-props */
     --color-surface-1: var(--surface-1);
@@ -679,18 +679,21 @@
   }
 }
 
-/* Custom components */
-/*
-  TODO: establish consistent global link styles.
-  Currently links are styled ad-hoc across components — inconsistent sizing,
-  color tokens (text-link, text-text-2, etc.), and underline behaviour.
-  Should define a baseline in @layer components or @layer base that covers:
-  - default color + underline
-  - hover state (no-underline or color shift)
-  - visited state
-  - sizing that scales with surrounding text (no hardcoded text-fl-* on links)
-  See: islands/controls-panel.tsx hint link as a concrete example of the mess.
-*/
+@layer base {
+  /* Global link defaults */
+  a, .link {
+    color: var(--color-link);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  a:is(:hover, :active),
+  .link:is(:hover, :active) {
+    color: var(--color-link-active);
+    text-decoration-thickness: 2px;
+  }
+}
 
 @layer components {
   .btn {
@@ -699,15 +702,17 @@
     justify-content: center;
     flex-wrap: nowrap;
     gap: calc(var(--size-fluid-1) - 4px);
+    padding-inline: var(--size-3);
+    padding-block: var(--size-1);
+
     white-space: nowrap;
     font-size: var(--font-size-1);
     font-weight: var(--font-weight-semibold);
-    padding-inline: var(--size-3);
-    padding-block: var(--size-1);
+    text-decoration: none;
     color: var(--color-link);
     border: var(--border-size-2) solid var(--color-link);
-    background-color: transparent;
     border-radius: var(--radius-2);
+    background-color: transparent;
   }
 
   .btn[data-fullwidth] {
@@ -725,11 +730,12 @@
 
     font-size: var(--font-size-fluid-1);
     font-weight: var(--font-weight-7);
+    text-decoration: none;
     line-height: 1;
     color: var(--color-link);
     border: var(--border-size-2) solid var(--color-link);
-    background-color: transparent;
     border-radius: var(--radius-2);
+    background-color: transparent;
   }
 
   .icon-btn[data-size="lg"] {
@@ -741,8 +747,8 @@
     font-size: var(--text-3);
   }
 
-  .btn:is(:hover, :focus),
-  .icon-btn:is(:hover, :focus) {
+  .btn:is(:hover, :focus):not([disabled], [aria-disabled]),
+  .icon-btn:is(:hover, :focus):not([disabled], [aria-disabled]) {
     cursor: pointer;
     color: var(--blue-0);
     background-color: var(--color-link);
