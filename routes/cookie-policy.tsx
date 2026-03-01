@@ -10,8 +10,8 @@ export default define.page(function CookiePolicyPage() {
           <h2 className="text-4 font-semibold mt-fl-4">Cookie Policy</h2>
 
           <p className="text-text-2">
-            Skub uses a single first-party cookie to understand how people
-            use the game. That's it. (and it's opt in)
+            Skub uses a single first-party cookie to understand how people use
+            the game. That's it. (and it's opt in)
           </p>
 
           <h3 className="text-2 font-semibold mt-fl-1">
