@@ -1,5 +1,5 @@
 import { HttpError } from "fresh";
-import { renderToString } from "npm:preact-render-to-string";
+import { renderToString } from "preact-render-to-string";
 
 import { BoardSvg, ThumbnailColors } from "#/components/thumbnail.tsx";
 import { define } from "#/core.ts";
