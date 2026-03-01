@@ -1,11 +1,11 @@
 import { type Signal } from "@preact/signals";
+import clsx from "clsx/lite";
 import { useMemo } from "preact/hooks";
 
 import { isValidSolution, resolveMoves } from "#/game/board.ts";
 import { Puzzle } from "#/game/types.ts";
 import { decodeState, getResetHref } from "#/game/url.ts";
 import { Dialog } from "#/islands/dialog.tsx";
-import clsx from "clsx/lite";
 
 type Props = {
   href: Signal<string>;
