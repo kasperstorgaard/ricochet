@@ -4,6 +4,8 @@ import { useLayoutEffect, useRef } from "preact/hooks";
 
 type Props = DialogHTMLAttributes<HTMLDialogElement>;
 
+// TODO: dialog styles need work — background, border, spacing and overall
+// feel aren't quite right yet. Revisit as part of the global component polish.
 export function Dialog({ open, className, children, ...rest }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
 
@@ -18,12 +20,13 @@ export function Dialog({ open, className, children, ...rest }: Props) {
       open={open}
       data-modal
       className={clsx(
-        "m-auto rounded-cond-3 max-w-lg shadow-4 z-5",
+        "m-auto rounded-cond-2 max-w-lg shadow-4 z-5",
+        "lg:min-w-100",
         className,
       )}
       {...rest}
     >
-      <div className="flex flex-col gap-fl-3 p-fl-3">
+      <div className="flex flex-col gap-fl-3 p-fl-2">
         {children}
       </div>
     </dialog>

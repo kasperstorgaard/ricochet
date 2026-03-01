@@ -1,6 +1,6 @@
 import type { Signal } from "@preact/signals";
 import { clsx } from "clsx/lite";
-import { useCallback, useMemo } from "preact/hooks";
+import { useCallback, useMemo, useState } from "preact/hooks";
 
 import { Panel } from "#/components/panel.tsx";
 import type { Solution } from "#/db/types.ts";
@@ -16,6 +16,28 @@ type SolutionsPanelProps = {
 export function SolutionsPanel(
   { href, puzzle, solutions, solution }: SolutionsPanelProps,
 ) {
+  const [copied, setCopied] = useState(false);
+
+  const onShare = useCallback(async () => {
+    const url = new URL(href.value);
+    url.search = "";
+    if (solution) {
+      url.pathname = `/puzzles/${solution.puzzleSlug}/solutions/${solution.id}`;
+    }
+    const shareUrl = url.href;
+
+    if ("share" in navigator) {
+      await globalThis.navigator.share({
+        title: puzzle.value.name,
+        url: shareUrl,
+      });
+    } else {
+      await globalThis.navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }, [href.value, puzzle.value.name, solution]);
+
   const solutionItems = useMemo(() => {
     const isSolutionInList = solution &&
       solutions.some((item) => item.id === solution.id);
@@ -103,6 +125,11 @@ export function SolutionsPanel(
             <i className="ph ph-arrow-counter-clockwise" />
             Play again
           </a>
+
+          <button type="button" className="btn" onClick={onShare}>
+            <i className={clsx(copied ? "ph-check ph" : "ph-share-network ph")} />
+            {copied ? "Copied!" : "Share"}
+          </button>
         </div>
       </div>
     </Panel>
