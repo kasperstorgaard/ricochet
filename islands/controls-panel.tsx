@@ -96,7 +96,7 @@ export function ControlsPanel(
     <Panel className={className}>
       <div
         className={clsx(
-          "grid max-lg:col-[2/3] grid-cols-subgrid place-content-center items-center w-full gap-fl-3 max-lg:gap-fl-4",
+          "grid max-lg:col-[2/3] grid-cols-subgrid place-content-center items-center w-full max-lg:gap-fl-4",
           "lg:grid lg:row-[3/4] lg:items-start lg:grid-rows-[1fr_auto] lg:gap-fl-3",
         )}
       >
@@ -109,10 +109,8 @@ export function ControlsPanel(
           >
             <a
               href={getUndoHref(href.value, state)}
-              className={clsx(
-                "icon-btn",
-                !state.cursor && "opacity-40",
-              )}
+              className="icon-btn aria-disabled:opacity-40"
+              aria-disabled={!state.cursor ? true : undefined}
               data-size="lg"
               data-router="replace"
             >
@@ -121,8 +119,8 @@ export function ControlsPanel(
 
             <div
               className={clsx(
-                "flex items-center justify-center min-w-[2ch]",
-                "text-center font-3 text-fl-1 leading-flat",
+                "flex items-center justify-center",
+                "text-center font-3 leading-flat",
                 "max-lg:text-7",
                 "lg:text-fl-2",
               )}
@@ -132,11 +130,11 @@ export function ControlsPanel(
 
             <a
               href={getRedoHref(href.value, state)}
-              className={clsx(
-                "icon-btn",
-                (state.cursor == null ||
-                  state.cursor === state.moves.length) && "opacity-40",
-              )}
+              className="icon-btn aria-disabled:opacity-40"
+              aria-disabled={state.cursor == null ||
+                  state.cursor === state.moves.length
+                ? true
+                : undefined}
               data-size="lg"
               data-router="replace"
             >
@@ -160,10 +158,11 @@ export function ControlsPanel(
             <a
               href={hintsExhausted ? "#" : getHintHref(href.value)}
               className={clsx(
-                "underline text-link bg-transparent hover:no-underline",
-                "aria-disabled:cursor-help aria-disabled:opacity-50 aria-disabled:text-text-3 aria-disabled:hover:underline aria-disabled:hover:text-text-3",
+                "bg-transparent",
+                "aria-disabled:cursor-help aria-disabled:opacity-50 aria-disabled:text-text-3",
+                "aria-disabled:hover:underline aria-disabled:hover:text-text-3",
               )}
-              aria-disabled={hintsExhausted}
+              aria-disabled={hintsExhausted ? true : undefined}
               onClick={(event) => {
                 if (hintsExhausted) event.preventDefault();
               }}
@@ -180,7 +179,7 @@ export function ControlsPanel(
 
             <a
               href={getResetHref(href.value)}
-              className="underline text-link bg-transparent hover:no-underline"
+              className="bg-transparent"
               data-router="push"
             >
               Start over
@@ -188,7 +187,7 @@ export function ControlsPanel(
           </div>
         </div>
 
-        <div className="flex justify-center gap-fl-1 flex-wrap lg:grid lg:grid-cols-1">
+        <div className="flex justify-center gap-fl-1 flex-wrap lg:grid lg:grid-cols-1 border-t border-surface-3 max-lg:-mt-fl-1 pt-fl-3 -mx-fl-3 px-fl-3 lg:-mx-fl-2 lg:px-fl-2">
           <button
             type="button"
             className="btn"

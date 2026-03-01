@@ -117,7 +117,7 @@ export function EditorPanel(
         href="/contribute"
         target="_blank"
         className={clsx(
-          "col-[2/3] text-fl-1 mb-fl-4 text-link underline leading-tight",
+          "col-[2/3] text-fl-1 mb-fl-4 leading-tight",
           "lg:row-[1/3] lg:text-fl-0 lg:mb-0",
         )}
       >

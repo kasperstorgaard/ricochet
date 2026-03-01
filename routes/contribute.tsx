@@ -29,7 +29,7 @@ export default define.page<typeof handler>(function ContributePage(props) {
             <h2 className="text-3 text-text-1">1. Create your puzzle</h2>
             <p className="text-text-2">
               Go to{" "}
-              <a href="/puzzles/new" className="underline hover:no-underline">
+              <a href="/puzzles/new">
                 /puzzles/new
               </a>{" "}
               and use the editor to design your puzzle. Click a cell to select
@@ -116,7 +116,7 @@ export default define.page<typeof handler>(function ContributePage(props) {
                 Go to the{" "}
                 <a
                   href={repoUrl}
-                  className="underline hover:no-underline"
+                  className=""
                   target="_blank"
                   rel="noopener noreferrer"
                 >

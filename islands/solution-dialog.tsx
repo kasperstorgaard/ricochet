@@ -87,7 +87,6 @@ export function SolutionDialog({ href, puzzle, isPreview }: Props) {
         >
           <a
             href={getResetHref(href.value)}
-            className="underline text-link"
           >
             Play again
           </a>
@@ -95,7 +94,7 @@ export function SolutionDialog({ href, puzzle, isPreview }: Props) {
           <form method="dialog" className="inline">
             <button
               type="submit"
-              className="underline text-link bg-transparent p-0"
+              className="link p-0 bg-transparent"
               formNoValidate
               disabled={!hasSolution}
             >
