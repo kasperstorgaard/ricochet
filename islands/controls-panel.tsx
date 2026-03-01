@@ -161,7 +161,6 @@ export function ControlsPanel(
               href={hintsExhausted ? "#" : getHintHref(href.value)}
               className={clsx(
                 "underline text-link bg-transparent hover:no-underline",
-                // TODO: add better global link styles
                 "aria-disabled:cursor-help aria-disabled:opacity-50 aria-disabled:text-text-3 aria-disabled:hover:underline aria-disabled:hover:text-text-3",
               )}
               aria-disabled={hintsExhausted}

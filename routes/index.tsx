@@ -156,7 +156,7 @@ export default define.page<typeof handler>(function Home(ctx) {
         </ul>
       </Main>
 
-      <Panel className="max-lg:gap-fl-2">
+      <Panel className="max-lg:gap-fl-5">
         <p className="col-[2/3] text-fl-0 text-text-3 lg:col-auto lg:row-start-1">
           Inspired by{" "}
           <a href="https://boardgamegeek.com/boardgame/51/ricochet-robots">
@@ -171,7 +171,7 @@ export default define.page<typeof handler>(function Home(ctx) {
             "lg:col-auto lg:row-start-3 lg:flex-col lg:items-start",
           )}
         >
-          <div className="flex gap-fl-1 lg:flex-col max-md:text-fl-1">
+          <div className="flex gap-fl-1 lg:flex-col">
             <a
               href="https://github.com/kasperstorgaard/ricochet"
               className="flex gap-1 items-center"
@@ -192,15 +192,20 @@ export default define.page<typeof handler>(function Home(ctx) {
               "lg:flex-col",
             )}
           >
-            <a href="/puzzles/tutorial" className="underline text-link hover:no-underline">
+            <a
+              href="/puzzles/tutorial"
+              className="underline text-link hover:no-underline"
+            >
               How do I play?
             </a>
-            {/*
+            {
+              /*
               TODO: add an "Extras" page that surfaces power-user features in
               one place — printing to play offline, remixing puzzles,
               contributing, keyboard shortcuts, etc.
               Link to it here as a secondary text link.
-            */}
+            */
+            }
           </div>
         </div>
       </Panel>
