@@ -71,8 +71,8 @@ function TutorialWelcomeStep({ href, open }: TutorialStepProps) {
         </h1>
 
         <p>
-          Slide pieces into walls and each other to get the puck to the target —
-          in as few moves as possible.
+          A tiny puzzle game where you slide pieces into walls and each other to
+          get the puck to the target — in as few moves as possible.
         </p>
 
         <p className="text-text-3 text-fl-min">
