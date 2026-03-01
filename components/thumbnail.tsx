@@ -57,9 +57,7 @@ export function BoardSvg({
       viewBox={`0 0 ${width} ${height}`}
       {...rest}
     >
-      {background && (
-        <rect width={width} height={height} fill={background} />
-      )}
+      {background && <rect width={width} height={height} fill={background} />}
 
       {/* Destination marker */}
       <g stroke={colors.ui1} fill="none">

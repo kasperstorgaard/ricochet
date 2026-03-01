@@ -72,7 +72,10 @@ export default define.page<typeof handler>(function SolutionPage(props) {
     <>
       <Main>
         <div>
-          <Header url={url} back={{ href: `/puzzles/${props.data.puzzle.slug}` }} />
+          <Header
+            url={url}
+            back={{ href: `/puzzles/${props.data.puzzle.slug}` }}
+          />
         </div>
 
         <div className="flex items-center justify-between place-self-start mt-2 w-full flex-wrap">

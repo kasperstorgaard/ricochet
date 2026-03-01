@@ -54,7 +54,8 @@
     "npm:open-props@^1.7.23": "1.7.23",
     "npm:posthog-js@^1.341.0": "1.341.0_@opentelemetry+api@1.9.0",
     "npm:posthog-node@^5.24.9": "5.24.9",
-    "npm:preact-render-to-string@^6.6.3": "6.6.5_preact@10.28.3",
+    "npm:preact-render-to-string@^6.6.3": "6.6.6_preact@10.28.3",
+    "npm:preact-render-to-string@^6.6.6": "6.6.6_preact@10.28.3",
     "npm:preact@^10.27.0": "10.28.3",
     "npm:preact@^10.27.2": "10.28.3",
     "npm:rollup@^4.50.0": "4.57.1",
@@ -103,7 +104,7 @@
         "npm:@preact/signals@^2.2.1",
         "npm:esbuild-wasm",
         "npm:esbuild@0.25.7",
-        "npm:preact-render-to-string",
+        "npm:preact-render-to-string@^6.6.3",
         "npm:preact@^10.27.0",
         "npm:preact@^10.27.2"
       ]
@@ -1635,8 +1636,8 @@
         "@posthog/core@1.19.0"
       ]
     },
-    "preact-render-to-string@6.6.5_preact@10.28.3": {
-      "integrity": "sha512-O6MHzYNIKYaiSX3bOw0gGZfEbOmlIDtDfWwN1JJdc/T3ihzRT6tGGSEWE088dWrEDGa1u7101q+6fzQnO9XCPA==",
+    "preact-render-to-string@6.6.6_preact@10.28.3": {
+      "integrity": "sha512-EfqZJytnjJldV+YaaqhthU2oXsEf5e+6rDv957p+zxAvNfFLQOPfvBOTncscQ+akzu6Wrl7s3Pa0LjUQmWJsGQ==",
       "dependencies": [
         "preact"
       ]
@@ -1795,6 +1796,7 @@
       "npm:open-props@^1.7.23",
       "npm:posthog-js@^1.341.0",
       "npm:posthog-node@^5.24.9",
+      "npm:preact-render-to-string@^6.6.6",
       "npm:preact@^10.27.2",
       "npm:tailwindcss@^4.1.10",
       "npm:vite@^7.3.1",
