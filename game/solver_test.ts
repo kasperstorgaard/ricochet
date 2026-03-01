@@ -14,7 +14,7 @@ Deno.test("solve() finds 1-move solution (rook slides to destination)", () => {
   // Rook at A1 (0,0) slides right to H1 (7,0) where destination is
   const board: Board = {
     destination: { x: 7, y: 0 },
-    pieces: [{ x: 0, y: 0, type: "rook" }],
+    pieces: [{ x: 0, y: 0, type: "puck" }],
     walls: [],
   };
 
@@ -29,7 +29,7 @@ Deno.test("solve() finds 2-move solution", () => {
   // Move 2: A8 -> H8 (right)
   const board: Board = {
     destination: { x: 7, y: 7 },
-    pieces: [{ x: 0, y: 0, type: "rook" }],
+    pieces: [{ x: 0, y: 0, type: "puck" }],
     walls: [],
   };
 
@@ -41,7 +41,7 @@ Deno.test("solve() returns null for unsolvable puzzle (rook trapped)", () => {
   // Rook at A1 trapped by walls, cannot reach H8
   const board: Board = {
     destination: { x: 7, y: 7 },
-    pieces: [{ x: 0, y: 0, type: "rook" }],
+    pieces: [{ x: 0, y: 0, type: "puck" }],
     walls: [
       { x: 1, y: 0, orientation: "vertical" },
       { x: 0, y: 1, orientation: "horizontal" },
@@ -55,7 +55,7 @@ Deno.test("solve() returns null for unsolvable puzzle (rook can't stop)", () => 
   const board: Board = {
     destination: { x: 5, y: 5 },
     pieces: [
-      { x: 1, y: 1, type: "rook" },
+      { x: 1, y: 1, type: "puck" },
     ],
     walls: [],
   };
@@ -67,7 +67,7 @@ Deno.test("solve() respects maxDepth option", () => {
   // Puzzle that requires at least 2 moves
   const board: Board = {
     destination: { x: 7, y: 7 },
-    pieces: [{ x: 0, y: 0, type: "rook" }],
+    pieces: [{ x: 0, y: 0, type: "puck" }],
     walls: [],
   };
 
@@ -80,7 +80,7 @@ Deno.test("solve() respects maxIterations option", () => {
   const board: Board = {
     destination: { x: 5, y: 5 },
     pieces: [
-      { x: 0, y: 0, type: "rook" },
+      { x: 0, y: 0, type: "puck" },
     ],
     walls: [],
   };
@@ -100,7 +100,7 @@ Deno.test("solve() accepts Puzzle type (not just Board)", () => {
     difficulty: "medium",
     board: {
       destination: { x: 7, y: 0 },
-      pieces: [{ x: 0, y: 0, type: "rook" as const }],
+      pieces: [{ x: 0, y: 0, type: "puck" as const }],
       walls: [],
     },
   };
@@ -114,10 +114,10 @@ Deno.test("solve() solves complex puzzle", () => {
   const board: Board = {
     "destination": { "x": 4, "y": 5 },
     "pieces": [
-      { "x": 1, "y": 1, "type": "bouncer" },
-      { "x": 6, "y": 1, "type": "rook" },
-      { "x": 1, "y": 6, "type": "bouncer" },
-      { "x": 6, "y": 6, "type": "bouncer" },
+      { "x": 1, "y": 1, "type": "blocker" },
+      { "x": 6, "y": 1, "type": "puck" },
+      { "x": 1, "y": 6, "type": "blocker" },
+      { "x": 6, "y": 6, "type": "blocker" },
     ],
     "walls": [
       { "x": 2, "y": 2, "orientation": "horizontal" },
@@ -154,11 +154,11 @@ Deno.test("solve() solves complex puzzle with many pieces", () => {
   const board: Board = {
     destination: { x: 3, y: 6 },
     pieces: [
-      { x: 2, y: 1, type: "bouncer" },
-      { x: 5, y: 2, type: "rook" },
-      { x: 7, y: 3, type: "bouncer" },
-      { x: 0, y: 4, type: "bouncer" },
-      { x: 3, y: 6, type: "bouncer" },
+      { x: 2, y: 1, type: "blocker" },
+      { x: 5, y: 2, type: "puck" },
+      { x: 7, y: 3, type: "blocker" },
+      { x: 0, y: 4, type: "blocker" },
+      { x: 3, y: 6, type: "blocker" },
     ],
     walls: [
       { x: 1, y: 0, orientation: "vertical" },
@@ -200,7 +200,7 @@ Deno.test("solve() solves complex puzzle with many pieces", () => {
 Deno.test("getHint() returns first move of the optimal solution", () => {
   const board: Board = {
     destination: { x: 7, y: 0 },
-    pieces: [{ x: 0, y: 0, type: "rook" }],
+    pieces: [{ x: 0, y: 0, type: "puck" }],
     walls: [],
   };
 
@@ -212,7 +212,7 @@ Deno.test("getHint() returns first move of the optimal solution", () => {
 Deno.test("getHint() returns null for unsolvable puzzle", () => {
   const board: Board = {
     destination: { x: 7, y: 7 },
-    pieces: [{ x: 0, y: 0, type: "rook" }],
+    pieces: [{ x: 0, y: 0, type: "puck" }],
     walls: [
       { x: 1, y: 0, orientation: "vertical" },
       { x: 0, y: 1, orientation: "horizontal" },
@@ -225,7 +225,7 @@ Deno.test("getHint() returns null for unsolvable puzzle", () => {
 Deno.test("getHint() returns first move of a multi-move solution", () => {
   const board: Board = {
     destination: { x: 7, y: 7 },
-    pieces: [{ x: 0, y: 0, type: "rook" }],
+    pieces: [{ x: 0, y: 0, type: "puck" }],
     walls: [],
   };
 

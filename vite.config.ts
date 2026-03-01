@@ -1,4 +1,4 @@
-// deno-lint-ignore-file ricochet-imports/use-hash-alias
+// deno-lint-ignore-file skub-imports/use-hash-alias
 import { fresh } from "@fresh/plugin-vite";
 import tailwindcss from "@tailwindcss/vite";
 import { defineConfig } from "vite";

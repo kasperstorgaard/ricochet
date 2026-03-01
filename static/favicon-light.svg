@@ -5,7 +5,7 @@
   <!-- Cell 1 (top-left): Rook (orange-5) - centered at (26, 26) -->
   <circle cx="26" cy="26" r="16" fill="#f97316" />
 
-  <!-- Cell 2 (top-right): Bouncer (purple-5) - centered at (74, 26) -->
+  <!-- Cell 2 (top-right): Blocker (purple-5) - centered at (74, 26) -->
   <rect x="58" y="10" width="32" height="32" rx="5" ry="5" fill="#a855f7" />
 
   <!-- Cell 3 (bottom-left): Wall below (choco-9) - centered horizontally -->

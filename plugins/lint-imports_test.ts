@@ -5,7 +5,7 @@ import plugin from "./lint-imports.ts";
 function getViolations(source: string, rule: string, filename = "test.ts") {
   return Deno.lint
     .runPlugin(plugin, filename, source)
-    .filter((d) => d.id === `ricochet-imports/${rule}`)
+    .filter((d) => d.id === `skub-imports/${rule}`)
     .map((d) => d.message);
 }
 

@@ -17,7 +17,7 @@ export type WallSpread = "mid" | "balanced" | "spread";
 export type GenerateOptions = {
   solveRange: [number, number];
   wallsRange: [number, number];
-  bouncersRange: [number, number];
+  blockersRange: [number, number];
   wallSpread: WallSpread;
   maxAttempts?: number;
 };
@@ -43,7 +43,7 @@ const INNER_ZONE: Zone = { x: [2, 5], y: [2, 5] };
 export function generate({
   solveRange,
   wallsRange,
-  bouncersRange,
+  blockersRange,
   wallSpread,
   maxAttempts = MAX_ATTEMPTS,
 }: GenerateOptions) {
@@ -55,7 +55,7 @@ export function generate({
     const board = generateBoard({
       solveRange,
       wallsRange,
-      bouncersRange,
+      blockersRange,
       wallSpread,
     });
 
@@ -93,11 +93,11 @@ export function generate({
  */
 function generateBoard({
   wallsRange,
-  bouncersRange,
+  blockersRange,
   wallSpread,
 }: GenerateOptions): Board {
   const wallCount = randomInt(wallsRange);
-  const bouncerCount = randomInt(bouncersRange);
+  const blockerCount = randomInt(blockersRange);
 
   const walls = placeWalls(wallCount, wallSpread);
 
@@ -106,13 +106,13 @@ function generateBoard({
 
   const pieces: Piece[] = [];
 
-  // Place bouncers
-  for (let i = 0; i < bouncerCount; i++) {
-    pieces.push({ ...takeRandom(pieceSpots), type: "bouncer" });
+  // Place blockers
+  for (let i = 0; i < blockerCount; i++) {
+    pieces.push({ ...takeRandom(pieceSpots), type: "blocker" });
   }
 
-  // Place rook
-  pieces.push({ ...takeRandom(pieceSpots), type: "rook" });
+  // Place puck
+  pieces.push({ ...takeRandom(pieceSpots), type: "puck" });
 
   // Place destination (not on any piece)
   const destination = takeRandom(pieceSpots);

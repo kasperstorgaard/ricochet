@@ -57,7 +57,7 @@ Avoid:
 
 ## Import conventions
 
-Two rules enforced by the `ricochet-imports` lint plugin
+Two rules enforced by the `skub-imports` lint plugin
 (`plugins/lint-imports.ts`):
 
 1. **Hash alias** (`use-hash-alias`) — cross-folder project imports must use

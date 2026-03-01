@@ -1,6 +1,6 @@
-MIT License
+MIT License + Commons Clause
 
-Copyright (c) 2024 Kasper Storgaard
+Copyright (c) 2024–2026 Kasper Storgaard
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +19,12 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+Commons Clause
+
+The rights granted above do not include the right to Sell the Software.
+"Sell" means providing to third parties, for a fee or other commercial
+consideration, a product or service whose value derives, entirely or
+substantially, from the functionality of the Software. This includes, without
+limitation, hosting the Software as a service, sublicensing the Software, or
+bundling the Software with a commercial product.

@@ -68,21 +68,14 @@ export default define.page<typeof handler>(function SolutionPage(props) {
 
   const url = new URL(props.req.url);
 
-  const navItems = [
-    { name: "home", href: "/" },
-    { name: "puzzles", href: "/puzzles" },
-    {
-      name: props.data.puzzle.name,
-      href: `/puzzles/${props.data.puzzle.slug}`,
-    },
-    { name: "solutions", href: `/puzzles/${props.data.puzzle.slug}/solutions` },
-  ];
-
   return (
     <>
       <Main>
         <div>
-          <Header url={url} items={navItems} />
+          <Header
+            url={url}
+            back={{ href: `/puzzles/${props.data.puzzle.slug}` }}
+          />
         </div>
 
         <div className="flex items-center justify-between place-self-start mt-2 w-full flex-wrap">

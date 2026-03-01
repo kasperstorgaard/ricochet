@@ -49,6 +49,7 @@
     "posthog-js": "npm:posthog-js@^1.341.0",
     "posthog-node": "npm:posthog-node@^5.24.9",
     "preact": "npm:preact@^10.27.2",
+    "preact-render-to-string": "npm:preact-render-to-string@^6.6.6",
     "preact/": "npm:/preact@^10.27.2/",
     "tailwindcss": "npm:tailwindcss@^4.1.10",
     "vite": "npm:vite@^7.3.1",

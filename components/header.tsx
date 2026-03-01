@@ -1,32 +1,16 @@
-import { clsx } from "clsx/lite";
-
 type Props = {
   url: URL;
-  items: {
-    name: string;
-    href: string;
-  }[];
+  back?: { href: string };
 };
 
-export function Header({ items }: Props) {
+export function Header({ back }: Props) {
   return (
     <header className="print:hidden">
-      <nav className="flex items-center gap-1 text-1">
-        {items.map((item, idx) => (
-          <>
-            {idx > 0 && <span className="leading-flat mb-00 text-link">/</span>}
-
-            <a
-              href={item.href}
-              className={clsx(
-                "underline text-link leading-mini visited:text-link",
-              )}
-            >
-              {item.name}
-            </a>
-          </>
-        ))}
-      </nav>
+      {back && (
+        <a href={back.href} className="text-link text-fl-1 hover:no-underline">
+          <i className="ph ph-arrow-left" />
+        </a>
+      )}
     </header>
   );
 }

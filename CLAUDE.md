@@ -1,4 +1,4 @@
-# Ricochet — Agent Guidelines
+# Skub — Agent Guidelines
 
 A sliding-piece puzzle game (Ricochet Robots-inspired) built with Deno + Fresh 2 + Preact.
 
@@ -46,7 +46,7 @@ For routing, state, and storage decisions → `/architecture`.
 
 All domain types are in `game/types.ts`. Key types:
 - `Board` — `{ destination: Position, walls: Wall[], pieces: Piece[] }`
-- `Piece` — `Position & { type: "rook" | "bouncer" }`
+- `Piece` — `Position & { type: "puck" | "blocker" }`
 - `Wall` — `Position & { orientation: "horizontal" | "vertical" }`
 - `Move` — `[Position, Position]` (from → to)
 - `Puzzle` — `{ slug, name, board, createdAt, minMoves?, difficulty }`
@@ -76,7 +76,7 @@ minMoves: 10
 +-----------------+
 ```
 
-Symbols: `@` = rook (player piece), `X` = destination, `#` = bouncer, `|`/`_` = walls.
+Symbols: `@` = puck (player piece), `X` = destination, `#` = blocker, `|`/`_` = walls.
 
 Run `deno task update-puzzles` after adding puzzles to regenerate the manifest.
 

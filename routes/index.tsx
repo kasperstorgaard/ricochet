@@ -55,25 +55,20 @@ export default define.page<typeof handler>(function Home(ctx) {
 
   const { dailyPuzzle, randomPuzzle } = ctx.data;
 
-  const navItems = [
-    { name: "home", href: "/" },
-  ];
-
   return (
     <>
       <Main className="max-lg:row-span-full items-stretch place-content-stretch lg:pb-fl-4">
-        <Header url={url} items={navItems} />
+        <Header url={url} />
 
         <div className="flex flex-col gap-1 py-fl-1 pt-fl-2">
-          <h1 className="text-fl-3 leading-flat text-brand">
-            Ricochet
+          <h1 className="text-fl-3 leading-flat text-brand flex items-baseline gap-fl-1">
+            Skub
+            <span className="text-fl-0 text-text-3 font-normal">[ˈsgɔb]</span>
           </h1>
 
           <p className="text-text-2 text-fl-0">
-            A puzzle game based on{"  "}
-            <a href="https://boardgamegeek.com/boardgame/51/ricochet-robots">
-              Ricochet Robots
-            </a>
+            Slide pieces to reach the target. No stops, no turns.<br />Fewest
+            moves wins.
           </p>
         </div>
 
@@ -155,13 +150,20 @@ export default define.page<typeof handler>(function Home(ctx) {
                 "hover:text-brand hover:no-underline",
               )}
             >
-              Browse all puzzles <i className="ph ph-arrow-right" />
+              Puzzle archives <i className="ph ph-arrow-right" />
             </a>
           </li>
         </ul>
       </Main>
 
-      <Panel>
+      <Panel className="max-lg:gap-fl-4">
+        <p className="col-[2/3] text-fl-0 text-text-3 lg:col-auto lg:row-start-1">
+          Inspired by{" "}
+          <a href="https://boardgamegeek.com/boardgame/51/ricochet-robots">
+            Ricochet Robots
+          </a>
+        </p>
+
         <div
           className={clsx(
             "col-[2/3] flex flex-col gap-fl-2 justify-between items-start flex-wrap text-fl-0 text-text-2",
@@ -169,7 +171,7 @@ export default define.page<typeof handler>(function Home(ctx) {
             "lg:col-auto lg:row-start-3 lg:flex-col lg:items-start",
           )}
         >
-          <div className="flex gap-fl-1 lg:flex-col max-md:text-fl-1">
+          <div className="flex gap-fl-1 lg:flex-col">
             <a
               href="https://github.com/kasperstorgaard/ricochet"
               className="flex gap-1 items-center"
@@ -190,12 +192,20 @@ export default define.page<typeof handler>(function Home(ctx) {
               "lg:flex-col",
             )}
           >
-            <a href="/puzzles/tutorial" className="btn">
+            <a
+              href="/puzzles/tutorial"
+              className="underline text-link hover:no-underline"
+            >
               How do I play?
             </a>
-            <a href={`/puzzles/${dailyPuzzle.slug}?print`} className="btn">
-              Print daily puzzle
-            </a>
+            {
+              /*
+              TODO: add an "Extras" page that surfaces power-user features in
+              one place — printing to play offline, remixing puzzles,
+              contributing, keyboard shortcuts, etc.
+              Link to it here as a secondary text link.
+            */
+            }
           </div>
         </div>
       </Panel>

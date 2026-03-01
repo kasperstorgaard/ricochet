@@ -13,8 +13,8 @@ Deno.test("formatPuzzle - formats simple puzzle", () => {
     board: {
       destination: { x: 3, y: 7 },
       pieces: [
-        { x: 1, y: 1, type: "rook" },
-        { x: 4, y: 4, type: "bouncer" },
+        { x: 1, y: 1, type: "puck" },
+        { x: 4, y: 4, type: "blocker" },
       ],
       walls: [],
     },
@@ -39,7 +39,7 @@ Deno.test("formatPuzzle - formats puzzle with undefined property", () => {
     board: {
       destination: { x: 0, y: 0 },
       pieces: [
-        { x: 1, y: 1, type: "rook" },
+        { x: 1, y: 1, type: "puck" },
       ],
       walls: [],
     },
@@ -64,7 +64,7 @@ Deno.test("formatPuzzle - formats puzzle with walls", () => {
     difficulty: "medium",
     board: {
       destination: { x: 7, y: 7 },
-      pieces: [{ x: 0, y: 0, type: "rook" }],
+      pieces: [{ x: 0, y: 0, type: "puck" }],
       walls: [
         { x: 2, y: 2, orientation: "horizontal" },
         { x: 5, y: 5, orientation: "vertical" },
@@ -88,8 +88,8 @@ Deno.test("formatPuzzle - formats puzzle with piece on destination", () => {
     board: {
       destination: { x: 4, y: 4 },
       pieces: [
-        { x: 4, y: 4, type: "rook" }, // Rook on destination
-        { x: 2, y: 2, type: "bouncer" },
+        { x: 4, y: 4, type: "puck" }, // Rook on destination
+        { x: 2, y: 2, type: "blocker" },
       ],
       walls: [],
     },
@@ -104,7 +104,7 @@ Deno.test("formatPuzzle - formats puzzle with piece on destination", () => {
 
   // Verify the destination matches the rook position
   const rookOnDest = parsed.board.pieces.find((p) =>
-    p.x === 4 && p.y === 4 && p.type === "rook"
+    p.x === 4 && p.y === 4 && p.type === "puck"
   );
   assertEquals(rookOnDest !== undefined, true);
 });
@@ -118,8 +118,8 @@ Deno.test("formatPuzzle - formats puzzle with piece on destination and wall", ()
     board: {
       destination: { x: 3, y: 2 },
       pieces: [
-        { x: 0, y: 0, type: "rook" }, // Need a rook for validation
-        { x: 3, y: 2, type: "bouncer" }, // Bouncer on destination with wall below
+        { x: 0, y: 0, type: "puck" }, // Need a rook for validation
+        { x: 3, y: 2, type: "blocker" }, // Blocker on destination with wall below
       ],
       walls: [
         { x: 3, y: 3, orientation: "horizontal" }, // Wall below the piece (stored at y+1)
@@ -135,9 +135,9 @@ Deno.test("formatPuzzle - formats puzzle with piece on destination and wall", ()
   assertEquals(parsed.board.pieces.length, 2);
   assertEquals(parsed.board.walls.length, 1);
 
-  // Verify the destination matches the bouncer position
-  const bouncerOnDest = parsed.board.pieces.find((p) =>
-    p.x === 3 && p.y === 2 && p.type === "bouncer"
+  // Verify the destination matches the blocker position
+  const blockerOnDest = parsed.board.pieces.find((p) =>
+    p.x === 3 && p.y === 2 && p.type === "blocker"
   );
-  assertEquals(bouncerOnDest !== undefined, true);
+  assertEquals(blockerOnDest !== undefined, true);
 });

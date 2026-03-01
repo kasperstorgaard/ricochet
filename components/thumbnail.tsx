@@ -1,7 +1,159 @@
 import { clsx } from "clsx/lite";
-import { HTMLAttributes } from "preact";
+import { HTMLAttributes, SVGAttributes } from "preact";
 
 import type { Board, Difficulty, Piece, Wall } from "#/game/types.ts";
+
+export type ThumbnailColors = {
+  ui1: string; // destination stroke
+  ui2: string; // puck fill
+  ui3: string; // blocker fill
+  ui4: string; // wall stroke
+};
+
+export const CSS_VAR_COLORS: ThumbnailColors = {
+  ui1: "var(--color-ui-1)",
+  ui2: "var(--color-ui-2)",
+  ui3: "var(--color-ui-3)",
+  ui4: "var(--color-ui-4)",
+};
+
+export type BoardSvgProps = SVGAttributes<SVGSVGElement> & {
+  board: Board;
+  width?: number;
+  height?: number;
+  colors?: ThumbnailColors;
+  background?: string;
+};
+
+/**
+ * Pure SVG board drawing — shared between Thumbnail (CSS vars) and og-image (hardcoded colors).
+ */
+export function BoardSvg({
+  board,
+  width = 400,
+  height = 400,
+  colors = CSS_VAR_COLORS,
+  background,
+  ...rest
+}: BoardSvgProps) {
+  const gap = width * 0.02;
+  const cellSize = (width - (7 * gap)) / 8;
+  const pieceSize = cellSize * 0.7;
+
+  const cellX = (x: number) => x * (cellSize + gap);
+  const cellY = (y: number) => y * (cellSize + gap);
+
+  const getCenter = (x: number, y: number) => ({
+    cx: cellX(x) + cellSize / 2,
+    cy: cellY(y) + cellSize / 2,
+  });
+
+  const destX = cellX(board.destination.x);
+  const destY = cellY(board.destination.y);
+
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox={`0 0 ${width} ${height}`}
+      {...rest}
+    >
+      {background && <rect width={width} height={height} fill={background} />}
+
+      {/* Destination marker */}
+      <g stroke={colors.ui1} fill="none">
+        <rect
+          x={destX}
+          y={destY}
+          width={cellSize}
+          height={cellSize}
+          strokeWidth="2"
+        />
+        <line
+          x1={destX + cellSize * 0.25}
+          y1={destY + cellSize * 0.25}
+          x2={destX + cellSize * 0.75}
+          y2={destY + cellSize * 0.75}
+          strokeWidth="3"
+          stroke-linecap="round"
+        />
+        <line
+          x1={destX + cellSize * 0.25}
+          y1={destY + cellSize * 0.75}
+          x2={destX + cellSize * 0.75}
+          y2={destY + cellSize * 0.25}
+          strokeWidth="3"
+          stroke-linecap="round"
+        />
+      </g>
+
+      {/* Walls */}
+      {board.walls.map((wall: Wall, idx) => {
+        const px = cellX(wall.x);
+        const py = cellY(wall.y);
+
+        if (wall.orientation === "vertical") {
+          return (
+            <line
+              key={`wall-${idx}`}
+              x1={px}
+              y1={py}
+              x2={px}
+              y2={py + cellSize}
+              strokeWidth="3"
+              stroke={colors.ui4}
+            />
+          );
+        } else {
+          return (
+            <line
+              key={`wall-${idx}`}
+              x1={px}
+              y1={py}
+              x2={px + cellSize}
+              y2={py}
+              strokeWidth="3"
+              stroke={colors.ui4}
+            />
+          );
+        }
+      })}
+
+      {/* Pieces */}
+      {board.pieces.map((piece: Piece, idx) => {
+        const { cx, cy } = getCenter(piece.x, piece.y);
+        const radius = pieceSize / 2;
+
+        if (piece.type === "puck") {
+          return (
+            <circle
+              key={`piece-${idx}`}
+              cx={cx}
+              cy={cy}
+              r={radius}
+              fill={colors.ui2}
+            />
+          );
+        } else {
+          const size = pieceSize;
+          const half = size / 2;
+          const cornerRadius = size * 0.15;
+          return (
+            <rect
+              key={`piece-${idx}`}
+              x={cx - half}
+              y={cy - half}
+              width={size}
+              height={size}
+              rx={cornerRadius}
+              ry={cornerRadius}
+              fill={colors.ui3}
+            />
+          );
+        }
+      })}
+    </svg>
+  );
+}
 
 export type ThumbnailProps = HTMLAttributes<SVGSVGElement> & {
   board: Board;
@@ -22,131 +174,20 @@ export function Thumbnail({
   class: className,
   ...rest
 }: ThumbnailProps) {
-  const gap = width * 0.02;
-  const cellSize = (width - (7 * gap)) / 8;
-  const pieceSize = cellSize * 0.7;
-
-  // Cell top-left position accounting for gaps
-  const cellX = (x: number) => x * (cellSize + gap);
-  const cellY = (y: number) => y * (cellSize + gap);
-
-  // Helper to get cell center coordinates
-  const getCenter = (x: number, y: number) => ({
-    cx: cellX(x) + cellSize / 2,
-    cy: cellY(y) + cellSize / 2,
-  });
-
-  // Destination marker - fills the cell like the real board
-  const destX = cellX(board.destination.x);
-  const destY = cellY(board.destination.y);
-
   return (
     <div class={clsx("relative", className)}>
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox={`0 0 ${width} ${height}`}
+      <BoardSvg
+        board={board}
+        width={width}
+        height={height}
         class="w-full h-full"
         {...rest}
-      >
-        {/* Destination marker - border with centered X icon */}
-        <g stroke="var(--color-ui-1)" fill="none">
-          <rect
-            x={destX}
-            y={destY}
-            width={cellSize}
-            height={cellSize}
-            strokeWidth="2"
-          />
-          <line
-            x1={destX + cellSize * 0.25}
-            y1={destY + cellSize * 0.25}
-            x2={destX + cellSize * 0.75}
-            y2={destY + cellSize * 0.75}
-            strokeWidth="3"
-            stroke-linecap="round"
-          />
-          <line
-            x1={destX + cellSize * 0.25}
-            y1={destY + cellSize * 0.75}
-            x2={destX + cellSize * 0.75}
-            y2={destY + cellSize * 0.25}
-            strokeWidth="3"
-            stroke-linecap="round"
-          />
-        </g>
-
-        {/* Walls - with gaps to look like separate segments */}
-        {board.walls.map((wall: Wall, idx) => {
-          const px = cellX(wall.x);
-          const py = cellY(wall.y);
-
-          if (wall.orientation === "vertical") {
-            return (
-              <line
-                key={`wall-${idx}`}
-                x1={px}
-                y1={py}
-                x2={px}
-                y2={py + cellSize}
-                strokeWidth="3"
-                stroke="var(--color-ui-4)"
-              />
-            );
-          } else {
-            return (
-              <line
-                key={`wall-${idx}`}
-                x1={px}
-                y1={py}
-                x2={px + cellSize}
-                y2={py}
-                strokeWidth="3"
-                stroke="var(--color-ui-4)"
-              />
-            );
-          }
-        })}
-
-        {/* Pieces */}
-        {board.pieces.map((piece: Piece, idx) => {
-          const { cx, cy } = getCenter(piece.x, piece.y);
-          const radius = pieceSize / 2;
-
-          if (piece.type === "rook") {
-            return (
-              <circle
-                key={`piece-${idx}`}
-                cx={cx}
-                cy={cy}
-                r={radius}
-                fill="var(--color-ui-2)"
-              />
-            );
-          } else {
-            // Bouncers are same size as rooks, with rounded corners
-            const size = pieceSize;
-            const half = size / 2;
-            const cornerRadius = size * 0.15; // Slightly rounded corners
-            return (
-              <rect
-                key={`piece-${idx}`}
-                x={cx - half}
-                y={cy - half}
-                width={size}
-                height={size}
-                rx={cornerRadius}
-                ry={cornerRadius}
-                fill="var(--color-ui-3)"
-              />
-            );
-          }
-        })}
-      </svg>
+      />
 
       <div
         class={clsx(
           "absolute bottom-0 right-0 px-fl-1 py-0.5 bg-surface-2",
-          "text-current text-0 text-center font-mono uppercase",
+          "text-current text-0 text-center uppercase",
           "[clip-path:polygon(10%_0,100%_0,100%_100%,0_100%)]",
         )}
       >

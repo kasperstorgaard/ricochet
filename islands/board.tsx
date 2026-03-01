@@ -134,7 +134,7 @@ export default function Board(
         // Reusable board style variables
         style={{
           "--active-bg": activePiece
-            ? activePiece.type === "rook"
+            ? activePiece.type === "puck"
               ? "var(--color-ui-2)"
               : "var(--color-ui-3)"
             : null,
@@ -348,7 +348,7 @@ type BoardPieceProps = {
   y: number;
   id: string;
   href: string;
-  type: "rook" | "bouncer";
+  type: "puck" | "blocker";
   isActive?: boolean;
   isReadonly?: boolean;
   onFocus: (event: FocusEvent) => void;
@@ -384,8 +384,8 @@ function BoardPiece(
       <div
         className={clsx(
           "w-full h-full",
-          type === "rook" && "bg-ui-2 rounded-round",
-          type === "bouncer" && "bg-ui-3 rounded-1",
+          type === "puck" && "bg-ui-2 rounded-round",
+          type === "blocker" && "bg-ui-3 rounded-1",
         )}
       />
     </a>
@@ -417,5 +417,5 @@ function BoardReplayStyles({ puzzle, moves }: BoardReplayProps) {
 }
 
 function getPieceId(piece: Piece, idx: number) {
-  return `${piece.type === "rook" ? "r" : "b"}_${idx}`;
+  return `${piece.type === "puck" ? "p" : "b"}_${idx}`;
 }

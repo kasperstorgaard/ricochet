@@ -563,7 +563,7 @@
 /* Dark theme */
 :root {
   --color-brand: var(--pink-7);
-  --color-link: var(--violet-4);
+  --color-link: var(--violet-5);
   --color-link-visited: var(--link-visited);
 
   /* rename from open-props */
@@ -680,6 +680,18 @@
 }
 
 /* Custom components */
+/*
+  TODO: establish consistent global link styles.
+  Currently links are styled ad-hoc across components — inconsistent sizing,
+  color tokens (text-link, text-text-2, etc.), and underline behaviour.
+  Should define a baseline in @layer components or @layer base that covers:
+  - default color + underline
+  - hover state (no-underline or color shift)
+  - visited state
+  - sizing that scales with surrounding text (no hardcoded text-fl-* on links)
+  See: islands/controls-panel.tsx hint link as a concrete example of the mess.
+*/
+
 @layer components {
   .btn {
     display: inline-flex;
@@ -689,7 +701,7 @@
     gap: calc(var(--size-fluid-1) - 4px);
     white-space: nowrap;
     font-size: var(--font-size-1);
-    font-weight: var(--font-weight-7);
+    font-weight: var(--font-weight-semibold);
     padding-inline: var(--size-3);
     padding-block: var(--size-1);
     color: var(--color-link);

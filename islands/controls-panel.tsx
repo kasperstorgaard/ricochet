@@ -1,6 +1,6 @@
 import type { Signal } from "@preact/signals";
 import { clsx } from "clsx/lite";
-import { useCallback, useEffect, useMemo } from "preact/hooks";
+import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 
 import { useGameShortcuts } from "#/client/keyboard.ts";
 import { updateLocation } from "#/client/router.ts";
@@ -26,6 +26,25 @@ type ControlsPanelProps = {
 export function ControlsPanel(
   { puzzle, href, isDev, hintCount, isPreview, className }: ControlsPanelProps,
 ) {
+  const [copied, setCopied] = useState(false);
+
+  const onShare = useCallback(async () => {
+    const url = new URL(href.value);
+    url.search = "";
+    const shareUrl = url.href;
+
+    if ("share" in navigator) {
+      await globalThis.navigator.share({
+        title: puzzle.value.name,
+        url: shareUrl,
+      });
+    } else {
+      await globalThis.navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }, [href.value, puzzle.value.name]);
+
   const hintLimit = puzzle.value.difficulty === "easy" ? 3 : 1;
   const hintsExhausted = !isDev && !isPreview && hintCount >= hintLimit;
 
@@ -142,7 +161,6 @@ export function ControlsPanel(
               href={hintsExhausted ? "#" : getHintHref(href.value)}
               className={clsx(
                 "underline text-link bg-transparent hover:no-underline",
-                // TODO: add better global link styles
                 "aria-disabled:cursor-help aria-disabled:opacity-50 aria-disabled:text-text-3 aria-disabled:hover:underline aria-disabled:hover:text-text-3",
               )}
               aria-disabled={hintsExhausted}
@@ -153,7 +171,11 @@ export function ControlsPanel(
                 ? `1 hint per day per puzzle (easy: 3)`
                 : undefined}
             >
-              Get a hint
+              {!hintsExhausted
+                ? "Get a hint"
+                : puzzle.value.difficulty === "easy"
+                ? "Hints used"
+                : "Hint used"}
             </a>
 
             <a
@@ -170,6 +192,17 @@ export function ControlsPanel(
           <button
             type="button"
             className="btn"
+            onClick={onShare}
+          >
+            <i
+              className={clsx(copied ? "ph-check ph" : "ph-share-network ph")}
+            />
+            {copied ? "Copied!" : "Share"}
+          </button>
+
+          <button
+            type="button"
+            className="btn"
             onClick={() => globalThis.print()}
           >
             <i className="ph-printer ph" /> Print
@@ -180,7 +213,7 @@ export function ControlsPanel(
               href={`/puzzles/${puzzle.value.slug}/clone`}
               className="btn"
             >
-              <i className="ph-copy ph" /> Remix
+              <i className="ph-shuffle ph" /> Remix
             </a>
           )}
 
@@ -191,22 +224,13 @@ export function ControlsPanel(
             </a>
           )}
 
-          <a
-            href="/"
-            className="btn"
-          >
-            More puzzles
-          </a>
-
-          {!isPreview && (
-            <a
-              href={`/puzzles/${puzzle.value.slug}/solutions`}
-              className="btn"
-            >
-              <span className="lg:hidden">Solutions</span>
-              <span className="max-lg:hidden">See solutions</span>
-            </a>
-          )}
+          {
+            /*
+              TODO: surface solutions post-solve once per-puzzle completion
+              state is tracked — removed from here as it was a heavy CTA on
+              mobile for a "give up / compare" action that should be contextual.
+            */
+          }
         </div>
       </div>
     </Panel>

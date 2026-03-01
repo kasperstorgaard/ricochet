@@ -11,14 +11,14 @@ import { Board, Piece, Position, type Puzzle, Wall } from "#/game/types.ts";
  * - The board is 8x8, 1 line per row
  * - Characters:
  *   - ` ` (space) = empty cell
- *   - `@` = rook (main piece)
- *   - `@̂` = rook on destination (@ + U+0302)
- *   - `@̲` = rook + horizontal wall below (@ + U+0332)
- *   - `@̲̂` = rook on destination + horizontal wall below (@ + U+0332 + U+0302)
- *   - `#` = bouncer (supporting piece)
- *   - `#̂` = bouncer on destination (# + U+0302)
- *   - `#̲` = bouncer + horizontal wall below (# + U+0332)
- *   - `#̲̂` = bouncer on destination + horizontal wall below (# + U+0332 + U+0302)
+ *   - `@` = puck (main piece)
+ *   - `@̂` = puck on destination (@ + U+0302)
+ *   - `@̲` = puck + horizontal wall below (@ + U+0332)
+ *   - `@̲̂` = puck on destination + horizontal wall below (@ + U+0332 + U+0302)
+ *   - `#` = blocker (supporting piece)
+ *   - `#̂` = blocker on destination (# + U+0302)
+ *   - `#̲` = blocker + horizontal wall below (# + U+0332)
+ *   - `#̲̂` = blocker on destination + horizontal wall below (# + U+0332 + U+0302)
  *   - `X` = destination (when no piece on it)
  *   - `X̲` = destination + horizontal wall below (X + U+0332)
  *   - `|` = vertical wall (between columns)
@@ -62,10 +62,10 @@ export class ParserError extends Error {
 
 // Character mappings for board elements
 const CELL_CHARS = {
-  rook: "@",
-  rookWall: "@̲", // @ + U+0332 (combining low line)
-  bouncer: "#",
-  bouncerWall: "#̲", // # + U+0332
+  puck: "@",
+  puckWall: "@̲", // @ + U+0332 (combining low line)
+  blocker: "#",
+  blockerWall: "#̲", // # + U+0332
   destination: "X",
   destinationWall: "X̲", // X + U+0332
   empty: " ",
@@ -153,9 +153,9 @@ function parseBoard(rows: string[]): Board {
         continue;
       }
 
-      // Check for rook
+      // Check for puck
       if (char === "@") {
-        pieces.push({ x, y, type: "rook" });
+        pieces.push({ x, y, type: "puck" });
 
         // If this piece has circumflex, it's on the destination
         if (hasCircumflex) {
@@ -172,9 +172,9 @@ function parseBoard(rows: string[]): Board {
         continue;
       }
 
-      // Check for bouncer
+      // Check for blocker
       if (char === "#") {
-        pieces.push({ x, y, type: "bouncer" });
+        pieces.push({ x, y, type: "blocker" });
 
         // If this piece has circumflex, it's on the destination
         if (hasCircumflex) {

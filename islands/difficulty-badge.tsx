@@ -85,7 +85,7 @@ export function DifficultyBadge(
       ref={ref}
       className={clsx(
         "flex items-center justify-center",
-        "bg-surface-2 font-mono cursor-help",
+        "bg-surface-2 cursor-help",
         error && "bg-red-700 text-white",
         className,
       )}

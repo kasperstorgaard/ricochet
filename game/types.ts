@@ -7,9 +7,9 @@ export type Position = {
   y: number;
 };
 
-// A game piece (rook or bouncer) placed on the board
+// A game piece (puck or blocker) placed on the board
 export type Piece = Position & {
-  type: "rook" | "bouncer";
+  type: "puck" | "blocker";
 };
 
 // A wall segment that blocks piece movement

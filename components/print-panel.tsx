@@ -7,15 +7,11 @@ export function PrintPanel() {
         {[0, 1].map((col) => (
           <div key={col} className="flex flex-col gap-fl-3">
             {Array.from(
-              { length: 6 },
+              { length: 5 },
               (_, row) => (
                 <div key={row} className="flex gap-fl-1 items-end">
-                  <span className="border-b border-text-3 pl-2 py-fl-1 w-8 font-mono text-00 leading-tight text-text-3/70">
-                    {row === 0 ? "moves" : ""}
-                  </span>
-                  <span className="border-b border-text-3 flex-1 pl-2 py-fl-1 font-mono text-00 leading-tight text-text-3/70">
-                    {row === 0 ? "name" : ""}
-                  </span>
+                  <span className="border-b border-text-3 pl-2 py-fl-1 w-8 text-00 leading-tight" />
+                  <span className="border-b border-text-3 flex-1 pl-2 py-fl-1 text-00 leading-tight" />
                 </div>
               ),
             )}

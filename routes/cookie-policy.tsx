@@ -10,8 +10,8 @@ export default define.page(function CookiePolicyPage() {
           <h2 className="text-4 font-semibold mt-fl-4">Cookie Policy</h2>
 
           <p className="text-text-2">
-            Ricochet uses a single first-party cookie to understand how people
-            use the game. That's it. (and it's opt in)
+            Skub uses a single first-party cookie to understand how people use
+            the game. That's it. (and it's opt in)
           </p>
 
           <h3 className="text-2 font-semibold mt-fl-1">
@@ -45,7 +45,7 @@ export default define.page(function CookiePolicyPage() {
           <h3 className="text-2 font-semibold mt-fl-1">What is PostHog?</h3>
           <p className="text-text-2">
             PostHog is an analytics platform that helps us understand how people
-            interact with Ricochet. It tells us things like which levels people
+            interact with Skub. It tells us things like which puzzles people
             play, where they get stuck, and what features are actually being
             used.
           </p>

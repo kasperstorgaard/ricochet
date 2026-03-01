@@ -12,14 +12,14 @@ export const handler = define.handlers({
       return new Response("Invalid JSON", { status: 400 });
     }
 
-    const { solveRange, wallsRange, bouncersRange, wallSpread } = body;
+    const { solveRange, wallsRange, blockersRange, wallSpread } = body;
 
     if (
-      !solveRange || !wallsRange || !bouncersRange || !wallSpread ||
+      !solveRange || !wallsRange || !blockersRange || !wallSpread ||
       solveRange[0] > solveRange[1] ||
       wallsRange[0] > wallsRange[1] ||
-      bouncersRange[0] > bouncersRange[1] ||
-      solveRange[0] < 1 || wallsRange[0] < 0 || bouncersRange[0] < 0
+      blockersRange[0] > blockersRange[1] ||
+      solveRange[0] < 1 || wallsRange[0] < 0 || blockersRange[0] < 0
     ) {
       return new Response("Invalid options", { status: 400 });
     }

@@ -13,47 +13,54 @@ import { getPage } from "#/game/url.ts";
 
 const ITEMS_PER_PAGE = 6;
 
-type PageData = PaginatedData<Puzzle> & { locale: string };
+type PageData = PaginatedData<Puzzle> & {
+  latestCreatedAt: Date;
+};
 
 export const handler = define.handlers<PageData>({
   async GET(ctx) {
-    const { items, pagination } = await listPuzzles(ctx.url.origin, {
-      sortBy: "createdAt",
-      sortOrder: "descending",
-      page: getPage(ctx.url) ?? 1,
-      itemsPerPage: ITEMS_PER_PAGE,
+    const currentPage = getPage(ctx.url) ?? 1;
+
+    const [{ items, pagination }, { items: [latestPuzzle] }] = await Promise
+      .all([
+        listPuzzles(ctx.url.origin, {
+          sortBy: "createdAt",
+          sortOrder: "descending",
+          page: currentPage,
+          itemsPerPage: ITEMS_PER_PAGE,
+        }),
+        listPuzzles(ctx.url.origin, {
+          sortBy: "createdAt",
+          sortOrder: "descending",
+          page: 1,
+          itemsPerPage: 1,
+        }),
+      ]);
+
+    return page({
+      items,
+      pagination,
+      latestCreatedAt: latestPuzzle.createdAt,
     });
-
-    const locale = ctx.req.headers.get("Accept-Language")?.split(",")[0] ??
-      "en";
-
-    return page({ items, pagination, locale });
   },
 });
 
 export default define.page<typeof handler>(
   function PuzzlesPage(props) {
-    const { items, pagination, locale } = props.data;
+    const { items, pagination, latestCreatedAt } = props.data;
 
     const url = new URL(props.req.url);
-
-    const navItems = [
-      { name: "home", href: "/" },
-      { name: "puzzles", href: "/puzzles" },
-    ];
 
     return (
       <>
         <Main className="max-lg:row-span-full items-stretch place-content-stretch lg:pb-fl-4">
-          <Header url={url} items={navItems} />
+          <Header url={url} back={{ href: "/" }} />
 
-          <div className="flex items-center justify-between gap-fl-1 mt-2 -mb-1">
-            <h1 className="text-5 text-brand">Puzzles</h1>
-          </div>
+          <h1 className="text-5 text-brand -mb-fl-1">Puzzle archives</h1>
 
           <ul
             className={clsx(
-              "p-0 grid grid-cols-[repeat(2,1fr)] gap-fl-2",
+              "p-0 grid grid-cols-[repeat(2,1fr)] gap-x-fl-2 gap-y-fl-1",
               "md:grid-cols-[repeat(3,1fr)] max-lg:max-w-120 max-lg:mt-fl-2",
             )}
           >
@@ -62,7 +69,7 @@ export default define.page<typeof handler>(
                 <a
                   href={`puzzles/${puzzle.slug}`}
                   className={clsx(
-                    "group flex flex-col gap-fl-1 text-text-1",
+                    "group flex flex-col gap-1 text-text-1",
                     "hover:text-brand hover:no-underline",
                   )}
                 >
@@ -79,22 +86,9 @@ export default define.page<typeof handler>(
                     />
                   </div>
 
-                  <div className="flex gap-fl-1 justify-between items-start">
-                    <div className="flex flex-col">
-                      <time
-                        dateTime={puzzle.createdAt.toISOString()}
-                        className="text-0 text-text-2 group-hover:text-current uppercase tracking-wide leading-flat"
-                      >
-                        {new Intl.DateTimeFormat(locale, {
-                          dateStyle: "short",
-                        }).format(puzzle.createdAt)}
-                      </time>
-
-                      <span className="flex flex-wrap text-2 leading-tight font-4">
-                        {puzzle.name}
-                      </span>
-                    </div>
-                  </div>
+                  <span className="flex flex-wrap text-2 leading-tight font-4">
+                    {puzzle.name}
+                  </span>
                 </a>
               </li>
             ))}
@@ -103,43 +97,49 @@ export default define.page<typeof handler>(
           <Pagination
             {...pagination}
             baseUrl={props.url.href}
-            className="mt-fl-1 max-sm:mb-fl-1 max-sm:mt-fl-3"
+            className="max-sm:mb-fl-1 max-sm:mt-fl-3 self-start"
           />
         </Main>
 
-        <Panel>
+        <Panel className="max-lg:gap-y-fl-2">
           <div
             className={clsx(
-              "col-[2/3] flex flex-col gap-fl-2 justify-between items-start flex-wrap text-fl-0 text-text-2",
-              "sm:flex-row sm:items-center",
-              "lg:col-auto lg:row-start-3 lg:flex-col lg:items-start",
+              "col-[2/3] flex flex-col gap-fl-2 items-start",
+              "lg:col-auto lg:row-start-3",
             )}
           >
-            <div className="flex gap-fl-1 lg:flex-col max-md:text-fl-1">
-              <a
-                href="https://github.com/kasperstorgaard/ricochet"
-                className="flex gap-1 items-center"
-              >
-                <i className="ph ph-github-logo" /> GitHub
-              </a>
-              <a
-                href="https://www.linkedin.com/in/kasper-storgaard-t-lead"
-                className="flex gap-1 items-center "
-              >
-                <i className="ph ph-linkedin-logo" /> LinkedIn
-              </a>
+            <div className="flex flex-col gap-0">
+              <span className="text-fl-3 text-brand leading-flat font-4">
+                {pagination.totalItems}
+              </span>
+              <span className="text-fl-0 text-text-2">Puzzles</span>
             </div>
 
-            <div
-              className={clsx(
-                "flex flex-wrap gap-fl-1 items-start",
-                "lg:flex-col",
-              )}
-            >
-              <a href="/puzzles/new" className="btn">
-                Build your own
-              </a>
+            <div className="flex flex-col gap-0">
+              <span className="text-fl-2 text-brand leading-flat font-4">
+                {new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(
+                  latestCreatedAt,
+                )}
+              </span>
+              <span className="text-fl-0 text-text-2">
+                Latest batch
+              </span>
             </div>
+          </div>
+
+          <div
+            className={clsx(
+              "col-[2/3] flex flex-col items-start text-fl-0 text-text-2 mt-auto gap-fl-1",
+              "lg:col-auto lg:row-start-3",
+            )}
+          >
+            <span className="text-text-2 text-fl-0">Feeling creative?</span>
+            <a
+              href="/puzzles/new"
+              className="btn"
+            >
+              Build a puzzle
+            </a>
           </div>
         </Panel>
       </>

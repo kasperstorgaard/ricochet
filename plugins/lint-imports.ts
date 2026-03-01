@@ -1,7 +1,7 @@
 type ImportGroup = "third-party" | "project";
 
 export default {
-  name: "ricochet-imports",
+  name: "skub-imports",
   rules: {
     /**
      * All cross-folder project imports must use the #/ alias.
