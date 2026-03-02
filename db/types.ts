@@ -5,4 +5,5 @@ export type Solution = {
   puzzleSlug: string;
   name: string;
   moves: Move[];
+  isGenerated?: boolean;
 };

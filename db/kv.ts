@@ -1,6 +1,8 @@
 import { ulid } from "@std/ulid";
 
 import { Solution } from "#/db/types.ts";
+import { encodeMoves } from "#/game/strings.ts";
+import { Move } from "#/game/types.ts";
 
 export const kv = await Deno.openKv();
 
@@ -11,21 +13,35 @@ export async function addSolution(payload: Omit<Solution, "id">) {
   const id = ulid().toLowerCase();
   const solution = { ...payload, id };
 
+  const movesEncoded = encodeMoves(moves);
+
+  // Keys
   const primaryKey = ["solutions_by_puzzle", puzzleSlug, id];
   const byMovesKey = ["solutions_by_puzzle_moves", puzzleSlug, noOfMoves, id];
+  const bySequenceKey = [
+    "solutions_by_puzzle_move_sequence",
+    puzzleSlug,
+    ...movesEncoded.split("-"),
+    id,
+  ];
 
   await kv.atomic()
     .check({ key: primaryKey, versionstamp: null })
     .check({ key: byMovesKey, versionstamp: null })
+    .check({ key: bySequenceKey, versionstamp: null })
     .set(primaryKey, solution)
     .set(byMovesKey, solution)
+    .set(bySequenceKey, solution)
     .commit();
 
   return solution;
 }
 
-type ListPuzzleSolutionsOptions = Deno.KvListOptions & {
+type ListPuzzleSolutionsOptions = Omit<Deno.KvListOptions, "limit"> & {
   byMoves?: boolean;
+  bySequence?: Move[];
+  isGenerated?: boolean;
+  limit?: number;
 };
 
 export async function listPuzzleSolutions(
@@ -33,14 +49,32 @@ export async function listPuzzleSolutions(
   options: ListPuzzleSolutionsOptions,
 ) {
   const solutions: Solution[] = [];
+  const { byMoves, bySequence, isGenerated, limit, ...kvOptions } = options;
 
-  const key = options?.byMoves
-    ? ["solutions_by_puzzle_moves", puzzleId]
-    : ["solutions_by_puzzle", puzzleId];
+  let key: Deno.KvKey;
 
-  const iter = kv.list<Solution>({ prefix: key }, options);
+  if (bySequence !== undefined) {
+    const encodedMoves = encodeMoves(bySequence);
+    key = [
+      "solutions_by_puzzle_move_sequence",
+      puzzleId,
+      ...encodedMoves.split("-"),
+    ];
+  } else if (byMoves) {
+    key = ["solutions_by_puzzle_moves", puzzleId];
+  } else {
+    key = ["solutions_by_puzzle", puzzleId];
+  }
 
-  for await (const res of iter) solutions.push(res.value);
+  const iter = kv.list<Solution>({ prefix: key }, kvOptions);
+
+  for await (const res of iter) {
+    if (isGenerated !== undefined && res.value.isGenerated !== isGenerated) {
+      continue;
+    }
+    solutions.push(res.value);
+    if (limit !== undefined && solutions.length >= limit) break;
+  }
 
   return solutions;
 }
@@ -54,3 +88,4 @@ export async function getPuzzleSolution(
 
   return res.value;
 }
+
