@@ -111,6 +111,7 @@ export function ControlsPanel(
               href={getUndoHref(href.value, state)}
               className="icon-btn aria-disabled:opacity-40"
               aria-disabled={!state.cursor ? true : undefined}
+              data-primary
               data-size="lg"
               data-router="replace"
             >
@@ -119,7 +120,7 @@ export function ControlsPanel(
 
             <div
               className={clsx(
-                "flex items-center justify-center",
+                "flex items-center justify-center min-w-[2ch]",
                 "text-center font-3 leading-flat",
                 "max-lg:text-7",
                 "lg:text-fl-2",
@@ -135,6 +136,7 @@ export function ControlsPanel(
                   state.cursor === state.moves.length
                 ? true
                 : undefined}
+              data-primary
               data-size="lg"
               data-router="replace"
             >
@@ -187,7 +189,7 @@ export function ControlsPanel(
           </div>
         </div>
 
-        <div className="flex justify-center gap-fl-1 flex-wrap lg:grid lg:grid-cols-1 border-t border-surface-3 max-lg:-mt-fl-1 pt-fl-3 -mx-fl-3 px-fl-3 lg:-mx-fl-2 lg:px-fl-2">
+        <div className="flex justify-center gap-fl-1 flex-wrap lg:grid lg:grid-cols-1">
           <button
             type="button"
             className="btn"
