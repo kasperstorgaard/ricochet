@@ -690,7 +690,7 @@
 
   a:is(:hover, :active),
   .link:is(:hover, :active) {
-    filter: brightness(1.2);
+    filter: brightness(1.3);
     text-decoration-thickness: 2px;
   }
 }
@@ -772,8 +772,7 @@
 
   .btn[data-primary]:is(:hover, :focus):not([disabled], [aria-disabled]),
   .icon-btn[data-primary]:is(:hover, :focus):not([disabled], [aria-disabled]) {
-    background-color: var(--color-link-active);
-    border-color: var(--color-link-active);
+    filter: brightness(1.3);
   }
 
   .btn[data-primary]:is([disabled], [aria-disabled]),
