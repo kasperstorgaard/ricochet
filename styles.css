@@ -690,12 +690,23 @@
 
   a:is(:hover, :active),
   .link:is(:hover, :active) {
-    color: var(--color-link-active);
+    filter: brightness(1.2);
     text-decoration-thickness: 2px;
   }
 }
 
 @layer components {
+  /* scoped to button component styles */
+  :root {
+    --btn-active-text: var(--stone-0);
+  }
+
+  @media (prefers-color-scheme: light), print {
+    :root {
+      --btn-active-text: var(--stone-0);
+    }
+  }
+
   .btn {
     display: inline-flex;
     align-items: center;
@@ -709,15 +720,12 @@
     font-size: var(--font-size-1);
     font-weight: var(--font-weight-semibold);
     text-decoration: none;
-    color: var(--color-link);
+    color: var(--color-text-1);
     border: var(--border-size-2) solid var(--color-link);
     border-radius: var(--radius-2);
+    /* fallback bg for older browsers */
     background-color: transparent;
-  }
-
-  .btn[data-fullwidth] {
-    width: 100%;
-    justify-content: center;
+    background-color: color-mix(in srgb, var(--color-link) 12%, transparent);
   }
 
   .icon-btn {
@@ -732,10 +740,10 @@
     font-weight: var(--font-weight-7);
     text-decoration: none;
     line-height: 1;
-    color: var(--color-link);
+    color: var(--color-text-1);
     border: var(--border-size-2) solid var(--color-link);
     border-radius: var(--radius-2);
-    background-color: transparent;
+    background-color: color-mix(in srgb, var(--color-link) 10%, transparent);
   }
 
   .icon-btn[data-size="lg"] {
@@ -750,9 +758,27 @@
   .btn:is(:hover, :focus):not([disabled], [aria-disabled]),
   .icon-btn:is(:hover, :focus):not([disabled], [aria-disabled]) {
     cursor: pointer;
-    color: var(--blue-0);
+    color: var(--btn-active-text);
     background-color: var(--color-link);
     text-decoration: none;
+  }
+
+  .btn[data-primary],
+  .icon-btn[data-primary] {
+    background-color: var(--color-link);
+    color: var(--btn-active-text);
+    border-color: var(--color-link);
+  }
+
+  .btn[data-primary]:is(:hover, :focus):not([disabled], [aria-disabled]),
+  .icon-btn[data-primary]:is(:hover, :focus):not([disabled], [aria-disabled]) {
+    background-color: var(--color-link-active);
+    border-color: var(--color-link-active);
+  }
+
+  .btn[data-primary]:is([disabled], [aria-disabled]),
+  .icon-btn[data-primary]:is([disabled], [aria-disabled]) {
+    opacity: 0.6;
   }
 
   .btn:active:not(:focus-visible),
@@ -761,6 +787,10 @@
   }
 
   @media (width < 64rem /* 1024px */) {
+    .btn:not([data-size]) {
+      padding-inline: calc(var(--size-3) - 2px);
+    }
+
     .icon-btn[data-size="lg"] {
       padding: calc(var(--size-fluid-1) + 3px);
       font-size: var(--font-size-4);
