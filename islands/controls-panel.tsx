@@ -46,7 +46,7 @@ export function ControlsPanel(
   }, [href.value, puzzle.value.name]);
 
   const hintLimit = puzzle.value.difficulty === "easy" ? 3 : 1;
-  const hintsExhausted = !isDev && !isPreview && hintCount >= hintLimit;
+  const hintDisabled = !isDev && !isPreview && hintCount >= hintLimit;
 
   const state = useMemo(() => decodeState(href.value), [href.value]);
 
@@ -64,7 +64,7 @@ export function ControlsPanel(
     onRedo: () => self.history.forward(),
     onReset,
     onHint: () => {
-      if (hintsExhausted) return;
+      if (hintDisabled) return;
       globalThis.location.href = getHintHref(href.value);
     },
   });
@@ -157,16 +157,21 @@ export function ControlsPanel(
             This is slightly expensive, so needs to be on demand, not optimistic.
           */
             }
-            <a
-              href={hintsExhausted ? "#" : getHintHref(href.value)}
-              aria-disabled={hintsExhausted ? true : undefined}
-            >
-              {!hintsExhausted
-                ? "Get a hint"
-                : puzzle.value.difficulty === "easy"
-                ? "Hints used"
-                : "Hint used"}
-            </a>
+            {puzzle.value.slug !== "preview" && (
+              <a
+                href={hintDisabled ? "#" : getHintHref(href.value)}
+                aria-disabled={hintDisabled ? true : undefined}
+                onClick={(event) => {
+                  if (hintDisabled) event.preventDefault();
+                }}
+              >
+                {!hintDisabled
+                  ? "Get a hint"
+                  : puzzle.value.difficulty === "easy"
+                  ? "Hints used"
+                  : "Hint used"}
+              </a>
+            )}
 
             <a
               href={getResetHref(href.value)}

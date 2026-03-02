@@ -242,13 +242,22 @@ export function EditorPanel(
             </noscript>
           </form>
 
-          <a
-            href="/puzzles/preview"
+          <button
+            type="button"
             className="btn"
-            target="_blank"
+            onClick={async () => {
+              const res = await fetch("/api/solve", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(board),
+              });
+              const { moves } = await res.json();
+              const search = encodeState({ moves, cursor: 0 });
+              globalThis.open(`/puzzles/preview?${search}`, "_blank");
+            }}
           >
             <i className="ph-eye ph" /> Preview
-          </a>
+          </button>
         </div>
       </div>
 

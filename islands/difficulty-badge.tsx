@@ -42,7 +42,7 @@ export function DifficultyBadge(
 
       const { moves } = await res.json();
 
-      setMinMoves(moves);
+      setMinMoves(moves.length);
     } catch (err) {
       setError((err as Error).message);
     }

@@ -1,12 +1,12 @@
 import { HttpError } from "fresh";
 
 import { define } from "#/core.ts";
+import { addSolution, listPuzzleSolutions } from "#/db/kv.ts";
 import { resolveMoves } from "#/game/board.ts";
-import { getHintCount, getStoredPuzzle, setHintCount } from "#/game/cookies.ts";
+import { getHintCount, setHintCount } from "#/game/cookies.ts";
 import { getPuzzle } from "#/game/loader.ts";
-import { getHint } from "#/game/solver.ts";
+import { solve } from "#/game/solver.ts";
 import { encodeMoves } from "#/game/strings.ts";
-import { Puzzle } from "#/game/types.ts";
 import { decodeState } from "#/game/url.ts";
 import { isDev } from "#/lib/env.ts";
 import { posthog } from "#/lib/posthog.ts";
@@ -21,13 +21,9 @@ export const handler = define.handlers({
 
     const state = decodeState(url);
 
-    let puzzle: Puzzle | null = null;
+    if (slug === "preview") return Response.redirect(url.href, 303);
 
-    if (slug === "preview") {
-      puzzle = getStoredPuzzle(ctx.req.headers);
-    } else {
-      puzzle = await getPuzzle(ctx.url.origin, slug);
-    }
+    const puzzle = await getPuzzle(ctx.url.origin, slug);
 
     if (!puzzle) {
       throw new HttpError(500, "Unable to get puzzle");
@@ -36,18 +32,32 @@ export const handler = define.handlers({
     const hintCount = getHintCount(ctx.req.headers);
     const hintLimit = getHintLimit(puzzle.difficulty);
 
-    // Guard against usage if hint limit is exceeded
-    if (!isDev && slug !== "preview" && hintCount >= hintLimit) {
-      return Response.redirect(url.href, 303);
+    if (!isDev && hintCount >= hintLimit) {
+      throw new HttpError(400, "Hint limit exceeded");
     }
 
-    const moves = state.moves
-      ? state.moves.slice(0, state.cursor ?? state.moves.length)
-      : null;
-    const board = moves?.length
-      ? resolveMoves(puzzle.board, moves)
-      : puzzle.board;
-    const hint = getHint(board);
+    const moves = state.moves.slice(0, state.cursor ?? state.moves.length);
+
+    let [solution] = await listPuzzleSolutions(slug, {
+      bySequence: moves,
+      limit: 1,
+    });
+
+    if (!solution) {
+      const board = moves.length
+        ? resolveMoves(puzzle.board, moves)
+        : puzzle.board;
+      const nextMoves = solve(board);
+
+      solution = await addSolution({
+        puzzleSlug: slug,
+        name: "Solver",
+        moves: [...moves, ...nextMoves],
+        isGenerated: true,
+      });
+    }
+
+    const hint = solution.moves[moves.length];
 
     posthog?.capture({
       event: "hint_requested",
@@ -59,7 +69,7 @@ export const handler = define.handlers({
         puzzle_slug: slug,
         puzzle_difficulty: puzzle.difficulty,
         puzzle_min_moves: puzzle.minMoves,
-        game_moves: moves?.length,
+        game_moves: state.cursor,
       },
     });
 
