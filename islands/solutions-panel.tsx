@@ -101,7 +101,7 @@ export function SolutionsPanel(
                         {idx === 0 && (
                           <i
                             className={clsx(
-                              "ph ph-trophy shrink-0 text-orange-3",
+                              "ph ph-trophy shrink-0 text-ui-2",
                             )}
                           />
                         )}
