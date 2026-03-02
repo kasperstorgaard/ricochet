@@ -1,7 +1,12 @@
 import { HttpError } from "fresh";
 
 import { define } from "#/core.ts";
-import { addSolution, listPuzzleSolutions } from "#/db/kv.ts";
+import {
+  addSolution,
+  addSolve,
+  listPuzzleSolutions,
+  listPuzzleSolves,
+} from "#/db/kv.ts";
 import { resolveMoves } from "#/game/board.ts";
 import { getHintCount, setHintCount } from "#/game/cookies.ts";
 import { getPuzzle } from "#/game/loader.ts";
@@ -34,29 +39,28 @@ export const handler = define.handlers({
       throw new HttpError(400, "Hint limit exceeded");
     }
 
-    const currentMoves = state.cursor
+    const currentMoves = state.cursor != null
       ? state.moves.slice(0, state.cursor)
       : state.moves;
 
     // First, try to fetch the solution by sequence...
-    let [solution] = await listPuzzleSolutions(slug, {
+    let solves = await listPuzzleSolves(slug, {
       bySequence: currentMoves,
       limit: 1,
-      filters: { generated: true },
     });
 
     // ...falling back to a just-in-time solve
-    if (!solution) {
+    if (!solves.length) {
       const board = resolveMoves(puzzle.board, currentMoves);
       const nextMoves = solve(board);
 
       // and storing the generated solution
-      solution = await addSolution({
+      const addedSolve = await addSolve({
         puzzleSlug: slug,
-        name: "__generated__",
         moves: [...currentMoves, ...nextMoves],
-        isGenerated: true,
       });
+
+      solves = [addedSolve];
     }
 
     // hint requested is an important metric for engagement and to gauge difficulty
@@ -79,7 +83,7 @@ export const handler = define.handlers({
     url.pathname = `/puzzles/${slug}`;
 
     // hint is the move after the current moves
-    const hint = solution.moves[currentMoves.length];
+    const hint = solves[0].moves[currentMoves.length];
     url.searchParams.set("hint", encodeMoves([hint]));
 
     const headers = new Headers();

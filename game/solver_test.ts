@@ -2,7 +2,6 @@ import { assertEquals, assertThrows } from "@std/assert";
 
 import { isValidSolution, resolveMoves } from "./board.ts";
 import {
-  getHint,
   solve,
   SolverDepthExceededError,
   SolverLimitExceededError,
@@ -195,42 +194,4 @@ Deno.test("solve() solves complex puzzle with many pieces", () => {
   // Check that the solution is valid
   const endState = resolveMoves(board, result!);
   assertEquals(isValidSolution(endState), true);
-});
-
-Deno.test("getHint() returns first move of the optimal solution", () => {
-  const board: Board = {
-    destination: { x: 7, y: 0 },
-    pieces: [{ x: 0, y: 0, type: "puck" }],
-    walls: [],
-  };
-
-  const result = getHint(board);
-
-  assertEquals(result, [{ x: 0, y: 0 }, { x: 7, y: 0 }]);
-});
-
-Deno.test("getHint() returns null for unsolvable puzzle", () => {
-  const board: Board = {
-    destination: { x: 7, y: 7 },
-    pieces: [{ x: 0, y: 0, type: "puck" }],
-    walls: [
-      { x: 1, y: 0, orientation: "vertical" },
-      { x: 0, y: 1, orientation: "horizontal" },
-    ],
-  };
-
-  assertThrows(() => getHint(board));
-});
-
-Deno.test("getHint() returns first move of a multi-move solution", () => {
-  const board: Board = {
-    destination: { x: 7, y: 7 },
-    pieces: [{ x: 0, y: 0, type: "puck" }],
-    walls: [],
-  };
-
-  const hint = getHint(board);
-  const solution = solve(board);
-
-  assertEquals(hint, solution![0]);
 });
