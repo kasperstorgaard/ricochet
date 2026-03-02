@@ -109,7 +109,7 @@ export function ControlsPanel(
           >
             <a
               href={getUndoHref(href.value, state)}
-              className="icon-btn aria-disabled:opacity-40"
+              className="icon-btn"
               aria-disabled={!state.cursor ? true : undefined}
               data-primary
               data-size="lg"
@@ -131,7 +131,7 @@ export function ControlsPanel(
 
             <a
               href={getRedoHref(href.value, state)}
-              className="icon-btn aria-disabled:opacity-40"
+              className="icon-btn"
               aria-disabled={state.cursor == null ||
                   state.cursor === state.moves.length
                 ? true
@@ -159,18 +159,7 @@ export function ControlsPanel(
             }
             <a
               href={hintsExhausted ? "#" : getHintHref(href.value)}
-              className={clsx(
-                "bg-transparent",
-                "aria-disabled:cursor-help aria-disabled:opacity-50 aria-disabled:text-text-3",
-                "aria-disabled:hover:underline aria-disabled:hover:text-text-3",
-              )}
               aria-disabled={hintsExhausted ? true : undefined}
-              onClick={(event) => {
-                if (hintsExhausted) event.preventDefault();
-              }}
-              title={hintsExhausted
-                ? `1 hint per day per puzzle (easy: 3)`
-                : undefined}
             >
               {!hintsExhausted
                 ? "Get a hint"

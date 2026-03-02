@@ -693,6 +693,12 @@
     filter: brightness(1.3);
     text-decoration-thickness: 2px;
   }
+
+  a[aria-disabled],
+  .link[aria-disabled] {
+    filter: opacity(0.8);
+    color: var(--color-text-3);
+  }
 }
 
 @layer components {
@@ -777,7 +783,7 @@
 
   .btn[data-primary]:is([disabled], [aria-disabled]),
   .icon-btn[data-primary]:is([disabled], [aria-disabled]) {
-    opacity: 0.6;
+    filter: opacity(0.6);
   }
 
   .btn:active:not(:focus-visible),
