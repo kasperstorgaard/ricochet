@@ -15,9 +15,14 @@ export async function addSolution(payload: Omit<Solution, "id">) {
 
   const movesEncoded = encodeMoves(moves);
 
-  // Keys
+  // simple key by slug for easy direct lookup
   const primaryKey = ["solutions_by_puzzle", puzzleSlug, id];
+
+  // key for listing by moves, for scoreboard
   const byMovesKey = ["solutions_by_puzzle_moves", puzzleSlug, noOfMoves, id];
+
+  // key for listing solutions by sequence, for hints
+  // note: this will store the entire solution to reference by each move
   const bySequenceKey = [
     "solutions_by_puzzle_move_sequence",
     puzzleSlug,
@@ -38,10 +43,12 @@ export async function addSolution(payload: Omit<Solution, "id">) {
 }
 
 type ListPuzzleSolutionsOptions = Omit<Deno.KvListOptions, "limit"> & {
+  limit: number;
   byMoves?: boolean;
   bySequence?: Move[];
-  isGenerated?: boolean;
-  limit?: number;
+  filters?: {
+    generated: boolean | "both";
+  };
 };
 
 export async function listPuzzleSolutions(
@@ -49,9 +56,19 @@ export async function listPuzzleSolutions(
   options: ListPuzzleSolutionsOptions,
 ) {
   const solutions: Solution[] = [];
-  const { byMoves, bySequence, isGenerated, limit, ...kvOptions } = options;
+  const {
+    byMoves,
+    bySequence,
+    filters = { generated: false },
+    limit,
+    ...kvOptions
+  } = options;
 
   let key: Deno.KvKey;
+
+  if (!limit) {
+    throw new Error("Must provide a limit");
+  }
 
   if (bySequence !== undefined) {
     const encodedMoves = encodeMoves(bySequence);
@@ -69,11 +86,14 @@ export async function listPuzzleSolutions(
   const iter = kv.list<Solution>({ prefix: key }, kvOptions);
 
   for await (const res of iter) {
-    if (isGenerated !== undefined && res.value.isGenerated !== isGenerated) {
-      continue;
-    }
+    if (
+      filters.generated !== "both" &&
+      Boolean(filters.generated) !== Boolean(res.value.isGenerated)
+    ) continue;
+
     solutions.push(res.value);
-    if (limit !== undefined && solutions.length >= limit) break;
+
+    if (solutions.length >= limit) break;
   }
 
   return solutions;
@@ -88,4 +108,3 @@ export async function getPuzzleSolution(
 
   return res.value;
 }
-

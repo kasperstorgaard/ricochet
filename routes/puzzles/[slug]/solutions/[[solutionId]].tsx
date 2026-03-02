@@ -32,7 +32,6 @@ export const handler = define.handlers<Data>({
     const solutions = await listPuzzleSolutions(slug, {
       limit: 8,
       byMoves: true,
-      isGenerated: false,
     });
 
     const solution = solutionId

@@ -15,19 +15,17 @@ export const handler = define.handlers({
   async GET(ctx) {
     const { cookieChoice, trackingId } = ctx.state;
 
-    const url = new URL(ctx.req.url);
     const slug = ctx.params.slug;
-    url.pathname = `/puzzles/${slug}`;
 
-    const state = decodeState(url);
+    const state = decodeState(ctx.req.url);
 
-    if (slug === "preview") return Response.redirect(url.href, 303);
+    // Preview is an edge case page, and showcases full solution instead of using hints.
+    if (slug === "preview") {
+      throw new HttpError(500, "Hint not allowed in preview");
+    }
 
     const puzzle = await getPuzzle(ctx.url.origin, slug);
-
-    if (!puzzle) {
-      throw new HttpError(500, "Unable to get puzzle");
-    }
+    if (!puzzle) throw new HttpError(500, "Unable to get puzzle");
 
     const hintCount = getHintCount(ctx.req.headers);
     const hintLimit = getHintLimit(puzzle.difficulty);
@@ -36,29 +34,32 @@ export const handler = define.handlers({
       throw new HttpError(400, "Hint limit exceeded");
     }
 
-    const moves = state.moves.slice(0, state.cursor ?? state.moves.length);
+    const currentMoves = state.cursor
+      ? state.moves.slice(0, state.cursor)
+      : state.moves;
 
+    // First, try to fetch the solution by sequence...
     let [solution] = await listPuzzleSolutions(slug, {
-      bySequence: moves,
+      bySequence: currentMoves,
       limit: 1,
+      filters: { generated: true },
     });
 
+    // ...falling back to a just-in-time solve
     if (!solution) {
-      const board = moves.length
-        ? resolveMoves(puzzle.board, moves)
-        : puzzle.board;
+      const board = resolveMoves(puzzle.board, currentMoves);
       const nextMoves = solve(board);
 
+      // and storing the generated solution
       solution = await addSolution({
         puzzleSlug: slug,
-        name: "Solver",
-        moves: [...moves, ...nextMoves],
+        name: "__generated__",
+        moves: [...currentMoves, ...nextMoves],
         isGenerated: true,
       });
     }
 
-    const hint = solution.moves[moves.length];
-
+    // hint requested is an important metric for engagement and to gauge difficulty
     posthog?.capture({
       event: "hint_requested",
       distinctId: trackingId,
@@ -73,10 +74,17 @@ export const handler = define.handlers({
       },
     });
 
+    // Start building redirect response
+    const url = new URL(ctx.req.url);
+    url.pathname = `/puzzles/${slug}`;
+
+    // hint is the move after the current moves
+    const hint = solution.moves[currentMoves.length];
     url.searchParams.set("hint", encodeMoves([hint]));
 
     const headers = new Headers();
 
+    // Update the hint count so the limit is not exceeded
     setHintCount(headers, {
       path: `/puzzles/${slug}`,
       value: hintCount + 1,
