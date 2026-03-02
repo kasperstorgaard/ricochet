@@ -564,7 +564,6 @@
 :root {
   --color-brand: var(--pink-7);
   --color-link: var(--violet-5);
-  --color-link-active: var(--violet-3);
 
   /* rename from open-props */
   --color-surface-1: var(--surface-1);
@@ -588,7 +587,6 @@
   :root {
     --color-brand: var(--purple-11);
     --color-link: var(--purple-7);
-    --color-link-active: var(--purple-8);
 
     /* rename from open-props */
     --color-surface-1: var(--surface-1);
