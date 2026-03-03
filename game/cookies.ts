@@ -8,13 +8,30 @@ const SKIP_TUTORIAL_KEY = "skip_tutorial";
 const TRACKING_ID_KEY = "tracking_id";
 
 // ~6 months
+const STORED_PUZZLE_KEY = "stored_puzzle";
+const STORED_PUZZLE_DURATION = 1000 * 60 * 60 * 24 * 180;
+
+// ~6 months
 const SKIP_TUTORIAL_DURATION = 1000 * 60 * 60 * 24 * 180;
 // 1 year
 const TRACKING_DURATION = 1000 * 60 * 60 * 24 * 365;
 
-// ~6 months
-const STORED_PUZZLE_KEY = "stored_puzzle";
-const STORED_PUZZLE_DURATION = 1000 * 60 * 60 * 24 * 180;
+const THEME_VALUES = [
+  "skub",
+  "one-dark",
+  "dracula",
+  "acid",
+  "github-light",
+  "solarized-light",
+  "catppuccin",
+] as const;
+const THEME_KEY = "theme";
+// 1 year in seconds
+const THEME_DURATION = 60 * 60 * 24 * 365;
+
+const HINT_COUNT_KEY = "hint_count";
+// 24 h in seconds
+const HINT_COUNT_DURATION = 60 * 60 * 24;
 
 /**
  * Sets the skip tutorial cookie, so the user won't see the tutorial again.
@@ -126,9 +143,37 @@ export function getStoredPuzzle(headers: Headers) {
   return raw ? parsePuzzle(decodeURIComponent(raw)) : null;
 }
 
-const HINT_COUNT_KEY = "hint_count";
-// 24 h in seconds
-const HINT_COUNT_DURATION = 60 * 60 * 24;
+/**
+ * Gets the explicit theme override, or null if the user is using the OS default.
+ */
+export function getThemeCookie(headers: Headers): string | null {
+  const cookies = getCookies(headers);
+  const value = cookies[THEME_KEY] || null;
+
+  return THEME_VALUES.some((accepted) => value === accepted) ? value : null;
+}
+
+/**
+ * Sets or clears the theme cookie.
+ * Pass null to clear (sets maxAge: 0).
+ */
+export function setThemeCookie(
+  headers: Headers,
+  theme: string | null,
+): Headers {
+  const isDenoDeploy = Deno.env.get("DENO_DEPLOYMENT_ID") != null;
+
+  setCookie(headers, {
+    name: THEME_KEY,
+    value: theme ?? "",
+    httpOnly: false,
+    path: "/",
+    secure: isDenoDeploy,
+    maxAge: theme ? THEME_DURATION : 0,
+  });
+
+  return headers;
+}
 
 /**
  * Reads the hint count for a puzzle from the request cookies.

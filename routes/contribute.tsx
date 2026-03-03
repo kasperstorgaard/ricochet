@@ -18,7 +18,7 @@ export default define.page<typeof handler>(function ContributePage(props) {
   return (
     <>
       <Main className="max-lg:row-span-full">
-        <Header url={url} back={{ href: "/" }} />
+        <Header url={url} back={{ href: "/" }} themePicker />
 
         <h1 className="text-5 text-brand mt-2 leading-none">
           How to add a new puzzle

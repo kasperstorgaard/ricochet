@@ -58,7 +58,7 @@ export default define.page<typeof handler>(function Home(ctx) {
   return (
     <>
       <Main className="max-lg:row-span-full items-stretch place-content-stretch lg:pb-fl-4">
-        <Header url={url} />
+        <Header url={url} share themePicker />
 
         <div className="flex flex-col gap-1 py-fl-1 pt-fl-2">
           <h1 className="text-fl-3 leading-flat text-brand flex items-baseline gap-fl-1">
@@ -169,13 +169,13 @@ export default define.page<typeof handler>(function Home(ctx) {
           className={clsx(
             "col-[2/3] flex flex-col gap-fl-1 justify-between items-start flex-wrap text-text-2",
             "sm:flex-row sm:items-center",
-            "lg:col-auto lg:row-start-3 lg:flex-col lg:items-start",
+            "lg:col-auto lg:row-start-3 lg:flex-col lg:items-stretch",
           )}
         >
           <div
             className={clsx(
               "flex flex-wrap gap-fl-1 items-start",
-              "lg:flex-col",
+              "lg:flex-col lg:items-stretch",
             )}
           >
             <a href="/puzzles/tutorial" className="btn">
