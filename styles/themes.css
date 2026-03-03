@@ -9,7 +9,7 @@
 
 /* ─── Dark themes ──────────────────────────────────────────────── */
 
-:root[data-theme="default"] {
+:root[data-theme="skub"] {
   color-scheme: dark;
   --btn-active-text: var(--stone-0);
 
@@ -52,21 +52,21 @@
 
 :root[data-theme="dracula"] {
   color-scheme: dark;
-  --btn-active-text: var(--violet-11);
-  --color-surface-1: var(--stone-10);
-  --color-surface-2: var(--violet-12);
-  --color-surface-3: var(--violet-10);
-  --color-surface-4: var(--violet-8);
-  --color-text-1: var(--gray-1);
-  --color-text-2: var(--gray-3);
-  --color-text-3: var(--violet-6);
-  --color-brand: var(--pink-4);
-  --color-link: var(--cyan-4);
-  --color-ui-1: var(--green-4);
-  --color-ui-2: var(--yellow-4);
-  --color-ui-3: var(--pink-4);
-  --color-ui-4: var(--orange-4);
-  --color-ui-contrast: var(--pink-4);
+  --btn-active-text: #282a36;
+  --color-surface-1: #282a36;
+  --color-surface-2: #21222c;
+  --color-surface-3: #343746;
+  --color-surface-4: #44475a;
+  --color-text-1: #f8f8f2;
+  --color-text-2: #a0aabe;
+  --color-text-3: #6272a4;
+  --color-brand: #ff79c6;
+  --color-link: #8be9fd;
+  --color-ui-1: #50fa7b;
+  --color-ui-2: #f1fa8c;
+  --color-ui-3: #bd93f9;
+  --color-ui-4: #ffb86c;
+  --color-ui-contrast: #ff79c6;
 }
 
 /* ─── Light themes ─────────────────────────────────────────────── */

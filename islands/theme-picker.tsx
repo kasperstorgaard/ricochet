@@ -1,5 +1,4 @@
-import { clsx } from "clsx/lite";
-import { useCallback, useEffect, useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
 
 import { Dialog } from "./dialog.tsx";
 
@@ -37,13 +36,6 @@ export function ThemePicker() {
     setActiveTheme(globalThis.document.documentElement.dataset.theme ?? "");
   }, []);
 
-  const onPick = useCallback(async (key: string) => {
-    const body = new FormData();
-    body.set("theme", key);
-    await fetch("/api/theme", { method: "POST", body, redirect: "manual" });
-    globalThis.location.reload();
-  }, []);
-
   const darkThemes = THEMES.filter((t) => t.mode === "dark");
   const lightThemes = THEMES.filter((t) => t.mode === "light");
 
@@ -61,30 +53,28 @@ export function ThemePicker() {
       <Dialog open={open}>
         <h2 className="text-fl-2 leading-flat text-text-1">Theme</h2>
 
-        <div className="grid gap-fl-3">
+        <form method="post" action="/api/theme" className="grid gap-fl-3">
           <ThemeGroup
             label="Dark"
             themes={darkThemes}
             active={activeTheme}
-            onPick={onPick}
           />
           <ThemeGroup
             label="Light"
             themes={lightThemes}
             active={activeTheme}
-            onPick={onPick}
           />
-        </div>
 
-        <div className="mt-fl-3 flex justify-end">
-          <button
-            type="button"
-            className="btn"
-            onClick={() => setOpen(false)}
-          >
-            Close
-          </button>
-        </div>
+          <div className="flex justify-end">
+            <button
+              type="button"
+              className="btn"
+              onClick={() => setOpen(false)}
+            >
+              Close
+            </button>
+          </div>
+        </form>
       </Dialog>
     </>
   );
@@ -94,10 +84,9 @@ type ThemeGroupProps = {
   label: string;
   themes: Theme[];
   active: string;
-  onPick: (key: string) => void;
 };
 
-function ThemeGroup({ label, themes, active, onPick }: ThemeGroupProps) {
+function ThemeGroup({ label, themes, active }: ThemeGroupProps) {
   return (
     <div className="flex flex-col gap-fl-1">
       <p className="text-fl-0 text-text-2 leading-tight">{label}</p>
@@ -106,10 +95,10 @@ function ThemeGroup({ label, themes, active, onPick }: ThemeGroupProps) {
         {themes.map((theme) => (
           <button
             key={theme.key}
-            type="button"
-            aria-pressed={theme.key === active}
-            onClick={() => onPick(theme.key)}
-            className={clsx("btn")}
+            type="submit"
+            name="theme"
+            value={theme.key}
+            className="btn"
             autofocus={theme.key === active ? true : undefined}
           >
             <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
