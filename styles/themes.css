@@ -154,3 +154,25 @@
   --color-ui-4: #fe640b;
   --color-ui-contrast: #8839ef;
 }
+
+/* Catppuccin Latte, adjusted for print (catppuccin.com) */
+@media print {
+  body {
+    color-scheme: light;
+    --btn-active-text: #eff1f5;
+    --color-surface-1: #eff1f5;
+    --color-surface-2: #e6e9ef;
+    --color-surface-3: #dce0e8;
+    --color-surface-4: #acb0be;
+    --color-text-1: #272836;
+    --color-text-2: #383a46;
+    --color-text-3: #51525e;
+    --color-brand: #8839ef;
+    --color-link: #1e66f5;
+    --color-ui-1: #40a02b;
+    --color-ui-2: #df8e1d;
+    --color-ui-3: #8839ef;
+    --color-ui-4: #fe640b;
+    --color-ui-contrast: #8839ef;
+  }
+}
