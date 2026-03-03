@@ -6,6 +6,14 @@ import { Move } from "#/game/types.ts";
 
 export const kv = await Deno.openKv();
 
+/**
+ * Stores a human-submitted solution under three index keys:
+ * - by puzzle slug (direct lookup)
+ * - by puzzle slug + move count (scoreboard ordering)
+ * - by puzzle slug + move sequence (deduplication / stats)
+ *
+ * Uses an atomic transaction so all three entries are written together or not at all.
+ */
 export async function addSolution(payload: Omit<Solution, "id">) {
   const { puzzleSlug, moves } = payload;
   const noOfMoves = moves.length;
@@ -19,11 +27,21 @@ export async function addSolution(payload: Omit<Solution, "id">) {
   // key for listing by moves, for scoreboard
   const byMovesKey = ["solutions_by_puzzle_moves", puzzleSlug, noOfMoves, id];
 
+  // key for listing by sequence, for stats
+  const bySequenceKey = [
+    "solutions_by_puzzle_sequence",
+    puzzleSlug,
+    ...getSequenceKey(moves),
+    id,
+  ];
+
   await kv.atomic()
     .check({ key: primaryKey, versionstamp: null })
     .check({ key: byMovesKey, versionstamp: null })
+    .check({ key: bySequenceKey, versionstamp: null })
     .set(primaryKey, solution)
     .set(byMovesKey, solution)
+    .set(bySequenceKey, solution)
     .commit();
 
   return solution;
@@ -38,20 +56,38 @@ type ListPuzzleSolutionsOptions = Omit<Deno.KvListOptions, "limit"> & {
   };
 };
 
+/**
+ * Lists human-submitted solutions for a puzzle.
+ *
+ * Pass `byMoves: true` to order results by move count (scoreboard).
+ * Pass `bySequence` with a move list to filter to solutions that share that
+ * exact move sequence (useful for duplicate checks or getting stats on exact solution matches).
+ * Without either option, results are returned in insertion order.
+ *
+ * `limit` is required.
+ */
 export async function listPuzzleSolutions(
   puzzleSlug: string,
   options: ListPuzzleSolutionsOptions,
 ) {
   const solutions: Solution[] = [];
-  const { limit, byMoves } = options;
+  const { limit, byMoves, bySequence } = options;
 
-  if (!limit) {
-    throw new Error("Must provide a limit");
+  if (!limit) throw new Error("Must provide a limit");
+
+  let key: string[];
+
+  if (byMoves) {
+    key = ["solutions_by_puzzle_moves", puzzleSlug];
+  } else if (bySequence) {
+    key = [
+      "solutions_by_puzzle_sequence",
+      puzzleSlug,
+      ...getSequenceKey(bySequence),
+    ];
+  } else {
+    key = ["solutions_by_puzzle", puzzleSlug];
   }
-
-  const key = byMoves
-    ? ["solutions_by_puzzle_moves", puzzleSlug]
-    : ["solutions_by_puzzle", puzzleSlug];
 
   const iter = kv.list<Solution>({ prefix: key }, options);
 
@@ -60,6 +96,10 @@ export async function listPuzzleSolutions(
   return solutions;
 }
 
+/**
+ * Fetches a single human-submitted solution by puzzle slug and solution ID.
+ * Returns `null` if not found.
+ */
 export async function getPuzzleSolution(
   puzzleSlug: string,
   solutionId: string,
@@ -70,13 +110,16 @@ export async function getPuzzleSolution(
   return res.value;
 }
 
+/**
+ * Stores a machine-generated solve under two index keys:
+ * - primary (by ID, for direct lookup)
+ * - by puzzle slug + move sequence (for hints for a user who has partially made this solve)
+ */
 export async function addSolve(payload: Omit<Solve, "id" | "name">) {
   const { puzzleSlug, moves } = payload;
 
   const id = ulid().toLowerCase();
   const solution = { ...payload, id };
-
-  const movesEncoded = encodeMoves(moves);
 
   const primaryKey = ["solves_by_puzzle", id];
 
@@ -85,7 +128,7 @@ export async function addSolve(payload: Omit<Solve, "id" | "name">) {
   const bySequenceKey = [
     "solves_by_puzzle_move_sequence",
     puzzleSlug,
-    ...movesEncoded.split("-"),
+    ...getSequenceKey(moves),
     id,
   ];
 
@@ -104,6 +147,14 @@ type ListPuzzleSolvesOptions = Omit<Deno.KvListOptions, "limit"> & {
   bySequence?: Move[];
 };
 
+/**
+ * Lists machine-generated solves.
+ *
+ * Pass `bySequence` with the moves the user has made so far to find solves matching sequence.
+ * Without `bySequence`, lists all solves across all puzzles (primary index).
+ *
+ * `limit` is required.
+ */
 export async function listPuzzleSolves(
   puzzleSlug: string,
   options: ListPuzzleSolvesOptions,
@@ -111,18 +162,15 @@ export async function listPuzzleSolves(
   const solves: Solve[] = [];
   const { limit, bySequence } = options;
 
-  if (!limit) {
-    throw new Error("Must provide a limit");
-  }
+  if (!limit) throw new Error("Must provide a limit");
 
   let key: string[];
 
   if (bySequence) {
-    const encodedMoves = encodeMoves(bySequence);
     key = [
       "solves_by_puzzle_move_sequence",
       puzzleSlug,
-      ...encodedMoves.split("-"),
+      ...getSequenceKey(bySequence),
     ];
   } else {
     key = [
@@ -137,6 +185,7 @@ export async function listPuzzleSolves(
   return solves;
 }
 
+/** Fetches a single machine-generated solve by puzzle slug and solve ID. Returns `null` if not found. */
 export async function getPuzzleSolve(
   puzzleSlug: string,
   solutionId: string,
@@ -145,4 +194,9 @@ export async function getPuzzleSolve(
   const res = await kv.get<Solve>(key);
 
   return res.value;
+}
+
+function getSequenceKey(moves: Move[]) {
+  const encoded = encodeMoves(moves);
+  return encoded.split("-");
 }
