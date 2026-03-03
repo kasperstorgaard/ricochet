@@ -118,22 +118,6 @@ export function solve(
 }
 
 /**
- * Returns the first move of the optimal solution for a given board state.
- * Useful for providing hints to the player.
- *
- * @param board - The current board state
- * @param options - Optional solver configuration
- * @returns A single Move or null if no solution found
- */
-export function getHint(
-  board: Board,
-  options: SolverOptions = {},
-) {
-  const solution = solve(board, options);
-  return solution[0];
-}
-
-/**
  * Fast state key using numeric positions.
  * Since positions are 0-63 on an 8x8 board, we can pack them efficiently.
  */

@@ -3,7 +3,8 @@ import { validateBoard } from "#/game/board.ts";
 import { solve } from "#/game/solver.ts";
 import type { Board } from "#/game/types.ts";
 
-// POST endpoint that returns the shortest solution length for a board.
+// POST endpoint that returns a solve for the board, if possible.
+// Used by the puzzle editor — does not persist results.
 export const handler = define.handlers({
   async POST(ctx) {
     let board: Board;
@@ -22,10 +23,7 @@ export const handler = define.handlers({
 
     try {
       const solution = solve(board, { maxDepth: 20 });
-
-      return Response.json({
-        moves: solution ? solution.length : null,
-      });
+      return Response.json({ moves: solution });
     } catch {
       return new Response("Unsolvable", { status: 400 });
     }

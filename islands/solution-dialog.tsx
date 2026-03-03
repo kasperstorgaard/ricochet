@@ -103,14 +103,16 @@ export function SolutionDialog({ href, puzzle, isPreview }: Props) {
           </form>
         </div>
 
-        <button
-          form="solution"
-          className="btn md:ml-auto max-md:w-full"
-          type="submit"
-          disabled={!hasSolution}
-        >
-          Post solution
-        </button>
+        {!isPreview && (
+          <button
+            form="solution"
+            className="btn md:ml-auto max-md:w-full"
+            type="submit"
+            disabled={!hasSolution}
+          >
+            Post solution
+          </button>
+        )}
       </div>
     </Dialog>
   );

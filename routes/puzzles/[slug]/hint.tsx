@@ -1,12 +1,12 @@
 import { HttpError } from "fresh";
 
 import { define } from "#/core.ts";
+import { addSolve, listPuzzleSolves } from "#/db/kv.ts";
 import { resolveMoves } from "#/game/board.ts";
-import { getHintCount, getStoredPuzzle, setHintCount } from "#/game/cookies.ts";
+import { getHintCount, setHintCount } from "#/game/cookies.ts";
 import { getPuzzle } from "#/game/loader.ts";
-import { getHint } from "#/game/solver.ts";
+import { solve } from "#/game/solver.ts";
 import { encodeMoves } from "#/game/strings.ts";
-import { Puzzle } from "#/game/types.ts";
 import { decodeState } from "#/game/url.ts";
 import { isDev } from "#/lib/env.ts";
 import { posthog } from "#/lib/posthog.ts";
@@ -15,40 +15,50 @@ export const handler = define.handlers({
   async GET(ctx) {
     const { cookieChoice, trackingId } = ctx.state;
 
-    const url = new URL(ctx.req.url);
     const slug = ctx.params.slug;
-    url.pathname = `/puzzles/${slug}`;
 
-    const state = decodeState(url);
+    const state = decodeState(ctx.req.url);
 
-    let puzzle: Puzzle | null = null;
-
+    // Preview is an edge case page, and showcases full solution instead of using hints.
     if (slug === "preview") {
-      puzzle = getStoredPuzzle(ctx.req.headers);
-    } else {
-      puzzle = await getPuzzle(ctx.url.origin, slug);
+      throw new HttpError(500, "Hint not allowed in preview");
     }
 
-    if (!puzzle) {
-      throw new HttpError(500, "Unable to get puzzle");
-    }
+    const puzzle = await getPuzzle(ctx.url.origin, slug);
+    if (!puzzle) throw new HttpError(500, "Unable to get puzzle");
 
     const hintCount = getHintCount(ctx.req.headers);
     const hintLimit = getHintLimit(puzzle.difficulty);
 
-    // Guard against usage if hint limit is exceeded
-    if (!isDev && slug !== "preview" && hintCount >= hintLimit) {
-      return Response.redirect(url.href, 303);
+    if (!isDev && hintCount >= hintLimit) {
+      throw new HttpError(400, "Hint limit exceeded");
     }
 
-    const moves = state.moves
-      ? state.moves.slice(0, state.cursor ?? state.moves.length)
-      : null;
-    const board = moves?.length
-      ? resolveMoves(puzzle.board, moves)
-      : puzzle.board;
-    const hint = getHint(board);
+    const currentMoves = state.cursor != null
+      ? state.moves.slice(0, state.cursor)
+      : state.moves;
 
+    // First, try to fetch the solution by sequence...
+    let solves = await listPuzzleSolves(slug, {
+      bySequence: currentMoves,
+      limit: 1,
+    });
+
+    // ...falling back to a just-in-time solve
+    if (!solves.length) {
+      const board = resolveMoves(puzzle.board, currentMoves);
+      const nextMoves = solve(board);
+
+      // and storing the generated solution
+      const addedSolve = await addSolve({
+        puzzleSlug: slug,
+        moves: [...currentMoves, ...nextMoves],
+      });
+
+      solves = [addedSolve];
+    }
+
+    // hint requested is an important metric for engagement and to gauge difficulty
     posthog?.capture({
       event: "hint_requested",
       distinctId: trackingId,
@@ -59,14 +69,21 @@ export const handler = define.handlers({
         puzzle_slug: slug,
         puzzle_difficulty: puzzle.difficulty,
         puzzle_min_moves: puzzle.minMoves,
-        game_moves: moves?.length,
+        game_moves: state.cursor,
       },
     });
 
+    // Start building redirect response
+    const url = new URL(ctx.req.url);
+    url.pathname = `/puzzles/${slug}`;
+
+    // hint is the move after the current moves
+    const hint = solves[0].moves[currentMoves.length];
     url.searchParams.set("hint", encodeMoves([hint]));
 
     const headers = new Headers();
 
+    // Update the hint count so the limit is not exceeded
     setHintCount(headers, {
       path: `/puzzles/${slug}`,
       value: hintCount + 1,
