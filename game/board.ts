@@ -115,8 +115,9 @@ export function validateBoard(board: BoardLike): Board {
     checkedPieces.push(piece);
   }
 
-  const puck = pieces.find((piece) => piece?.type === "puck");
-  if (!puck) throw new BoardError("Board has no puck");
+  const pucks = checkedPieces.filter((piece) => piece.type === "puck");
+  if (pucks.length === 0) throw new BoardError("Board has no puck");
+  if (pucks.length > 1) throw new BoardError("Board has multiple pucks");
 
   const checkedWalls: Wall[] = [];
 
