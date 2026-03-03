@@ -11,6 +11,9 @@ export const handler = define.handlers({
     const puzzle = await getPuzzle(ctx.url.origin, slug);
     if (!isDev) puzzle.name = "Untitled";
 
+    puzzle.createdAt = new Date(Date.now());
+    puzzle.minMoves = undefined;
+
     const headers = new Headers();
     setStoredPuzzleCookie(headers, puzzle);
 

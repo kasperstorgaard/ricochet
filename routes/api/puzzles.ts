@@ -30,6 +30,7 @@ export const handler = define.handlers({
       markdown = formatPuzzle({
         ...puzzle,
         minMoves: moves?.length,
+        createdAt: new Date(Date.now()),
       });
 
       await Deno.writeTextFile(`${PUZZLES_DIR}/${slug}.md`, markdown);
