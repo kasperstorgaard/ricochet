@@ -408,11 +408,24 @@ Deno.test("validateBoard() should throw with invalid pieces", () => {
   }, BoardError);
 });
 
-Deno.test("validateBoard() should throw with no rooks", () => {
+Deno.test("validateBoard() should throw with no puck", () => {
   assertThrows(() => {
     validateBoard({
       destination: { x: 0, y: 3 },
       pieces: [{ x: 4, y: 1, type: "blocker" }],
+      walls: [{ x: 1, y: 2, orientation: "horizontal" }],
+    });
+  }, BoardError);
+});
+
+Deno.test("validateBoard() should throw with multiple pucks", () => {
+  assertThrows(() => {
+    validateBoard({
+      destination: { x: 0, y: 3 },
+      pieces: [
+        { x: 4, y: 1, type: "puck" },
+        { x: 2, y: 5, type: "puck" },
+      ],
       walls: [{ x: 1, y: 2, orientation: "horizontal" }],
     });
   }, BoardError);
