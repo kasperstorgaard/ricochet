@@ -1,5 +1,5 @@
 import { clsx } from "clsx/lite";
-import { useCallback, useState } from "preact/hooks";
+import { useCallback } from "preact/hooks";
 
 type ShareButtonProps = {
   url: string;
