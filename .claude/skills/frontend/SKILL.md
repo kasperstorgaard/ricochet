@@ -7,6 +7,7 @@ description: Frontend code approach — Tailwind utility classes, component arch
 
 Sub-topics:
 
+- [craftmanship.md](craftmanship.md) — Component building principles, separation of concerns
 - [tailwind.md](tailwind.md) — Tailwind utilities, className, design tokens,
   components, CSS conventions
 - [ui-style.md](ui-style.md) — Visual language, icons, interactive elements,

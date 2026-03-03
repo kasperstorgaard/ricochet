@@ -1,12 +1,14 @@
 import { ShareButton } from "#/islands/share-button.tsx";
+import { ThemePicker } from "#/islands/theme-picker.tsx";
 
 type Props = {
   url: URL;
   back?: { href: string };
   share?: boolean | { params: boolean };
+  themePicker?: boolean;
 };
 
-export function Header({ url, back, share }: Props) {
+export function Header({ url, back, share, themePicker }: Props) {
   const shareUrl = typeof share === "object" && share.params
     ? url.href
     : url.origin + url.pathname;
@@ -18,7 +20,10 @@ export function Header({ url, back, share }: Props) {
           <i className="ph ph-arrow-left" />
         </a>
       )}
-      {share && <ShareButton url={shareUrl} />}
+      <div className="flex items-center gap-1 ml-auto">
+        {share && <ShareButton url={shareUrl} />}
+        {themePicker && <ThemePicker />}
+      </div>
     </header>
   );
 }

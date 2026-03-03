@@ -76,6 +76,7 @@ export default define.page<typeof handler>(function SolutionPage(props) {
             url={url}
             back={{ href: `/puzzles/${props.data.puzzle.slug}` }}
             share={{ params: true }}
+            themePicker
           />
         </div>
 

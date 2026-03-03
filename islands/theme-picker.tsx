@@ -1,6 +1,7 @@
 import { useEffect, useState } from "preact/hooks";
 
 import { Dialog } from "./dialog.tsx";
+import clsx from "clsx/lite";
 
 type Theme = {
   key: string;
@@ -10,7 +11,7 @@ type Theme = {
 };
 
 const THEMES: Theme[] = [
-  { key: "default", label: "Default", brand: "#e64980", mode: "dark" },
+  { key: "skub", label: "Skub", brand: "#be185d", mode: "dark" },
   { key: "one-dark", brand: "#98c379", label: "One Dark", mode: "dark" },
   { key: "dracula", brand: "#ff79c6", label: "Dracula", mode: "dark" },
   {
@@ -25,10 +26,15 @@ const THEMES: Theme[] = [
     label: "Solarized Light",
     mode: "light",
   },
-  { key: "mono", brand: "#666", label: "Mono", mode: "light" },
+  { key: "acid", label: "Acid", brand: "#00ff41", mode: "dark" },
+  { key: "catppuccin", brand: "#8839ef", label: "Catppuccin", mode: "light" },
 ];
 
-export function ThemePicker() {
+type Props = {
+  className?: string;
+};
+
+export function ThemePicker({ className }: Props) {
   const [activeTheme, setActiveTheme] = useState("");
   const [open, setOpen] = useState(false);
 
@@ -45,9 +51,13 @@ export function ThemePicker() {
         type="button"
         aria-label="Pick theme"
         onClick={() => setOpen(true)}
-        className="absolute top-2 right-2 p-1 bg-transparent border-0 cursor-pointer opacity-20 hover:opacity-70 transition-opacity print:hidden"
+        className={clsx(
+          "bg-transparent border-0 cursor-pointer text-link opacity-70 transition-opacity",
+          "hover:opacity-100",
+          className,
+        )}
       >
-        <i className="ph ph-palette text-fl-1" aria-hidden="true" />
+        <i className="ph ph-palette" aria-hidden="true" />
       </button>
 
       <Dialog open={open}>

@@ -9,6 +9,7 @@
 
 /* ─── Dark themes ──────────────────────────────────────────────── */
 
+/* Skub (game identity) */
 :root[data-theme="skub"] {
   color-scheme: dark;
   --btn-active-text: var(--stone-0);
@@ -31,25 +32,27 @@
   --color-ui-contrast: var(--pink-7);
 }
 
+/* One Dark Pro */
 :root[data-theme="one-dark"] {
   color-scheme: dark;
-  --btn-active-text: var(--gray-9);
-  --color-surface-1: var(--gray-9);
-  --color-surface-2: var(--gray-8);
-  --color-surface-3: var(--gray-7);
-  --color-surface-4: var(--gray-6);
-  --color-text-1: var(--gray-2);
-  --color-text-2: var(--gray-4);
-  --color-text-3: var(--gray-6);
-  --color-brand: var(--green-4);
-  --color-link: var(--blue-4);
-  --color-ui-1: var(--teal-4);
-  --color-ui-2: var(--yellow-4);
-  --color-ui-3: var(--purple-4);
-  --color-ui-4: var(--orange-4);
-  --color-ui-contrast: var(--green-4);
+  --btn-active-text: #21252b;
+  --color-surface-1: #21252b;
+  --color-surface-2: #282c34;
+  --color-surface-3: #2c313c;
+  --color-surface-4: #3e4451;
+  --color-text-1: #abb2bf;
+  --color-text-2: #828997;
+  --color-text-3: #5c6370;
+  --color-brand: #98c379;
+  --color-link: #61afef;
+  --color-ui-1: #56b6c2;
+  --color-ui-2: #e5c07b;
+  --color-ui-3: #c678dd;
+  --color-ui-4: #d19a66;
+  --color-ui-contrast: #98c379;
 }
 
+/* Dracula */
 :root[data-theme="dracula"] {
   color-scheme: dark;
   --btn-active-text: #282a36;
@@ -69,62 +72,85 @@
   --color-ui-contrast: #ff79c6;
 }
 
+/* Acid — matrix/terminal neon */
+:root[data-theme="acid"] {
+  color-scheme: dark;
+  --btn-active-text: #0d0d0d;
+  --color-surface-1: #0d0d0d;
+  --color-surface-2: #141414;
+  --color-surface-3: #1c1c1c;
+  --color-surface-4: #2a2a2a;
+  --color-text-1: #e0ffe0;
+  --color-text-2: #90d090;
+  --color-text-3: #60a060;
+  --color-brand: #00ff41;
+  --color-link: #00e5ff;
+  --color-ui-1: #00ff41;
+  --color-ui-2: #ffff00;
+  --color-ui-3: #ff0090;
+  --color-ui-4: #ff6600;
+  --color-ui-contrast: #0d0d0d;
+}
+
 /* ─── Light themes ─────────────────────────────────────────────── */
 
+/* GitHub Light (github.com/primer design tokens) */
 :root[data-theme="github-light"] {
   color-scheme: light;
-  --btn-active-text: var(--gray-0);
-  --color-surface-1: var(--gray-0);
-  --color-surface-2: var(--gray-1);
-  --color-surface-3: var(--gray-2);
-  --color-surface-4: var(--gray-3);
-  --color-text-1: var(--gray-9);
-  --color-text-2: var(--gray-7);
-  --color-text-3: var(--gray-6);
-  --color-brand: var(--blue-7);
-  --color-link: var(--purple-7);
-  --color-ui-1: var(--green-7);
-  --color-ui-2: var(--yellow-7);
-  --color-ui-3: var(--red-6);
-  --color-ui-4: var(--orange-7);
-  --color-ui-contrast: var(--blue-7);
+  --btn-active-text: #ffffff;
+  --color-surface-1: #ffffff;
+  --color-surface-2: #f6f8fa;
+  --color-surface-3: #eaeef2;
+  --color-surface-4: #d0d7de;
+  --color-text-1: #1f2328;
+  --color-text-2: #656d76;
+  --color-text-3: #9198a1;
+  --color-brand: #0969da;
+  --color-link: #8250df;
+  /* brighter button/badge variants vs the dim functional text colors */
+  --color-ui-1: #2da44e;
+  --color-ui-2: #d4a72c;
+  --color-ui-3: #cf222e;
+  --color-ui-4: #8250df;
+  --color-ui-contrast: #0969da;
 }
 
+/* Solarized Light (ethanschoonover.com/solarized) */
 :root[data-theme="solarized-light"] {
   color-scheme: light;
-  --btn-active-text: var(--sand-1);
-  --color-surface-1: var(--sand-1);
-  --color-surface-2: var(--sand-2);
-  --color-surface-3: var(--sand-3);
-  --color-surface-4: var(--sand-5);
-  --color-text-1: var(--stone-9);
-  --color-text-2: var(--stone-8);
-  --color-text-3: var(--stone-7);
-  --color-brand: var(--brown-7);
-  --color-link: var(--blue-6);
-  --color-ui-1: var(--teal-6);
-  --color-ui-2: var(--violet-6);
-  --color-ui-3: var(--red-6);
-  --color-ui-4: var(--camo-6);
-  --color-ui-contrast: var(--yellow-7);
+  --btn-active-text: #fdf6e3;
+  --color-surface-1: #fdf6e3;
+  --color-surface-2: #eee8d5;
+  --color-surface-3: #ddd6be;
+  --color-surface-4: #93a1a1;
+  --color-text-1: #51646b;
+  --color-text-2: #6d7c7d;
+  --color-text-3: #748282;
+  --color-brand: #b58900;
+  --color-link: #268bd2;
+  --color-ui-1: #2aa198;
+  --color-ui-2: #859900;
+  --color-ui-3: #d33682;
+  --color-ui-4: #073642;
+  --color-ui-contrast: #b58900;
 }
 
-:root[data-theme="mono"] {
+/* Catppuccin Latte (catppuccin.com) */
+:root[data-theme="catppuccin"] {
   color-scheme: light;
-  --btn-active-text: var(--gray-0);
-  --color-surface-1: var(--gray-0);
-  --color-surface-2: var(--gray-1);
-  --color-surface-3: var(--gray-2);
-  --color-surface-4: var(--gray-3);
-  --color-text-1: var(--gray-9);
-  --color-text-2: var(--gray-7);
-  --color-text-3: var(--gray-6);
-  --color-brand: var(--gray-8);
-  --color-link: var(--gray-8);
-  --color-ui-1: var(--gray-7);
-  --color-ui-2: var(--gray-6);
-  --color-ui-3: var(--gray-5);
-  /* gray-8 on white surface gives clear contrast without any hue */
-  --color-ui-4: var(--gray-8);
-  --color-ui-contrast: var(--gray-0);
+  --btn-active-text: #eff1f5;
+  --color-surface-1: #eff1f5;
+  --color-surface-2: #e6e9ef;
+  --color-surface-3: #dce0e8;
+  --color-surface-4: #acb0be;
+  --color-text-1: #4c4f69;
+  --color-text-2: #6c6f85;
+  --color-text-3: #8c8fa1;
+  --color-brand: #8839ef;
+  --color-link: #1e66f5;
+  --color-ui-1: #40a02b;
+  --color-ui-2: #df8e1d;
+  --color-ui-3: #8839ef;
+  --color-ui-4: #fe640b;
+  --color-ui-contrast: #8839ef;
 }
