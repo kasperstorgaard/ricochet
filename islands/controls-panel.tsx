@@ -1,6 +1,6 @@
 import type { Signal } from "@preact/signals";
 import { clsx } from "clsx/lite";
-import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
+import { useCallback, useEffect, useMemo } from "preact/hooks";
 
 import { useGameShortcuts } from "#/client/keyboard.ts";
 import { updateLocation } from "#/client/router.ts";
@@ -26,25 +26,6 @@ type ControlsPanelProps = {
 export function ControlsPanel(
   { puzzle, href, isDev, hintCount, isPreview, className }: ControlsPanelProps,
 ) {
-  const [copied, setCopied] = useState(false);
-
-  const onShare = useCallback(async () => {
-    const url = new URL(href.value);
-    url.search = "";
-    const shareUrl = url.href;
-
-    if ("share" in navigator) {
-      await globalThis.navigator.share({
-        title: puzzle.value.name,
-        url: shareUrl,
-      });
-    } else {
-      await globalThis.navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  }, [href.value, puzzle.value.name]);
-
   const hintLimit = puzzle.value.difficulty === "easy" ? 3 : 1;
   const hintDisabled = !isDev && !isPreview && hintCount >= hintLimit;
 
@@ -184,17 +165,6 @@ export function ControlsPanel(
         </div>
 
         <div className="flex justify-center gap-fl-1 flex-wrap lg:grid lg:grid-cols-1">
-          <button
-            type="button"
-            className="btn"
-            onClick={onShare}
-          >
-            <i
-              className={clsx(copied ? "ph-check ph" : "ph-share-network ph")}
-            />
-            {copied ? "Copied!" : "Share"}
-          </button>
-
           <button
             type="button"
             className="btn"
