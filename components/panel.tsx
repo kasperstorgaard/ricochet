@@ -1,6 +1,8 @@
 import { clsx } from "clsx/lite";
 import { ComponentChildren } from "preact";
 
+import { ThemePicker } from "#/islands/theme-picker.tsx";
+
 type PanelProps = {
   children: ComponentChildren;
   className?: string;
@@ -15,6 +17,7 @@ export function Panel({ children, className }: PanelProps) {
   return (
     <aside
       className={clsx(
+        "relative",
         "col-span-3 grid grid-cols-subgrid place-content-start max-md:min-h-[min(30dvh,20rem)]",
         "border-t-2 border-brand bg-surface-2 py-fl-3",
         "max-md:text-fl-1",
@@ -22,6 +25,7 @@ export function Panel({ children, className }: PanelProps) {
         className,
       )}
     >
+      <ThemePicker />
       {children}
     </aside>
   );

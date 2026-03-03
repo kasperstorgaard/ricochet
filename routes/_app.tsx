@@ -20,7 +20,10 @@ export default define.page(
       : null;
 
     return (
-      <html className="min-h-dvh">
+      <html
+        className="min-h-dvh"
+        data-theme={state.theme ?? undefined}
+      >
         <head>
           <meta charset="utf-8" />
           <meta

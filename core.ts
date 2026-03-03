@@ -10,6 +10,9 @@ export type State = {
   // The user's tracking ID (UUID), either temporary or stored in cookie
   trackingId: string;
 
+  // Explicit theme override (null = follow OS preference)
+  theme?: string | null;
+
   featureFlags: {
     // show minimum moves
     minMoves?: boolean | null;

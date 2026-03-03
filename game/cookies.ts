@@ -126,6 +126,40 @@ export function getStoredPuzzle(headers: Headers) {
   return raw ? parsePuzzle(decodeURIComponent(raw)) : null;
 }
 
+const THEME_KEY = "theme";
+// 1 year in seconds
+const THEME_DURATION = 60 * 60 * 24 * 365;
+
+/**
+ * Gets the explicit theme override, or null if the user is using the OS default.
+ */
+export function getThemeCookie(headers: Headers): string | null {
+  const cookies = getCookies(headers);
+  return cookies[THEME_KEY] || null;
+}
+
+/**
+ * Sets or clears the theme cookie.
+ * Pass null to clear (sets maxAge: 0).
+ */
+export function setThemeCookie(
+  headers: Headers,
+  theme: string | null,
+): Headers {
+  const isDenoDeploy = Deno.env.get("DENO_DEPLOYMENT_ID") != null;
+
+  setCookie(headers, {
+    name: THEME_KEY,
+    value: theme ?? "",
+    httpOnly: false,
+    path: "/",
+    secure: isDenoDeploy,
+    maxAge: theme ? THEME_DURATION : 0,
+  });
+
+  return headers;
+}
+
 const HINT_COUNT_KEY = "hint_count";
 // 24 h in seconds
 const HINT_COUNT_DURATION = 60 * 60 * 24;

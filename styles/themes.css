@@ -1,0 +1,130 @@
+/* VS Code-inspired theme overrides.
+   Each block sets color-scheme, --btn-active-text, and all 14 color tokens.
+   When no data-theme attribute is present, the default dark/light blocks
+   in styles.css apply via @media (prefers-color-scheme).
+
+   Surface direction convention:
+     dark themes:  surface-1 = darkest bg, surface-3 = most elevated (lightest)
+     light themes: surface-1 = lightest bg, surface-3 = most elevated (darkest) */
+
+/* ─── Dark themes ──────────────────────────────────────────────── */
+
+:root[data-theme="default"] {
+  color-scheme: dark;
+  --btn-active-text: var(--stone-0);
+
+  --color-brand: var(--pink-7);
+  --color-link: var(--violet-5);
+  --color-surface-1: var(--gray-9);
+  --color-surface-2: var(--gray-8);
+  --color-surface-3: var(--gray-7);
+  --color-surface-4: var(--gray-6);
+
+  --color-text-1: var(--gray-1);
+  --color-text-2: var(--gray-4);
+  --color-text-3: var(--gray-5);
+
+  --color-ui-1: var(--teal-4);
+  --color-ui-2: var(--yellow-3);
+  --color-ui-3: var(--violet-6);
+  --color-ui-4: var(--orange-6);
+  --color-ui-contrast: var(--pink-7);
+}
+
+:root[data-theme="one-dark"] {
+  color-scheme: dark;
+  --btn-active-text: var(--gray-9);
+  --color-surface-1: var(--gray-9);
+  --color-surface-2: var(--gray-8);
+  --color-surface-3: var(--gray-7);
+  --color-surface-4: var(--gray-6);
+  --color-text-1: var(--gray-2);
+  --color-text-2: var(--gray-4);
+  --color-text-3: var(--gray-6);
+  --color-brand: var(--green-4);
+  --color-link: var(--blue-4);
+  --color-ui-1: var(--teal-4);
+  --color-ui-2: var(--yellow-4);
+  --color-ui-3: var(--purple-4);
+  --color-ui-4: var(--orange-4);
+  --color-ui-contrast: var(--green-4);
+}
+
+:root[data-theme="dracula"] {
+  color-scheme: dark;
+  --btn-active-text: var(--violet-11);
+  --color-surface-1: var(--stone-10);
+  --color-surface-2: var(--violet-12);
+  --color-surface-3: var(--violet-10);
+  --color-surface-4: var(--violet-8);
+  --color-text-1: var(--gray-1);
+  --color-text-2: var(--gray-3);
+  --color-text-3: var(--violet-6);
+  --color-brand: var(--pink-4);
+  --color-link: var(--cyan-4);
+  --color-ui-1: var(--green-4);
+  --color-ui-2: var(--yellow-4);
+  --color-ui-3: var(--pink-4);
+  --color-ui-4: var(--orange-4);
+  --color-ui-contrast: var(--pink-4);
+}
+
+/* ─── Light themes ─────────────────────────────────────────────── */
+
+:root[data-theme="github-light"] {
+  color-scheme: light;
+  --btn-active-text: var(--gray-0);
+  --color-surface-1: var(--gray-0);
+  --color-surface-2: var(--gray-1);
+  --color-surface-3: var(--gray-2);
+  --color-surface-4: var(--gray-3);
+  --color-text-1: var(--gray-9);
+  --color-text-2: var(--gray-7);
+  --color-text-3: var(--gray-6);
+  --color-brand: var(--blue-7);
+  --color-link: var(--purple-7);
+  --color-ui-1: var(--green-7);
+  --color-ui-2: var(--yellow-7);
+  --color-ui-3: var(--red-6);
+  --color-ui-4: var(--orange-7);
+  --color-ui-contrast: var(--blue-7);
+}
+
+:root[data-theme="solarized-light"] {
+  color-scheme: light;
+  --btn-active-text: var(--sand-1);
+  --color-surface-1: var(--sand-1);
+  --color-surface-2: var(--sand-2);
+  --color-surface-3: var(--sand-3);
+  --color-surface-4: var(--sand-5);
+  --color-text-1: var(--stone-9);
+  --color-text-2: var(--stone-8);
+  --color-text-3: var(--stone-7);
+  --color-brand: var(--brown-7);
+  --color-link: var(--blue-6);
+  --color-ui-1: var(--teal-6);
+  --color-ui-2: var(--violet-6);
+  --color-ui-3: var(--red-6);
+  --color-ui-4: var(--camo-6);
+  --color-ui-contrast: var(--yellow-7);
+}
+
+:root[data-theme="mono"] {
+  color-scheme: light;
+  --btn-active-text: var(--gray-0);
+  --color-surface-1: var(--gray-0);
+  --color-surface-2: var(--gray-1);
+  --color-surface-3: var(--gray-2);
+  --color-surface-4: var(--gray-3);
+  --color-text-1: var(--gray-9);
+  --color-text-2: var(--gray-7);
+  --color-text-3: var(--gray-6);
+  --color-brand: var(--gray-8);
+  --color-link: var(--gray-8);
+  --color-ui-1: var(--gray-7);
+  --color-ui-2: var(--gray-6);
+  --color-ui-3: var(--gray-5);
+  /* gray-8 on white surface gives clear contrast without any hue */
+  --color-ui-4: var(--gray-8);
+  --color-ui-contrast: var(--gray-0);
+}
