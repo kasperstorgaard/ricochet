@@ -1,9 +1,5 @@
 import { define } from "#/core.ts";
-import {
-  generateTrackingId,
-  getThemeCookie,
-  getTrackingCookie,
-} from "#/game/cookies.ts";
+import { generateTrackingId, getTrackingCookie } from "#/game/cookies.ts";
 
 /**
  * Middleware that evaluates tracking consent and captures pageviews.
