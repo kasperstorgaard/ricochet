@@ -1,6 +1,6 @@
 import type { Signal } from "@preact/signals";
 import { clsx } from "clsx/lite";
-import { useCallback, useMemo, useState } from "preact/hooks";
+import { useCallback, useMemo } from "preact/hooks";
 
 import { Panel } from "#/components/panel.tsx";
 import type { Solution } from "#/db/types.ts";
@@ -16,28 +16,6 @@ type SolutionsPanelProps = {
 export function SolutionsPanel(
   { href, puzzle, solutions, solution }: SolutionsPanelProps,
 ) {
-  const [copied, setCopied] = useState(false);
-
-  const onShare = useCallback(async () => {
-    const url = new URL(href.value);
-    url.search = "";
-    if (solution) {
-      url.pathname = `/puzzles/${solution.puzzleSlug}/solutions/${solution.id}`;
-    }
-    const shareUrl = url.href;
-
-    if ("share" in navigator) {
-      await globalThis.navigator.share({
-        title: puzzle.value.name,
-        url: shareUrl,
-      });
-    } else {
-      await globalThis.navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
-  }, [href.value, puzzle.value.name, solution]);
-
   const solutionItems = useMemo(() => {
     const isSolutionInList = solution &&
       solutions.some((item) => item.id === solution.id);
@@ -82,7 +60,7 @@ export function SolutionsPanel(
                           "flex items-center px-fl-1 pr-fl-2 py-1 gap-fl-2",
                           "rounded-2 border-1 border-current text-text-2 no-underline",
                           "hover:bg-link hover:border-link hover:text-blue-0",
-                          "data-active:font-bold data-active:border-b-2",
+                          "data-active:font-bold data-active:border-b-2 data-active:bg-text-1/10 data-active:hover:bg-link",
                           "lg:gap-2 lg:pr-fl-1 lg:pl-2 md:text-fl-0",
                         )}
                         data-active={item.id === solution?.id
@@ -113,13 +91,15 @@ export function SolutionsPanel(
           )}
 
         <div className="flex gap-2 items-center justify-center flex-wrap lg:grid lg:grid-cols-1 lg:justify-start">
-          {
-            /*
-            TODO: once per-puzzle completion state is tracked (e.g. via cookie or KV),
-            use it here to show "Play again" vs "Try this puzzle" based on whether the
-            current user has actually solved this puzzle themselves.
-          */
-          }
+          {/* TODO: consider if animation should not autoplay and instead be user-triggered here */}
+          <a
+            href={href.value}
+            className="btn motion-reduce:hidden"
+          >
+            <i className="ph ph-play" />
+            Watch
+          </a>
+
           <a
             href={`/puzzles/${puzzle.value.slug}`}
             className="btn"
@@ -127,13 +107,6 @@ export function SolutionsPanel(
             <i className="ph ph-arrow-counter-clockwise" />
             Play again
           </a>
-
-          <button type="button" className="btn" onClick={onShare}>
-            <i
-              className={clsx(copied ? "ph-check ph" : "ph-share-network ph")}
-            />
-            {copied ? "Copied!" : "Share"}
-          </button>
         </div>
       </div>
     </Panel>
