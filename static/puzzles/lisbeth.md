@@ -2,7 +2,7 @@
 name: Lisbeth
 slug: lisbeth
 createdAt: 2026-03-03T20:17:16.472Z
-difficulty: hard
+difficulty: medium
 minMoves: 8
 ---
 

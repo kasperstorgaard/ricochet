@@ -31,8 +31,9 @@ export function Pagination({ page, totalPages, baseUrl, className }: Props) {
     >
       <a
         href={hasPrevious ? getPageUrl(page - 1) : "#"}
-        className="flex items-center rounded-1 px-2 border-[currentColor] border-1 aspect-square no-underline"
-        aria-disabled={!hasPrevious}
+        className="icon-btn"
+        data-size="sm"
+        aria-disabled={!hasNext ? true : undefined}
         aria-label="Previous page"
       >
         <i className="ph-caret-left ph" />
@@ -44,10 +45,9 @@ export function Pagination({ page, totalPages, baseUrl, className }: Props) {
 
       <a
         href={hasNext ? getPageUrl(page + 1) : "#"}
-        className={clsx(
-          "flex items-center rounded-1 px-2 border-[currentColor] border-1 aspect-square no-underline",
-        )}
-        aria-disabled={!hasNext}
+        className="icon-btn"
+        data-size="sm"
+        aria-disabled={!hasNext ? true : undefined}
         aria-label="Next page"
       >
         <i className="ph-caret-right ph" />

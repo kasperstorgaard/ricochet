@@ -2,7 +2,7 @@
 name: Bastian
 slug: bastian
 createdAt: 2026-03-03T19:06:10.665Z
-difficulty: hard
+difficulty: medium
 minMoves: 8
 ---
 
