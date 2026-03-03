@@ -74,10 +74,15 @@ export function useEditor(
           isPositionSame(piece, active) && type === piece.type
         );
 
-      // Clear the pieces
+      // Clear pieces at the active position
       let pieces = puzzle.value.board.pieces.filter((piece) =>
         !isPositionSame(piece, active)
       );
+
+      // Puck is unique — remove any existing puck at other positions
+      if (type === "puck") {
+        pieces = pieces.filter((piece) => piece.type !== "puck");
+      }
 
       if (type && !match) {
         pieces = [...pieces, { ...active, type }];

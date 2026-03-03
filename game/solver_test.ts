@@ -9,8 +9,8 @@ import {
 import { encodeMoves } from "./strings.ts";
 import type { Board, Puzzle } from "#/game/types.ts";
 
-Deno.test("solve() finds 1-move solution (rook slides to destination)", () => {
-  // Rook at A1 (0,0) slides right to H1 (7,0) where destination is
+Deno.test("solve() finds 1-move solution (puck slides to destination)", () => {
+  // Puck at A1 (0,0) slides right to H1 (7,0) where destination is
   const board: Board = {
     destination: { x: 7, y: 0 },
     pieces: [{ x: 0, y: 0, type: "puck" }],
@@ -23,7 +23,7 @@ Deno.test("solve() finds 1-move solution (rook slides to destination)", () => {
 });
 
 Deno.test("solve() finds 2-move solution", () => {
-  // Rook at A1, needs to go to H8
+  // Puck at A1, needs to go to H8
   // Move 1: A1 -> A8 (down)
   // Move 2: A8 -> H8 (right)
   const board: Board = {
@@ -36,8 +36,8 @@ Deno.test("solve() finds 2-move solution", () => {
   assertEquals(result?.length, 2);
 });
 
-Deno.test("solve() returns null for unsolvable puzzle (rook trapped)", () => {
-  // Rook at A1 trapped by walls, cannot reach H8
+Deno.test("solve() returns null for unsolvable puzzle (puck trapped)", () => {
+  // Puck at A1 trapped by walls, cannot reach H8
   const board: Board = {
     destination: { x: 7, y: 7 },
     pieces: [{ x: 0, y: 0, type: "puck" }],
@@ -50,7 +50,7 @@ Deno.test("solve() returns null for unsolvable puzzle (rook trapped)", () => {
   assertThrows(() => solve(board));
 });
 
-Deno.test("solve() returns null for unsolvable puzzle (rook can't stop)", () => {
+Deno.test("solve() returns null for unsolvable puzzle (puck can't stop)", () => {
   const board: Board = {
     destination: { x: 5, y: 5 },
     pieces: [

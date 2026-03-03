@@ -100,12 +100,12 @@ export function solve(
 
       // Check if this is a solution (puck at destination)
       const puckPiece = newPieces.find((p) => p.type === "puck")!;
-      const rookPos = {
+      const puckPos = {
         x: puckPiece.pos % COLS,
         y: Math.floor(puckPiece.pos / COLS),
       };
 
-      if (isPositionSame(rookPos, destination)) {
+      if (isPositionSame(puckPos, destination)) {
         return newMoves;
       }
 

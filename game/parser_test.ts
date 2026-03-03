@@ -197,7 +197,7 @@ difficulty: medium
 minMoves: 7
 ---
 
-Navigate the rook around the middle
+Navigate the puck around the middle
 
 + A B C D E F G H +
 1  |         |    |
