@@ -6,7 +6,8 @@ export const handler = define.handlers({
     const form = await ctx.req.formData();
     const theme = form.get("theme")?.toString() ?? "";
 
-    const url = new URL(ctx.req.referrer ?? ctx.url.origin);
+    const returnTo = form.get("return_to")?.toString();
+    const url = new URL(returnTo || ctx.req.referrer || ctx.url.origin);
 
     const headers = new Headers({
       Location: url.href,
