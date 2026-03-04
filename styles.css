@@ -670,23 +670,23 @@
    * so these are what actually produce the grayscale effect when visited.
    */
   & .svg-destination {
-    fill: color-mix(in srgb, var(--color-ui-1) 80%, var(--color-surface-1));
-    stroke: color-mix(in srgb, var(--color-ui-1) 80%, var(--color-surface-1));
+    fill: color-mix(in srgb, var(--color-ui-1) 50%, var(--color-surface-1));
+    stroke: color-mix(in srgb, var(--color-ui-1) 50%, var(--color-surface-1));
   }
 
   & .svg-puck {
-    fill: color-mix(in srgb, var(--color-ui-2) 80%, var(--color-surface-1));
-    stroke: color-mix(in srgb, var(--color-ui-2) 80%, var(--color-surface-1));
+    fill: color-mix(in srgb, var(--color-ui-2) 50%, var(--color-surface-1));
+    stroke: color-mix(in srgb, var(--color-ui-2) 50%, var(--color-surface-1));
   }
 
   & .svg-blocker {
-    fill: color-mix(in srgb, var(--color-ui-3) 80%, var(--color-surface-1));
-    stroke: color-mix(in srgb, var(--color-ui-3) 80%, var(--color-surface-1));
+    fill: color-mix(in srgb, var(--color-ui-3) 50%, var(--color-surface-1));
+    stroke: color-mix(in srgb, var(--color-ui-3) 50%, var(--color-surface-1));
   }
 
   & .svg-wall {
-    fill: color-mix(in srgb, var(--color-ui-4) 80%, var(--color-surface-1));
-    stroke: color-mix(in srgb, var(--color-ui-4) 80%, var(--color-surface-1));
+    fill: color-mix(in srgb, var(--color-ui-4) 50%, var(--color-surface-1));
+    stroke: color-mix(in srgb, var(--color-ui-4) 50%, var(--color-surface-1));
   }
 }
 
