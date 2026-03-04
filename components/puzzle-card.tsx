@@ -15,7 +15,7 @@ export type PuzzleCardProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
  *
  * States:
  *   - visited: SVG dimmed + text mutes via CSS :visited
- *   - completed: star icon
+ *   - completed: medal icon + accent border
  *
  * Pass `children` for a rich tagline or `tagline` for a plain string.
  */
