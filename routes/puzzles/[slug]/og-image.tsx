@@ -1,7 +1,7 @@
 import { HttpError } from "fresh";
 import { renderToString } from "preact-render-to-string";
 
-import { BoardSvg, ThumbnailColors } from "#/components/thumbnail.tsx";
+import { Thumbnail, ThumbnailColors } from "#/components/thumbnail.tsx";
 import { define } from "#/core.ts";
 import { getPuzzle } from "#/game/loader.ts";
 
@@ -23,7 +23,7 @@ export const handler = define.handlers({
     if (!puzzle) throw new HttpError(404);
 
     const svg = renderToString(
-      <BoardSvg
+      <Thumbnail
         board={puzzle.board}
         width={400}
         height={400}
