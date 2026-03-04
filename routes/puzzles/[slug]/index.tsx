@@ -8,7 +8,12 @@ import { PrintPanel } from "#/components/print-panel.tsx";
 import { define } from "#/core.ts";
 import { addSolution } from "#/db/kv.ts";
 import { isValidSolution, resolveMoves } from "#/game/board.ts";
-import { getHintCount, getStoredPuzzle } from "#/game/cookies.ts";
+import {
+  getCompletedSlugs,
+  getHintCount,
+  getStoredPuzzle,
+  setCompletedSlugs,
+} from "#/game/cookies.ts";
 import { getPuzzle } from "#/game/loader.ts";
 import { Move, Puzzle } from "#/game/types.ts";
 import Board from "#/islands/board.tsx";
@@ -89,7 +94,17 @@ export const handler = define.handlers<PageData>({
       },
     });
 
-    return Response.redirect(url.href, 303);
+    const responseHeaders = new Headers({ Location: url.href });
+
+    const isOptimal = puzzle.minMoves !== undefined &&
+      moves.length <= puzzle.minMoves;
+    if (isOptimal) {
+      const completed = new Set(getCompletedSlugs(ctx.req.headers));
+      completed.add(slug);
+      setCompletedSlugs(responseHeaders, [...completed]);
+    }
+
+    return new Response(null, { status: 303, headers: responseHeaders });
   },
 });
 

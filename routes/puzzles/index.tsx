@@ -5,7 +5,7 @@ import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
 import { Pagination } from "#/components/pagination.tsx";
 import { Panel } from "#/components/panel.tsx";
-import { Thumbnail } from "#/components/thumbnail.tsx";
+import { PuzzleCard } from "#/components/puzzle-card.tsx";
 import { define } from "#/core.ts";
 import { listPuzzles } from "#/game/loader.ts";
 import { PaginatedData, Puzzle } from "#/game/types.ts";
@@ -21,26 +21,29 @@ export const handler = define.handlers<PageData>({
   async GET(ctx) {
     const currentPage = getPage(ctx.url) ?? 1;
 
-    const [{ items, pagination }, { items: [latestPuzzle] }] = await Promise
-      .all([
-        listPuzzles(ctx.url.origin, {
-          sortBy: "createdAt",
-          sortOrder: "descending",
-          page: currentPage,
-          itemsPerPage: ITEMS_PER_PAGE,
-        }),
-        listPuzzles(ctx.url.origin, {
-          sortBy: "createdAt",
-          sortOrder: "descending",
-          page: 1,
-          itemsPerPage: 1,
-        }),
-      ]);
+    const latestCreatedAtPromise = listPuzzles(ctx.url.origin, {
+      sortBy: "createdAt",
+      sortOrder: "descending",
+      page: 1,
+      itemsPerPage: 1,
+    }).then((res) => res.items[0].createdAt);
+
+    const puzzlesPromise = listPuzzles(ctx.url.origin, {
+      sortBy: "createdAt",
+      sortOrder: "descending",
+      page: currentPage,
+      itemsPerPage: ITEMS_PER_PAGE,
+    });
+
+    const [{ items, pagination }, latestCreatedAt] = await Promise.all([
+      puzzlesPromise,
+      latestCreatedAtPromise,
+    ]);
 
     return page({
       items,
       pagination,
-      latestCreatedAt: latestPuzzle.createdAt,
+      latestCreatedAt,
     });
   },
 });
@@ -66,30 +69,9 @@ export default define.page<typeof handler>(
           >
             {items.map((puzzle) => (
               <li className="list-none pl-0 min-w-0" key={puzzle.slug}>
-                <a
-                  href={`puzzles/${puzzle.slug}`}
-                  className={clsx(
-                    "group flex flex-col gap-1 text-text-1 no-underline",
-                    "hover:text-brand",
-                  )}
-                >
-                  <div
-                    className={clsx(
-                      "flex border-1 border-surface-4",
-                      "group-hover:border-brand transition-colors",
-                    )}
-                  >
-                    <Thumbnail
-                      board={puzzle.board}
-                      class="basis-0 grow aspect-square h-full"
-                      difficulty={puzzle.difficulty}
-                    />
-                  </div>
-
-                  <span className="flex flex-wrap text-2 leading-tight font-4">
-                    {puzzle.name}
-                  </span>
-                </a>
+                <PuzzleCard puzzle={puzzle}>
+                  <span className="-mt-1 mb-1">{puzzle.name}</span>
+                </PuzzleCard>
               </li>
             ))}
           </ul>

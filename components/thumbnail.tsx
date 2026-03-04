@@ -1,7 +1,7 @@
 import { clsx } from "clsx/lite";
 import { HTMLAttributes, SVGAttributes } from "preact";
 
-import type { Board, Difficulty, Piece, Wall } from "#/game/types.ts";
+import type { Board, Piece, Wall } from "#/game/types.ts";
 
 export type ThumbnailColors = {
   ui1: string; // destination stroke
@@ -60,7 +60,7 @@ export function BoardSvg({
       {background && <rect width={width} height={height} fill={background} />}
 
       {/* Destination marker */}
-      <g stroke={colors.ui1} fill="none">
+      <g stroke={colors.ui1} fill="none" className="svg-destination">
         <rect
           x={destX}
           y={destY}
@@ -94,6 +94,7 @@ export function BoardSvg({
         if (wall.orientation === "vertical") {
           return (
             <line
+              className="svg-wall"
               key={`wall-${idx}`}
               x1={px}
               y1={py}
@@ -106,6 +107,7 @@ export function BoardSvg({
         } else {
           return (
             <line
+              className="svg-wall"
               key={`wall-${idx}`}
               x1={px}
               y1={py}
@@ -126,6 +128,7 @@ export function BoardSvg({
         if (piece.type === "puck") {
           return (
             <circle
+              className="svg-puck"
               key={`piece-${idx}`}
               cx={cx}
               cy={cy}
@@ -139,6 +142,7 @@ export function BoardSvg({
           const cornerRadius = size * 0.15;
           return (
             <rect
+              className="svg-blocker"
               key={`piece-${idx}`}
               x={cx - half}
               y={cy - half}
@@ -159,7 +163,6 @@ export type ThumbnailProps = HTMLAttributes<SVGSVGElement> & {
   board: Board;
   width?: number;
   height?: number;
-  difficulty?: Difficulty;
 };
 
 /**
@@ -170,7 +173,6 @@ export function Thumbnail({
   board,
   width = 400,
   height = 400,
-  difficulty,
   class: className,
   ...rest
 }: ThumbnailProps) {
@@ -183,16 +185,6 @@ export function Thumbnail({
         class="w-full h-full"
         {...rest}
       />
-
-      <div
-        class={clsx(
-          "absolute bottom-0 right-0 px-fl-1 py-0.5 bg-surface-2",
-          "text-current text-0 text-center uppercase",
-          "[clip-path:polygon(10%_0,100%_0,100%_100%,0_100%)]",
-        )}
-      >
-        {difficulty}
-      </div>
     </div>
   );
 }
