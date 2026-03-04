@@ -28,7 +28,7 @@ export type BoardSvgProps = SVGAttributes<SVGSVGElement> & {
 /**
  * Pure SVG board drawing — shared between Thumbnail (CSS vars) and og-image (hardcoded colors).
  */
-export function BoardSvg({
+export function Thumbnail({
   board,
   width = 400,
   height = 400,
@@ -164,27 +164,3 @@ export type ThumbnailProps = HTMLAttributes<SVGSVGElement> & {
   width?: number;
   height?: number;
 };
-
-/**
- * SVG thumbnail component for a puzzle board.
- * Uses CSS variables that automatically adapt to user's theme preference.
- */
-export function Thumbnail({
-  board,
-  width = 400,
-  height = 400,
-  class: className,
-  ...rest
-}: ThumbnailProps) {
-  return (
-    <div class={clsx("relative", className)}>
-      <BoardSvg
-        board={board}
-        width={width}
-        height={height}
-        class="w-full h-full"
-        {...rest}
-      />
-    </div>
-  );
-}
