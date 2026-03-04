@@ -10,11 +10,13 @@ import { define } from "#/core.ts";
 import { listPuzzles } from "#/game/loader.ts";
 import { PaginatedData, Puzzle } from "#/game/types.ts";
 import { getPage } from "#/game/url.ts";
+import { getCompletedSlugs } from "../../game/cookies.ts";
 
 const ITEMS_PER_PAGE = 6;
 
 type PageData = PaginatedData<Puzzle> & {
   latestCreatedAt: Date;
+  completedSlugs: string[];
 };
 
 export const handler = define.handlers<PageData>({
@@ -39,18 +41,20 @@ export const handler = define.handlers<PageData>({
       puzzlesPromise,
       latestCreatedAtPromise,
     ]);
+    const completedSlugs = getCompletedSlugs(ctx.req.headers);
 
     return page({
       items,
       pagination,
       latestCreatedAt,
+      completedSlugs,
     });
   },
 });
 
 export default define.page<typeof handler>(
   function PuzzlesPage(props) {
-    const { items, pagination, latestCreatedAt } = props.data;
+    const { items, pagination, latestCreatedAt, completedSlugs } = props.data;
 
     const url = new URL(props.req.url);
 
@@ -69,7 +73,10 @@ export default define.page<typeof handler>(
           >
             {items.map((puzzle) => (
               <li className="list-none pl-0 min-w-0" key={puzzle.slug}>
-                <PuzzleCard puzzle={puzzle}>
+                <PuzzleCard
+                  puzzle={puzzle}
+                  completed={completedSlugs.includes(puzzle.slug)}
+                >
                   <span className="-mt-1 mb-1">{puzzle.name}</span>
                 </PuzzleCard>
               </li>

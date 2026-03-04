@@ -45,7 +45,7 @@ export type Puzzle = {
   board: Board;
   createdAt: Date;
   difficulty: Difficulty;
-  minMoves?: number;
+  minMoves: number;
 };
 
 // Lightweight puzzle entry used in the manifest index

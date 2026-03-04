@@ -96,11 +96,10 @@ export const handler = define.handlers<PageData>({
 
     const responseHeaders = new Headers({ Location: url.href });
 
-    const isOptimal = puzzle.minMoves !== undefined &&
-      moves.length <= puzzle.minMoves;
-    if (isOptimal) {
+    if (moves.length === puzzle.minMoves) {
       const completed = new Set(getCompletedSlugs(ctx.req.headers));
       completed.add(slug);
+
       setCompletedSlugs(responseHeaders, [...completed]);
     }
 

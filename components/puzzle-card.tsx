@@ -14,8 +14,8 @@ export type PuzzleCardProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
  * Canonical puzzle card — thumbnail + difficulty badge.
  *
  * States:
- *   - visited: SVG grayscales + text mutes via CSS :visited (zero JS)
- *   - completed: star icon alongside difficulty (optimal solution posted)
+ *   - visited: SVG dimmed + text mutes via CSS :visited
+ *   - completed: star icon
  *
  * Pass `children` for a rich tagline or `tagline` for a plain string.
  */
@@ -29,10 +29,10 @@ export function PuzzleCard({
 }: PuzzleCardProps) {
   return (
     <a
-      href={`puzzles/${puzzle.slug}`}
+      href={`/puzzles/${puzzle.slug}`}
       class={clsx(
         "group flex flex-col gap-fl-1 text-text-2 no-underline",
-        "visited:svg-dim vi",
+        "visited:svg-dim",
         className,
       )}
       {...rest}
@@ -41,11 +41,13 @@ export function PuzzleCard({
         class={clsx(
           "relative flex border-1 border-link",
           "group-hover:filter-[lighten(1.3)] group-visited:border-text-2 transition-colors",
+          "data-completed:border-ui-2",
         )}
+        data-completed={completed ? true : undefined}
       >
         <Thumbnail
           board={puzzle.board}
-          class="basis-0 grow aspect-square h-full"
+          className="basis-0 grow aspect-square h-full"
         />
 
         <div
@@ -59,8 +61,8 @@ export function PuzzleCard({
         </div>
 
         {completed && (
-          <div class="absolute top-0 right-0 p-fl-1">
-            <i class="ph ph-star text-ui-2" aria-label="Solved" />
+          <div class="absolute top-0 right-0 p-fl-1 rounded-full">
+            <i class="ph ph-medal text-ui-2" aria-label="Solved" />
           </div>
         )}
       </div>
