@@ -79,15 +79,11 @@ export default define.page<typeof handler>(function Home(ctx) {
           )}
         >
           <li className="list-none pl-0 min-w-0">
-            <PuzzleCard puzzle={dailyPuzzle} tagline="Daily puzzle">
-              {dailyPuzzle.name}
-            </PuzzleCard>
+            <PuzzleCard puzzle={dailyPuzzle} tagline="Daily puzzle" />
           </li>
 
           <li className="list-none pl-0 min-w-0">
-            <PuzzleCard puzzle={randomPuzzle} tagline="Random puzzle">
-              {randomPuzzle.name}
-            </PuzzleCard>
+            <PuzzleCard puzzle={randomPuzzle} tagline="Random puzzle" />
           </li>
 
           <li className="list-none pl-0 min-w-0 max-lg:col-span-2 max-lg:place-self-start">

@@ -4,14 +4,17 @@ import { AnchorHTMLAttributes } from "preact";
 import { Thumbnail } from "#/components/thumbnail.tsx";
 import type { Puzzle } from "#/game/types.ts";
 
-export type PuzzleCardProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
-  puzzle: Puzzle;
-  completed?: boolean;
-  tagline?: string;
-};
+export type PuzzleCardProps =
+  & Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "children">
+  & {
+    puzzle: Puzzle;
+    completed?: boolean;
+    tagline?: string;
+  };
 
 /**
- * Canonical puzzle card — thumbnail + difficulty badge.
+ * Canonical clickable puzzle card,
+ * showing an svg of the puzzle, and letting the consumer pass the
  *
  * States:
  *   - visited: SVG dimmed + text mutes via CSS :visited
@@ -24,14 +27,13 @@ export function PuzzleCard({
   completed,
   tagline,
   className,
-  children,
   ...rest
 }: PuzzleCardProps) {
   return (
     <a
       href={`/puzzles/${puzzle.slug}`}
       class={clsx(
-        "group flex flex-col gap-fl-1 text-text-2 no-underline",
+        "group flex flex-col gap-1 text-text-2 no-underline",
         "visited:svg-dim",
         className,
       )}
@@ -69,12 +71,17 @@ export function PuzzleCard({
 
       <div className="flex flex-col gap-0.5">
         {tagline && (
-          <span className="text-0 text-text-2 group-hover:text-current tracking-wide leading-flat">
+          <span
+            className={clsx(
+              "text-0 text-text-2 tracking-wide leading-flat mt-1.5 -mb-0.5",
+              "group-hover:text-current",
+            )}
+          >
             {tagline}
           </span>
         )}
         <span className="flex flex-wrap leading-tight font-4">
-          {children}
+          {puzzle.name}
         </span>
       </div>
     </a>

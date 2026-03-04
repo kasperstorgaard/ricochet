@@ -76,9 +76,7 @@ export default define.page<typeof handler>(
                 <PuzzleCard
                   puzzle={puzzle}
                   completed={completedSlugs.includes(puzzle.slug)}
-                >
-                  <span className="-mt-1 mb-1">{puzzle.name}</span>
-                </PuzzleCard>
+                />
               </li>
             ))}
           </ul>
