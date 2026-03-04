@@ -7,10 +7,10 @@ import { Pagination } from "#/components/pagination.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { PuzzleCard } from "#/components/puzzle-card.tsx";
 import { define } from "#/core.ts";
+import { getCompletedSlugs } from "#/game/cookies.ts";
 import { listPuzzles } from "#/game/loader.ts";
 import { PaginatedData, Puzzle } from "#/game/types.ts";
 import { getPage } from "#/game/url.ts";
-import { getCompletedSlugs } from "../../game/cookies.ts";
 
 const ITEMS_PER_PAGE = 6;
 
