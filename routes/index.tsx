@@ -103,7 +103,7 @@ export default define.page<typeof handler>(function Home(ctx) {
       </Main>
 
       <Panel className="max-lg:gap-fl-3">
-        <p className="col-[2/3] text-fl-0 text-text-3 lg:col-auto lg:row-start-1">
+        <p className="col-[2/3] text-fl-0 text-text-2 lg:col-auto lg:row-start-1">
           Inspired by{" "}
           <a href="https://boardgamegeek.com/boardgame/51/ricochet-robots">
             Ricochet Robots
@@ -138,13 +138,13 @@ export default define.page<typeof handler>(function Home(ctx) {
           <div className="flex gap-2 lg:flex-col">
             <a
               href="https://github.com/kasperstorgaard/ricochet"
-              className="text-text-3"
+              className="text-text-2"
             >
               <i className="ph ph-github-logo" /> GitHub
             </a>
             <a
               href="https://www.linkedin.com/in/kasper-storgaard-t-lead"
-              className="text-text-3"
+              className="text-text-2"
             >
               <i className="ph ph-linkedin-logo" /> LinkedIn
             </a>
