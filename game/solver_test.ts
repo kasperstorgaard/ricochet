@@ -93,6 +93,7 @@ Deno.test("solve() respects maxIterations option", () => {
 
 Deno.test("solve() accepts Puzzle type (not just Board)", () => {
   const puzzle: Puzzle = {
+    number: 5,
     slug: "test",
     name: "Test",
     createdAt: new Date(),

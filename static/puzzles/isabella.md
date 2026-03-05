@@ -1,4 +1,5 @@
 ---
+number: 23
 name: Isabella
 slug: isabella
 createdAt: 2026-02-11T16:44:47.326Z

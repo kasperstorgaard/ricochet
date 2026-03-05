@@ -1,4 +1,3 @@
-import { pickByDay } from "#/game/date.ts";
 import { parsePuzzle } from "#/game/parser.ts";
 import {
   Difficulty,
@@ -14,7 +13,8 @@ const ITEMS_PER_PAGE = 6;
 
 /**
  * Fetches puzzle manifest containing metadata for all puzzles.
- * Manifest is pre-sorted by createdAt descending (newest first).
+ * Only returns puzzles with createdAt <= asOf (defaults to now),
+ * so future-dated puzzles stay hidden until their release date.
  */
 async function getPuzzleManifest(
   baseUrl: string | URL,
@@ -26,7 +26,7 @@ async function getPuzzleManifest(
     throw new Error(`Failed to load puzzle manifest (${response.status})`);
   }
 
-  return await response.json();
+  return response.json();
 }
 
 /**
@@ -53,8 +53,9 @@ export async function getPuzzle(
 }
 
 type ListOptions = Pick<PaginationState, "page" | "itemsPerPage"> & {
-  sortBy: "createdAt" | "difficulty";
+  sortBy: "createdAt" | "difficulty" | "number";
   sortOrder: "ascending" | "descending";
+  excludeSlugs?: string[];
 };
 
 /**
@@ -68,17 +69,20 @@ export async function listPuzzles(
     itemsPerPage: ITEMS_PER_PAGE,
     sortBy: "createdAt",
     sortOrder: "descending",
+    excludeSlugs: ["tutorial"],
   },
 ): Promise<PaginatedData<Puzzle>> {
-  let entries = await getPuzzleManifest(baseUrl);
+  let entries = (await getPuzzleManifest(baseUrl))
+    .filter((entry) => !options.excludeSlugs?.includes(entry.slug));
+
+  entries = sortList(entries, options);
+
   const totalItems = entries.length;
 
   const limit = options?.itemsPerPage ?? ITEMS_PER_PAGE;
   const page = options?.page ?? 1;
   const start = (page - 1) * limit;
   const end = start + limit;
-
-  entries = sortList(entries, options);
 
   entries = entries.slice(start, end);
 
@@ -97,45 +101,28 @@ export async function listPuzzles(
   };
 }
 
-type GetPuzzleOfTheDayOptions = {
-  difficulty: Difficulty[];
-};
-
-type GetRandomPuzzleOptions = {
-  difficulty: Difficulty[];
-  excludeSlugs?: string[];
-};
-
 /**
- * Gets puzzle of the day based on the current date.
- * Cycles through puzzles sorted by date (oldest first).
- *
- * Note: Adding or removing puzzles will change the rotation.
- * Excludes tutorial puzzles from rotation.
+ * Gets the latest puzzle — the puzzle of the day
+ * Excludes tutorial puzzles.
  */
-export async function getPuzzleOfTheDay(
+export async function getLatestPuzzle(
   baseUrl: string | URL,
-  date = new Date(Date.now()),
-  options: GetPuzzleOfTheDayOptions,
 ): Promise<Puzzle> {
-  const entries = (await getPuzzleManifest(baseUrl))
-    .filter((puzzle) => !puzzle.slug.startsWith("tutorial"))
-    // Check that the puzzle is within the difficulty options
-    .filter((puzzle) => options.difficulty.includes(puzzle.difficulty));
+  const entries = (await getPuzzleManifest(baseUrl)).sort((a, b) =>
+    b.number - a.number
+  );
 
-  // Sort oldest first for consistent rotation base
-  const sortedEntries = entries.sort((a, b) => {
-    const dateA = new Date(a.createdAt).getTime();
-    const dateB = new Date(b.createdAt).getTime();
-    return dateA - dateB; // Oldest first
-  });
+  const entry = entries[0];
 
-  const entry = pickByDay(sortedEntries, date);
-
-  if (!entry) throw new Error("Unable to get puzzle of the day");
+  if (!entry) throw new Error("Unable to get latest puzzle");
 
   return getPuzzle(baseUrl, entry.slug);
 }
+
+type GetRandomPuzzleOptions = {
+  difficulty?: Difficulty[];
+  excludeSlugs?: string[];
+};
 
 /**
  * Gets a random puzzle from the pool matching the given difficulty options.
@@ -147,7 +134,9 @@ export async function getRandomPuzzle(
 ): Promise<Puzzle> {
   const entries = (await getPuzzleManifest(baseUrl))
     .filter((puzzle) => !puzzle.slug.startsWith("tutorial"))
-    .filter((puzzle) => options.difficulty.includes(puzzle.difficulty))
+    .filter((puzzle) =>
+      options.difficulty ? options.difficulty.includes(puzzle.difficulty) : true
+    )
     .filter((puzzle) => !options.excludeSlugs?.includes(puzzle.slug));
 
   if (!entries.length) throw new Error("Unable to get random puzzle");

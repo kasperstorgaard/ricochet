@@ -27,8 +27,14 @@ export const handler = define.handlers({
       const puzzle = parsePuzzle(markdown);
       const moves = solve(puzzle);
 
+      let totalPuzzles = 0;
+      for await (const entry of Deno.readDir(PUZZLES_DIR)) {
+        if (entry.isFile && entry.name.endsWith(".md")) totalPuzzles++;
+      }
+
       markdown = formatPuzzle({
         ...puzzle,
+        number: totalPuzzles, // Assign a number to this puzzle, 0-based
         minMoves: moves?.length,
         createdAt: new Date(Date.now()),
       });

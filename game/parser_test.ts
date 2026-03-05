@@ -152,6 +152,7 @@ name: Unknown Character
 
 Deno.test("parsePuzzle - parses simple puzzle", () => {
   const markdown = `---
+number: 5
 name: Simple Puzzle
 slug: simple-puzzle
 createdAt: 2026-01-01T00:00:00.000Z
@@ -174,6 +175,7 @@ minMoves: 7
   const result = parsePuzzle(markdown);
 
   assertEquals(result, {
+    number: 5,
     name: "Simple Puzzle",
     slug: "simple-puzzle",
     createdAt: new Date("2026-01-01T00:00:00.000Z"),

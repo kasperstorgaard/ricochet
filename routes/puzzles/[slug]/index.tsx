@@ -37,11 +37,13 @@ export const handler = define.handlers<PageData>({
       if (!puzzle) throw new HttpError(500, "No stored puzzle");
 
       puzzle.slug = "preview";
+      puzzle.number = 0;
 
       return page({ puzzle, hintCount });
     }
 
     const puzzle = await getPuzzle(ctx.url.origin, slug);
+
     if (!puzzle) {
       throw new HttpError(404, `Unable to find puzzle with slug: ${slug}`);
     }
@@ -127,7 +129,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
 
         <div className="flex items-center justify-between gap-fl-1 mt-2 flex-wrap">
           <h1 className="text-5 text-brand leading-tight">
-            {props.data.puzzle.name}
+            #{props.data.puzzle.number} {props.data.puzzle.name}
           </h1>
 
           <DifficultyBadge

@@ -28,6 +28,7 @@ export const handler = define.handlers<Puzzle>({
 
     if (!puzzle) {
       puzzle = {
+        number: 0,
         name: "Untitled",
         slug: "untitled",
         createdAt: new Date(Date.now()),
