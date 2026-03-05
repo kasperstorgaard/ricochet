@@ -1,4 +1,5 @@
 ---
+number: 47
 name: Magnus
 slug: magnus
 createdAt: 2026-02-15T12:21:51.334Z

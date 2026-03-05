@@ -1,4 +1,5 @@
 ---
+number: 19
 name: Eigil
 slug: eigil
 createdAt: 2026-02-10T19:25:31.392Z

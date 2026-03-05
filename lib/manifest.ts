@@ -19,6 +19,7 @@ export async function updateManifest() {
       const { attrs } = extractYaml<Omit<Puzzle, "board">>(content);
 
       entries.push({
+        number: attrs.number,
         slug: attrs.slug,
         name: attrs.name,
         createdAt: attrs.createdAt,

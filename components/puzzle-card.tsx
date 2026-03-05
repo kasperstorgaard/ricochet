@@ -80,8 +80,8 @@ export function PuzzleCard({
             {tagline}
           </span>
         )}
-        <span className="flex flex-wrap leading-tight font-4">
-          {puzzle.name}
+        <span className="flex items-center flex-wrap leading-tight font-4">
+          #{puzzle.number} {puzzle.name}
         </span>
       </div>
     </a>

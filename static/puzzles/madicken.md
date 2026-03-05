@@ -1,4 +1,5 @@
 ---
+number: 66
 name: Madicken
 slug: madicken
 createdAt: 2026-02-22T19:13:08.930Z

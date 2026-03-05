@@ -40,6 +40,7 @@ export type Move = [Position, Position];
 
 // A complete puzzle with metadata and board configuration
 export type Puzzle = {
+  number: number;
   slug: string;
   name: string;
   board: Board;
@@ -51,7 +52,7 @@ export type Puzzle = {
 // Lightweight puzzle entry used in the manifest index
 export type PuzzleManifestEntry = Pick<
   Puzzle,
-  "slug" | "name" | "createdAt" | "minMoves" | "difficulty"
+  "number" | "slug" | "name" | "createdAt" | "minMoves" | "difficulty"
 >;
 
 // Tracks current pagination position and total counts
