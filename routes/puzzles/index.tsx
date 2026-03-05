@@ -8,14 +8,13 @@ import { Panel } from "#/components/panel.tsx";
 import { PuzzleCard } from "#/components/puzzle-card.tsx";
 import { define } from "#/core.ts";
 import { getCompletedSlugs } from "#/game/cookies.ts";
-import { listPuzzles } from "#/game/loader.ts";
+import { getLatestPuzzle, listPuzzles } from "#/game/loader.ts";
 import { PaginatedData, Puzzle } from "#/game/types.ts";
 import { getPage } from "#/game/url.ts";
 
 const ITEMS_PER_PAGE = 6;
 
 type PageData = PaginatedData<Puzzle> & {
-  latestCreatedAt: Date;
   completedSlugs: string[];
 };
 
@@ -23,30 +22,21 @@ export const handler = define.handlers<PageData>({
   async GET(ctx) {
     const currentPage = getPage(ctx.url) ?? 1;
 
-    const latestCreatedAtPromise = listPuzzles(ctx.url.origin, {
-      sortBy: "createdAt",
-      sortOrder: "descending",
-      page: 1,
-      itemsPerPage: 1,
-    }).then((res) => res.items[0].createdAt);
+    const dailyPuzzle = await getLatestPuzzle(ctx.url.origin);
 
-    const puzzlesPromise = listPuzzles(ctx.url.origin, {
-      sortBy: "createdAt",
+    const { items, pagination } = await listPuzzles(ctx.url.origin, {
+      sortBy: "number",
       sortOrder: "descending",
       page: currentPage,
+      excludeSlugs: ["tutorial", dailyPuzzle.slug],
       itemsPerPage: ITEMS_PER_PAGE,
     });
 
-    const [{ items, pagination }, latestCreatedAt] = await Promise.all([
-      puzzlesPromise,
-      latestCreatedAtPromise,
-    ]);
     const completedSlugs = getCompletedSlugs(ctx.req.headers);
 
     return page({
       items,
       pagination,
-      latestCreatedAt,
       completedSlugs,
     });
   },
@@ -54,7 +44,7 @@ export const handler = define.handlers<PageData>({
 
 export default define.page<typeof handler>(
   function PuzzlesPage(props) {
-    const { items, pagination, latestCreatedAt, completedSlugs } = props.data;
+    const { items, pagination, completedSlugs } = props.data;
 
     const url = new URL(props.req.url);
 
@@ -100,17 +90,6 @@ export default define.page<typeof handler>(
                 {pagination.totalItems}
               </span>
               <span className="text-fl-0 text-text-2">Puzzles</span>
-            </div>
-
-            <div className="flex flex-col gap-0">
-              <span className="text-fl-2 text-brand leading-flat font-4">
-                {new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(
-                  latestCreatedAt,
-                )}
-              </span>
-              <span className="text-fl-0 text-text-2">
-                Latest batch
-              </span>
             </div>
           </div>
 

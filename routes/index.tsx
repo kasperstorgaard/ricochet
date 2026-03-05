@@ -7,7 +7,7 @@ import { Panel } from "#/components/panel.tsx";
 import { PuzzleCard } from "#/components/puzzle-card.tsx";
 import { define } from "#/core.ts";
 import { getSkipTutorialCookie } from "#/game/cookies.ts";
-import { getPuzzleOfTheDay, getRandomPuzzle } from "#/game/loader.ts";
+import { getLatestPuzzle, getRandomPuzzle } from "#/game/loader.ts";
 import { Puzzle } from "#/game/types.ts";
 
 type PageData = {
@@ -27,16 +27,11 @@ export const handler = define.handlers<PageData>({
       return Response.redirect(redirectUrl, 303);
     }
 
-    const today = new Date(Date.now());
-
     // Using NextJS-style promise splits to avoid waterfalls
     // (slightly overkill in this case, but good practice / safer for future additions)
-    const dailyPuzzlePromise = getPuzzleOfTheDay(ctx.url.origin, today, {
-      difficulty: ["medium", "hard"],
-    });
+    const dailyPuzzlePromise = getLatestPuzzle(ctx.url.origin);
     const randomPuzzlePromise = dailyPuzzlePromise.then((puzzle) =>
       getRandomPuzzle(ctx.url.origin, {
-        difficulty: ["medium", "hard"],
         excludeSlugs: [puzzle.slug],
       })
     );

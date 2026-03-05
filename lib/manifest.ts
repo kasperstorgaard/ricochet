@@ -1,6 +1,8 @@
+// deno-lint-ignore-file skub-imports/import-order skub-imports/use-hash-alias ban-unused-ignore
 import { extractYaml } from "@std/front-matter";
 
-import { Puzzle, PuzzleManifestEntry } from "#/game/types.ts";
+import { getDayOfYear } from "../game/date.ts";
+import { Puzzle, PuzzleManifestEntry } from "../game/types.ts";
 
 const PUZZLES_DIR = "./static/puzzles";
 
@@ -11,12 +13,16 @@ const PUZZLES_DIR = "./static/puzzles";
 export async function updateManifest() {
   let entries: PuzzleManifestEntry[] = [];
 
+  const today = new Date(Date.now());
+  const dayOfYear = getDayOfYear(today);
+
   for await (const entry of Deno.readDir(PUZZLES_DIR)) {
     if (entry.isFile && entry.name.endsWith(".md")) {
       const content = await Deno.readTextFile(
         `${PUZZLES_DIR}/${entry.name}`,
       );
       const { attrs } = extractYaml<Omit<Puzzle, "board">>(content);
+      if (attrs.number > dayOfYear) continue;
 
       entries.push({
         number: attrs.number,
@@ -29,9 +35,8 @@ export async function updateManifest() {
     }
   }
 
-  entries = entries.sort((a, b) =>
-    a.createdAt.getTime() - b.createdAt.getTime()
-  );
+  // Sort all by number
+  entries = entries.sort((a, b) => b.number - a.number);
 
   await Deno.writeTextFile(
     `${PUZZLES_DIR}/manifest.json`,
