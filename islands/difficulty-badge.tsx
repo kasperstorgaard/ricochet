@@ -23,7 +23,7 @@ export function DifficultyBadge(
   const ref = useRef<HTMLSpanElement>(null);
 
   const [minMoves, setMinMoves] = useState<number | null>(
-    showMinMoves ? puzzle.value.minMoves ?? null : null,
+    showMinMoves ? puzzle.value.minMoves || null : null,
   );
   const [error, setError] = useState<string | null>(null);
 

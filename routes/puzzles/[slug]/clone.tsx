@@ -12,7 +12,7 @@ export const handler = define.handlers({
     if (!isDev) puzzle.name = "Untitled";
 
     puzzle.createdAt = new Date(Date.now());
-    puzzle.minMoves = undefined;
+    puzzle.minMoves = 0;
 
     const headers = new Headers();
     setStoredPuzzleCookie(headers, puzzle);
