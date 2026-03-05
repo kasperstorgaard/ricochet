@@ -6,6 +6,7 @@ import type { Puzzle } from "#/game/types.ts";
 
 Deno.test("formatPuzzle - formats simple puzzle", () => {
   const puzzle: Puzzle = {
+    number: 5,
     name: "Simple Puzzle",
     slug: "simple-puzzle",
     createdAt: new Date("2024-06-20T00:00:00.000Z"),
@@ -31,6 +32,7 @@ Deno.test("formatPuzzle - formats simple puzzle", () => {
 
 Deno.test("formatPuzzle - formats puzzle with walls", () => {
   const puzzle: Puzzle = {
+    number: 5,
     name: "Walls Puzzle",
     slug: "walls-puzzle",
     createdAt: new Date("2024-06-20T00:00:00.000Z"),
@@ -55,6 +57,7 @@ Deno.test("formatPuzzle - formats puzzle with walls", () => {
 
 Deno.test("formatPuzzle - formats puzzle with piece on destination", () => {
   const puzzle: Puzzle = {
+    number: 5,
     name: "Piece on Destination",
     slug: "piece-on-destination",
     createdAt: new Date("2024-06-20T00:00:00.000Z"),
@@ -86,6 +89,7 @@ Deno.test("formatPuzzle - formats puzzle with piece on destination", () => {
 
 Deno.test("formatPuzzle - formats puzzle with piece on destination and wall", () => {
   const puzzle: Puzzle = {
+    number: 5,
     name: "Complex Piece",
     slug: "complex-piece",
     createdAt: new Date("2024-06-20T00:00:00.000Z"),
