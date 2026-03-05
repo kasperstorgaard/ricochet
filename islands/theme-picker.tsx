@@ -20,10 +20,10 @@ const THEMES: Theme[] = [
     mode: "dark",
   },
   {
-    key: "one-dark",
-    label: "One Dark",
-    surface: "#21252b",
-    brand: "#98c379",
+    key: "high-contrast",
+    label: "High Contrast",
+    surface: "#000000",
+    brand: "#ffffff",
     mode: "dark",
   },
   {
