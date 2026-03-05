@@ -16,7 +16,7 @@ export function Header({ url, back, share, themePicker }: Props) {
   return (
     <header className="print:hidden flex items-center justify-between">
       {back && (
-        <a href={back.href} className="text-fl-1 no-underline">
+        <a href={back.href} className="text-fl-1 no-underline leading-none">
           <i className="ph ph-arrow-left" />
         </a>
       )}

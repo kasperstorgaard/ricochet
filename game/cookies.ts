@@ -175,6 +175,27 @@ export function setThemeCookie(
   return headers;
 }
 
+// Tracks puzzles solved in the minimum number of moves (optimal solutions only).
+const COMPLETED_KEY = "completed_puzzles";
+// 1 year in seconds
+const COMPLETED_DURATION = 60 * 60 * 24 * 365;
+
+export function getCompletedSlugs(headers: Headers): string[] {
+  return getCookies(headers)[COMPLETED_KEY]?.split(",").filter(Boolean) ?? [];
+}
+
+export function setCompletedSlugs(headers: Headers, slugs: string[]): void {
+  const isDenoDeploy = Deno.env.get("DENO_DEPLOYMENT_ID") != null;
+  setCookie(headers, {
+    name: COMPLETED_KEY,
+    value: slugs.join(","),
+    httpOnly: false,
+    path: "/",
+    secure: isDenoDeploy,
+    maxAge: COMPLETED_DURATION,
+  });
+}
+
 /**
  * Reads the hint count for a puzzle from the request cookies.
  * Resets automatically after 24 hours (enforced by cookie expiry).

@@ -4,7 +4,7 @@ import { page } from "fresh";
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
 import { Panel } from "#/components/panel.tsx";
-import { Thumbnail } from "#/components/thumbnail.tsx";
+import { PuzzleCard } from "#/components/puzzle-card.tsx";
 import { define } from "#/core.ts";
 import { getSkipTutorialCookie } from "#/game/cookies.ts";
 import { getPuzzleOfTheDay, getRandomPuzzle } from "#/game/loader.ts";
@@ -79,66 +79,11 @@ export default define.page<typeof handler>(function Home(ctx) {
           )}
         >
           <li className="list-none pl-0 min-w-0">
-            <a
-              href={`puzzles/${dailyPuzzle.slug}`}
-              className="group flex flex-col gap-fl-1 text-text-1 no-underline hover:text-brand"
-            >
-              <div
-                className={clsx(
-                  "flex border-1 border-surface-4",
-                  "group-hover:border-brand transition-colors",
-                )}
-              >
-                <Thumbnail
-                  board={dailyPuzzle.board}
-                  difficulty={dailyPuzzle.difficulty}
-                  class="basis-0 grow aspect-square h-full"
-                />
-              </div>
-
-              <div className="flex gap-fl-2 justify-between items-start">
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-0 text-text-2 group-hover:text-current tracking-wide leading-flat">
-                    Daily puzzle
-                  </span>
-
-                  <span className="flex flex-wrap text-2 leading-tight font-4">
-                    {dailyPuzzle.name}
-                  </span>
-                </div>
-              </div>
-            </a>
+            <PuzzleCard puzzle={dailyPuzzle} tagline="Daily puzzle" />
           </li>
 
           <li className="list-none pl-0 min-w-0">
-            <a
-              href={`puzzles/${randomPuzzle.slug}`}
-              className="group flex flex-col gap-fl-1 text-text-1 hover:text-brand no-underline hover:no-underline"
-            >
-              <div
-                className={clsx(
-                  "flex border-1 border-surface-4",
-                  "group-hover:border-brand transition-colors",
-                )}
-              >
-                <Thumbnail
-                  board={randomPuzzle.board}
-                  difficulty={randomPuzzle.difficulty}
-                  class="basis-0 grow aspect-square h-full"
-                />
-              </div>
-
-              <div className="flex gap-fl-2 justify-between items-start">
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-0 text-text-2 group-hover:text-current tracking-wide leading-flat">
-                    Random puzzle
-                  </span>
-                  <span className="flex flex-wrap text-2 leading-tight font-4">
-                    {randomPuzzle.name}
-                  </span>
-                </div>
-              </div>
-            </a>
+            <PuzzleCard puzzle={randomPuzzle} tagline="Random puzzle" />
           </li>
 
           <li className="list-none pl-0 min-w-0 max-lg:col-span-2 max-lg:place-self-start">
@@ -146,9 +91,9 @@ export default define.page<typeof handler>(function Home(ctx) {
               href="/puzzles"
               className={clsx(
                 "group flex gap-fl-1 p-fl-2 place-content-start place-items-center",
-                "text-text-1 leading-snug border border-surface-4 no-underline",
+                "text-text-2 leading-snug border border-link no-underline",
                 "lg:aspect-square lg:flex-col lg:justify-center lg:place-items-start lg:gap-fl-1 lg:w-full",
-                "hover:text-brand hover:no-underline hover:border-brand",
+                "hover:filter-[lighten(1.3)] hover:no-underline",
               )}
             >
               Puzzle archives <i className="ph ph-arrow-right" />
@@ -157,7 +102,7 @@ export default define.page<typeof handler>(function Home(ctx) {
         </ul>
       </Main>
 
-      <Panel className="max-lg:gap-fl-4">
+      <Panel className="max-lg:gap-fl-3">
         <p className="col-[2/3] text-fl-0 text-text-3 lg:col-auto lg:row-start-1">
           Inspired by{" "}
           <a href="https://boardgamegeek.com/boardgame/51/ricochet-robots">

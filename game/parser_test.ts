@@ -156,6 +156,7 @@ name: Simple Puzzle
 slug: simple-puzzle
 createdAt: 2026-01-01T00:00:00.000Z
 difficulty: medium
+minMoves: 7
 ---
 
 + A B C D E F G H +
@@ -177,6 +178,7 @@ difficulty: medium
     slug: "simple-puzzle",
     createdAt: new Date("2026-01-01T00:00:00.000Z"),
     difficulty: "medium",
+    minMoves: 7,
     board: {
       destination: { x: 3, y: 7 },
       pieces: [

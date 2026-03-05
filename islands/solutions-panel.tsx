@@ -76,12 +76,16 @@ export function SolutionsPanel(
                           {item.name}
                         </span>
 
-                        {idx === 0 && (
-                          <i
-                            className={clsx(
-                              "ph ph-trophy shrink-0 text-ui-2",
-                            )}
-                          />
+                        {/* Show a trophy for the top solution (first and optimal) */}
+                        {idx === 0 &&
+                          item.moves.length === puzzle.value.minMoves && (
+                          <i className="ph ph-trophy shrink-0 text-ui-2" />
+                        )}
+
+                        {/* Show a medal if current solution is an optimal solution */}
+                        {idx !== 0 && item.id === solution?.id &&
+                          item.moves.length === puzzle.value.minMoves && (
+                          <i className="ph ph-medal shrink-0 text-ui-2" />
                         )}
                       </a>
                     </li>
