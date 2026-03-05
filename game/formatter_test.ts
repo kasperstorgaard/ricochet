@@ -10,6 +10,7 @@ Deno.test("formatPuzzle - formats simple puzzle", () => {
     slug: "simple-puzzle",
     createdAt: new Date("2024-06-20T00:00:00.000Z"),
     difficulty: "medium",
+    minMoves: 7,
     board: {
       destination: { x: 3, y: 7 },
       pieces: [
@@ -28,40 +29,13 @@ Deno.test("formatPuzzle - formats simple puzzle", () => {
   assertEquals(parsed, puzzle);
 });
 
-// Added to cover a bug in storage, where minMoves would be passed as undefined.
-Deno.test("formatPuzzle - formats puzzle with undefined property", () => {
-  const puzzle: Puzzle = {
-    name: "Untitled",
-    slug: "untitled",
-    createdAt: new Date("2025-07-20T00:00:00.000Z"),
-    difficulty: "easy",
-    minMoves: undefined,
-    board: {
-      destination: { x: 0, y: 0 },
-      pieces: [
-        { x: 1, y: 1, type: "puck" },
-      ],
-      walls: [],
-    },
-  };
-
-  const result = formatPuzzle(puzzle);
-
-  // Parse it back to verify round-trip
-  const parsed = parsePuzzle(result);
-
-  // clear the minMoves for matching purposes.
-  delete puzzle.minMoves;
-
-  assertEquals(parsed, puzzle);
-});
-
 Deno.test("formatPuzzle - formats puzzle with walls", () => {
   const puzzle: Puzzle = {
     name: "Walls Puzzle",
     slug: "walls-puzzle",
     createdAt: new Date("2024-06-20T00:00:00.000Z"),
     difficulty: "medium",
+    minMoves: 6,
     board: {
       destination: { x: 7, y: 7 },
       pieces: [{ x: 0, y: 0, type: "puck" }],
@@ -85,6 +59,7 @@ Deno.test("formatPuzzle - formats puzzle with piece on destination", () => {
     slug: "piece-on-destination",
     createdAt: new Date("2024-06-20T00:00:00.000Z"),
     difficulty: "medium",
+    minMoves: 6,
     board: {
       destination: { x: 4, y: 4 },
       pieces: [
@@ -115,6 +90,7 @@ Deno.test("formatPuzzle - formats puzzle with piece on destination and wall", ()
     slug: "complex-piece",
     createdAt: new Date("2024-06-20T00:00:00.000Z"),
     difficulty: "medium",
+    minMoves: 6,
     board: {
       destination: { x: 3, y: 2 },
       pieces: [

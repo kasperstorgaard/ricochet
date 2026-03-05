@@ -97,6 +97,7 @@ Deno.test("solve() accepts Puzzle type (not just Board)", () => {
     name: "Test",
     createdAt: new Date(),
     difficulty: "medium",
+    minMoves: 7,
     board: {
       destination: { x: 7, y: 0 },
       pieces: [{ x: 0, y: 0, type: "puck" as const }],

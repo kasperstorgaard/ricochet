@@ -147,6 +147,6 @@ function updateBoard(
   puzzle.value = {
     ...puzzle.value,
     board: { ...puzzle.value.board, ...patch },
-    minMoves: undefined,
+    minMoves: 0,
   };
 }

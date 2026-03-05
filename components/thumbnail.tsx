@@ -1,4 +1,3 @@
-import { clsx } from "clsx/lite";
 import { HTMLAttributes, SVGAttributes } from "preact";
 
 import type { Board, Piece, Wall } from "#/game/types.ts";
