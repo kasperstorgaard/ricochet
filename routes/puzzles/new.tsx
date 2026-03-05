@@ -32,6 +32,7 @@ export const handler = define.handlers<Puzzle>({
         slug: "untitled",
         createdAt: new Date(Date.now()),
         difficulty: "medium",
+        minMoves: 0,
         board: {
           destination: { x: 0, y: 0 },
           pieces: [],

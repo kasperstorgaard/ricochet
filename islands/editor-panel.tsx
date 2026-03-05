@@ -67,6 +67,7 @@ export function EditorPanel(
       slug: puzzle.value.slug,
       createdAt: puzzle.value.createdAt ?? new Date(Date.now()),
       difficulty: puzzle.value.difficulty,
+      minMoves: 0,
       board,
     }), [puzzle.value, board]);
 
