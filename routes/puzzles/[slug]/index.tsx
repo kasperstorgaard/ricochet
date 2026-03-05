@@ -14,7 +14,7 @@ import {
   getStoredPuzzle,
   setCompletedSlugs,
 } from "#/game/cookies.ts";
-import { getPuzzle, getPuzzleEntry } from "#/game/loader.ts";
+import { getPuzzle } from "#/game/loader.ts";
 import { Move, Puzzle } from "#/game/types.ts";
 import Board from "#/islands/board.tsx";
 import { ControlsPanel } from "#/islands/controls-panel.tsx";
