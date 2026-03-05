@@ -125,6 +125,7 @@ export default define.page<typeof handler>(
               href="/puzzles/new"
               className="btn"
             >
+              <i className="ph ph-pencil" />
               Build a puzzle
             </a>
           </div>
