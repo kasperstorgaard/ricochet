@@ -50,7 +50,7 @@ export const handler = define.handlers<Data>({
   POST() {
     const headers = new Headers({
       // Redirect to daily puzzle
-      Location: "/puzzles/daily?difficulty=easy",
+      Location: "/puzzles/daily",
     });
 
     setSkipTutorialCookie(headers, true);
