@@ -27,6 +27,8 @@ export type Board = {
 export const DIFFICULTIES = ["easy", "medium", "hard"] as const;
 export type Difficulty = typeof DIFFICULTIES[number];
 
+export type Onboarding = "new" | "started" | "done";
+
 // The full game state encoded in the URL, including move history and UI state
 export type GameState = {
   moves: Move[]; // List of moves made so far

@@ -2,9 +2,9 @@ import { getCookies, setCookie } from "@std/http/cookie";
 
 import { formatPuzzle } from "./formatter.ts";
 import { parsePuzzle } from "./parser.ts";
-import type { Puzzle } from "./types.ts";
+import type { Onboarding, Puzzle } from "./types.ts";
 
-const SKIP_TUTORIAL_KEY = "skip_tutorial";
+const ONBOARDING_KEY = "onboarding";
 const TRACKING_ID_KEY = "tracking_id";
 
 // ~6 months
@@ -12,7 +12,7 @@ const STORED_PUZZLE_KEY = "stored_puzzle";
 const STORED_PUZZLE_DURATION = 1000 * 60 * 60 * 24 * 180;
 
 // ~6 months
-const SKIP_TUTORIAL_DURATION = 1000 * 60 * 60 * 24 * 180;
+const ONBOARDING_DURATION = 1000 * 60 * 60 * 24 * 180;
 // 1 year
 const TRACKING_DURATION = 1000 * 60 * 60 * 24 * 365;
 
@@ -34,39 +34,35 @@ const HINT_COUNT_KEY = "hint_count";
 const HINT_COUNT_DURATION = 60 * 60 * 24;
 
 /**
- * Sets the skip tutorial cookie, so the user won't see the tutorial again.
- * @param headers
- * @param skip
- * @returns updated headers
+ * Returns the player's onboarding state.
+ * Falls back to the legacy skip_tutorial cookie: true → "done", missing → "new".
  */
-export function setSkipTutorialCookie(headers: Headers, skip: boolean) {
-  /**
-   * Check if we are running in deno deploy.
-   * see: https://docs.deno.com/deploy/reference/env_vars_and_contexts/#predefined-environment-variables
-   */
-  const isDenoDeploy = Deno.env.get("DENO_DEPLOYMENT_ID") != null;
+export function getOnboardingCookie(headers: Headers): Onboarding {
+  const cookies = getCookies(headers);
+  const value = cookies[ONBOARDING_KEY];
 
-  setCookie(headers, {
-    name: SKIP_TUTORIAL_KEY,
-    value: skip ? "true" : "false",
-    httpOnly: false,
-    path: "/",
-    secure: isDenoDeploy, // http for localhost
-    maxAge: SKIP_TUTORIAL_DURATION,
-  });
+  if (value === "new" || value === "started" || value === "done") return value;
 
-  return headers;
+  // Legacy fallback
+  return cookies["skip_tutorial"] === "true" ? "done" : "new";
 }
 
 /**
- * Checks cookies, to see if user has opted to skip the tutorial.
- * @param headers
- * @returns true if skipped, otherwise false
+ * Sets the onboarding cookie.
  */
-export function getSkipTutorialCookie(headers: Headers) {
-  const cookies = getCookies(headers);
+export function setOnboardingCookie(headers: Headers, value: Onboarding) {
+  const isDenoDeploy = Deno.env.get("DENO_DEPLOYMENT_ID") != null;
 
-  return cookies[SKIP_TUTORIAL_KEY] === "true";
+  setCookie(headers, {
+    name: ONBOARDING_KEY,
+    value,
+    httpOnly: false,
+    path: "/",
+    secure: isDenoDeploy,
+    maxAge: ONBOARDING_DURATION,
+  });
+
+  return headers;
 }
 
 /**

@@ -6,41 +6,38 @@ import { Main } from "#/components/main.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { PuzzleCard } from "#/components/puzzle-card.tsx";
 import { define } from "#/core.ts";
-import { getSkipTutorialCookie } from "#/game/cookies.ts";
 import { getLatestPuzzle, getRandomPuzzle } from "#/game/loader.ts";
 import { Puzzle } from "#/game/types.ts";
 
 type PageData = {
   dailyPuzzle: Puzzle;
   randomPuzzle?: Puzzle;
-  skipTutorial: boolean;
 };
 
 export const handler = define.handlers<PageData>({
   async GET(ctx) {
-    const req = ctx.req;
-    const skipTutorial = getSkipTutorialCookie(req.headers);
+    const { onboarding } = ctx.state;
 
     const dailyPuzzle = await getLatestPuzzle(ctx.url.origin);
 
-    if (!skipTutorial) {
-      return page({ dailyPuzzle, skipTutorial: false });
+    if (onboarding === "new") {
+      return page({ dailyPuzzle });
     }
 
-    // Using NextJS-style promise splits to avoid waterfalls
-    // (slightly overkill in this case, but good practice / safer for future additions)
     const randomPuzzle = await getRandomPuzzle(ctx.url.origin, {
       excludeSlugs: [dailyPuzzle.slug],
+      difficulty: onboarding === "started" ? ["easy"] : undefined,
     });
 
-    return page({ dailyPuzzle, randomPuzzle, skipTutorial: true });
+    return page({ dailyPuzzle, randomPuzzle });
   },
 });
 
 export default define.page<typeof handler>(function Home(ctx) {
   const url = new URL(ctx.req.url);
 
-  const { dailyPuzzle, randomPuzzle, skipTutorial } = ctx.data;
+  const { dailyPuzzle, randomPuzzle } = ctx.data;
+  const { onboarding } = ctx.state;
 
   return (
     <>
@@ -70,9 +67,8 @@ export default define.page<typeof handler>(function Home(ctx) {
           </li>
 
           <li className="list-none pl-0 min-w-0">
-            {skipTutorial
-              ? <PuzzleCard puzzle={randomPuzzle!} tagline="Random puzzle" />
-              : (
+            {onboarding === "new"
+              ? (
                 <a
                   href="/puzzles/tutorial"
                   className={clsx(
@@ -85,6 +81,14 @@ export default define.page<typeof handler>(function Home(ctx) {
                   Tutorial
                   <i className="ph ph-arrow-right" />
                 </a>
+              )
+              : (
+                <PuzzleCard
+                  puzzle={randomPuzzle!}
+                  tagline={onboarding === "started"
+                    ? "Warm-up puzzle"
+                    : "Random puzzle"}
+                />
               )}
           </li>
 

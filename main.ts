@@ -1,6 +1,7 @@
 import { App, staticFiles } from "fresh";
 
 import { State } from "#/core.ts";
+import { onboarding } from "#/middleware/onboarding.ts";
 import { posthogProxy } from "#/middleware/posthog-proxy.ts";
 import { theme } from "#/middleware/theme.ts";
 import { tracking } from "#/middleware/tracking.ts";
@@ -14,6 +15,7 @@ app.use(staticFiles());
 app.use(posthogProxy);
 app.use(tracking);
 app.use(theme);
+app.use(onboarding);
 
 // Enable file-system based routing
 app.fsRoutes();

@@ -5,7 +5,7 @@ import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
 import { define } from "#/core.ts";
 import { Solution } from "#/db/types.ts";
-import { setSkipTutorialCookie } from "#/game/cookies.ts";
+import { setOnboardingCookie } from "#/game/cookies.ts";
 import { getPuzzle } from "#/game/loader.ts";
 import { Puzzle } from "#/game/types.ts";
 import { decodeState } from "#/game/url.ts";
@@ -33,7 +33,11 @@ export const handler = define.handlers<Data>({
     if (!puzzle) throw new HttpError(500, "Tutorial puzzle not found");
 
     if (!ctx.url.searchParams.has("moves")) {
-      return Response.redirect(redirectUrl, 303);
+      const headers = new Headers({ Location: redirectUrl.href });
+      if (ctx.state.onboarding === "new") {
+        setOnboardingCookie(headers, "started");
+      }
+      return new Response(null, { status: 303, headers });
     }
 
     const { moves } = decodeState(redirectUrl);
@@ -48,16 +52,9 @@ export const handler = define.handlers<Data>({
   },
   // dismiss dialog
   POST() {
-    const headers = new Headers({
-      // Redirect to daily puzzle
-      Location: "/puzzles/daily",
-    });
-
-    setSkipTutorialCookie(headers, true);
-
     return new Response("", {
       status: 303,
-      headers,
+      headers: new Headers({ Location: "/puzzles/daily" }),
     });
   },
 });

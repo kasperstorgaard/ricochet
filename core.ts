@@ -1,5 +1,7 @@
 import { createDefine } from "fresh";
 
+import type { Onboarding } from "#/game/types.ts";
+
 /**
  * Shared state passed through ctx.state in middlewares, layouts, and routes.
  * Set by the tracking middleware in middleware/tracking.ts.
@@ -12,6 +14,9 @@ export type State = {
 
   // Explicit theme override (null = follow OS preference)
   theme?: string | null;
+
+  // Player onboarding progression
+  onboarding: Onboarding;
 
   featureFlags: {
     // show minimum moves

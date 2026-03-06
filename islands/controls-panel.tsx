@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo } from "preact/hooks";
 import { useGameShortcuts } from "#/client/keyboard.ts";
 import { updateLocation } from "#/client/router.ts";
 import { Panel } from "#/components/panel.tsx";
-import { Puzzle } from "#/game/types.ts";
+import { Onboarding, Puzzle } from "#/game/types.ts";
 import {
   decodeState,
   getHintHref,
@@ -20,12 +20,12 @@ type ControlsPanelProps = {
   isDev: boolean;
   hintCount: number;
   isPreview?: boolean;
-  tutorialSkipped?: boolean;
+  onboarding?: Onboarding;
   className?: string;
 };
 
 export function ControlsPanel(
-  { puzzle, href, isDev, hintCount, isPreview, tutorialSkipped = true, className }: ControlsPanelProps,
+  { puzzle, href, isDev, hintCount, isPreview, onboarding = "done", className }: ControlsPanelProps,
 ) {
   const hintLimit = puzzle.value.difficulty === "easy" ? 3 : 1;
   const hintDisabled = !isDev && !isPreview && hintCount >= hintLimit;
@@ -174,7 +174,7 @@ export function ControlsPanel(
             <i className="ph-printer ph" /> Print
           </button>
 
-          {!tutorialSkipped && !isPreview && puzzle.value.slug !== "preview"
+          {onboarding !== "done" && !isPreview && puzzle.value.slug !== "preview"
             ? (
               <a href="/puzzles/tutorial" className="btn">
                 <i className="ph-graduation-cap ph" /> Tutorial
