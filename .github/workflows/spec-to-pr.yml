@@ -1,0 +1,32 @@
+name: spec-to-pr
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  populate-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replace spec placeholder with spec.md
+        if: hashFiles('spec.md') != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          CURRENT_BODY=$(gh api repos/$REPO/pulls/$PR_NUMBER --jq '.body')
+
+          if echo "$CURRENT_BODY" | grep -qE '<!--\s*spec:start'; then
+            NEW_BODY=$(awk '
+              /<!--[[:space:]]*spec:start/{print; while((getline line < "spec.md")>0) print line; skip=1; next}
+              /<!--[[:space:]]*spec:end/{skip=0}
+              !skip{print}
+            ' <<< "$CURRENT_BODY")
+            gh api repos/$REPO/pulls/$PR_NUMBER \
+              --method PATCH \
+              --field body="$NEW_BODY"
+          fi

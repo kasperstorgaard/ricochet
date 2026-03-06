@@ -7,7 +7,8 @@
     "build": "vite build",
     "preview": "deno serve -A _fresh/server.js",
     "tunnel": "deno run --tunnel --allow-env main.ts",
-    "update-puzzles": "deno run -A ./scripts/update-puzzles.ts"
+    "update-puzzles": "deno run -A ./scripts/update-puzzles.ts",
+    "archive-spec": "deno run -A ./scripts/archive-spec.ts"
   },
   "lint": {
     "plugins": ["./plugins/lint-imports.ts"],
@@ -22,7 +23,9 @@
     "exclude": [
       "CLAUDE.md",
       "README.md",
-      "static/*"
+      "spec.md",
+      "static/*",
+      "specs/*"
     ]
   },
   "exclude": [

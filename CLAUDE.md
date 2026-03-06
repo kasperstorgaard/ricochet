@@ -18,6 +18,18 @@ deno task update-puzzles # Regenerate puzzle manifest after adding puzzles
 
 CI runs: `deno fmt --check`, `deno lint`, `deno test -A`.
 
+## Planning
+
+When planning work before implementation, write the plan to `spec.md` at the project root and commit it. On every push, CI auto-populates the PR body between `<!-- spec:start -->` / `<!-- spec:end -->` markers with the current spec content.
+
+Before merging, archive the spec with `deno task archive-spec` (moves to `specs/<branch-slug>.md`). The `check-spec` CI job blocks the merge if `spec.md` still exists.
+
+Past specs live in `specs/` — excluded from context by default, reference them explicitly if needed.
+
+**Agent behaviour:**
+- If `spec.md` exists and substantial changes are made outside of plan mode, update `spec.md` to reflect what was actually built.
+- If `spec.md` does not exist and the changes are substantial, ask whether one should be created.
+
 ## Project Layout
 
 ```
