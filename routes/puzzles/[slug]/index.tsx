@@ -13,6 +13,7 @@ import {
   getHintCount,
   getStoredPuzzle,
   setCompletedSlugs,
+  setOnboardingCookie,
 } from "#/game/cookies.ts";
 import { getPuzzle } from "#/game/loader.ts";
 import { Move, Puzzle } from "#/game/types.ts";
@@ -105,6 +106,26 @@ export const handler = define.handlers<PageData>({
       setCompletedSlugs(responseHeaders, [...completed]);
     }
 
+    // Complete onboarding on a good solve
+    if (
+      moves.length <= puzzle.minMoves * 1.33 &&
+      ctx.state.onboarding !== "done"
+    ) {
+      setOnboardingCookie(responseHeaders, "done");
+
+      posthog?.capture({
+        distinctId: ctx.state.trackingId,
+        event: "onboarding_completed",
+        properties: {
+          $current_url: referer,
+          $process_person_profile: ctx.state.cookieChoice === "accepted",
+          puzzle_slug: slug,
+          game_moves: moves.length,
+          puzzle_min_moves: puzzle.minMoves,
+        },
+      });
+    }
+
     return new Response(null, { status: 303, headers: responseHeaders });
   },
 });
@@ -148,6 +169,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
         hintCount={props.data.hintCount}
         isDev={isDev}
         isPreview={isPreview}
+        onboarding={props.state.onboarding}
         className="print:hidden"
       />
 
@@ -168,6 +190,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
         href={href}
         puzzle={puzzle}
         isPreview={isPreview}
+        onboarding={props.state.onboarding}
       />
     </>
   );

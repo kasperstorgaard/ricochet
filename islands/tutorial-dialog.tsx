@@ -13,7 +13,7 @@ type Props = {
   open?: boolean;
 };
 
-export const TutorialDialog = function ({ open, href, mode, solution }: Props) {
+export function TutorialDialog({ open, href, mode, solution }: Props) {
   const step = useMemo(() => {
     const url = new URL(href.value);
     const rawValue = url.searchParams.get("step");
@@ -51,7 +51,7 @@ export const TutorialDialog = function ({ open, href, mode, solution }: Props) {
       )}
     </Dialog>
   );
-};
+}
 
 type TutorialStepProps = {
   href: string;

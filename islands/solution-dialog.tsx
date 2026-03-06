@@ -3,7 +3,7 @@ import clsx from "clsx/lite";
 import { useMemo } from "preact/hooks";
 
 import { isValidSolution, resolveMoves } from "#/game/board.ts";
-import { Puzzle } from "#/game/types.ts";
+import { Onboarding, Puzzle } from "#/game/types.ts";
 import { decodeState, getResetHref } from "#/game/url.ts";
 import { Dialog } from "#/islands/dialog.tsx";
 
@@ -11,9 +11,10 @@ type Props = {
   href: Signal<string>;
   puzzle: Signal<Puzzle>;
   isPreview?: boolean;
+  onboarding?: Onboarding;
 };
 
-export function SolutionDialog({ href, puzzle, isPreview }: Props) {
+export function SolutionDialog({ href, puzzle, isPreview, onboarding }: Props) {
   const state = useMemo(() => decodeState(href.value), [href.value]);
 
   const moves = useMemo(
@@ -28,6 +29,14 @@ export function SolutionDialog({ href, puzzle, isPreview }: Props) {
 
   const hasSolution = useMemo(() => isValidSolution(board), [board]);
 
+  const minMoves = puzzle.value.minMoves;
+  const isGraduating = useMemo(
+    () =>
+      onboarding !== "done" &&
+      moves.length <= minMoves * 1.33,
+    [onboarding, minMoves, moves.length],
+  );
+
   return (
     <Dialog open={hasSolution} className="max-w-md!">
       <div className="flex flex-col gap-fl-2 text-text-2">
@@ -36,13 +45,24 @@ export function SolutionDialog({ href, puzzle, isPreview }: Props) {
           {moves.length === 1 ? "move" : "moves"}!
         </h2>
 
-        {
-          /* TODO: replace with a real stat once per-puzzle completion is tracked,
-            e.g. "You did better than 73% of players on this puzzle." */
-        }
-        <p>
-          Post your solution, see your rank and discover how others played it.
-        </p>
+        {isGraduating
+          ? (
+            <p>
+              You've found your feet — the full puzzle archive is yours now.
+            </p>
+          )
+          : (
+            <>
+              {
+                /* TODO: replace with a real stat once per-puzzle completion is tracked,
+                  e.g. "You did better than 73% of players on this puzzle." */
+              }
+              <p>
+                Post your solution, see your rank and discover how others played
+                it.
+              </p>
+            </>
+          )}
       </div>
 
       {!isPreview && (
