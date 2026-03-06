@@ -25,7 +25,8 @@ type ControlsPanelProps = {
 };
 
 export function ControlsPanel(
-  { puzzle, href, isDev, hintCount, isPreview, onboarding = "done", className }: ControlsPanelProps,
+  { puzzle, href, isDev, hintCount, isPreview, onboarding = "done", className }:
+    ControlsPanelProps,
 ) {
   const hintLimit = puzzle.value.difficulty === "easy" ? 3 : 1;
   const hintDisabled = !isDev && !isPreview && hintCount >= hintLimit;
@@ -174,7 +175,8 @@ export function ControlsPanel(
             <i className="ph-printer ph" /> Print
           </button>
 
-          {onboarding !== "done" && !isPreview && puzzle.value.slug !== "preview"
+          {onboarding !== "done" && !isPreview &&
+              puzzle.value.slug !== "preview"
             ? (
               <a href="/puzzles/tutorial" className="btn">
                 <i className="ph-graduation-cap ph" /> Tutorial
