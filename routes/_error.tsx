@@ -6,6 +6,7 @@ import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { define } from "#/core.ts";
+import { isDev } from "#/lib/env.ts";
 import { posthog } from "#/lib/posthog.ts";
 
 export default define.page(function ErrorPage(props) {
@@ -41,8 +42,10 @@ export default define.page(function ErrorPage(props) {
     status,
   };
 
-  // Track error to posthog
-  posthog?.captureException(error, trackingId, trackingData);
+  // Track error to posthog, but not locally
+  if (!isDev) {
+    posthog?.captureException(error, trackingId, trackingData);
+  }
 
   return (
     <>

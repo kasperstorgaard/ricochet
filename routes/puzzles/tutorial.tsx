@@ -30,7 +30,7 @@ export const handler = define.handlers<Data>({
     redirectUrl.searchParams.set("moves", solutionRaw);
 
     const puzzle = await getPuzzle(ctx.url.origin, "tutorial");
-    if (!puzzle) throw new HttpError(500, "Tutorial puzzle not found");
+    if (!puzzle) throw new HttpError(404, "Tutorial puzzle not found");
 
     if (!ctx.url.searchParams.has("moves")) {
       const headers = new Headers({ Location: redirectUrl.href });

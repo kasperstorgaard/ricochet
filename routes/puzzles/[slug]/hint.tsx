@@ -25,7 +25,7 @@ export const handler = define.handlers({
     }
 
     const puzzle = await getPuzzle(ctx.url.origin, slug);
-    if (!puzzle) throw new HttpError(500, "Unable to get puzzle");
+    if (!puzzle) throw new HttpError(404, "Unable to get puzzle");
 
     const hintCount = getHintCount(ctx.req.headers);
     const hintLimit = getHintLimit(puzzle.difficulty);

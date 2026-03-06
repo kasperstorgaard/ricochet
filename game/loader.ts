@@ -52,9 +52,11 @@ async function getAvailableEntries(
 export async function getPuzzle(
   baseUrl: string | URL,
   puzzleSlug: string,
-): Promise<Puzzle> {
+): Promise<Puzzle | null> {
   const url = new URL(`/puzzles/${puzzleSlug}.md`, baseUrl);
   const response = await fetch(url);
+
+  if (response.status === 404) return null;
 
   if (!response.ok) {
     throw new Error(
@@ -108,8 +110,12 @@ export async function listPuzzles(
     entries.map((entry) => getPuzzle(baseUrl, entry.slug)),
   );
 
+  if (items.some((item) => item == null)) {
+    throw new Error("Manifest corrupted, unable to get all puzzles");
+  }
+
   return {
-    items,
+    items: items as Puzzle[],
     pagination: {
       page,
       itemsPerPage: limit,
@@ -124,12 +130,12 @@ export async function listPuzzles(
  */
 export async function getLatestPuzzle(
   baseUrl: string | URL,
-): Promise<Puzzle> {
+) {
   const entries = await getAvailableEntries(baseUrl);
 
   const entry = entries[0];
 
-  if (!entry) throw new Error("Unable to get latest puzzle");
+  if (!entry) return null;
 
   return getPuzzle(baseUrl, entry.slug);
 }
@@ -145,7 +151,7 @@ type GetRandomPuzzleOptions = {
 export async function getRandomPuzzle(
   baseUrl: string | URL,
   options: GetRandomPuzzleOptions,
-): Promise<Puzzle> {
+) {
   let entries = await getAvailableEntries(baseUrl);
 
   entries = entries
