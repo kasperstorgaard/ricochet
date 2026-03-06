@@ -5,7 +5,7 @@ const result = await new Deno.Command("git", {
   stdout: "piped",
 }).output();
 
-const branch = new TextDecoder().decode(result.stdout).trim();
+const branch = new TextDecoder().decode(result.stdout).trim().replace("/", "-");
 const filename = slugify(branch);
 
 await Deno.mkdir("specs", { recursive: true });
