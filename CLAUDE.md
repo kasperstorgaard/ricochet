@@ -20,7 +20,11 @@ CI runs: `deno fmt --check`, `deno lint`, `deno test -A`.
 
 ## Planning
 
-When planning work before implementation, write the plan to `spec.md` at the project root. Commit it — it's useful context during the PR. Before merging, delete `spec.md` in a final cleanup commit. The CI `check-spec` job will block the merge if it still exists.
+When planning work before implementation, write the plan to `spec.md` at the project root and commit it. On every push, CI auto-populates the PR body between `<!-- spec:start -->` / `<!-- spec:end -->` markers with the current spec content.
+
+Before merging, archive the spec with `deno task archive-spec` (moves to `specs/<branch-slug>.md`). The `check-spec` CI job blocks the merge if `spec.md` still exists.
+
+Past specs live in `specs/` — excluded from context by default, reference them explicitly if needed.
 
 ## Project Layout
 
