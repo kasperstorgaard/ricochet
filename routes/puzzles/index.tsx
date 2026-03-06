@@ -1,5 +1,5 @@
 import { clsx } from "clsx/lite";
-import { page } from "fresh";
+import { HttpError, page } from "fresh";
 
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
@@ -23,6 +23,8 @@ export const handler = define.handlers<PageData>({
     const currentPage = getPage(ctx.url) ?? 1;
 
     const dailyPuzzle = await getLatestPuzzle(ctx.url.origin);
+
+    if (!dailyPuzzle) throw new HttpError(500, "Unable to get daily puzzle");
 
     const { items, pagination } = await listPuzzles(ctx.url.origin, {
       sortBy: "number",

@@ -1,3 +1,5 @@
+import { HttpError } from "fresh";
+
 import { define } from "#/core.ts";
 import { getLatestPuzzle } from "#/game/loader.ts";
 
@@ -9,6 +11,7 @@ export const handler = define.handlers({
 
     // Don't include the toughest puzzles in puzzle of the day
     const puzzle = await getLatestPuzzle(ctx.url.origin);
+    if (!puzzle) throw new HttpError(500, "Unable to get daily puzzle");
 
     redirectUrl.pathname = `puzzles/${puzzle.slug}`;
     return Response.redirect(redirectUrl, 303);

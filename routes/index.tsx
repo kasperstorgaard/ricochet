@@ -1,5 +1,5 @@
 import clsx from "clsx/lite";
-import { page } from "fresh";
+import { HttpError, page } from "fresh";
 
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
@@ -19,6 +19,7 @@ export const handler = define.handlers<PageData>({
     const { onboarding } = ctx.state;
 
     const dailyPuzzle = await getLatestPuzzle(ctx.url.origin);
+    if (!dailyPuzzle) throw new HttpError(500, "Unable to get daily puzzle");
 
     if (onboarding === "new") {
       return page({ dailyPuzzle });
@@ -29,6 +30,8 @@ export const handler = define.handlers<PageData>({
       : await getRandomPuzzle(ctx.url.origin, {
         excludeSlugs: [dailyPuzzle.slug],
       });
+
+    if (!randomPuzzle) throw new HttpError(500, "Unable to get random puzzle");
 
     return page({ dailyPuzzle, randomPuzzle });
   },
