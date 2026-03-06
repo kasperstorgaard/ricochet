@@ -108,11 +108,22 @@ export const handler = define.handlers<PageData>({
 
     // Complete onboarding on a good solve
     if (
-      puzzle.minMoves &&
       moves.length <= puzzle.minMoves * 1.33 &&
       ctx.state.onboarding !== "done"
     ) {
       setOnboardingCookie(responseHeaders, "done");
+
+      posthog?.capture({
+        distinctId: ctx.state.trackingId,
+        event: "onboarding_completed",
+        properties: {
+          $current_url: referer,
+          $process_person_profile: ctx.state.cookieChoice === "accepted",
+          puzzle_slug: slug,
+          game_moves: moves.length,
+          puzzle_min_moves: puzzle.minMoves,
+        },
+      });
     }
 
     return new Response(null, { status: 303, headers: responseHeaders });

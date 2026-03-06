@@ -54,7 +54,7 @@ export const handler = define.handlers<Data>({
   POST() {
     return new Response("", {
       status: 303,
-      headers: new Headers({ Location: "/puzzles/daily" }),
+      headers: new Headers({ Location: "/" }),
     });
   },
 });

@@ -1,7 +1,6 @@
 import { type Signal } from "@preact/signals";
 import clsx from "clsx/lite";
-import { useEffect, useMemo } from "preact/hooks";
-import { posthog } from "posthog-js";
+import { useMemo } from "preact/hooks";
 
 import { isValidSolution, resolveMoves } from "#/game/board.ts";
 import { Onboarding, Puzzle } from "#/game/types.ts";
@@ -30,21 +29,13 @@ export function SolutionDialog({ href, puzzle, isPreview, onboarding }: Props) {
 
   const hasSolution = useMemo(() => isValidSolution(board), [board]);
 
-  const isGraduating = useMemo(() =>
-    onboarding !== "done" &&
-    puzzle.value.minMoves != null &&
-    moves.length > 0 &&
-    moves.length <= puzzle.value.minMoves * 1.33, [
-    onboarding,
-    puzzle.value.minMoves,
-    moves.length,
-  ]);
-
-  useEffect(() => {
-    if (hasSolution && isGraduating) {
-      posthog.capture("onboarding_completed");
-    }
-  }, [hasSolution]);
+  const minMoves = puzzle.value.minMoves;
+  const isGraduating = useMemo(
+    () =>
+      onboarding !== "done" &&
+      moves.length <= minMoves * 1.33,
+    [onboarding, minMoves, moves.length],
+  );
 
   return (
     <Dialog open={hasSolution} className="max-w-md!">
@@ -55,7 +46,11 @@ export function SolutionDialog({ href, puzzle, isPreview, onboarding }: Props) {
         </h2>
 
         {isGraduating
-          ? <p>You've found your feet — the full puzzle archive is yours now.</p>
+          ? (
+            <p>
+              You've found your feet — the full puzzle archive is yours now.
+            </p>
+          )
           : (
             <>
               {
