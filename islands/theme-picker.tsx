@@ -85,9 +85,9 @@ export function ThemePicker({ className }: Props) {
         aria-label="Pick theme"
         onClick={() => setOpen(true)}
         className={clsx(
-          "p-0 bg-transparent border-0 cursor-pointer opacity-70 transition-opacity",
-          "leading-none text-fl-1 text-link",
-          "hover:opacity-100",
+          "p-0 bg-transparent border-0 cursor-pointer transition-colors",
+          "leading-none text-fl-1 text-text-2",
+          "hover:text-link",
           className,
         )}
       >
