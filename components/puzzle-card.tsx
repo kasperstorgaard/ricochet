@@ -33,7 +33,7 @@ export function PuzzleCard({
     <a
       href={`/puzzles/${puzzle.slug}`}
       class={clsx(
-        "group flex flex-col gap-1 text-text-2 no-underline",
+        "group flex flex-col gap-1 text-text-1 no-underline",
         "visited:svg-dim",
         className,
       )}
