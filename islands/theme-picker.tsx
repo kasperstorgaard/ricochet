@@ -41,10 +41,10 @@ const THEMES: Theme[] = [
     mode: "dark",
   },
   {
-    key: "github-light",
-    label: "GitHub Light",
+    key: "ember",
+    label: "Ember",
     surface: "#ffffff",
-    brand: "#0969da",
+    brand: "#b91c1c",
     mode: "light",
   },
   {

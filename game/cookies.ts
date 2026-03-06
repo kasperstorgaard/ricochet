@@ -21,7 +21,7 @@ const THEME_VALUES = [
   "high-contrast",
   "dracula",
   "acid",
-  "github-light",
+  "ember",
   "solarized-light",
   "catppuccin",
 ] as const;
