@@ -147,7 +147,7 @@ export async function getRandomPuzzle(
 ): Promise<Puzzle> {
   let entries = await getAvailableEntries(baseUrl);
 
-  entries = (await getPuzzleManifest(baseUrl))
+  entries = entries
     .filter((puzzle) =>
       options.difficulty ? options.difficulty.includes(puzzle.difficulty) : true
     )
