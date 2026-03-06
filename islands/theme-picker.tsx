@@ -41,10 +41,10 @@ const THEMES: Theme[] = [
     mode: "dark",
   },
   {
-    key: "ember",
-    label: "Ember",
-    surface: "#ffffff",
-    brand: "#b91c1c",
+    key: "catppuccin",
+    label: "Catppuccin",
+    surface: "#eff1f5",
+    brand: "#8839ef",
     mode: "light",
   },
   {
@@ -55,10 +55,10 @@ const THEMES: Theme[] = [
     mode: "light",
   },
   {
-    key: "catppuccin",
-    label: "Catppuccin",
-    surface: "#eff1f5",
-    brand: "#8839ef",
+    key: "ember",
+    label: "Ember",
+    surface: "#ffffff",
+    brand: "#b91c1c",
     mode: "light",
   },
 ];
