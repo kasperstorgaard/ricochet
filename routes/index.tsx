@@ -69,18 +69,26 @@ export default define.page<typeof handler>(function Home(ctx) {
           <li className="list-none pl-0 min-w-0">
             {onboarding === "new"
               ? (
-                <a
-                  href="/puzzles/tutorial"
-                  className={clsx(
-                    "group flex gap-fl-1 p-fl-2 place-content-start place-items-center",
-                    "text-text-2 leading-snug border border-link no-underline",
-                    "aspect-square lg:flex-col lg:justify-center lg:place-items-start lg:gap-fl-1 lg:w-full",
-                    "hover:filter-[lighten(1.3)] hover:no-underline",
-                  )}
-                >
-                  Tutorial
-                  <i className="ph ph-arrow-right" />
-                </a>
+                <div className="flex flex-col gap-0.5">
+                  <a
+                    href="/puzzles/tutorial"
+                    className={clsx(
+                      "group flex gap-fl-1 p-fl-2 place-content-start place-items-center",
+                      "text-text-2 leading-snug border border-link no-underline",
+                      "aspect-square lg:flex-col lg:justify-center lg:place-items-start lg:gap-fl-1 lg:w-full",
+                      "hover:filter-[lighten(1.3)] hover:no-underline",
+                    )}
+                  >
+                    Tutorial
+                    <i className="ph ph-arrow-right" />
+                  </a>
+                  <span className="text-0 text-text-2 tracking-wide leading-flat mt-1.5 -mb-0.5">
+                    New here?
+                  </span>
+                  <span className="flex items-center flex-wrap leading-tight font-4">
+                    Learn the basics
+                  </span>
+                </div>
               )
               : (
                 <PuzzleCard
@@ -102,7 +110,7 @@ export default define.page<typeof handler>(function Home(ctx) {
                 "hover:filter-[lighten(1.3)] hover:no-underline",
               )}
             >
-              Puzzle archives <i className="ph ph-arrow-right" />
+              Archives <i className="ph ph-arrow-right" />
             </a>
           </li>
         </ul>
