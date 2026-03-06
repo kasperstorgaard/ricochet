@@ -74,7 +74,7 @@ export default define.page<typeof handler>(function Home(ctx) {
                   className={clsx(
                     "group flex gap-fl-1 p-fl-2 place-content-start place-items-center",
                     "text-text-2 leading-snug border border-link no-underline",
-                    "lg:aspect-square lg:flex-col lg:justify-center lg:place-items-start lg:gap-fl-1 lg:w-full",
+                    "aspect-square lg:flex-col lg:justify-center lg:place-items-start lg:gap-fl-1 lg:w-full",
                     "hover:filter-[lighten(1.3)] hover:no-underline",
                   )}
                 >
