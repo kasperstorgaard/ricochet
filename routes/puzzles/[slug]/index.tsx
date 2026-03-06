@@ -11,8 +11,10 @@ import { isValidSolution, resolveMoves } from "#/game/board.ts";
 import {
   getCompletedSlugs,
   getHintCount,
+  getSkipTutorialCookie,
   getStoredPuzzle,
   setCompletedSlugs,
+  setSkipTutorialCookie,
 } from "#/game/cookies.ts";
 import { getPuzzle } from "#/game/loader.ts";
 import { Move, Puzzle } from "#/game/types.ts";
@@ -23,13 +25,15 @@ import { SolutionDialog } from "#/islands/solution-dialog.tsx";
 import { isDev } from "#/lib/env.ts";
 import { posthog } from "#/lib/posthog.ts";
 
-type PageData = { puzzle: Puzzle; hintCount: number };
+type PageData = { puzzle: Puzzle; hintCount: number; tutorialSkipped: boolean };
 
 export const handler = define.handlers<PageData>({
   async GET(ctx) {
     const { slug } = ctx.params;
 
     const hintCount = getHintCount(ctx.req.headers);
+
+    const tutorialSkipped = getSkipTutorialCookie(ctx.req.headers);
 
     if (slug === "preview") {
       const puzzle = getStoredPuzzle(ctx.req.headers);
@@ -39,7 +43,7 @@ export const handler = define.handlers<PageData>({
       puzzle.slug = "preview";
       puzzle.number = 0;
 
-      return page({ puzzle, hintCount });
+      return page({ puzzle, hintCount, tutorialSkipped });
     }
 
     const puzzle = await getPuzzle(ctx.url.origin, slug);
@@ -48,7 +52,7 @@ export const handler = define.handlers<PageData>({
       throw new HttpError(404, `Unable to find puzzle with slug: ${slug}`);
     }
 
-    return page({ puzzle, hintCount });
+    return page({ puzzle, hintCount, tutorialSkipped });
   },
   async POST(ctx) {
     const req = ctx.req;
@@ -105,6 +109,11 @@ export const handler = define.handlers<PageData>({
       setCompletedSlugs(responseHeaders, [...completed]);
     }
 
+    // Skip tutorial once you solve a puzzle fairly well
+    if (puzzle.minMoves && moves.length <= puzzle.minMoves * 1.6) {
+      setSkipTutorialCookie(responseHeaders, true);
+    }
+
     return new Response(null, { status: 303, headers: responseHeaders });
   },
 });
@@ -148,6 +157,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
         hintCount={props.data.hintCount}
         isDev={isDev}
         isPreview={isPreview}
+        tutorialSkipped={props.data.tutorialSkipped}
         className="print:hidden"
       />
 

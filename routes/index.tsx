@@ -12,7 +12,8 @@ import { Puzzle } from "#/game/types.ts";
 
 type PageData = {
   dailyPuzzle: Puzzle;
-  randomPuzzle: Puzzle;
+  randomPuzzle?: Puzzle;
+  skipTutorial: boolean;
 };
 
 export const handler = define.handlers<PageData>({
@@ -20,35 +21,26 @@ export const handler = define.handlers<PageData>({
     const req = ctx.req;
     const skipTutorial = getSkipTutorialCookie(req.headers);
 
-    if (!skipTutorial) {
-      const redirectUrl = new URL(req.url);
-      redirectUrl.pathname = "/puzzles/tutorial";
+    const dailyPuzzle = await getLatestPuzzle(ctx.url.origin);
 
-      return Response.redirect(redirectUrl, 303);
+    if (!skipTutorial) {
+      return page({ dailyPuzzle, skipTutorial: false });
     }
 
     // Using NextJS-style promise splits to avoid waterfalls
     // (slightly overkill in this case, but good practice / safer for future additions)
-    const dailyPuzzlePromise = getLatestPuzzle(ctx.url.origin);
-    const randomPuzzlePromise = dailyPuzzlePromise.then((puzzle) =>
-      getRandomPuzzle(ctx.url.origin, {
-        excludeSlugs: [puzzle.slug],
-      })
-    );
+    const randomPuzzle = await getRandomPuzzle(ctx.url.origin, {
+      excludeSlugs: [dailyPuzzle.slug],
+    });
 
-    const [dailyPuzzle, randomPuzzle] = await Promise.all([
-      dailyPuzzlePromise,
-      randomPuzzlePromise,
-    ]);
-
-    return page({ dailyPuzzle, randomPuzzle });
+    return page({ dailyPuzzle, randomPuzzle, skipTutorial: true });
   },
 });
 
 export default define.page<typeof handler>(function Home(ctx) {
   const url = new URL(ctx.req.url);
 
-  const { dailyPuzzle, randomPuzzle } = ctx.data;
+  const { dailyPuzzle, randomPuzzle, skipTutorial } = ctx.data;
 
   return (
     <>
@@ -78,7 +70,22 @@ export default define.page<typeof handler>(function Home(ctx) {
           </li>
 
           <li className="list-none pl-0 min-w-0">
-            <PuzzleCard puzzle={randomPuzzle} tagline="Random puzzle" />
+            {skipTutorial
+              ? <PuzzleCard puzzle={randomPuzzle!} tagline="Random puzzle" />
+              : (
+                <a
+                  href="/puzzles/tutorial"
+                  className={clsx(
+                    "group flex gap-fl-1 p-fl-2 place-content-start place-items-center",
+                    "text-text-2 leading-snug border border-link no-underline",
+                    "lg:aspect-square lg:flex-col lg:justify-center lg:place-items-start lg:gap-fl-1 lg:w-full",
+                    "hover:filter-[lighten(1.3)] hover:no-underline",
+                  )}
+                >
+                  Tutorial
+                  <i className="ph ph-arrow-right" />
+                </a>
+              )}
           </li>
 
           <li className="list-none pl-0 min-w-0 max-lg:col-span-2 max-lg:place-self-start">
@@ -118,9 +125,6 @@ export default define.page<typeof handler>(function Home(ctx) {
               "lg:flex-col lg:items-stretch",
             )}
           >
-            <a href="/puzzles/tutorial" className="btn">
-              <i className="ph ph-student" />Try tutorial
-            </a>
             {
               /*
               TODO: add an "Extras" page that surfaces power-user features in
