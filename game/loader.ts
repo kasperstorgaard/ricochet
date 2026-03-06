@@ -13,9 +13,8 @@ import { sortList } from "#/lib/list.ts";
 const ITEMS_PER_PAGE = 6;
 
 /**
- * Fetches puzzle manifest containing metadata for all puzzles.
- * Only returns puzzles with createdAt <= asOf (defaults to now),
- * so future-dated puzzles stay hidden until their release date.
+ * Fetches the raw puzzle manifest — all puzzles, including future ones.
+ * Use getAvailableEntries() to get only puzzles released up to today.
  */
 async function getPuzzleManifest(
   baseUrl: string | URL,
@@ -30,6 +29,9 @@ async function getPuzzleManifest(
   return response.json();
 }
 
+/**
+ * Manifest entries available today: number <= day-of-year, tutorial excluded.
+ */
 async function getAvailableEntries(
   baseUrl: string | URL,
 ) {
@@ -73,8 +75,7 @@ type ListOptions = Pick<PaginationState, "page" | "itemsPerPage"> & {
 };
 
 /**
- * Lists all available puzzles with full data (including board).
- * Use listPuzzlesMeta() if you only need metadata for better performance.
+ * Lists available puzzles, paginated and sorted.
  */
 export async function listPuzzles(
   baseUrl: string | URL,
