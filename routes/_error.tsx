@@ -42,8 +42,10 @@ export default define.page(function ErrorPage(props) {
     status,
   };
 
-  // Track error to posthog, but not locally (developing, this will cause noise)
-  posthog?.captureException(error, trackingId, trackingData);
+  // Track error to posthog, but not locally
+  if (!isDev) {
+    posthog?.captureException(error, trackingId, trackingData);
+  }
 
   return (
     <>
