@@ -1,3 +1,4 @@
+import { getDayOfYear } from "#/game/date.ts";
 import { parsePuzzle } from "#/game/parser.ts";
 import {
   Difficulty,
@@ -27,6 +28,19 @@ async function getPuzzleManifest(
   }
 
   return response.json();
+}
+
+async function getAvailableEntries(
+  baseUrl: string | URL,
+) {
+  const today = new Date(Date.now());
+  const dayOfYear = getDayOfYear(today);
+
+  const manifest = await getPuzzleManifest(baseUrl);
+
+  return manifest
+    .filter((entry) => entry.number <= dayOfYear)
+    .filter((entry) => entry.slug !== "tutorial");
 }
 
 /**
@@ -72,8 +86,11 @@ export async function listPuzzles(
     excludeSlugs: ["tutorial"],
   },
 ): Promise<PaginatedData<Puzzle>> {
-  let entries = (await getPuzzleManifest(baseUrl))
-    .filter((entry) => !options.excludeSlugs?.includes(entry.slug));
+  let entries = await getAvailableEntries(baseUrl);
+
+  entries = entries.filter((entry) =>
+    !options.excludeSlugs?.includes(entry.slug)
+  );
 
   entries = sortList(entries, options);
 
@@ -103,14 +120,11 @@ export async function listPuzzles(
 
 /**
  * Gets the latest puzzle — the puzzle of the day
- * Excludes tutorial puzzles.
  */
 export async function getLatestPuzzle(
   baseUrl: string | URL,
 ): Promise<Puzzle> {
-  const entries = (await getPuzzleManifest(baseUrl)).sort((a, b) =>
-    b.number - a.number
-  );
+  const entries = await getAvailableEntries(baseUrl);
 
   const entry = entries[0];
 
@@ -126,14 +140,14 @@ type GetRandomPuzzleOptions = {
 
 /**
  * Gets a random puzzle from the pool matching the given difficulty options.
- * Excludes tutorial puzzles.
  */
 export async function getRandomPuzzle(
   baseUrl: string | URL,
   options: GetRandomPuzzleOptions,
 ): Promise<Puzzle> {
-  const entries = (await getPuzzleManifest(baseUrl))
-    .filter((puzzle) => !puzzle.slug.startsWith("tutorial"))
+  let entries = await getAvailableEntries(baseUrl);
+
+  entries = (await getPuzzleManifest(baseUrl))
     .filter((puzzle) =>
       options.difficulty ? options.difficulty.includes(puzzle.difficulty) : true
     )
