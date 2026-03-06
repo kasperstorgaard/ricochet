@@ -6,7 +6,7 @@ import { Main } from "#/components/main.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { PuzzleCard } from "#/components/puzzle-card.tsx";
 import { define } from "#/core.ts";
-import { getLatestPuzzle, getRandomPuzzle } from "#/game/loader.ts";
+import { getLatestPuzzle, getPuzzle, getRandomPuzzle } from "#/game/loader.ts";
 import { Puzzle } from "#/game/types.ts";
 
 type PageData = {
@@ -24,10 +24,11 @@ export const handler = define.handlers<PageData>({
       return page({ dailyPuzzle });
     }
 
-    const randomPuzzle = await getRandomPuzzle(ctx.url.origin, {
-      excludeSlugs: [dailyPuzzle.slug],
-      difficulty: onboarding === "started" ? ["easy"] : undefined,
-    });
+    const randomPuzzle = onboarding === "started"
+      ? await getPuzzle(ctx.url.origin, "karla")
+      : await getRandomPuzzle(ctx.url.origin, {
+        excludeSlugs: [dailyPuzzle.slug],
+      });
 
     return page({ dailyPuzzle, randomPuzzle });
   },

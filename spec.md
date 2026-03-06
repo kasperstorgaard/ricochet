@@ -45,7 +45,7 @@ Reads the cookie and sets `ctx.state.onboarding` on every request.
 
 - **`"new"`**: tutorial link card in the random puzzle slot, with "New here?" /
   "Learn the basics" tagline to match the puzzle card weight.
-- **`"started"`**: easy random puzzle with "Warm-up puzzle" tagline.
+- **`"started"`**: always show Karla (the easiest puzzle) with "Warm-up puzzle" tagline.
 - **`"done"`**: random puzzle with "Random puzzle" tagline.
 
 ### `routes/puzzles/tutorial.tsx` — advance state on visit
