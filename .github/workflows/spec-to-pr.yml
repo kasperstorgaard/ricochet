@@ -1,0 +1,28 @@
+name: spec-to-pr
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  populate-pr:
+    runs-on: ubuntu-latest
+    if: hashFiles('spec.md') != ''
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Replace spec placeholder with spec.md
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          CURRENT_BODY=$(gh api repos/$REPO/pulls/$PR_NUMBER --jq '.body')
+
+          if echo "$CURRENT_BODY" | grep -qE '<!--\s*spec'; then
+            NEW_BODY=$(sed -e '/<!--[[:space:]]*spec/r spec.md' -e '/<!--[[:space:]]*spec/d' <<< "$CURRENT_BODY")
+            gh api repos/$REPO/pulls/$PR_NUMBER \
+              --method PATCH \
+              --field body="$NEW_BODY"
+          fi
