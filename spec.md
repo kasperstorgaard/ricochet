@@ -9,7 +9,8 @@ player is in their journey, nudging them forward without forcing anything.
 
 ## Onboarding state
 
-The `onboarding` cookie tracks progression as an enum:
+The `onboarding` cookie tracks progression as an enum, set by `middleware/onboarding.ts`
+and available on all routes via `ctx.state.onboarding`:
 
 | Value | Meaning |
 |---|---|
@@ -19,44 +20,52 @@ The `onboarding` cookie tracks progression as an enum:
 
 Transitions:
 - Default (no cookie): `"new"`
-- Visiting the tutorial page: `"new"` → `"started"`
+- Visiting the tutorial page: `"new"` → `"started"` (set on the redirect GET)
 - Solving any puzzle within 1.33× its `minMoves`: → `"done"`
+
+Legacy fallback: `skip_tutorial=true` → `"done"`, so existing users are unaffected.
 
 ## Plan
 
+### `game/types.ts` + `core.ts`
+
+Add `Onboarding = "new" | "started" | "done"` to types. Add `onboarding: Onboarding`
+to `State`.
+
 ### `game/cookies.ts` — onboarding cookie
 
-Replace the boolean `skip_tutorial` cookie with an `onboarding` cookie
-typed as `"new" | "started" | "done"`. Update getters/setters.
+Replace the boolean `skip_tutorial` cookie with an `onboarding` cookie.
+`getOnboardingCookie` reads the new cookie with a legacy fallback.
+
+### `middleware/onboarding.ts`
+
+Reads the cookie and sets `ctx.state.onboarding` on every request.
 
 ### `routes/index.tsx` — home page adapts to onboarding state
 
-- **`"new"`**: show tutorial link card in the random puzzle slot. Review
-  the "Let's go" CTA copy — it should point toward the tutorial.
-- **`"started"`**: show an easy random puzzle in the random puzzle slot with
-  a warmer tagline (e.g. "Warm-up puzzle" instead of "Random puzzle").
-- **`"done"`**: existing behaviour — random puzzle, normal tagline.
+- **`"new"`**: tutorial link card in the random puzzle slot, with "New here?" /
+  "Learn the basics" tagline to match the puzzle card weight.
+- **`"started"`**: easy random puzzle with "Warm-up puzzle" tagline.
+- **`"done"`**: random puzzle with "Random puzzle" tagline.
 
-### `routes/puzzles/tutorial/index.tsx` (or handler) — advance state
+### `routes/puzzles/tutorial.tsx` — advance state on visit
 
-On visiting the tutorial, set state to `"started"` if currently `"new"`.
+On the initial GET (before the `?moves` redirect), set state to `"started"` if
+currently `"new"`. Tutorial POST just redirects home — no cookie change.
 
 ### `routes/puzzles/[slug]/index.tsx` — complete onboarding on good solve
 
-After a successful solve within 1.33× `minMoves`, set state to `"done"`.
-Pass a `onboardingCompleted` flag to the page (true only on the transition,
-not on subsequent solves when already `"done"`) so the solution dialog can
-show the one-time message.
+After a successful solve within 1.33× `minMoves`, set state to `"done"` and
+fire the `onboarding_completed` PostHog event (server-side, same shape as
+`puzzle_solved`).
 
-### `islands/solution-dialog.tsx` — one-time onboarding completion message
+### `islands/solution-dialog.tsx` — one-time graduation message
 
-When `onboardingCompleted` is true, show a brief congratulatory message
-acknowledging the player has found their feet. Fire a `onboarding_completed`
-PostHog event at this moment. The flag is never set again once `"done"` is
-already the stored state, so the message is guaranteed to appear exactly once.
+When `onboarding !== "done"` and the solve is within 1.33× `minMoves`, show
+"You've found your feet — the full puzzle archive is yours now." in place of
+the standard post-solve copy.
 
 ### `islands/controls-panel.tsx` — tutorial button until onboarding complete
 
-Show the Tutorial button (hide Remix) for both `"new"` and `"started"`
-states. Only show Remix once `"done"`. This keeps the tutorial revisitable
-throughout the onboarding phase.
+Show the Tutorial button (hide Remix) for `"new"` and `"started"`. Only show
+Remix once `"done"`.
