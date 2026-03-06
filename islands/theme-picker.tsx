@@ -41,10 +41,10 @@ const THEMES: Theme[] = [
     mode: "dark",
   },
   {
-    key: "github-light",
-    label: "GitHub Light",
-    surface: "#ffffff",
-    brand: "#0969da",
+    key: "catppuccin",
+    label: "Catppuccin",
+    surface: "#eff1f5",
+    brand: "#8839ef",
     mode: "light",
   },
   {
@@ -55,10 +55,10 @@ const THEMES: Theme[] = [
     mode: "light",
   },
   {
-    key: "catppuccin",
-    label: "Catppuccin",
-    surface: "#eff1f5",
-    brand: "#8839ef",
+    key: "ember",
+    label: "Ember",
+    surface: "#ffffff",
+    brand: "#b91c1c",
     mode: "light",
   },
 ];
@@ -85,9 +85,9 @@ export function ThemePicker({ className }: Props) {
         aria-label="Pick theme"
         onClick={() => setOpen(true)}
         className={clsx(
-          "p-0 bg-transparent border-0 cursor-pointer opacity-70 transition-opacity",
-          "leading-none text-fl-1 text-link",
-          "hover:opacity-100",
+          "p-0 bg-transparent border-0 cursor-pointer transition-colors",
+          "leading-none text-fl-1 text-text-2",
+          "hover:text-link",
           className,
         )}
       >

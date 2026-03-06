@@ -328,7 +328,7 @@ function MoveGuide({ move, href, isHint }: MoveGuideProps) {
       <a
         href={href}
         className={clsx(
-          "w-full aspect-square border-1 place-self-center col-[calc(var(--x)+1)] row-[calc(var(--y)+1)]",
+          "w-full aspect-square border-2 place-self-center col-[calc(var(--x)+1)] row-[calc(var(--y)+1)]",
           "border-(--active-bg)",
           isHint && "border-(--hint-bg) animate-blink",
         )}

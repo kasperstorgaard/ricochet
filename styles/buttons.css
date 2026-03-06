@@ -69,7 +69,7 @@
 
   .btn[data-primary]:is([disabled], [aria-disabled]),
   .icon-btn[data-primary]:is([disabled], [aria-disabled]) {
-    filter: opacity(0.6);
+    filter: opacity(0.4);
   }
 
   .btn:active:not(:focus-visible),

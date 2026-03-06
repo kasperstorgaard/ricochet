@@ -68,7 +68,7 @@
   --color-surface-4: #44475a;
   --color-text-1: #f8f8f2;
   --color-text-2: #a0aabe;
-  --color-text-3: #6272a4;
+  --color-text-3: #8090c2;
   --color-brand: #ff79c6;
   --color-link: #8be9fd;
   --color-ui-1: #50fa7b;
@@ -100,25 +100,24 @@
 
 /* ─── Light themes ─────────────────────────────────────────────── */
 
-/* GitHub Light (github.com/primer design tokens) */
-:root[data-theme="github-light"] {
+/* Ember — warm light theme, red/orange/amber palette */
+:root[data-theme="ember"] {
   color-scheme: light;
   --btn-active-text: #ffffff;
   --color-surface-1: #ffffff;
-  --color-surface-2: #f6f8fa;
-  --color-surface-3: #eaeef2;
-  --color-surface-4: #d0d7de;
-  --color-text-1: #1f2328;
-  --color-text-2: #656d76;
-  --color-text-3: #9198a1;
-  --color-brand: #0969da;
-  --color-link: #8250df;
-  /* brighter button/badge variants vs the dim functional text colors */
-  --color-ui-1: #2da44e;
-  --color-ui-2: #d4a72c;
-  --color-ui-3: #cf222e;
-  --color-ui-4: #8250df;
-  --color-ui-contrast: #0969da;
+  --color-surface-2: #faf6f1;
+  --color-surface-3: #f0e8dc;
+  --color-surface-4: #e0d0bc;
+  --color-text-1: #2d1a0e;
+  --color-text-2: #6b3a1f;
+  --color-text-3: #7a4a2a;
+  --color-brand: #b91c1c;
+  --color-link: #0f766e;
+  --color-ui-1: #166534;
+  --color-ui-2: #ea580c;
+  --color-ui-3: #b91c1c;
+  --color-ui-4: #374151;
+  --color-ui-contrast: #ffffff;
 }
 
 /* Solarized Light (ethanschoonover.com/solarized) */
@@ -130,8 +129,8 @@
   --color-surface-3: #ddd6be;
   --color-surface-4: #93a1a1;
   --color-text-1: #51646b;
-  --color-text-2: #6d7c7d;
-  --color-text-3: #748282;
+  --color-text-2: #5e6b6c;
+  --color-text-3: #626969;
   --color-brand: #b58900;
   --color-link: #268bd2;
   --color-ui-1: #2aa198;
@@ -150,8 +149,8 @@
   --color-surface-3: #dce0e8;
   --color-surface-4: #acb0be;
   --color-text-1: #4c4f69;
-  --color-text-2: #6c6f85;
-  --color-text-3: #8c8fa1;
+  --color-text-2: #5e6176;
+  --color-text-3: #646779;
   --color-brand: #8839ef;
   --color-link: #1e66f5;
   --color-ui-1: #40a02b;
