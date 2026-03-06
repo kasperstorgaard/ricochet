@@ -26,6 +26,10 @@ Before merging, archive the spec with `deno task archive-spec` (moves to `specs/
 
 Past specs live in `specs/` — excluded from context by default, reference them explicitly if needed.
 
+**Agent behaviour:**
+- If `spec.md` exists and substantial changes are made outside of plan mode, update `spec.md` to reflect what was actually built.
+- If `spec.md` does not exist and the changes are substantial, ask whether one should be created.
+
 ## Project Layout
 
 ```
