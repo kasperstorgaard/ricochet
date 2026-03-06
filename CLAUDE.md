@@ -18,6 +18,25 @@ deno task update-puzzles # Regenerate puzzle manifest after adding puzzles
 
 CI runs: `deno fmt --check`, `deno lint`, `deno test -A`.
 
+## Skills
+
+Invoke the relevant skill automatically when the task matches — no need to wait for the user to ask:
+
+- **`/product`**
+  TRIGGER when: evaluating whether to build something, deciding what to track, or considering how a feature fits the game's goals.
+  DO NOT TRIGGER when: the task is purely technical with no product trade-off involved.
+
+- **`/architecture`**
+  TRIGGER when: adding new pages or routes, writing API handlers, or working with KV/cookies/state storage.
+  DO NOT TRIGGER when: refactoring UI or fixing UI bugs.
+
+- **`/frontend`**
+  TRIGGER when: writing or reviewing components, Tailwind classes, CSS, islands, or anything visual or interactive.
+
+- **`/testing`**
+  TRIGGER when: writing, reviewing, or deciding what to test.
+
+
 ## Planning
 
 When planning work before implementation, write the plan to `spec.md` at the project root and commit it. On every push, CI auto-populates the PR body between `<!-- spec:start -->` / `<!-- spec:end -->` markers with the current spec content.
@@ -111,15 +130,16 @@ export const handler = define.handlers<PageData>({ ... });
 export default define.page<typeof handler>();
 ```
 
-For type design, inference rules, assertion style, and comment conventions → `/typescript`.
+- **Inference first** — don't annotate what the compiler can figure out.
+- **Avoid** `enum` (use string unions), `interface` (use `type`), `!` non-null assertions, `any`.
 
 ## Tests
 
-For testing philosophy, what to cover, and assertion style → `/testing`.
+Invoke `/architecture` for testing decisions. Philosophy: test game logic exhaustively with realistic scenarios, skip client-side hooks and third-party wrappers. `*_test.ts` suffix, co-located with the module under test, one scenario per `Deno.test()`.
 
 ## Analytics
 
-For PostHog usage and event tracking philosophy → `/product`.
+Invoke `/product` for tracking decisions. Events are server-side only (posthog-node), camel_case naming (`puzzle_solved`), 1–3 meaningful events per feature — no generic clicks, no page-load events (use pageviews instead).
 
 ## Environment & Deployment
 
