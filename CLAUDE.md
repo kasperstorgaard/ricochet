@@ -18,6 +18,10 @@ deno task update-puzzles # Regenerate puzzle manifest after adding puzzles
 
 CI runs: `deno fmt --check`, `deno lint`, `deno test -A`.
 
+## Planning
+
+When planning work before implementation, write the plan to `spec.md` at the project root. Commit it — it's useful context during the PR. Before merging, delete `spec.md` in a final cleanup commit. The CI `check-spec` job will block the merge if it still exists.
+
 ## Project Layout
 
 ```

@@ -22,6 +22,7 @@
     "exclude": [
       "CLAUDE.md",
       "README.md",
+      "spec.md",
       "static/*"
     ]
   },
