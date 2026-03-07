@@ -39,11 +39,14 @@ Invoke the relevant skill automatically when the task matches — no need to wai
 
 ## Branches & PRs
 
-Each branch and PR should have a single focus. If a change is unrelated to the current task — even a small improvement noticed along the way — it belongs in its own branch.
+A PR should be reviewable as a single unit of thought. The test: could a reviewer evaluate this change without also having to reason about something unrelated?
 
-**"Bonus" changes are a signal to split.** If something feels like a nice extra, that's a sign it should be a separate PR, not bundled in.
+Split into a separate branch when a change:
+- Belongs to a different topic (e.g. onboarding UX in an infrastructure PR)
+- Has its own regression risk or edge cases to test
+- Would pull reviewer focus away from the main change
 
-When a tangential change comes up mid-task, create a new branch for it, make the change there, then return to the original branch.
+Size doesn't matter — a one-liner on a different topic still belongs elsewhere. When a tangential change comes up mid-task, branch off, make the change, then return.
 
 ## Planning
 
