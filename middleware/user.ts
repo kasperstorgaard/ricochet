@@ -26,16 +26,12 @@ const USER_ID_DURATION = 60 * 60 * 24 * 365 * 5;
  */
 export const user = define.middleware(async (ctx) => {
   const cookies = getCookies(ctx.req.headers);
-  const existingId = cookies[USER_ID_KEY];
 
-  let userId: string;
-  let isNew = false;
+  let userId = cookies[USER_ID_KEY];
+  const isNew = !userId;
 
-  if (existingId) {
-    userId = existingId;
-  } else {
+  if (!userId) {
     userId = crypto.randomUUID();
-    isNew = true;
   }
 
   ctx.state.userId = userId;
