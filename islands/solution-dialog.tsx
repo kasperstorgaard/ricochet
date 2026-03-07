@@ -2,9 +2,9 @@ import { type Signal } from "@preact/signals";
 import clsx from "clsx/lite";
 import { useMemo } from "preact/hooks";
 
-import { PuzzleStats } from "#/game/types.ts";
 import { isValidSolution, resolveMoves } from "#/game/board.ts";
 import { getSolutionPercentile } from "#/game/stats.ts";
+import { PuzzleStats } from "#/game/types.ts";
 import { Move, Onboarding, Puzzle } from "#/game/types.ts";
 import { decodeState, getResetHref } from "#/game/url.ts";
 import { Dialog } from "#/islands/dialog.tsx";

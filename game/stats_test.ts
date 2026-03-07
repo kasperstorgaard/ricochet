@@ -1,7 +1,7 @@
 import { assertEquals } from "@std/assert";
 
-import { PuzzleStats } from "#/game/types.ts";
 import { getSolutionPercentile } from "#/game/stats.ts";
+import { PuzzleStats } from "#/game/types.ts";
 
 const baseStats: PuzzleStats = {
   totalSolutions: 10,

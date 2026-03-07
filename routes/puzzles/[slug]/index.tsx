@@ -8,8 +8,6 @@ import { PrintPanel } from "#/components/print-panel.tsx";
 import { define } from "#/core.ts";
 import { addSolution } from "#/db/solutions.ts";
 import { getPuzzleStats } from "#/db/stats.ts";
-import { defaultPuzzleStats } from "#/game/stats.ts";
-import { PuzzleStats } from "#/game/types.ts";
 import {
   getUserCompleted,
   getUserPuzzleDraft,
@@ -19,6 +17,8 @@ import {
 import { isValidSolution, resolveMoves } from "#/game/board.ts";
 import { getHintCount } from "#/game/cookies.ts";
 import { getPuzzle } from "#/game/loader.ts";
+import { defaultPuzzleStats } from "#/game/stats.ts";
+import { PuzzleStats } from "#/game/types.ts";
 import { Move, Puzzle } from "#/game/types.ts";
 import Board from "#/islands/board.tsx";
 import { ControlsPanel } from "#/islands/controls-panel.tsx";
@@ -69,7 +69,11 @@ export const handler = define.handlers<PageData>({
     // Stats are fetched at page load, so a user who takes a long time to solve
     // will see slightly stale numbers in the dialog. Acceptable — this is cosmetic.
 
-    return page({ puzzle, hintCount, puzzleStats: puzzleStats ?? defaultPuzzleStats });
+    return page({
+      puzzle,
+      hintCount,
+      puzzleStats: puzzleStats ?? defaultPuzzleStats,
+    });
   },
   async POST(ctx) {
     const req = ctx.req;
