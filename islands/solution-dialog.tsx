@@ -157,8 +157,10 @@ function StatsMessage(
     return <p>You found the first perfect solution, well done!</p>;
   }
 
-  // Stat 2: top 40% by move count
-  const percentile = getSolutionPercentile(stats, moves.length);
+  // Stat 2: top 40% by move count — only meaningful with enough data
+  const percentile = totalSolutions >= 10
+    ? getSolutionPercentile(stats, moves.length)
+    : 0;
   if (percentile >= 60) {
     const rounded = Math.round(percentile / 5) * 5;
     return <p>Sharp! You used fewer moves than {rounded}% of players.</p>;
