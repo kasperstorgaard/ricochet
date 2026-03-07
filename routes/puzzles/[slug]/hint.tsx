@@ -2,6 +2,7 @@ import { HttpError } from "fresh";
 
 import { define } from "#/core.ts";
 import { addSolve, listPuzzleSolves } from "#/db/solutions.ts";
+import { incrementHintUsageCount } from "#/db/stats.ts";
 import { resolveMoves } from "#/game/board.ts";
 import { getHintCount, setHintCount } from "#/game/cookies.ts";
 import { getPuzzle } from "#/game/loader.ts";
@@ -73,6 +74,9 @@ export const handler = define.handlers({
         game_moves: state.cursor,
       },
     });
+
+    // Best-effort — does not block the response
+    incrementHintUsageCount(slug).catch(() => {});
 
     // Start building redirect response
     const url = new URL(ctx.req.url);

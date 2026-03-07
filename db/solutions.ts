@@ -1,6 +1,7 @@
 import { ulid } from "@std/ulid";
 
 import { kv } from "#/db/kv.ts";
+import { updatePuzzleStats } from "#/db/stats.ts";
 import { Solution, Solve } from "#/db/types.ts";
 import { encodeMoves } from "#/game/strings.ts";
 import { Move } from "#/game/types.ts";
@@ -14,6 +15,9 @@ import { Move } from "#/game/types.ts";
  * - by user + puzzle slug (user's attempts at a specific puzzle)
  *
  * Uses an atomic transaction so all entries are written together or not at all.
+ *
+ * Note: aggregates (total solutions, move distribution) are maintained separately in
+ * db/stats.ts as best-effort — see updatePuzzleStats.
  */
 export async function addSolution(payload: Omit<Solution, "id">) {
   const { puzzleSlug, moves } = payload;
@@ -62,6 +66,9 @@ export async function addSolution(payload: Omit<Solution, "id">) {
   }
 
   await atomic.commit();
+
+  // Best-effort — does not block the response, may drift slightly
+  updatePuzzleStats(puzzleSlug, moves.length, payload.userId).catch(() => {});
 
   return solution;
 }

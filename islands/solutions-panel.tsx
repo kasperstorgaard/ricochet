@@ -21,7 +21,7 @@ export function SolutionsPanel(
       solutions.some((item) => item.id === solution.id);
 
     if (solution && !isSolutionInList) {
-      return [...solutions.slice(0, 8), null, solution];
+      return [...solutions.slice(0, 6), null, solution];
     }
 
     return solutions;
