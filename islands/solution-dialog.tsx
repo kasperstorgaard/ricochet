@@ -12,9 +12,10 @@ type Props = {
   puzzle: Signal<Puzzle>;
   isPreview?: boolean;
   onboarding?: Onboarding;
+  savedName?: string | null;
 };
 
-export function SolutionDialog({ href, puzzle, isPreview, onboarding }: Props) {
+export function SolutionDialog({ href, puzzle, isPreview, onboarding, savedName }: Props) {
   const state = useMemo(() => decodeState(href.value), [href.value]);
 
   const moves = useMemo(
@@ -79,6 +80,7 @@ export function SolutionDialog({ href, puzzle, isPreview, onboarding }: Props) {
               name="name"
               autocomplete="name"
               placeholder="fx. Jungleboi87"
+              value={savedName ?? undefined}
               required
               className="border border-surface-4 p-2 bg-surface-2 text-2 rounded-1"
             />

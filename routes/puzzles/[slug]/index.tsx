@@ -9,8 +9,10 @@ import { define } from "#/core.ts";
 import { addSolution } from "#/db/solutions.ts";
 import {
   getUserCompleted,
+  getUserName,
   getUserPuzzleDraft,
   setUserCompleted,
+  setUserName,
   setUserOnboarding,
 } from "#/db/user.ts";
 import { isValidSolution, resolveMoves } from "#/game/board.ts";
@@ -24,7 +26,7 @@ import { SolutionDialog } from "#/islands/solution-dialog.tsx";
 import { isDev } from "#/lib/env.ts";
 import { posthog } from "#/lib/posthog.ts";
 
-type PageData = { puzzle: Puzzle; hintCount: number };
+type PageData = { puzzle: Puzzle; hintCount: number; savedName: string | null };
 
 export const handler = define.handlers<PageData>({
   async GET(ctx) {
@@ -36,6 +38,8 @@ export const handler = define.handlers<PageData>({
       throw new HttpError(404, `Invalid puzzle slug: ${slug}`);
     }
 
+    const savedName = await getUserName(ctx.state.userId);
+
     if (slug === "preview") {
       const puzzle = await getUserPuzzleDraft(ctx.state.userId);
 
@@ -44,7 +48,7 @@ export const handler = define.handlers<PageData>({
       puzzle.slug = "preview";
       puzzle.number = 0;
 
-      return page({ puzzle, hintCount });
+      return page({ puzzle, hintCount, savedName });
     }
 
     const puzzle = await getPuzzle(ctx.url.origin, slug);
@@ -53,7 +57,7 @@ export const handler = define.handlers<PageData>({
       throw new HttpError(404, `Unable to find puzzle with slug: ${slug}`);
     }
 
-    return page({ puzzle, hintCount });
+    return page({ puzzle, hintCount, savedName });
   },
   async POST(ctx) {
     const req = ctx.req;
@@ -80,6 +84,8 @@ export const handler = define.handlers<PageData>({
     if (!isValidSolution(resolveMoves(puzzle.board, moves))) {
       throw new HttpError(400, "Solution is not valid");
     }
+
+    await setUserName(ctx.state.userId, name);
 
     const solution = await addSolution({
       puzzleSlug: slug,
@@ -200,6 +206,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
         puzzle={puzzle}
         isPreview={isPreview}
         onboarding={props.state.onboarding}
+        savedName={props.data.savedName}
       />
     </>
   );
