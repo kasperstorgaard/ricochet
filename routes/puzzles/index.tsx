@@ -7,7 +7,7 @@ import { Pagination } from "#/components/pagination.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { PuzzleCard } from "#/components/puzzle-card.tsx";
 import { define } from "#/core.ts";
-import { getCompletedSlugs } from "#/game/cookies.ts";
+import { getUserCompleted } from "#/db/user.ts";
 import { getLatestPuzzle, listPuzzles } from "#/game/loader.ts";
 import { PaginatedData, Puzzle } from "#/game/types.ts";
 import { getPage } from "#/game/url.ts";
@@ -34,7 +34,7 @@ export const handler = define.handlers<PageData>({
       itemsPerPage: ITEMS_PER_PAGE,
     });
 
-    const completedSlugs = getCompletedSlugs(ctx.req.headers);
+    const completedSlugs = await getUserCompleted(ctx.state.userId);
 
     return page({
       items,

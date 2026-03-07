@@ -6,6 +6,7 @@ export type Solution = {
   puzzleSlug: string;
   name: string;
   moves: Move[];
+  userId?: string;
 };
 
 // Machine generated solve for a puzzle

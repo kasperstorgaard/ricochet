@@ -6,15 +6,15 @@ import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
 import { PrintPanel } from "#/components/print-panel.tsx";
 import { define } from "#/core.ts";
-import { addSolution } from "#/db/kv.ts";
-import { isValidSolution, resolveMoves } from "#/game/board.ts";
+import { addSolution } from "#/db/solutions.ts";
 import {
-  getCompletedSlugs,
-  getHintCount,
-  getStoredPuzzle,
-  setCompletedSlugs,
-  setOnboardingCookie,
-} from "#/game/cookies.ts";
+  getUserCompleted,
+  getUserPuzzleDraft,
+  setUserCompleted,
+  setUserOnboarding,
+} from "#/db/user.ts";
+import { isValidSolution, resolveMoves } from "#/game/board.ts";
+import { getHintCount } from "#/game/cookies.ts";
 import { getPuzzle } from "#/game/loader.ts";
 import { Move, Puzzle } from "#/game/types.ts";
 import Board from "#/islands/board.tsx";
@@ -37,7 +37,7 @@ export const handler = define.handlers<PageData>({
     }
 
     if (slug === "preview") {
-      const puzzle = getStoredPuzzle(ctx.req.headers);
+      const puzzle = await getUserPuzzleDraft(ctx.state.userId);
 
       if (!puzzle) throw new HttpError(500, "No stored puzzle");
 
@@ -81,7 +81,12 @@ export const handler = define.handlers<PageData>({
       throw new HttpError(400, "Solution is not valid");
     }
 
-    const solution = await addSolution({ puzzleSlug: slug, name, moves });
+    const solution = await addSolution({
+      puzzleSlug: slug,
+      name,
+      moves,
+      userId: ctx.state.userId,
+    });
     const url = new URL(req.url);
     url.pathname = `puzzles/${slug}/solutions/${solution.id}`;
 
@@ -104,10 +109,10 @@ export const handler = define.handlers<PageData>({
     const responseHeaders = new Headers({ Location: url.href });
 
     if (moves.length === puzzle.minMoves) {
-      const completed = new Set(getCompletedSlugs(ctx.req.headers));
+      const completed = new Set(await getUserCompleted(ctx.state.userId));
       completed.add(slug);
 
-      setCompletedSlugs(responseHeaders, [...completed]);
+      await setUserCompleted(ctx.state.userId, [...completed]);
     }
 
     // Complete onboarding on a good solve
@@ -115,7 +120,7 @@ export const handler = define.handlers<PageData>({
       moves.length <= puzzle.minMoves * 1.33 &&
       ctx.state.onboarding !== "done"
     ) {
-      setOnboardingCookie(responseHeaders, "done");
+      await setUserOnboarding(ctx.state.userId, "done");
 
       posthog?.capture({
         distinctId: ctx.state.trackingId,

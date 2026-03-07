@@ -1,10 +1,11 @@
 import { define } from "#/core.ts";
-import { getOnboardingCookie } from "#/game/cookies.ts";
+import { getUserOnboarding } from "#/db/user.ts";
 
 /**
- * Middleware that reads the onboarding cookie and sets ctx.state.onboarding.
+ * Middleware that reads the onboarding state from KV and sets ctx.state.onboarding.
+ * Requires user middleware to run first.
  */
 export const onboarding = define.middleware(async (ctx) => {
-  ctx.state.onboarding = getOnboardingCookie(ctx.req.headers);
+  ctx.state.onboarding = await getUserOnboarding(ctx.state.userId);
   return await ctx.next();
 });

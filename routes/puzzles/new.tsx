@@ -5,7 +5,7 @@ import { page } from "fresh";
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
 import { define } from "#/core.ts";
-import { getStoredPuzzle } from "#/game/cookies.ts";
+import { getUserPuzzleDraft } from "#/db/user.ts";
 import type { Puzzle } from "#/game/types.ts";
 import Board from "#/islands/board.tsx";
 import { DifficultyBadge } from "#/islands/difficulty-badge.tsx";
@@ -17,30 +17,20 @@ import { EditorToolbar } from "#/islands/editor-toolbar.tsx";
 import { isDev } from "#/lib/env.ts";
 
 export const handler = define.handlers<Puzzle>({
-  GET(ctx) {
-    let puzzle: Puzzle | null = null;
-
-    try {
-      puzzle = getStoredPuzzle(ctx.req.headers);
-    } catch {
-      // swallow parsing errors for now
-    }
-
-    if (!puzzle) {
-      puzzle = {
-        number: 0,
-        name: "Untitled",
-        slug: "untitled",
-        createdAt: new Date(Date.now()),
-        difficulty: "medium",
-        minMoves: 0,
-        board: {
-          destination: { x: 0, y: 0 },
-          pieces: [],
-          walls: [],
-        },
-      };
-    }
+  async GET(ctx) {
+    const puzzle = await getUserPuzzleDraft(ctx.state.userId) ?? {
+      number: 0,
+      name: "Untitled",
+      slug: "untitled",
+      createdAt: new Date(Date.now()),
+      difficulty: "medium",
+      minMoves: 0,
+      board: {
+        destination: { x: 0, y: 0 },
+        pieces: [],
+        walls: [],
+      },
+    };
 
     return page(puzzle);
   },

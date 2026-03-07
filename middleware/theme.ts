@@ -1,8 +1,8 @@
 import { define } from "#/core.ts";
-import { getThemeCookie } from "#/game/cookies.ts";
+import { getUserTheme } from "#/db/user.ts";
 
 export const theme = define.middleware(async (ctx) => {
-  ctx.state.theme = getThemeCookie(ctx.req.headers) ?? "skub";
+  ctx.state.theme = (await getUserTheme(ctx.state.userId)) ?? "skub";
 
   return await ctx.next();
 });

@@ -7,6 +7,9 @@ import type { Onboarding } from "#/game/types.ts";
  * Set by the tracking middleware in middleware/tracking.ts.
  */
 export type State = {
+  // Stable anonymous user identity (UUID, httpOnly cookie)
+  userId: string;
+
   // The users current cookie choice;
   cookieChoice: "accepted" | "declined" | null;
   // The user's tracking ID (UUID), either temporary or stored in cookie
