@@ -37,6 +37,14 @@ Invoke the relevant skill automatically when the task matches — no need to wai
   TRIGGER when: writing, reviewing, or deciding what to test.
 
 
+## Branches & PRs
+
+Each branch and PR should have a single focus. If a change is unrelated to the current task — even a small improvement noticed along the way — it belongs in its own branch.
+
+**"Bonus" changes are a signal to split.** If something feels like a nice extra, that's a sign it should be a separate PR, not bundled in.
+
+When a tangential change comes up mid-task, create a new branch for it, make the change there, then return to the original branch.
+
 ## Planning
 
 When planning work before implementation, write the plan to `spec.md` at the project root and commit it. On every push, CI auto-populates the PR body between `<!-- spec:start -->` / `<!-- spec:end -->` markers with the current spec content.
