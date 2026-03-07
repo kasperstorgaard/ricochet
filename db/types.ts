@@ -1,4 +1,6 @@
-import { Move } from "#/game/types.ts";
+import { Move, PuzzleStats } from "#/game/types.ts";
+
+export type { PuzzleStats };
 
 // Human entered solution for a puzzle
 export type Solution = {

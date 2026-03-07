@@ -7,6 +7,7 @@ import { Main } from "#/components/main.tsx";
 import { PrintPanel } from "#/components/print-panel.tsx";
 import { define } from "#/core.ts";
 import { addSolution } from "#/db/solutions.ts";
+import { getPuzzleStats } from "#/db/stats.ts";
 import {
   getUserCompleted,
   getUserPuzzleDraft,
@@ -16,6 +17,8 @@ import {
 import { isValidSolution, resolveMoves } from "#/game/board.ts";
 import { getHintCount } from "#/game/cookies.ts";
 import { getPuzzle } from "#/game/loader.ts";
+import { defaultPuzzleStats } from "#/game/stats.ts";
+import { PuzzleStats } from "#/game/types.ts";
 import { Move, Puzzle } from "#/game/types.ts";
 import Board from "#/islands/board.tsx";
 import { ControlsPanel } from "#/islands/controls-panel.tsx";
@@ -24,7 +27,11 @@ import { SolutionDialog } from "#/islands/solution-dialog.tsx";
 import { isDev } from "#/lib/env.ts";
 import { posthog } from "#/lib/posthog.ts";
 
-type PageData = { puzzle: Puzzle; hintCount: number };
+type PageData = {
+  puzzle: Puzzle;
+  hintCount: number;
+  puzzleStats: PuzzleStats;
+};
 
 export const handler = define.handlers<PageData>({
   async GET(ctx) {
@@ -44,16 +51,29 @@ export const handler = define.handlers<PageData>({
       puzzle.slug = "preview";
       puzzle.number = 0;
 
-      return page({ puzzle, hintCount });
+      return page({ puzzle, hintCount, puzzleStats: defaultPuzzleStats });
     }
 
-    const puzzle = await getPuzzle(ctx.url.origin, slug);
+    const puzzlePromise = getPuzzle(ctx.url.origin, slug);
+    const puzzleStatsPromise = getPuzzleStats(slug);
+
+    const [puzzle, puzzleStats] = await Promise.all([
+      puzzlePromise,
+      puzzleStatsPromise,
+    ]);
 
     if (!puzzle) {
       throw new HttpError(404, `Unable to find puzzle with slug: ${slug}`);
     }
 
-    return page({ puzzle, hintCount });
+    // Stats are fetched at page load, so a user who takes a long time to solve
+    // will see slightly stale numbers in the dialog. Acceptable — this is cosmetic.
+
+    return page({
+      puzzle,
+      hintCount,
+      puzzleStats: puzzleStats ?? defaultPuzzleStats,
+    });
   },
   async POST(ctx) {
     const req = ctx.req;
@@ -200,6 +220,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
         puzzle={puzzle}
         isPreview={isPreview}
         onboarding={props.state.onboarding}
+        stats={props.data.puzzleStats}
       />
     </>
   );
