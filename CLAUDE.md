@@ -37,6 +37,17 @@ Invoke the relevant skill automatically when the task matches — no need to wai
   TRIGGER when: writing, reviewing, or deciding what to test.
 
 
+## Branches & PRs
+
+A PR should be reviewable as a single unit of thought. The test: could a reviewer evaluate this change without also having to reason about something unrelated?
+
+Split into a separate branch when a change:
+- Belongs to a different topic (e.g. onboarding UX in an infrastructure PR)
+- Has its own regression risk or edge cases to test
+- Would pull reviewer focus away from the main change
+
+Size doesn't matter — a one-liner on a different topic still belongs elsewhere. When a tangential change comes up mid-task, branch off, make the change, then return.
+
 ## Planning
 
 When planning work before implementation, write the plan to `spec.md` at the project root and commit it. On every push, CI auto-populates the PR body between `<!-- spec:start -->` / `<!-- spec:end -->` markers with the current spec content.
