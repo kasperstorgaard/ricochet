@@ -169,9 +169,9 @@ function StatsMessage(
   // Fallback: neutral total count
   if (totalSolutions > 0) {
     const others = totalSolutions === 1
-      ? "1 other"
-      : `${totalSolutions} others`;
-    return <p>Good solve — join {others} users, post yours.</p>;
+      ? "1 other user"
+      : `${totalSolutions} other users`;
+    return <p>Good solve - join {others}, post yours.</p>;
   }
 
   return <p>Be the first to post a solution.</p>;
