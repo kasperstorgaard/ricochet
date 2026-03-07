@@ -29,7 +29,8 @@ export function ControlsPanel(
     ControlsPanelProps,
 ) {
   const hintLimit = puzzle.value.difficulty === "easy" ? 3 : 1;
-  const hintDisabled = !isDev && !isPreview && hintCount >= hintLimit;
+  const hintDisabled = !isDev && !isPreview && onboarding === "done" &&
+    hintCount >= hintLimit;
 
   const state = useMemo(() => decodeState(href.value), [href.value]);
 
