@@ -142,6 +142,12 @@ One-time, transparent, on first request after deploy:
 
 ---
 
+## Hints during onboarding
+
+Hint limits are lifted until onboarding is `"done"`. New players can use as many hints
+as needed to learn the game — and completing a puzzle via hints still triggers onboarding
+completion, so the limit kicks in naturally after that.
+
 ## Verification
 
 1. New visitor: no `user_id` → one gets set in response; subsequent requests use it
