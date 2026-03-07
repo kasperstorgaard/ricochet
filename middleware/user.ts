@@ -36,12 +36,15 @@ export const user = define.middleware(async (ctx) => {
 
   ctx.state.userId = userId;
 
+  if (isNew) {
+    // One-time migration: must run before ctx.next() so theme/onboarding
+    // middleware see the migrated KV data on this same request.
+    await migrateLegacyCookies(ctx.req.headers, userId);
+  }
+
   const response = await ctx.next();
 
   if (isNew) {
-    // One-time migration: read legacy cookies and write to KV
-    await migrateLegacyCookies(ctx.req.headers, userId);
-
     // Set the user_id cookie on the response
     setCookie(response.headers, {
       name: USER_ID_KEY,
