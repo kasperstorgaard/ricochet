@@ -9,7 +9,7 @@ import { define } from "#/core.ts";
 import { addSolution } from "#/db/solutions.ts";
 import {
   getUserCompleted,
-  getUserStoredPuzzle,
+  getUserPuzzleDraft,
   setUserCompleted,
   setUserOnboarding,
 } from "#/db/user.ts";
@@ -37,7 +37,7 @@ export const handler = define.handlers<PageData>({
     }
 
     if (slug === "preview") {
-      const puzzle = await getUserStoredPuzzle(ctx.state.userId);
+      const puzzle = await getUserPuzzleDraft(ctx.state.userId);
 
       if (!puzzle) throw new HttpError(500, "No stored puzzle");
 

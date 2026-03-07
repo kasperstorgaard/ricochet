@@ -3,14 +3,14 @@ import { getCookies, setCookie } from "@std/http/cookie";
 import { define } from "#/core.ts";
 import {
   setUserCompleted,
+  setUserPuzzleDraft,
   setUserOnboarding,
-  setUserStoredPuzzle,
   setUserTheme,
 } from "#/db/user.ts";
 import {
   getCompletedSlugs,
+  getPuzzleDraftCookie,
   getOnboardingCookie,
-  getStoredPuzzle,
   getThemeCookie,
 } from "#/game/cookies.ts";
 import { isDev } from "#/lib/env.ts";
@@ -84,9 +84,9 @@ async function migrateLegacyCookies(
     migrations.push(setUserOnboarding(userId, onboarding));
   }
 
-  const storedPuzzle = getStoredPuzzle(headers);
-  if (storedPuzzle) {
-    migrations.push(setUserStoredPuzzle(userId, storedPuzzle));
+  const draft = getPuzzleDraftCookie(headers);
+  if (draft) {
+    migrations.push(setUserPuzzleDraft(userId, draft));
   }
 
   await Promise.all(migrations);

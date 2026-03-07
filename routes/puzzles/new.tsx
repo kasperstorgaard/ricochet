@@ -5,7 +5,7 @@ import { page } from "fresh";
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
 import { define } from "#/core.ts";
-import { getUserStoredPuzzle } from "#/db/user.ts";
+import { getUserPuzzleDraft } from "#/db/user.ts";
 import type { Puzzle } from "#/game/types.ts";
 import Board from "#/islands/board.tsx";
 import { DifficultyBadge } from "#/islands/difficulty-badge.tsx";
@@ -18,7 +18,7 @@ import { isDev } from "#/lib/env.ts";
 
 export const handler = define.handlers<Puzzle>({
   async GET(ctx) {
-    const puzzle = await getUserStoredPuzzle(ctx.state.userId) ?? {
+    const puzzle = await getUserPuzzleDraft(ctx.state.userId) ?? {
       number: 0,
       name: "Untitled",
       slug: "untitled",

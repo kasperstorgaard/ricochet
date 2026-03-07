@@ -86,7 +86,7 @@ export function setHintCount(
 // --- Migration helpers (used by middleware/user.ts for one-time cookie → KV migration) ---
 
 const ONBOARDING_KEY = "onboarding";
-const STORED_PUZZLE_KEY = "stored_puzzle";
+const PUZZLE_DRAFT_COOKIE_KEY = "stored_puzzle"; // legacy cookie name
 const THEME_VALUES = [
   "skub",
   "high-contrast",
@@ -119,9 +119,9 @@ export function getCompletedSlugs(headers: Headers): string[] {
   return getCookies(headers)[COMPLETED_KEY]?.split(",").filter(Boolean) ?? [];
 }
 
-export function getStoredPuzzle(headers: Headers): Puzzle | null {
+export function getPuzzleDraftCookie(headers: Headers): Puzzle | null {
   const cookies = getCookies(headers);
-  const raw = cookies[STORED_PUZZLE_KEY];
+  const raw = cookies[PUZZLE_DRAFT_COOKIE_KEY];
 
   try {
     return raw ? parsePuzzle(decodeURIComponent(raw)) : null;

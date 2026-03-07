@@ -41,16 +41,16 @@ export async function setUserOnboarding(
   await kv.set(["user", userId, "onboarding"], value);
 }
 
-export async function getUserStoredPuzzle(
+export async function getUserPuzzleDraft(
   userId: string,
 ): Promise<Puzzle | null> {
-  const res = await kv.get<Puzzle>(["user", userId, "stored_puzzle"]);
+  const res = await kv.get<Puzzle>(["user", userId, "puzzle_draft"]);
   return res.value ?? null;
 }
 
-export async function setUserStoredPuzzle(
+export async function setUserPuzzleDraft(
   userId: string,
   puzzle: Puzzle,
 ): Promise<void> {
-  await kv.set(["user", userId, "stored_puzzle"], puzzle);
+  await kv.set(["user", userId, "puzzle_draft"], puzzle);
 }

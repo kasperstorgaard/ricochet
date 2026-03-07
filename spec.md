@@ -29,7 +29,7 @@ This doesn't add login — it just makes login possible later.
 | `completed_puzzles` | **Removed** → KV | Migrated on first request |
 | `theme` | **Removed** → KV | Migrated on first request |
 | `onboarding` | **Removed** → KV | Migrated on first request |
-| `stored_puzzle` | **Removed** → KV | Migrated on first request |
+| `draft` | **Removed** → KV | Migrated on first request |
 | `hint_count` | Unchanged | Path-scoped per puzzle, 24h TTL — stays as cookie |
 
 ### KV key structure (new)
@@ -38,7 +38,7 @@ This doesn't add login — it just makes login possible later.
 ["user", userId, "completed"]                    → string[]   (optimal puzzle slugs)
 ["user", userId, "theme"]                        → string | null
 ["user", userId, "onboarding"]                   → Onboarding
-["user", userId, "stored_puzzle"]                → Puzzle | null
+["user", userId, "puzzle_draft"]                → Puzzle | null
 ["solutions_by_user", userId, id]                → Solution   (user history)
 ["solutions_by_user_puzzle", userId, slug, id]   → Solution   (user's attempts per puzzle)
 ```
@@ -57,7 +57,7 @@ Sets `ctx.state.userId`.
 On **first visit** (no `user_id` cookie):
 1. Generate UUID
 2. Read any existing legacy cookies (`completed_puzzles`, `theme`, `onboarding`,
-   `stored_puzzle`)
+   `draft`)
 3. Write them to KV under the new userId (one-time migration)
 4. Set `user_id` cookie in response; legacy cookies will naturally expire
 
@@ -71,8 +71,8 @@ getUserTheme(userId: string): Promise<string | null>
 setUserTheme(userId: string, theme: string | null): Promise<void>
 getUserOnboarding(userId: string): Promise<Onboarding>
 setUserOnboarding(userId: string, value: Onboarding): Promise<void>
-getUserStoredPuzzle(userId: string): Promise<Puzzle | null>
-setUserStoredPuzzle(userId: string, puzzle: Puzzle): Promise<void>
+getUserPuzzleDraft(userId: string): Promise<Puzzle | null>
+setUserPuzzleDraft(userId: string, puzzle: Puzzle): Promise<void>
 ```
 
 ---
@@ -99,7 +99,7 @@ Add `userId: string` to `State`.
 ### `game/cookies.ts`
 Keep `tracking_id` functions unchanged. Remove the functions moving to KV:
 `getCompletedSlugs`, `setCompletedSlugs`, `getThemeCookie`, `setThemeCookie`,
-`getOnboardingCookie`, `setOnboardingCookie`, `getStoredPuzzle`, `setStoredPuzzleCookie`.
+`getOnboardingCookie`, `setOnboardingCookie`, `getPuzzleDraftCookie`, `setDraftCookie`.
 `getHintCount` / `setHintCount` stay (path-scoped cookie, unchanged).
 
 ### `middleware/onboarding.ts`
@@ -122,16 +122,16 @@ Replace `getCompletedSlugs` with `getUserCompleted(ctx.state.userId)`.
 Replace `setThemeCookie` with `setUserTheme(ctx.state.userId, theme)`.
 
 ### `routes/api/store.ts`
-Replace `setStoredPuzzleCookie` with `setUserStoredPuzzle(ctx.state.userId, puzzle)`.
+Replace `setDraftCookie` with `setUserPuzzleDraft(ctx.state.userId, puzzle)`.
 
 ### `routes/api/import.ts`
 Same as store.ts.
 
 ### `routes/api/export.ts`
-Replace `getStoredPuzzle` with `getUserStoredPuzzle(ctx.state.userId)`.
+Replace `getPuzzleDraftCookie` with `getUserPuzzleDraft(ctx.state.userId)`.
 
 ### `routes/puzzles/new.tsx`
-Replace `getStoredPuzzle` with `getUserStoredPuzzle(ctx.state.userId)`.
+Replace `getPuzzleDraftCookie` with `getUserPuzzleDraft(ctx.state.userId)`.
 
 ---
 

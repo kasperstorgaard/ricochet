@@ -1,5 +1,5 @@
 import { define } from "#/core.ts";
-import { setUserStoredPuzzle } from "#/db/user.ts";
+import { setUserPuzzleDraft } from "#/db/user.ts";
 import { parsePuzzle } from "#/game/parser.ts";
 
 // POST endpoint for importing a puzzle file (.md), storing it in KV and redirecting to the editor
@@ -25,7 +25,7 @@ export const handler = define.handlers({
       const puzzle = parsePuzzle(markdown);
       const redirect = ctx.req.headers.get("Referer") ?? "/puzzles/new";
 
-      await setUserStoredPuzzle(ctx.state.userId, puzzle);
+      await setUserPuzzleDraft(ctx.state.userId, puzzle);
 
       return new Response(null, {
         headers: { Location: redirect },

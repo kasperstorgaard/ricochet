@@ -1,7 +1,7 @@
 import { HttpError } from "fresh";
 
 import { define } from "#/core.ts";
-import { setUserStoredPuzzle } from "#/db/user.ts";
+import { setUserPuzzleDraft } from "#/db/user.ts";
 import { getPuzzle } from "#/game/loader.ts";
 import { isDev } from "#/lib/env.ts";
 
@@ -19,7 +19,7 @@ export const handler = define.handlers({
     puzzle.createdAt = new Date(Date.now());
     puzzle.minMoves = 0;
 
-    await setUserStoredPuzzle(ctx.state.userId, puzzle);
+    await setUserPuzzleDraft(ctx.state.userId, puzzle);
 
     return new Response("", {
       headers: { Location: "/puzzles/new" },
