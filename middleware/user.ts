@@ -3,14 +3,14 @@ import { getCookies, setCookie } from "@std/http/cookie";
 import { define } from "#/core.ts";
 import {
   setUserCompleted,
-  setUserPuzzleDraft,
   setUserOnboarding,
+  setUserPuzzleDraft,
   setUserTheme,
 } from "#/db/user.ts";
 import {
   getCompletedSlugs,
-  getPuzzleDraftCookie,
   getOnboardingCookie,
+  getPuzzleDraftCookie,
   getThemeCookie,
 } from "#/game/cookies.ts";
 import { isDev } from "#/lib/env.ts";
