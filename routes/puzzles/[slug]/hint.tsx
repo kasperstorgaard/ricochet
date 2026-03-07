@@ -1,7 +1,7 @@
 import { HttpError } from "fresh";
 
 import { define } from "#/core.ts";
-import { addSolve, listPuzzleSolves } from "#/db/kv.ts";
+import { addSolve, listPuzzleSolves } from "#/db/solutions.ts";
 import { resolveMoves } from "#/game/board.ts";
 import { getHintCount, setHintCount } from "#/game/cookies.ts";
 import { getPuzzle } from "#/game/loader.ts";

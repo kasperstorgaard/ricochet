@@ -6,7 +6,7 @@ import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
 import { PrintPanel } from "#/components/print-panel.tsx";
 import { define } from "#/core.ts";
-import { addSolution } from "#/db/kv.ts";
+import { addSolution } from "#/db/solutions.ts";
 import {
   getUserCompleted,
   getUserStoredPuzzle,

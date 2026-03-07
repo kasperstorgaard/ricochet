@@ -1,5 +1,5 @@
-import type { Onboarding, Puzzle } from "#/game/types.ts";
 import { kv } from "#/db/kv.ts";
+import type { Onboarding, Puzzle } from "#/game/types.ts";
 
 export async function getUserCompleted(userId: string): Promise<string[]> {
   const res = await kv.get<string[]>(["user", userId, "completed"]);

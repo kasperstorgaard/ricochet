@@ -83,11 +83,15 @@ setUserStoredPuzzle(userId: string, puzzle: Puzzle): Promise<void>
 Add `userId?: string` to `Solution` (optional for backwards compat).
 
 ### `db/kv.ts`
+Reduced to a single line — just exports the `Deno.openKv()` instance.
+
+### `db/solutions.ts` (new, replaces the functions previously in `db/kv.ts`)
 - `addSolution`: accept `userId?` in payload; add atomic writes for
   `["solutions_by_user", userId, id]` and `["solutions_by_user_puzzle", userId, slug, id]`
   when userId is present.
-- Add `listUserSolutions(userId, options)` — user history across all puzzles.
-- Add `listUserPuzzleSolutions(userId, puzzleSlug, options)` — user's attempts at a specific puzzle.
+- `listUserSolutions(userId, options)` — user history across all puzzles.
+- `listUserPuzzleSolutions(userId, puzzleSlug, options)` — user's attempts at a specific puzzle.
+- All existing solution/solve functions unchanged, just moved here.
 
 ### `core.ts`
 Add `userId: string` to `State`.

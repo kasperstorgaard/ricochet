@@ -4,7 +4,7 @@ import { HttpError, page } from "fresh";
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
 import { define } from "#/core.ts";
-import { getPuzzleSolution, listPuzzleSolutions } from "#/db/kv.ts";
+import { getPuzzleSolution, listPuzzleSolutions } from "#/db/solutions.ts";
 import { Solution } from "#/db/types.ts";
 import { getPuzzle } from "#/game/loader.ts";
 import { Puzzle } from "#/game/types.ts";
