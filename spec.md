@@ -17,8 +17,11 @@ a meaningful catalogue of how different people solved the puzzle.
 Two solutions are equivalent if they use the **same set of moves regardless of
 order** — same pieces moved to the same destinations, just sequenced differently.
 
-Canonical key: sort the encoded moves lexicographically, join into a single
-string. Computed at read time (no new KV index needed for MVP).
+Canonical key: encode each move using **full notation** (`encodeMove`, not
+`encodeMoves` — the latter uses shorthand that omits the start position when a
+move continues from the previous end, making individual moves unsortable in
+isolation). Sort the full-notation strings lexicographically, join with `-`.
+Computed at read time (no new KV index needed for MVP).
 
 ## List format
 
