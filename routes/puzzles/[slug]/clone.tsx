@@ -1,7 +1,7 @@
 import { HttpError } from "fresh";
 
 import { define } from "#/core.ts";
-import { setStoredPuzzleCookie } from "#/game/cookies.ts";
+import { setUserStoredPuzzle } from "#/db/user.ts";
 import { getPuzzle } from "#/game/loader.ts";
 import { isDev } from "#/lib/env.ts";
 
@@ -19,13 +19,10 @@ export const handler = define.handlers({
     puzzle.createdAt = new Date(Date.now());
     puzzle.minMoves = 0;
 
-    const headers = new Headers();
-    setStoredPuzzleCookie(headers, puzzle);
-
-    headers.set("Location", "/puzzles/new");
+    await setUserStoredPuzzle(ctx.state.userId, puzzle);
 
     return new Response("", {
-      headers,
+      headers: { Location: "/puzzles/new" },
       status: 303,
     });
   },

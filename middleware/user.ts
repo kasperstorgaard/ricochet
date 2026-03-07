@@ -1,0 +1,93 @@
+import { getCookies, setCookie } from "@std/http/cookie";
+
+import { define } from "#/core.ts";
+import {
+  setUserCompleted,
+  setUserOnboarding,
+  setUserStoredPuzzle,
+  setUserTheme,
+} from "#/db/user.ts";
+import {
+  getCompletedSlugs,
+  getOnboardingCookie,
+  getStoredPuzzle,
+  getThemeCookie,
+} from "#/game/cookies.ts";
+import { isDev } from "#/lib/env.ts";
+
+const USER_ID_KEY = "user_id";
+// 5 years in seconds
+const USER_ID_DURATION = 60 * 60 * 24 * 365 * 5;
+
+/**
+ * Middleware that reads or creates the user_id cookie.
+ * On first visit, migrates legacy cookie data to KV.
+ * Sets ctx.state.userId.
+ */
+export const user = define.middleware(async (ctx) => {
+  const cookies = getCookies(ctx.req.headers);
+  const existingId = cookies[USER_ID_KEY];
+
+  let userId: string;
+  let isNew = false;
+
+  if (existingId) {
+    userId = existingId;
+  } else {
+    userId = crypto.randomUUID();
+    isNew = true;
+  }
+
+  ctx.state.userId = userId;
+
+  const response = await ctx.next();
+
+  if (isNew) {
+    // One-time migration: read legacy cookies and write to KV
+    await migrateLegacyCookies(ctx.req.headers, userId);
+
+    // Set the user_id cookie on the response
+    setCookie(response.headers, {
+      name: USER_ID_KEY,
+      value: userId,
+      httpOnly: true,
+      path: "/",
+      secure: !isDev,
+      maxAge: USER_ID_DURATION,
+    });
+  }
+
+  return response;
+});
+
+/**
+ * Migrates the legacy "everything in cookies" approach to user scoped kv values.
+ */
+async function migrateLegacyCookies(
+  headers: Headers,
+  userId: string,
+): Promise<void> {
+  const migrations: Promise<void>[] = [];
+
+  const completedSlugs = getCompletedSlugs(headers);
+  if (completedSlugs.length > 0) {
+    migrations.push(setUserCompleted(userId, completedSlugs));
+  }
+
+  const theme = getThemeCookie(headers);
+  if (theme) {
+    migrations.push(setUserTheme(userId, theme));
+  }
+
+  const onboarding = getOnboardingCookie(headers);
+  if (onboarding !== "new") {
+    migrations.push(setUserOnboarding(userId, onboarding));
+  }
+
+  const storedPuzzle = getStoredPuzzle(headers);
+  if (storedPuzzle) {
+    migrations.push(setUserStoredPuzzle(userId, storedPuzzle));
+  }
+
+  await Promise.all(migrations);
+}

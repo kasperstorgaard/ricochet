@@ -1,5 +1,5 @@
 import { define } from "#/core.ts";
-import { setStoredPuzzleCookie } from "#/game/cookies.ts";
+import { setUserStoredPuzzle } from "#/db/user.ts";
 import { parsePuzzle } from "#/game/parser.ts";
 import { Puzzle } from "#/game/types.ts";
 
@@ -8,7 +8,7 @@ type Payload = {
   markdown: string;
 };
 
-// POST endpoint for storing a puzzle in cookies (either new or existing)
+// POST endpoint for storing a puzzle in KV (either new or existing)
 export const handler = define.handlers({
   async POST(ctx) {
     let body: Payload;
@@ -33,9 +33,8 @@ export const handler = define.handlers({
       return new Response("Invalid puzzle", { status: 400 });
     }
 
-    const headers = new Headers();
-    setStoredPuzzleCookie(headers, puzzle);
+    await setUserStoredPuzzle(ctx.state.userId, puzzle);
 
-    return new Response("OK", { headers, status: 200 });
+    return new Response("OK", { status: 200 });
   },
 });

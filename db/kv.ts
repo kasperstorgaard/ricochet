@@ -7,12 +7,14 @@ import { Move } from "#/game/types.ts";
 export const kv = await Deno.openKv();
 
 /**
- * Stores a human-submitted solution under three index keys:
+ * Stores a human-submitted solution under three index keys (plus two user-scoped keys when userId is present):
  * - by puzzle slug (direct lookup)
  * - by puzzle slug + move count (scoreboard ordering)
  * - by puzzle slug + move sequence (deduplication / stats)
+ * - by user (user history)
+ * - by user + puzzle slug (user's attempts at a specific puzzle)
  *
- * Uses an atomic transaction so all three entries are written together or not at all.
+ * Uses an atomic transaction so all entries are written together or not at all.
  */
 export async function addSolution(payload: Omit<Solution, "id">) {
   const { puzzleSlug, moves } = payload;
@@ -35,14 +37,32 @@ export async function addSolution(payload: Omit<Solution, "id">) {
     id,
   ];
 
-  await kv.atomic()
+  // publicly available keys
+  const atomic = kv.atomic()
     .check({ key: primaryKey, versionstamp: null })
     .check({ key: byMovesKey, versionstamp: null })
     .check({ key: bySequenceKey, versionstamp: null })
     .set(primaryKey, solution)
     .set(byMovesKey, solution)
-    .set(bySequenceKey, solution)
-    .commit();
+    .set(bySequenceKey, solution);
+
+  // user-scoped keys
+  if (payload.userId) {
+    const byUserKey = ["solutions_by_user", payload.userId, id];
+    const byUserPuzzleKey = [
+      "solutions_by_user_puzzle",
+      payload.userId,
+      puzzleSlug,
+      id,
+    ];
+    atomic
+      .check({ key: byUserKey, versionstamp: null })
+      .check({ key: byUserPuzzleKey, versionstamp: null })
+      .set(byUserKey, solution)
+      .set(byUserPuzzleKey, solution);
+  }
+
+  await atomic.commit();
 
   return solution;
 }
@@ -90,6 +110,49 @@ export async function listPuzzleSolutions(
   }
 
   const iter = kv.list<Solution>({ prefix: key }, options);
+
+  for await (const res of iter) solutions.push(res.value);
+
+  return solutions;
+}
+
+/**
+ * Lists all solutions submitted by a specific user, in insertion order.
+ * `limit` is required.
+ */
+export async function listUserSolutions(
+  userId: string,
+  options: { limit: number } & Omit<Deno.KvListOptions, "limit">,
+) {
+  const solutions: Solution[] = [];
+  if (!options.limit) throw new Error("Must provide a limit");
+
+  const iter = kv.list<Solution>(
+    { prefix: ["solutions_by_user", userId] },
+    options,
+  );
+
+  for await (const res of iter) solutions.push(res.value);
+
+  return solutions;
+}
+
+/**
+ * Lists all solutions submitted by a specific user for a specific puzzle, in insertion order.
+ * `limit` is required.
+ */
+export async function listUserPuzzleSolutions(
+  userId: string,
+  puzzleSlug: string,
+  options: { limit: number } & Omit<Deno.KvListOptions, "limit">,
+) {
+  const solutions: Solution[] = [];
+  if (!options.limit) throw new Error("Must provide a limit");
+
+  const iter = kv.list<Solution>(
+    { prefix: ["solutions_by_user_puzzle", userId, puzzleSlug] },
+    options,
+  );
 
   for await (const res of iter) solutions.push(res.value);
 

@@ -5,6 +5,7 @@ import { onboarding } from "#/middleware/onboarding.ts";
 import { posthogProxy } from "#/middleware/posthog-proxy.ts";
 import { theme } from "#/middleware/theme.ts";
 import { tracking } from "#/middleware/tracking.ts";
+import { user } from "#/middleware/user.ts";
 
 export const app = new App<State>();
 
@@ -14,6 +15,7 @@ app.use(staticFiles());
 // Add middlewares
 app.use(posthogProxy);
 app.use(tracking);
+app.use(user);
 app.use(theme);
 app.use(onboarding);
 

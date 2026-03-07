@@ -1,8 +1,8 @@
 import { define } from "#/core.ts";
-import { setStoredPuzzleCookie } from "#/game/cookies.ts";
+import { setUserStoredPuzzle } from "#/db/user.ts";
 import { parsePuzzle } from "#/game/parser.ts";
 
-// POST endpoint for importing a puzzle file (.md), storing it in cookies and redirecting to the editor
+// POST endpoint for importing a puzzle file (.md), storing it in KV and redirecting to the editor
 export const handler = define.handlers({
   async POST(ctx) {
     let form: FormData;
@@ -24,12 +24,13 @@ export const handler = define.handlers({
     try {
       const puzzle = parsePuzzle(markdown);
       const redirect = ctx.req.headers.get("Referer") ?? "/puzzles/new";
-      const headers = new Headers();
 
-      setStoredPuzzleCookie(headers, puzzle);
-      headers.set("Location", redirect);
+      await setUserStoredPuzzle(ctx.state.userId, puzzle);
 
-      return new Response(null, { headers, status: 303 });
+      return new Response(null, {
+        headers: { Location: redirect },
+        status: 303,
+      });
     } catch {
       return new Response("Invalid puzzle file", { status: 400 });
     }
