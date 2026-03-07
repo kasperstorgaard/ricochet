@@ -68,7 +68,11 @@ export async function addSolution(payload: Omit<Solution, "id">) {
   await atomic.commit();
 
   // Best-effort — does not block the response, may drift slightly
-  updatePuzzleStats(puzzleSlug, moves.length, payload.userId).catch(() => {});
+  try {
+    updatePuzzleStats(puzzleSlug, moves.length, payload.userId);
+  } catch {
+    console.error("Failed to update stats");
+  }
 
   return solution;
 }
