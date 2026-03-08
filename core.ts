@@ -20,7 +20,6 @@ export type State = {
 
   // Player onboarding progression
   onboarding: Onboarding;
-
 };
 
 export const define = createDefine<State>();
