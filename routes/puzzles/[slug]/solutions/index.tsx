@@ -93,7 +93,10 @@ export default define.page<typeof handler>(function SolutionsListPage(props) {
   function renderGroup(group: CanonicalGroup | null) {
     if (group === null) {
       return (
-        <li key="delimiter" className="p-0 text-text-3 text-fl-0 px-fl-1 pr-fl-2">
+        <li
+          key="delimiter"
+          className="p-0 text-text-3 text-fl-0 px-fl-1 pr-fl-2"
+        >
           …
         </li>
       );
@@ -105,7 +108,9 @@ export default define.page<typeof handler>(function SolutionsListPage(props) {
     const others = group.count - 1;
 
     const metaLine = isFound && others > 0
-      ? `you and ${others} ${others === 1 ? "other" : "others"} found this solution`
+      ? `you and ${others} ${
+        others === 1 ? "other" : "others"
+      } found this solution`
       : !isFound && others > 0
       ? `${others} ${others === 1 ? "other" : "others"} found this solution`
       : "unique solution";
@@ -153,7 +158,7 @@ export default define.page<typeof handler>(function SolutionsListPage(props) {
 
           <span className="text-fl-0 text-text-link leading-tight whitespace-nowrap hover:text-link">
             <i className="text-sm leading-flat ph ph-play" />{" "}
-            <span className="max-md:hidden">Replay</span>
+            <span className="max-md:hidden">Watch</span>
           </span>
         </a>
       </li>
@@ -182,15 +187,16 @@ export default define.page<typeof handler>(function SolutionsListPage(props) {
           <DifficultyBadge puzzle={puzzle} showMinMoves={showMinMoves} />
         </div>
 
-        {/*
+        {
+          /*
           TODO: 3-tab layout with separate pages:
           - /solutions           → scoreboard (this page)
           - /solutions/mine      → my-solutions (all canonical groups the user has found)
           - /solutions/stats     → stats (move distribution histogram, needs PuzzleStats in page data)
           Tabs rendered as nav links at the top of Main, active tab highlighted.
-        */}
+        */
+        }
         <div>
-
           {visibleGroups.length === 0
             ? <p className="text-text-3">No solutions posted yet.</p>
             : (
