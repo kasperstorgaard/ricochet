@@ -8,22 +8,15 @@ import type { Board, Puzzle } from "#/game/types.ts";
 
 type DifficultyBadgeProps = {
   puzzle: Signal<Puzzle>;
-  showMinMoves?: boolean;
   className?: string;
 };
 
 // Displays the shortest solution length, updated on a 3s debounce with fade transition.
-export function DifficultyBadge(
-  {
-    puzzle,
-    showMinMoves = false,
-    className,
-  }: DifficultyBadgeProps,
-) {
+export function DifficultyBadge({ puzzle, className }: DifficultyBadgeProps) {
   const ref = useRef<HTMLSpanElement>(null);
 
   const [minMoves, setMinMoves] = useState<number | null>(
-    showMinMoves ? puzzle.value.minMoves || null : null,
+    puzzle.value.minMoves,
   );
   const [error, setError] = useState<string | null>(null);
 
@@ -51,12 +44,6 @@ export function DifficultyBadge(
   useEffect(() => {
     const { board, minMoves } = puzzle.value;
 
-    if (!showMinMoves) {
-      setMinMoves(null);
-      setError(null);
-      return;
-    }
-
     if (minMoves) {
       setMinMoves(minMoves);
       setError(null);
@@ -78,7 +65,7 @@ export function DifficultyBadge(
     }
 
     fetchSolution(board);
-  }, [puzzle.value.board, showMinMoves]);
+  }, [puzzle.value.board]);
 
   return (
     <span
@@ -100,7 +87,7 @@ export function DifficultyBadge(
             {puzzle.value.difficulty ?? "unknown"}
           </span>
 
-          {showMinMoves && minMoves && (
+          {minMoves && (
             <span
               className={clsx(
                 "px-fl-1 pl-fl-1 bg-surface-3 text-fl-0 min-w-[2ch] -ml-1",

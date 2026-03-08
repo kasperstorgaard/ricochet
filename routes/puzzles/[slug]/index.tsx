@@ -203,11 +203,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
             #{props.data.puzzle.number} {props.data.puzzle.name}
           </h1>
 
-          <DifficultyBadge
-            puzzle={puzzle}
-            showMinMoves
-            className="lg:mt-1"
-          />
+          <DifficultyBadge puzzle={puzzle} className="lg:mt-1" />
         </div>
 
         <Board href={href} puzzle={puzzle} mode={mode} />

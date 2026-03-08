@@ -76,11 +76,7 @@ export default define.page<typeof handler>(function SolutionReplayPage(props) {
             </p>
           </div>
 
-          <DifficultyBadge
-            puzzle={puzzle}
-            showMinMoves
-            className="lg:mt-1"
-          />
+          <DifficultyBadge puzzle={puzzle} className="lg:mt-1" />
         </div>
 
         <Board puzzle={puzzle} href={href} mode={mode} />
