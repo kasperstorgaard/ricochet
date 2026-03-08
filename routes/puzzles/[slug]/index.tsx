@@ -1,5 +1,4 @@
 import { useSignal } from "@preact/signals";
-import { getCookies } from "@std/http/cookie";
 import clsx from "clsx/lite";
 import { HttpError, page } from "fresh";
 

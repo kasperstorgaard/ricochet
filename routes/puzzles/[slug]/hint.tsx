@@ -1,4 +1,3 @@
-import { getCookies } from "@std/http/cookie";
 import { HttpError } from "fresh";
 
 import { define } from "#/core.ts";
