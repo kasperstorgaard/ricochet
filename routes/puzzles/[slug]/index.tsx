@@ -6,8 +6,9 @@ import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
 import { PrintPanel } from "#/components/print-panel.tsx";
 import { define } from "#/core.ts";
-import { addSolution } from "#/db/solutions.ts";
+import { addSolution, getCanonicalUserSolution } from "#/db/solutions.ts";
 import { getPuzzleStats } from "#/db/stats.ts";
+import { Solution } from "#/db/types.ts";
 import {
   getUserCompleted,
   getUserPuzzleDraft,
@@ -20,6 +21,7 @@ import { getPuzzle } from "#/game/loader.ts";
 import { defaultPuzzleStats } from "#/game/stats.ts";
 import { PuzzleStats } from "#/game/types.ts";
 import { Move, Puzzle } from "#/game/types.ts";
+import { decodeState } from "#/game/url.ts";
 import Board from "#/islands/board.tsx";
 import { ControlsPanel } from "#/islands/controls-panel.tsx";
 import { DifficultyBadge } from "#/islands/difficulty-badge.tsx";
@@ -31,6 +33,7 @@ type PageData = {
   puzzle: Puzzle;
   hintCount: number;
   puzzleStats: PuzzleStats;
+  existingSolution: Solution | null;
 };
 
 export const handler = define.handlers<PageData>({
@@ -51,15 +54,22 @@ export const handler = define.handlers<PageData>({
       puzzle.slug = "preview";
       puzzle.number = 0;
 
-      return page({ puzzle, hintCount, puzzleStats: defaultPuzzleStats });
+      return page({
+        puzzle,
+        hintCount,
+        puzzleStats: defaultPuzzleStats,
+        existingSolution: null,
+      });
     }
 
-    const puzzlePromise = getPuzzle(ctx.url.origin, slug);
-    const puzzleStatsPromise = getPuzzleStats(slug);
+    const { moves } = decodeState(ctx.url);
 
-    const [puzzle, puzzleStats] = await Promise.all([
-      puzzlePromise,
-      puzzleStatsPromise,
+    const [puzzle, puzzleStats, existingSolution] = await Promise.all([
+      getPuzzle(ctx.url.origin, slug),
+      getPuzzleStats(slug),
+      moves.length > 0 && ctx.state.userId
+        ? getCanonicalUserSolution(ctx.state.userId, slug, moves)
+        : Promise.resolve(null),
     ]);
 
     if (!puzzle) {
@@ -73,6 +83,7 @@ export const handler = define.handlers<PageData>({
       puzzle,
       hintCount,
       puzzleStats: puzzleStats ?? defaultPuzzleStats,
+      existingSolution,
     });
   },
   async POST(ctx) {
@@ -99,6 +110,19 @@ export const handler = define.handlers<PageData>({
 
     if (!isValidSolution(resolveMoves(puzzle.board, moves))) {
       throw new HttpError(400, "Solution is not valid");
+    }
+
+    const existing = ctx.state.userId
+      ? await getCanonicalUserSolution(ctx.state.userId, slug, moves)
+      : null;
+
+    if (existing) {
+      const url = new URL(req.url);
+      url.pathname = `puzzles/${slug}/solutions/${existing.id}`;
+      return new Response(null, {
+        status: 303,
+        headers: { Location: url.href },
+      });
     }
 
     const solution = await addSolution({
@@ -221,6 +245,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
         isPreview={isPreview}
         onboarding={props.state.onboarding}
         stats={props.data.puzzleStats}
+        existingSolution={props.data.existingSolution}
       />
     </>
   );

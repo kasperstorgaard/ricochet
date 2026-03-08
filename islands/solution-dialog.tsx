@@ -2,10 +2,10 @@ import { type Signal } from "@preact/signals";
 import clsx from "clsx/lite";
 import { useMemo } from "preact/hooks";
 
+import { Solution } from "#/db/types.ts";
 import { isValidSolution, resolveMoves } from "#/game/board.ts";
 import { getSolutionPercentile } from "#/game/stats.ts";
-import { PuzzleStats } from "#/game/types.ts";
-import { Move, Onboarding, Puzzle } from "#/game/types.ts";
+import { Move, Onboarding, Puzzle, PuzzleStats } from "#/game/types.ts";
 import { decodeState, getResetHref } from "#/game/url.ts";
 import { Dialog } from "#/islands/dialog.tsx";
 
@@ -15,10 +15,11 @@ type Props = {
   isPreview?: boolean;
   onboarding?: Onboarding;
   stats: PuzzleStats;
+  existingSolution: Solution | null;
 };
 
 export function SolutionDialog(
-  { href, puzzle, isPreview, onboarding, stats }: Props,
+  { href, puzzle, isPreview, onboarding, stats, existingSolution }: Props,
 ) {
   const state = useMemo(() => decodeState(href.value), [href.value]);
 
@@ -65,7 +66,18 @@ export function SolutionDialog(
         )}
       </div>
 
-      {!isPreview && (
+      {!isPreview && existingSolution && (
+        <p className="text-text-2">
+          You've already posted this solution —{" "}
+          <a
+            href={`/puzzles/${puzzle.value.slug}/solutions/${existingSolution.id}`}
+          >
+            view it here
+          </a>.
+        </p>
+      )}
+
+      {!isPreview && !existingSolution && (
         <form
           id="solution"
           className="flex flex-col gap-fl-2"
@@ -123,7 +135,7 @@ export function SolutionDialog(
           </form>
         </div>
 
-        {!isPreview && (
+        {!isPreview && !existingSolution && (
           <button
             form="solution"
             className="btn md:ml-auto max-md:w-full"

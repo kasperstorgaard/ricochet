@@ -124,3 +124,13 @@ export function decodeMoves(encodedMoves: string): Move[] {
 
   return moves;
 }
+
+/**
+ * Returns a stable deduplication key for a set of moves.
+ * Two solutions with the same moves in different order produce the same key.
+ * Uses full move notation (encodeMove, not encodeMoves) so each move is
+ * independently sortable regardless of sequence.
+ */
+export function getCanonicalMoveKey(moves: Move[]): string {
+  return moves.map(encodeMove).sort().join("-");
+}
