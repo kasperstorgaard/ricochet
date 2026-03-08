@@ -7,8 +7,7 @@
     "build": "vite build",
     "preview": "deno serve -A _fresh/server.js",
     "tunnel": "deno run --tunnel --allow-env main.ts",
-    "archive-spec": "deno run -A ./scripts/archive-spec.ts",
-    "migrate-canonical": "deno run -A ./scripts/migrate-canonical.ts"
+    "archive-spec": "deno run -A ./scripts/archive-spec.ts"
   },
   "lint": {
     "plugins": ["./plugins/lint-imports.ts"],
