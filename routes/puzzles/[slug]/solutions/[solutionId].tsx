@@ -6,8 +6,8 @@ import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { define } from "#/core.ts";
-import { getPuzzleSolution, listCanonicalGroups } from "#/db/solutions.ts";
-import { CanonicalGroup, Solution } from "#/db/types.ts";
+import { getPuzzleSolution } from "#/db/solutions.ts";
+import { Solution } from "#/db/types.ts";
 import { getPuzzle } from "#/game/loader.ts";
 import { Puzzle } from "#/game/types.ts";
 import { encodeState } from "#/game/url.ts";
@@ -16,7 +16,6 @@ import { DifficultyBadge } from "#/islands/difficulty-badge.tsx";
 
 type Data = {
   puzzle: Puzzle;
-  groups: CanonicalGroup[];
   solution: Solution;
   userId: string;
 };
@@ -45,8 +44,7 @@ export const handler = define.handlers<Data>({
       return Response.redirect(url, 303);
     }
 
-    const groups = await listCanonicalGroups(slug, { limit: 50 });
-    return page({ puzzle, groups, solution, userId: ctx.state.userId });
+    return page({ puzzle, solution, userId: ctx.state.userId });
   },
 });
 

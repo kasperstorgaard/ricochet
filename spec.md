@@ -62,9 +62,10 @@ Two separate route files (previously one combined `[[solutionId]].tsx`):
 - "optimal" pill (`bg-ui-2/10 border-ui-2/20`) when `moves === puzzle.minMoves`
 - Meta line: "you and N others found this solution" / "N others found this solution" /
   "unique solution" (derived from `group.count`)
-- Found rows: `border-l-brand`; others: `border-l-text-3`, hover `bg-surface-3`
+- Found rows: `border-l-brand`; others: `border-l-text-3`
+- Row hover uses `hover:brightness-(--hover-brightness)` — adapts to theme
 - Panel: "Play again" CTA only
-- Row rendering extracted into `renderGroup()` — map is a one-liner
+- Row rendering in `SolutionRow` component; map is a ternary (delimiter or row)
 
 ### Future tabs (TODO)
 
@@ -92,6 +93,19 @@ atomic checks to skip already-migrated entries. Run via `deno task migrate-canon
 canonical groups (8–12 moves). Clears and rewrites eva solution data. Run via
 `deno run -A scripts/seed-eva.ts`.
 
+## Theme-aware brightness hover
+
+`--hover-brightness` CSS custom property added to every theme block in
+`styles/themes.css`: dark themes `1.4` (high-contrast `1.8`), light themes `0.71`
+(exact inverse of `1.4`). System-preference fallback in `styles.css` `:root` (dark)
+and `@media (prefers-color-scheme: light)` (light).
+
+Used via the Tailwind v4 CSS variable shorthand: `hover:brightness-(--hover-brightness)`.
+
+**TODO**: apply in more places beyond the scoreboard rows, e.g.:
+- Guide arrows / hints in `board.tsx`
+- Interactive buttons and cards throughout the game
+
 ## Files changed
 
 - `game/strings.ts` — added `getCanonicalMoveKey(moves)`
@@ -107,3 +121,5 @@ canonical groups (8–12 moves). Clears and rewrites eva solution data. Run via
 - `scripts/migrate-canonical.ts` — new migration script
 - `scripts/seed-eva.ts` — new dev seed script
 - `deno.json` — added `migrate-canonical` task
+- `styles/themes.css` — added `--hover-brightness` to all theme blocks
+- `styles.css` — added `:root` default and `@media (prefers-color-scheme: light)` override

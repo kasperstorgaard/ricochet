@@ -1,5 +1,5 @@
 import { useSignal } from "@preact/signals";
-import { clsx } from "clsx/lite";
+import clsx from "clsx/lite";
 import { HttpError, page } from "fresh";
 
 import { Header } from "#/components/header.tsx";
@@ -66,17 +66,85 @@ export const handler = define.handlers<Data>({
       const moveKey = getCanonicalMoveKey(latestSolution.moves);
 
       if (!groupKeySet.has(moveKey)) {
-        extraGroup = await getCanonicalGroup(
-          latestSolution.puzzleSlug,
-          latestSolution.moves.length,
-          moveKey,
-        );
+        extraGroup = await getCanonicalGroup(latestSolution);
       }
     }
 
     return page({ puzzle, groups, extraGroup, userCanonicalKeys, userId });
   },
 });
+
+type SolutionRowProps = {
+  group: CanonicalGroup;
+  solutionsHref: string;
+  userCanonicalKeys: string[];
+  minMoves: number | undefined;
+};
+
+function SolutionRow(
+  { group, solutionsHref, userCanonicalKeys, minMoves }: SolutionRowProps,
+) {
+  const isFound = userCanonicalKeys.includes(group.canonicalKey);
+  const isOptimal = minMoves != null &&
+    group.firstSolution.moves.length === minMoves;
+  const others = group.count - 1;
+  const metaLine = isFound && others > 0
+    ? `you and ${others} ${
+      others === 1 ? "other" : "others"
+    } found this solution`
+    : !isFound && others > 0
+    ? `${others} ${others === 1 ? "other" : "others"} found this solution`
+    : "unique solution";
+
+  return (
+    <li className="p-0">
+      <a
+        href={`${solutionsHref}/${group.firstSolution.id}`}
+        className={clsx(
+          "group grid grid-cols-[3rem_1fr_auto] items-center gap-x-fl-1",
+          "px-fl-1 pr-fl-2 py-2 rounded-2 no-underline",
+          "bg-surface-3/20 border-text-3/20 border-1 border-l-3 border-l-text-3",
+          "hover:brightness-(--hover-brightness)",
+          "data-found:border-l-brand",
+        )}
+        data-found={isFound ? true : undefined}
+      >
+        <div className="flex flex-col items-center">
+          <span className="text-fl-1 font-bold tabular-nums leading-none text-text-1">
+            {group.firstSolution.moves.length}
+          </span>
+          <span className="text-xs text-text-3 mt-0.5">moves</span>
+        </div>
+
+        <div className="min-w-0">
+          <div className="flex items-center gap-fl-1 flex-wrap">
+            <span className="text-fl-0 text-text-2 overflow-hidden text-ellipsis whitespace-nowrap">
+              {group.firstSolution.name}
+            </span>
+            <div className="flex gap-2">
+              {isFound && (
+                <span className="flex items-center gap-0.5 text-xs px-1 py-px rounded-1 bg-brand/10 border border-brand/20 text-brand whitespace-nowrap">
+                  <i className="ph ph-check" />found
+                </span>
+              )}
+              {isOptimal && (
+                <span className="flex items-center gap-0.5 text-xs px-1 py-px rounded-1 bg-ui-2/10 border border-ui-2/20 text-ui-2 whitespace-nowrap leading-tight">
+                  <i className="ph ph-star" /> optimal
+                </span>
+              )}
+            </div>
+          </div>
+          <p className="text-xs text-text-3 mt-0.5">{metaLine}</p>
+        </div>
+
+        <span className="text-fl-0 text-text-link leading-tight whitespace-nowrap hover:text-link">
+          <i className="text-sm leading-flat ph ph-play" />{" "}
+          <span className="max-md:hidden">Watch</span>
+        </span>
+      </a>
+    </li>
+  );
+}
 
 export default define.page<typeof handler>(function SolutionsListPage(props) {
   const puzzle = useSignal(props.data.puzzle);
@@ -89,81 +157,6 @@ export default define.page<typeof handler>(function SolutionsListPage(props) {
   const visibleGroups: (CanonicalGroup | null)[] = extraGroup
     ? [...groups.slice(0, 5), null, extraGroup]
     : groups;
-
-  function renderGroup(group: CanonicalGroup | null) {
-    if (group === null) {
-      return (
-        <li
-          key="delimiter"
-          className="p-0 text-text-3 text-fl-0 px-fl-1 pr-fl-2"
-        >
-          …
-        </li>
-      );
-    }
-
-    const isFound = userCanonicalKeys.includes(group.canonicalKey);
-    const isOptimal = minMoves != null &&
-      group.firstSolution.moves.length === minMoves;
-    const others = group.count - 1;
-
-    const metaLine = isFound && others > 0
-      ? `you and ${others} ${
-        others === 1 ? "other" : "others"
-      } found this solution`
-      : !isFound && others > 0
-      ? `${others} ${others === 1 ? "other" : "others"} found this solution`
-      : "unique solution";
-
-    return (
-      <li key={group.canonicalKey} className="p-0">
-        <a
-          href={`${solutionsHref}/${group.firstSolution.id}`}
-          className={clsx(
-            "group grid grid-cols-[3rem_1fr_auto] items-center gap-x-fl-1",
-            "px-fl-1 pr-fl-2 py-2 rounded-2 no-underline",
-            "bg-surface-3/20 border-text-3/20 border-l-3 border-l-text-3",
-            "hover:bg-surface-3",
-            "data-found:border-l-brand",
-          )}
-          data-found={isFound ? true : undefined}
-        >
-          <div className="flex flex-col items-center">
-            <span className="text-fl-1 font-bold tabular-nums leading-none text-text-1">
-              {group.firstSolution.moves.length}
-            </span>
-            <span className="text-xs text-text-3 mt-0.5">moves</span>
-          </div>
-
-          <div className="min-w-0">
-            <div className="flex items-center gap-fl-1 flex-wrap">
-              <span className="text-fl-0 text-text-2 overflow-hidden text-ellipsis whitespace-nowrap">
-                {group.firstSolution.name}
-              </span>
-              <div className="flex gap-2">
-                {isFound && (
-                  <span className="flex items-center gap-0.5 text-xs px-1 py-px rounded-1 bg-brand/10 border border-brand/20 text-brand whitespace-nowrap">
-                    <i className="ph ph-check" />found
-                  </span>
-                )}
-                {isOptimal && (
-                  <span className="flex items-center gap-0.5 text-xs px-1 py-px rounded-1 bg-ui-2/10 border border-ui-2/20 text-ui-2 whitespace-nowrap leading-tight">
-                    <i className="ph ph-star" /> optimal
-                  </span>
-                )}
-              </div>
-            </div>
-            <p className="text-xs text-text-3 mt-0.5">{metaLine}</p>
-          </div>
-
-          <span className="text-fl-0 text-text-link leading-tight whitespace-nowrap hover:text-link">
-            <i className="text-sm leading-flat ph ph-play" />{" "}
-            <span className="max-md:hidden">Watch</span>
-          </span>
-        </a>
-      </li>
-    );
-  }
 
   return (
     <>
@@ -201,7 +194,26 @@ export default define.page<typeof handler>(function SolutionsListPage(props) {
             ? <p className="text-text-3">No solutions posted yet.</p>
             : (
               <ol className="m-0 p-0 list-none flex flex-col gap-y-1 w-full">
-                {visibleGroups.map(renderGroup)}
+                {visibleGroups.map((group) =>
+                  group === null
+                    ? (
+                      <li
+                        key="delimiter"
+                        className="p-0 text-text-3 text-fl-0 px-fl-1 pr-fl-2"
+                      >
+                        …
+                      </li>
+                    )
+                    : (
+                      <SolutionRow
+                        key={group.canonicalKey}
+                        group={group}
+                        solutionsHref={solutionsHref}
+                        userCanonicalKeys={userCanonicalKeys}
+                        minMoves={minMoves}
+                      />
+                    )
+                )}
               </ol>
             )}
         </div>

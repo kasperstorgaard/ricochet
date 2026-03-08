@@ -9,14 +9,12 @@ import { Move } from "#/game/types.ts";
 /**
  * Stores a human-submitted solution under two index keys (plus two user-scoped keys when userId is present):
  * - by puzzle slug (direct lookup)
- * - by puzzle slug + canonical move key (order-independent, for panel expansion)
+ * - by puzzle slug + canonical move key (order-independent, for dedup)
  * - by user (user history)
  * - by user + puzzle slug (user's attempts at a specific puzzle)
  *
  * Uses an atomic transaction so all entries are written together or not at all.
- *
- * Note: aggregates (stats, canonical groups) are maintained separately as best-effort
- * fire-and-forget — see db/stats.ts and updateCanonicalGroup below.
+ * Awaits aggregate updates (stats, canonical group) before returning — errors are logged but not re-thrown.
  */
 export async function addSolution(payload: Omit<Solution, "id">) {
   const { puzzleSlug, moves } = payload;
@@ -60,9 +58,14 @@ export async function addSolution(payload: Omit<Solution, "id">) {
 
   await atomic.commit();
 
-  // Best-effort — does not block the response, may drift slightly
-  updatePuzzleStats(puzzleSlug, moves.length, payload.userId).catch(() => {});
-  updateCanonicalGroup(puzzleSlug, moves, solution).catch(() => {});
+  try {
+    await Promise.all([
+      updatePuzzleStats(puzzleSlug, moves.length, payload.userId),
+      updateCanonicalGroup(puzzleSlug, moves, solution),
+    ]);
+  } catch (err) {
+    console.error("Failed to update solution aggregates:", (err as Error).message);
+  }
 
   return solution;
 }
@@ -113,8 +116,7 @@ export async function listCanonicalGroups(
 /**
  * Updates the canonical group aggregate for a puzzle after a new solution is added.
  * Creates the group entry if absent; increments count if present.
- * Retries on optimistic concurrency conflicts.
- * Called as best-effort fire-and-forget from addSolution — may drift slightly.
+ * Retries up to 5 times on optimistic concurrency conflicts.
  */
 async function updateCanonicalGroup(
   puzzleSlug: string,
@@ -187,18 +189,17 @@ export async function listUserPuzzleSolutions(
 }
 
 /**
- * Fetches a canonical group by puzzle slug, move count, and canonical key.
+ * Fetches the canonical group for a given solution.
  * Returns `null` if not found.
  */
 export async function getCanonicalGroup(
-  puzzleSlug: string,
-  moveCount: number,
-  canonicalKey: string,
+  solution: Solution,
 ): Promise<CanonicalGroup | null> {
+  const canonicalKey = getCanonicalMoveKey(solution.moves);
   const key = [
     "solution_groups_by_puzzle",
-    puzzleSlug,
-    moveCount,
+    solution.puzzleSlug,
+    solution.moves.length,
     canonicalKey,
   ];
   const res = await kv.get<CanonicalGroup>(key);
@@ -301,11 +302,14 @@ export async function listPuzzleSolves(
       ...getSequenceKey(bySequence),
     ];
   } else {
+    // TODO: `puzzleSlug` is ignored here — lists all solves globally, not per-puzzle.
+    // The primary index key should include puzzleSlug: ["solves_by_puzzle", puzzleSlug].
     key = [
       "solves_by_puzzle",
     ];
   }
 
+  // TODO: kv.list type param is wrong — should be `kv.list<Solve>`, not `kv.list<Solution>`
   const iter = kv.list<Solution>({ prefix: key }, options);
 
   for await (const res of iter) solves.push(res.value);
@@ -318,6 +322,8 @@ export async function getPuzzleSolve(
   puzzleSlug: string,
   solutionId: string,
 ) {
+  // TODO: key is wrong — addSolve stores at ["solves_by_puzzle", id] (no puzzleSlug).
+  // This lookup will never find anything. Fix by aligning the key in addSolve or here.
   const key = ["solves_by_puzzle", puzzleSlug, solutionId];
   const res = await kv.get<Solve>(key);
 

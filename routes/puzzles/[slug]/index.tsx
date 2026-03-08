@@ -125,31 +125,29 @@ export const handler = define.handlers<PageData>({
       });
     }
 
-    const solution = await addSolution({
+    await addSolution({
       puzzleSlug: slug,
       name,
       moves,
       userId: ctx.state.userId,
     });
-    const url = new URL(req.url);
-    url.pathname = `puzzles/${slug}/solutions`;
-    url.searchParams.set("submitted_solution", solution.id);
 
     posthog?.capture({
       distinctId: ctx.state.trackingId,
       event: "puzzle_solved",
       properties: {
-        properties: {
-          $current_url: referer,
-          $process_person_profile: ctx.state.cookieChoice === "accepted",
+        $current_url: referer,
+        $process_person_profile: ctx.state.cookieChoice === "accepted",
 
-          puzzle_slug: slug,
-          puzzle_difficulty: puzzle.difficulty,
-          puzzle_min_moves: puzzle.minMoves,
-          game_moves: moves?.length,
-        },
+        puzzle_slug: slug,
+        puzzle_difficulty: puzzle.difficulty,
+        puzzle_min_moves: puzzle.minMoves,
+        game_moves: moves?.length,
       },
     });
+
+    const url = new URL(req.url);
+    url.pathname = `/puzzles/${slug}/solutions`;
 
     const responseHeaders = new Headers({ Location: url.href });
 

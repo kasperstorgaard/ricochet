@@ -160,10 +160,6 @@ function StatsMessage(
   const { solutionsHistogram, totalSolutions } = stats;
   const isOptimal = moves.length === minMoves;
 
-  // TODO: repeat solvers inflate totalSolutions and the histogram — both the
-  // displayed count and percentiles can be skewed. Switch to uniqueSolvers for
-  // the count; consider capping histogram contributions per user.
-
   // Stat 1: first to find the optimal solution
   if (isOptimal && !solutionsHistogram[moves.length]) {
     return <p>You found the first perfect solution, well done!</p>;
