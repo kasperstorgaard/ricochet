@@ -1,3 +1,4 @@
+import { getCookies } from "@std/http/cookie";
 import { HttpError } from "fresh";
 
 import { define } from "#/core.ts";
@@ -17,6 +18,15 @@ export const handler = define.handlers({
     const { cookieChoice, trackingId } = ctx.state;
 
     const slug = ctx.params.slug;
+
+    if (slug === "lasse") {
+      console.log("lasse hint request", {
+        url: ctx.req.url,
+        userAgent: ctx.req.headers.get("user-agent"),
+        referer: ctx.req.headers.get("referer"),
+        hasSession: !!getCookies(ctx.req.headers)["user_id"],
+      });
+    }
 
     const state = decodeState(ctx.req.url);
 
