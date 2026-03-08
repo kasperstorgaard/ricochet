@@ -36,9 +36,14 @@ Two new keys alongside the existing `solutions_by_puzzle`:
 
 ## Write-time deduplication
 
-Before saving a new solution, the POST handler checks whether the user already
-has a submission with the same canonical key for this puzzle. If so, it skips
-the write and redirects to the solutions list.
+GET handler: decodes moves from URL state; if moves are present and a user is
+logged in, fetches `existingSolution` via `getCanonicalUserSolution` so the dialog
+can show the "already posted" state immediately on page load. Also fetches
+`puzzleStats` in the same `Promise.all`.
+
+POST handler: checks `getCanonicalUserSolution` before writing. Duplicate →
+redirect to existing solution's replay page. New → write via `addSolution`, then
+redirect to `/puzzles/{slug}/solutions` (the scoreboard).
 
 The solution dialog handles the "already posted" case: hides the form and shows
 a link to the existing solution — "You've already posted this solution — view it here."
@@ -112,10 +117,13 @@ Used via the Tailwind v4 CSS variable shorthand: `hover:brightness-(--hover-brig
 - `db/types.ts` — added `CanonicalGroup` type; added `userId?` to `Solution`
 - `db/solutions.ts` — added `listCanonicalGroups`, `getCanonicalUserSolution`,
   `getCanonicalGroup`, `updateCanonicalGroup`; `addSolution` writes canonical
-  index and updates group
+  index and awaits aggregate updates (stats + canonical group) with try/catch;
+  removed `byMoves`/`bySequence` options from `listPuzzleSolutions`; `getCanonicalGroup`
+  accepts a `Solution` directly; pre-existing KV bugs annotated with TODOs
 - `islands/solutions-panel.tsx` — rewritten to consume `CanonicalGroup[]`
 - `islands/solution-dialog.tsx` — added `existingSolution` prop
-- `routes/puzzles/[slug]/index.tsx` — GET passes `existingSolution`; POST deduplicates
+- `routes/puzzles/[slug]/index.tsx` — GET fetches `existingSolution` + `puzzleStats`;
+  POST deduplicates before writing; fixed PostHog double-nested `properties` bug
 - `routes/puzzles/[slug]/solutions/index.tsx` — new scoreboard page (was part of `[[solutionId]].tsx`)
 - `routes/puzzles/[slug]/solutions/[solutionId].tsx` — new replay page (was part of `[[solutionId]].tsx`)
 - `scripts/migrate-canonical.ts` — new migration script
