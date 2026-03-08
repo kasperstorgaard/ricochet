@@ -244,7 +244,7 @@ export async function getCanonicalUserSolution(
 
 /**
  * Stores a machine-generated solve under two index keys:
- * - primary (by ID, for direct lookup)
+ * - primary (by puzzle slug + ID, for direct lookup and per-puzzle listing)
  * - by puzzle slug + move sequence (for hints for a user who has partially made this solve)
  */
 export async function addSolve(payload: Omit<Solve, "id" | "name">) {
@@ -253,7 +253,7 @@ export async function addSolve(payload: Omit<Solve, "id" | "name">) {
   const id = ulid().toLowerCase();
   const solution = { ...payload, id };
 
-  const primaryKey = ["solves_by_puzzle", id];
+  const primaryKey = ["solves_by_puzzle", puzzleSlug, id];
 
   // key for listing solutions by sequence, for hints
   // note: this will store the entire solution to reference by each move
@@ -305,15 +305,10 @@ export async function listPuzzleSolves(
       ...getSequenceKey(bySequence),
     ];
   } else {
-    // TODO: `puzzleSlug` is ignored here — lists all solves globally, not per-puzzle.
-    // The primary index key should include puzzleSlug: ["solves_by_puzzle", puzzleSlug].
-    key = [
-      "solves_by_puzzle",
-    ];
+    key = ["solves_by_puzzle", puzzleSlug];
   }
 
-  // TODO: kv.list type param is wrong — should be `kv.list<Solve>`, not `kv.list<Solution>`
-  const iter = kv.list<Solution>({ prefix: key }, options);
+  const iter = kv.list<Solve>({ prefix: key }, options);
 
   for await (const res of iter) solves.push(res.value);
 
@@ -325,8 +320,6 @@ export async function getPuzzleSolve(
   puzzleSlug: string,
   solutionId: string,
 ) {
-  // TODO: key is wrong — addSolve stores at ["solves_by_puzzle", id] (no puzzleSlug).
-  // This lookup will never find anything. Fix by aligning the key in addSolve or here.
   const key = ["solves_by_puzzle", puzzleSlug, solutionId];
   const res = await kv.get<Solve>(key);
 
