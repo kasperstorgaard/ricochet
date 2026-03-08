@@ -19,15 +19,6 @@ export const handler = define.handlers({
 
     const slug = ctx.params.slug;
 
-    if (slug === "lasse") {
-      console.log("lasse hint request", {
-        url: ctx.req.url,
-        userAgent: ctx.req.headers.get("user-agent"),
-        referer: ctx.req.headers.get("referer"),
-        hasSession: !!getCookies(ctx.req.headers)["user_id"],
-      });
-    }
-
     const state = decodeState(ctx.req.url);
 
     // Preview is an edge case page, and showcases full solution instead of using hints.

@@ -41,15 +41,6 @@ export const handler = define.handlers<PageData>({
   async GET(ctx) {
     const { slug } = ctx.params;
 
-    if (slug === "lasse") {
-      console.log("lasse request", {
-        url: ctx.req.url,
-        userAgent: ctx.req.headers.get("user-agent"),
-        referer: ctx.req.headers.get("referer"),
-        hasSession: !!getCookies(ctx.req.headers)["user_id"],
-      });
-    }
-
     const hintCount = getHintCount(ctx.req.headers);
 
     if (!/^[a-z]+$/.test(slug)) {
