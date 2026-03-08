@@ -22,7 +22,6 @@ export const tracking = define.middleware(async (ctx) => {
 
   ctx.state.cookieChoice = cookieChoice;
   ctx.state.trackingId = trackingId;
-  ctx.state.featureFlags = ctx.state.featureFlags || {};
 
   return await ctx.next();
 });
