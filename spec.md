@@ -38,7 +38,7 @@ Two new keys alongside the existing `solutions_by_puzzle`:
 
 Before saving a new solution, the POST handler checks whether the user already
 has a submission with the same canonical key for this puzzle. If so, it skips
-the write and redirects to the existing solution.
+the write and redirects to the solutions list.
 
 The solution dialog handles the "already posted" case: hides the form and shows
 a link to the existing solution — "You've already posted this solution — view it here."
@@ -47,37 +47,40 @@ a link to the existing solution — "You've already posted this solution — vie
 
 Two separate route files (previously one combined `[[solutionId]].tsx`):
 
-### `routes/puzzles/[slug]/solutions/index.tsx` — high score list
+### `routes/puzzles/[slug]/solutions/index.tsx` — scoreboard
 
 - Full-width main content (same width as the board on the puzzle page)
+- Top 6 canonical groups loaded via `listCanonicalGroups(slug, { limit: 6 })`
+- User's solutions fetched via `listUserPuzzleSolutions` (limit 100) to compute
+  `userCanonicalKeys` (all canonical groups the user has ever found for this puzzle)
+- If the user's latest solution is not in the top 6, it is appended after a `…`
+  separator as `extraGroup`
 - Card-style rows: large move count + "moves" label, username, pills, meta line,
-  "Replay" link; no rank column
-- "you" pill (`bg-ui-2/10 border-ui-2/20`) for current user's rows
-- "optimal" pill (`bg-brand/10 border-brand/20`) when `moves === puzzle.minMoves`
-- Meta line: "+N found this path" or "unique path" (from `group.count`)
-- User's rows: `bg-ui-2/5 border-ui-2/20`; others: hover `bg-surface-3`
-- "Replay" link muted (`text-text-3`), brand on hover / always on user rows
-- Histogram placeholder (TODO — needs `PuzzleStats` in page data)
+  "Replay" link
+- "found" pill (`bg-brand/10 border-brand/20`) when user's `userCanonicalKeys`
+  includes this group's canonical key; left border changes to brand colour
+- "optimal" pill (`bg-ui-2/10 border-ui-2/20`) when `moves === puzzle.minMoves`
+- Meta line: "you and N others found this solution" / "N others found this solution" /
+  "unique solution" (derived from `group.count`)
+- Found rows: `border-l-brand`; others: `border-l-text-3`, hover `bg-surface-3`
 - Panel: "Play again" CTA only
-- Groups loaded via `listCanonicalGroups(slug, { limit: 50 })`
+- Row rendering extracted into `renderGroup()` — map is a one-liner
+
+### Future tabs (TODO)
+
+The scoreboard is tab 1 of a planned 3-tab layout:
+- `/solutions` — scoreboard (current page)
+- `/solutions/mine` — my-solutions (all canonical groups the user has found)
+- `/solutions/stats` — stats (move distribution histogram, needs `PuzzleStats`)
+
+Tabs to be rendered as nav links at the top of Main, active tab highlighted.
 
 ### `routes/puzzles/[slug]/solutions/[solutionId].tsx` — replay
 
 - Board in `replay` mode
 - Subtitle shows solution author's name (not "solutions")
 - Back link to `/solutions` (list page)
-- SolutionsPanel sidebar: groups list + "Play again" CTA
-- Active solution highlighted in panel; `...` separator if not in top group
-
-## Solutions panel (`islands/solutions-panel.tsx`)
-
-- Groups from `CanonicalGroup[]` prop (not raw solutions)
-- Active group determined by canonical key match against current solution's moves
-- `+ N others` shown as text inside the link row (`shrink-0 text-text-3`)
-- User's groups: `border-ui-2/20` tint (when not active)
-- Active group: `border-ui-2/50 bg-ui-2/5 font-medium text-text-1`
-- If active group not in top list: `[...groups.slice(0, 6), null, activeGroup]`
-  where `null` renders as `…` separator
+- Panel: "Play again" CTA only
 
 ## Migration
 
@@ -85,16 +88,22 @@ Two separate route files (previously one combined `[[solutionId]].tsx`):
 `solution_groups_by_puzzle` for all existing solutions. Safe to re-run — uses
 atomic checks to skip already-migrated entries. Run via `deno task migrate-canonical`.
 
+`scripts/seed-eva.ts` — dev-only seed script for the "eva" puzzle with 10 fake
+canonical groups (8–12 moves). Clears and rewrites eva solution data. Run via
+`deno run -A scripts/seed-eva.ts`.
+
 ## Files changed
 
 - `game/strings.ts` — added `getCanonicalMoveKey(moves)`
 - `db/types.ts` — added `CanonicalGroup` type; added `userId?` to `Solution`
 - `db/solutions.ts` — added `listCanonicalGroups`, `getCanonicalUserSolution`,
-  `updateCanonicalGroup`; `addSolution` writes canonical index and updates group
+  `getCanonicalGroup`, `updateCanonicalGroup`; `addSolution` writes canonical
+  index and updates group
 - `islands/solutions-panel.tsx` — rewritten to consume `CanonicalGroup[]`
 - `islands/solution-dialog.tsx` — added `existingSolution` prop
 - `routes/puzzles/[slug]/index.tsx` — GET passes `existingSolution`; POST deduplicates
-- `routes/puzzles/[slug]/solutions/index.tsx` — new list page (was part of `[[solutionId]].tsx`)
+- `routes/puzzles/[slug]/solutions/index.tsx` — new scoreboard page (was part of `[[solutionId]].tsx`)
 - `routes/puzzles/[slug]/solutions/[solutionId].tsx` — new replay page (was part of `[[solutionId]].tsx`)
 - `scripts/migrate-canonical.ts` — new migration script
+- `scripts/seed-eva.ts` — new dev seed script
 - `deno.json` — added `migrate-canonical` task
