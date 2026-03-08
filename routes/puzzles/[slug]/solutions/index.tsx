@@ -148,7 +148,6 @@ function SolutionRow(
 
 export default define.page<typeof handler>(function SolutionsListPage(props) {
   const puzzle = useSignal(props.data.puzzle);
-  const showMinMoves = props.state.featureFlags.minMoves ?? false;
   const url = new URL(props.req.url);
   const { groups, extraGroup, userCanonicalKeys } = props.data;
   const minMoves = props.data.puzzle.minMoves;
@@ -177,7 +176,7 @@ export default define.page<typeof handler>(function SolutionsListPage(props) {
             </p>
           </div>
 
-          <DifficultyBadge puzzle={puzzle} showMinMoves={showMinMoves} />
+          <DifficultyBadge puzzle={puzzle} />
         </div>
 
         {

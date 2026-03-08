@@ -191,8 +191,6 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
   const printUrl = props.url.hostname + props.url.pathname;
   const isPreview = slug === "preview";
 
-  const showMinMoves = props.state.featureFlags.minMoves ?? false;
-
   const url = new URL(props.req.url);
 
   return (
@@ -205,11 +203,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
             #{props.data.puzzle.number} {props.data.puzzle.name}
           </h1>
 
-          <DifficultyBadge
-            puzzle={puzzle}
-            showMinMoves={showMinMoves}
-            className="lg:mt-1"
-          />
+          <DifficultyBadge puzzle={puzzle} className="lg:mt-1" />
         </div>
 
         <Board href={href} puzzle={puzzle} mode={mode} />

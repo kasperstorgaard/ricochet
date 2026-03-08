@@ -20,11 +20,6 @@ export type State = {
 
   // Player onboarding progression
   onboarding: Onboarding;
-
-  featureFlags: {
-    // show minimum moves
-    minMoves?: boolean | null;
-  };
 };
 
 export const define = createDefine<State>();

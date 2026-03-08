@@ -52,7 +52,6 @@ export default define.page<typeof handler>(function SolutionReplayPage(props) {
   const puzzle = useSignal(props.data.puzzle);
   const href = useSignal(props.url.href);
   const mode = useSignal<"replay">("replay");
-  const showMinMoves = props.state.featureFlags.minMoves ?? false;
   const url = new URL(props.req.url);
   const solutionsHref = `/puzzles/${props.data.puzzle.slug}/solutions`;
 
@@ -77,11 +76,7 @@ export default define.page<typeof handler>(function SolutionReplayPage(props) {
             </p>
           </div>
 
-          <DifficultyBadge
-            puzzle={puzzle}
-            showMinMoves={showMinMoves}
-            className="lg:mt-1"
-          />
+          <DifficultyBadge puzzle={puzzle} className="lg:mt-1" />
         </div>
 
         <Board puzzle={puzzle} href={href} mode={mode} />
