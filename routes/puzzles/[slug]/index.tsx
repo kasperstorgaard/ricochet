@@ -125,7 +125,7 @@ export const handler = define.handlers<PageData>({
       });
     }
 
-    await addSolution({
+    const solution = await addSolution({
       puzzleSlug: slug,
       name,
       moves,
@@ -133,6 +133,7 @@ export const handler = define.handlers<PageData>({
     });
     const url = new URL(req.url);
     url.pathname = `puzzles/${slug}/solutions`;
+    url.searchParams.set("submitted_solution", solution.id);
 
     posthog?.capture({
       distinctId: ctx.state.trackingId,
