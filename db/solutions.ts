@@ -64,7 +64,10 @@ export async function addSolution(payload: Omit<Solution, "id">) {
       updateCanonicalGroup(puzzleSlug, moves, solution),
     ]);
   } catch (err) {
-    console.error("Failed to update solution aggregates:", (err as Error).message);
+    console.error(
+      "Failed to update solution aggregates:",
+      (err as Error).message,
+    );
   }
 
   return solution;
