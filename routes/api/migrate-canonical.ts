@@ -44,7 +44,9 @@ export const handler = define.handlers({
         canonicalWritten++;
       }
     }
-    log.push(`Pass 1: canonical written=${canonicalWritten} skipped=${canonicalSkipped}`);
+    log.push(
+      `Pass 1: canonical written=${canonicalWritten} skipped=${canonicalSkipped}`,
+    );
 
     // --- Delete existing groups ---
     const groupIter = kv.list<CanonicalGroup>({
