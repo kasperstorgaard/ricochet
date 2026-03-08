@@ -25,6 +25,12 @@ export const handler = define.handlers({
       throw new HttpError(500, "Hint not allowed in preview");
     }
 
+    // Require an established session — bots without cookies get a fresh userId
+    // each request (onboarding="new") and would bypass the hint limit entirely.
+    if (ctx.state.onboarding === "new") {
+      throw new HttpError(403, "Hints require an established session");
+    }
+
     const puzzle = await getPuzzle(ctx.url.origin, slug);
     if (!puzzle) throw new HttpError(404, "Unable to get puzzle");
 
