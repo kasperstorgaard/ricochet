@@ -1,0 +1,14 @@
+User-agent: meta-externalagent
+Disallow: /
+
+User-agent: facebookexternalhit
+Disallow: /
+
+User-agent: *
+Allow: /
+
+# Disallow crawling of puzzle pages with game state and hint endpoints
+Disallow: /puzzles/*?moves=*
+Disallow: /puzzles/*/hint
+Disallow: /puzzles/*/clone
+
