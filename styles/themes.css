@@ -12,6 +12,7 @@
 /* Skub (game identity) */
 :root[data-theme="skub"] {
   color-scheme: dark;
+  --hover-brightness: 1.4;
   --btn-active-text: var(--stone-0);
 
   --color-brand: var(--pink-7);
@@ -37,6 +38,7 @@
    surface-4 = surface-3 (collapsed) to keep text-3 above AA on elevated surfaces. */
 :root[data-theme="high-contrast"] {
   color-scheme: dark;
+  --hover-brightness: 1.8;
   --btn-active-text: #000000;
 
   --color-brand: #ffffff;
@@ -61,6 +63,7 @@
 /* Dracula */
 :root[data-theme="dracula"] {
   color-scheme: dark;
+  --hover-brightness: 1.4;
   --btn-active-text: #282a36;
   --color-surface-1: #282a36;
   --color-surface-2: #21222c;
@@ -81,6 +84,7 @@
 /* Acid — matrix/terminal neon */
 :root[data-theme="acid"] {
   color-scheme: dark;
+  --hover-brightness: 1.4;
   --btn-active-text: #0d0d0d;
   --color-surface-1: #0d0d0d;
   --color-surface-2: #141414;
@@ -103,6 +107,7 @@
 /* Ember — warm light theme, red/orange/amber palette */
 :root[data-theme="ember"] {
   color-scheme: light;
+  --hover-brightness: 0.71;
   --btn-active-text: #ffffff;
   --color-surface-1: #ffffff;
   --color-surface-2: #faf6f1;
@@ -123,6 +128,7 @@
 /* Solarized Light (ethanschoonover.com/solarized) */
 :root[data-theme="solarized-light"] {
   color-scheme: light;
+  --hover-brightness: 0.71;
   --btn-active-text: #fdf6e3;
   --color-surface-1: #fdf6e3;
   --color-surface-2: #eee8d5;
@@ -143,6 +149,7 @@
 /* Catppuccin Latte (catppuccin.com) */
 :root[data-theme="catppuccin"] {
   color-scheme: light;
+  --hover-brightness: 0.71;
   --btn-active-text: #eff1f5;
   --color-surface-1: #eff1f5;
   --color-surface-2: #e6e9ef;

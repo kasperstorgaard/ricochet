@@ -562,6 +562,14 @@
 :root {
   font-size: 20px;
   --font-sans: "Chakra Petch", system-ui, sans-serif;
+  /* Default for system dark / no theme selected — overridden per theme in themes.css */
+  --hover-brightness: 1.4;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --hover-brightness: 0.71;
+  }
 }
 
 @media print {

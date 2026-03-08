@@ -11,6 +11,13 @@ export type Solution = {
   userId?: string;
 };
 
+// One entry per canonical move group for a puzzle, maintained as best-effort aggregate
+export type CanonicalGroup = {
+  canonicalKey: string;
+  firstSolution: Solution;
+  count: number;
+};
+
 // Machine generated solve for a puzzle
 export type Solve = {
   id: string;
