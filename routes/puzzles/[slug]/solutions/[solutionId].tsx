@@ -1,8 +1,10 @@
 import { useSignal } from "@preact/signals";
+import clsx from "clsx/lite";
 import { HttpError, page } from "fresh";
 
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
+import { Panel } from "#/components/panel.tsx";
 import { define } from "#/core.ts";
 import { getPuzzleSolution, listCanonicalGroups } from "#/db/solutions.ts";
 import { CanonicalGroup, Solution } from "#/db/types.ts";
@@ -11,7 +13,6 @@ import { Puzzle } from "#/game/types.ts";
 import { encodeState } from "#/game/url.ts";
 import Board from "#/islands/board.tsx";
 import { DifficultyBadge } from "#/islands/difficulty-badge.tsx";
-import { SolutionsPanel } from "#/islands/solutions-panel.tsx";
 
 type Data = {
   puzzle: Puzzle;
@@ -32,7 +33,10 @@ export const handler = define.handlers<Data>({
 
     const solution = await getPuzzleSolution(slug, solutionId);
     if (!solution) {
-      throw new HttpError(404, `Unable to find solution with id: ${solutionId}`);
+      throw new HttpError(
+        404,
+        `Unable to find solution with id: ${solutionId}`,
+      );
     }
 
     const url = new URL(req.url);
@@ -70,7 +74,8 @@ export default define.page<typeof handler>(function SolutionReplayPage(props) {
               {props.data.puzzle.name}
             </h1>
             <p className="text-fl-0 text-text-3 leading-tight italic -mb-[.6lh] -mt-[.4lh]">
-              {props.data.solution.name}
+              solved by{" "}
+              <span className="text-text-2">{props.data.solution.name}</span>
             </p>
           </div>
 
@@ -84,13 +89,22 @@ export default define.page<typeof handler>(function SolutionReplayPage(props) {
         <Board puzzle={puzzle} href={href} mode={mode} />
       </Main>
 
-      <SolutionsPanel
-        puzzle={puzzle}
-        groups={props.data.groups}
-        solution={props.data.solution}
-        href={href}
-        userId={props.data.userId}
-      />
+      <Panel>
+        <div
+          className={clsx(
+            "col-[2/3] flex flex-col items-start gap-fl-2 justify-start",
+            "lg:col-auto lg:row-start-3",
+          )}
+        >
+          <a
+            href={`/puzzles/${props.data.puzzle.slug}`}
+            className="btn"
+          >
+            <i className="ph ph-arrow-counter-clockwise" />
+            Play again
+          </a>
+        </div>
+      </Panel>
     </>
   );
 });

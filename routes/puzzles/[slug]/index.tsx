@@ -125,14 +125,14 @@ export const handler = define.handlers<PageData>({
       });
     }
 
-    const solution = await addSolution({
+    await addSolution({
       puzzleSlug: slug,
       name,
       moves,
       userId: ctx.state.userId,
     });
     const url = new URL(req.url);
-    url.pathname = `puzzles/${slug}/solutions/${solution.id}`;
+    url.pathname = `puzzles/${slug}/solutions`;
 
     posthog?.capture({
       distinctId: ctx.state.trackingId,
