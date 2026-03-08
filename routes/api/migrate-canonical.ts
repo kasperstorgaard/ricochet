@@ -22,6 +22,32 @@ export const handler = define.handlers({
 
     const log: string[] = [];
 
+    // --- Pass 1: write canonical index entries from primary solution index ---
+    const solutionIter = kv.list<Solution>({ prefix: ["solutions_by_puzzle"] });
+    let canonicalWritten = 0;
+    let canonicalSkipped = 0;
+
+    for await (const entry of solutionIter) {
+      const solution = entry.value;
+      const canonicalKey = getCanonicalMoveKey(solution.moves);
+      const byCanonicalKey = [
+        "solutions_by_puzzle_canonical",
+        solution.puzzleSlug,
+        canonicalKey,
+        solution.id,
+      ];
+      const existing = await kv.get(byCanonicalKey);
+      if (existing.value) {
+        canonicalSkipped++;
+      } else {
+        await kv.set(byCanonicalKey, solution);
+        canonicalWritten++;
+      }
+    }
+    log.push(
+      `Pass 1: canonical written=${canonicalWritten} skipped=${canonicalSkipped}`,
+    );
+
     // --- Delete existing groups ---
     const groupIter = kv.list<CanonicalGroup>({
       prefix: ["solution_groups_by_puzzle"],
