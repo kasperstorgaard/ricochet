@@ -1,6 +1,7 @@
 import { useSignal } from "@preact/signals";
 import clsx from "clsx/lite";
 import { HttpError, page } from "fresh";
+import { useMemo } from "preact/hooks";
 
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
@@ -87,14 +88,21 @@ function SolutionRow(
   const isFound = userCanonicalKeys.includes(group.canonicalKey);
   const isOptimal = minMoves != null &&
     group.firstSolution.moves.length === minMoves;
-  const others = group.count - 1;
-  const metaLine = isFound && others > 0
-    ? `you and ${others} ${
-      others === 1 ? "other" : "others"
-    } found this solution`
-    : !isFound && others > 0
-    ? `${others} ${others === 1 ? "other" : "others"} found this solution`
-    : "unique solution";
+  const others = Math.max(group.count - 1, 0);
+
+  const metaLine = useMemo(() => {
+    // You are the other one
+    if (isFound && others === 1) return "+ you";
+
+    if (isFound && others > 1) {
+      // offset others by 1 more, as "you" counts for 1
+      return `+ you and ${others - 1} ${others - 1 === 1 ? "other" : "others"}`;
+    }
+
+    if (others === 0) return "unique solution";
+
+    return `+ ${others} ${others === 1 ? "other" : "others"}`;
+  }, [isFound, others]);
 
   return (
     <li className="p-0">
@@ -116,25 +124,36 @@ function SolutionRow(
           <span className="text-xs text-text-3 mt-0.5">moves</span>
         </div>
 
-        <div className="min-w-0">
-          <div className="flex items-center gap-fl-1 flex-wrap">
-            <span className="text-fl-0 text-text-2 overflow-hidden text-ellipsis whitespace-nowrap">
+        <div className="flex flex-col min-w-0 lg:gap-1">
+          <div className="flex items-center gap-fl-1">
+            <span className="text-fl-1 text-text-2 overflow-hidden leading-snug text-ellipsis whitespace-nowrap lg:text-fl-0">
               {group.firstSolution.name}
             </span>
-            <div className="flex gap-2">
-              {isFound && (
-                <span className="flex items-center gap-0.5 text-xs px-1 py-px rounded-1 bg-brand/10 border border-brand/20 text-brand whitespace-nowrap">
-                  <i className="ph ph-check" />found
-                </span>
-              )}
-              {isOptimal && (
-                <span className="flex items-center gap-0.5 text-xs px-1 py-px rounded-1 bg-ui-2/10 border border-ui-2/20 text-ui-2 whitespace-nowrap leading-tight">
-                  <i className="ph ph-trophy" /> perfect
-                </span>
-              )}
-            </div>
+
+            {isFound && (
+              <span
+                className={clsx(
+                  "flex items-center shrink-0 gap-0.5 text-xs px-1 py-px",
+                  "rounded-1 bg-brand/10 border border-brand/20 text-brand whitespace-nowrap",
+                  "max-md:hidden",
+                )}
+              >
+                <i className="ph ph-check" /> found
+              </span>
+            )}
+
+            {isOptimal && (
+              <span
+                className={clsx(
+                  "flex items-center shrink-0 gap-0.5 text-xs px-1 py-px",
+                  "rounded-1 bg-ui-2/10 border border-ui-2/20 text-ui-2 whitespace-nowrap leading-tight",
+                )}
+              >
+                <i className="ph ph-trophy" /> perfect
+              </span>
+            )}
           </div>
-          <p className="text-xs text-text-3 mt-0.5">{metaLine}</p>
+          <p className="text-xs text-text-3 leading-snug">{metaLine}</p>
         </div>
 
         <span className="text-fl-0 text-text-link leading-tight whitespace-nowrap hover:text-link">
