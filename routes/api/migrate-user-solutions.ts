@@ -40,8 +40,7 @@ export const handler = define.handlers({
         // --- Pass 1: build lowercase-name → userId map ---
         log("\nPass 1: scanning solutions_by_user for known users...");
 
-        const nameToUserId = new Map<string, string>();
-        const collisions = new Set<string>();
+        const nameToUserIds = new Map<string, string[]>();
 
         const userIter = kv.list<Solution>({ prefix: ["solutions_by_user"] });
         for await (const entry of userIter) {
@@ -50,28 +49,25 @@ export const handler = define.handlers({
           const key = name.toLowerCase();
           if (key === "anon") continue;
 
-          const existing = nameToUserId.get(key);
-          if (existing && existing !== userId) {
-            collisions.add(key);
-            log(
-              `  COLLISION: "${key}" matches both ${existing} and ${userId} — will skip`,
-            );
+          const existing = nameToUserIds.get(key);
+          if (existing) {
+            if (!existing.includes(userId)) existing.push(userId);
           } else {
-            nameToUserId.set(key, userId);
+            nameToUserIds.set(key, [userId]);
           }
         }
 
-        // Remove colliding names so they aren't mis-attributed
-        for (const name of collisions) nameToUserId.delete(name);
-
-        log(`\n  ${nameToUserId.size} unambiguous users:`);
-        for (const [name, userId] of nameToUserId) {
-          log(`    "${name}" → ${userId}`);
-        }
-        if (collisions.size > 0) {
-          log(
-            `  ${collisions.size} ambiguous name(s) excluded from attribution`,
-          );
+        log(`\n  ${nameToUserIds.size} distinct names:`);
+        for (const [name, userIds] of nameToUserIds) {
+          if (userIds.length > 1) {
+            log(
+              `    "${name}" → ${
+                userIds.join(", ")
+              } (collision — writing to all)`,
+            );
+          } else {
+            log(`    "${name}" → ${userIds[0]}`);
+          }
         }
 
         // --- Pass 2: scan all puzzle solutions and attribute by name ---
@@ -97,59 +93,65 @@ export const handler = define.handlers({
             continue;
           }
 
-          const userId = nameToUserId.get(lowerName);
-          if (!userId) {
+          const userIds = nameToUserIds.get(lowerName);
+          if (!userIds) {
             skippedNoUser++;
             continue;
           }
 
-          // Skip solutions already attributed to a different user — they're
-          // not a name match gone wrong, they belong to someone else.
-          if (solution.userId && solution.userId !== userId) {
-            skippedWrongUserId++;
-            log(
-              `  SKIP: ${solution.puzzleSlug}/${solution.id} has userId ${solution.userId}, name matches ${userId}`,
+          for (const userId of userIds) {
+            // Skip solutions already attributed to a different user — they're
+            // not a name match gone wrong, they belong to someone else.
+            if (solution.userId && solution.userId !== userId) {
+              skippedWrongUserId++;
+              log(
+                `  SKIP: ${solution.puzzleSlug}/${solution.id} has userId ${solution.userId}, name matches ${userId}`,
+              );
+              continue;
+            }
+
+            // Check if this user already has any solution for this puzzle
+            const existingIter = kv.list<Solution>(
+              {
+                prefix: [
+                  "solutions_by_user_puzzle",
+                  userId,
+                  solution.puzzleSlug,
+                ],
+              },
+              { limit: 1 },
             );
-            continue;
+
+            let hasExisting = false;
+            for await (const _ of existingIter) {
+              hasExisting = true;
+              break;
+            }
+
+            if (hasExisting) {
+              skippedAlreadyIndexed++;
+              continue;
+            }
+
+            const userSolution: Solution = { ...solution, userId };
+            const byUserKey = ["solutions_by_user", userId, solution.id];
+            const byUserPuzzleKey = [
+              "solutions_by_user_puzzle",
+              userId,
+              solution.puzzleSlug,
+              solution.id,
+            ];
+
+            await kv.atomic()
+              .set(byUserKey, userSolution)
+              .set(byUserPuzzleKey, userSolution)
+              .commit();
+
+            written++;
+            log(
+              `  ${solution.puzzleSlug}: wrote ${solution.id} for "${solution.name}" → ${userId} (${solution.moves.length} moves)`,
+            );
           }
-
-          // Check if this user already has any solution for this puzzle
-          const existingIter = kv.list<Solution>(
-            {
-              prefix: ["solutions_by_user_puzzle", userId, solution.puzzleSlug],
-            },
-            { limit: 1 },
-          );
-
-          let hasExisting = false;
-          for await (const _ of existingIter) {
-            hasExisting = true;
-            break;
-          }
-
-          if (hasExisting) {
-            skippedAlreadyIndexed++;
-            continue;
-          }
-
-          const userSolution: Solution = { ...solution, userId };
-          const byUserKey = ["solutions_by_user", userId, solution.id];
-          const byUserPuzzleKey = [
-            "solutions_by_user_puzzle",
-            userId,
-            solution.puzzleSlug,
-            solution.id,
-          ];
-
-          await kv.atomic()
-            .set(byUserKey, userSolution)
-            .set(byUserPuzzleKey, userSolution)
-            .commit();
-
-          written++;
-          log(
-            `  ${solution.puzzleSlug}: wrote ${solution.id} for "${solution.name}" → ${userId} (${solution.moves.length} moves)`,
-          );
         }
 
         log(`\nDone.`);
