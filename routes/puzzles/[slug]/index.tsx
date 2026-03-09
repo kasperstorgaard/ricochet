@@ -8,12 +8,7 @@ import { PrintPanel } from "#/components/print-panel.tsx";
 import { define } from "#/core.ts";
 import { addSolution, getCanonicalUserSolution } from "#/db/solutions.ts";
 import { getPuzzleStats } from "#/db/stats.ts";
-import {
-  getUserCompleted,
-  getUserPuzzleDraft,
-  setUserCompleted,
-  setUserOnboarding,
-} from "#/db/user.ts";
+import { getUserPuzzleDraft, setUserOnboarding } from "#/db/user.ts";
 import { isValidSolution, resolveMoves } from "#/game/board.ts";
 import { getHintCount } from "#/game/cookies.ts";
 import { getPuzzle } from "#/game/loader.ts";
@@ -157,13 +152,6 @@ export const handler = define.handlers<PageData>({
     url.pathname = `/puzzles/${slug}/solutions`;
 
     const responseHeaders = new Headers({ Location: url.href });
-
-    if (moves.length === puzzle.minMoves) {
-      const completed = new Set(await getUserCompleted(ctx.state.userId));
-      completed.add(slug);
-
-      await setUserCompleted(ctx.state.userId, [...completed]);
-    }
 
     // Complete onboarding on a good solve
     if (

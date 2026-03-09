@@ -8,7 +8,7 @@ export type PuzzleCardProps =
   & Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "children">
   & {
     puzzle: Puzzle;
-    completed?: boolean;
+    bestMoves?: number;
     tagline?: string;
   };
 
@@ -17,24 +17,30 @@ export type PuzzleCardProps =
  * showing an svg of the puzzle, and letting the consumer pass the
  *
  * States:
- *   - visited: SVG dimmed + text mutes via CSS :visited
- *   - completed: medal icon + accent border
+ *   - visited: SVG dimmed + text mutes via CSS :visited (only when unsolved)
+ *   - solved (bestMoves > minMoves): ph-check icon + move count
+ *   - optimal (bestMoves === minMoves): ph-trophy icon + move count
  *
  * Pass `children` for a rich tagline or `tagline` for a plain string.
  */
 export function PuzzleCard({
   puzzle,
-  completed,
+  bestMoves,
   tagline,
   className,
   ...rest
 }: PuzzleCardProps) {
+  const isOptimal = bestMoves !== undefined &&
+    puzzle.minMoves !== undefined &&
+    bestMoves === puzzle.minMoves;
+  const isSolved = bestMoves !== undefined;
+
   return (
     <a
       href={`/puzzles/${puzzle.slug}`}
       class={clsx(
         "group flex flex-col gap-1 text-text-1 no-underline",
-        "visited:svg-dim",
+        !isSolved && "visited:svg-dim",
         className,
       )}
       {...rest}
@@ -42,10 +48,10 @@ export function PuzzleCard({
       <div
         class={clsx(
           "relative flex border-1 border-link",
-          "group-hover:filter-[lighten(1.3)] group-visited:border-text-2 transition-colors",
-          "data-completed:border-ui-2",
+          "group-hover:filter-[lighten(1.3)] transition-colors",
+          !isOptimal && "group-visited:link-border-dim",
+          isOptimal && "border-ui-2",
         )}
-        data-completed={completed ? true : undefined}
       >
         <Thumbnail
           board={puzzle.board}
@@ -62,9 +68,20 @@ export function PuzzleCard({
           {puzzle.difficulty}
         </div>
 
-        {completed && (
-          <div class="absolute top-0 right-0 p-fl-1 rounded-full">
-            <i class="ph ph-medal text-ui-2" aria-label="Solved" />
+        {isSolved && (
+          <div
+            class={clsx(
+              "absolute top-0 right-0 p-fl-1",
+              isOptimal ? "text-ui-2" : "text-brand",
+            )}
+          >
+            <span class="flex items-center gap-0.5 text-xs px-1 py-px rounded-1 bg-surface-1 border border-current/60 whitespace-nowrap leading-tight">
+              <i
+                class={clsx(isOptimal ? "ph ph-trophy" : "ph ph-check")}
+                aria-label={isOptimal ? "Perfect" : "Solved"}
+              />
+              {bestMoves}
+            </span>
           </div>
         )}
       </div>

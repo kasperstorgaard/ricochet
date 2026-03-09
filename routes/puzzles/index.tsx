@@ -7,7 +7,7 @@ import { Pagination } from "#/components/pagination.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { PuzzleCard } from "#/components/puzzle-card.tsx";
 import { define } from "#/core.ts";
-import { getUserCompleted } from "#/db/user.ts";
+import { listUserSolutions } from "#/db/solutions.ts";
 import { getLatestPuzzle, listPuzzles } from "#/game/loader.ts";
 import { PaginatedData, Puzzle } from "#/game/types.ts";
 import { getPage } from "#/game/url.ts";
@@ -15,7 +15,7 @@ import { getPage } from "#/game/url.ts";
 const ITEMS_PER_PAGE = 6;
 
 type PageData = PaginatedData<Puzzle> & {
-  completedSlugs: string[];
+  bestMoves: Record<string, number>;
 };
 
 export const handler = define.handlers<PageData>({
@@ -34,19 +34,29 @@ export const handler = define.handlers<PageData>({
       itemsPerPage: ITEMS_PER_PAGE,
     });
 
-    const completedSlugs = await getUserCompleted(ctx.state.userId);
+    const userSolutions = await listUserSolutions(ctx.state.userId, {
+      limit: 500,
+    });
+
+    const bestMoves: Record<string, number> = {};
+    for (const s of userSolutions) {
+      const current = bestMoves[s.puzzleSlug];
+      if (current === undefined || s.moves.length < current) {
+        bestMoves[s.puzzleSlug] = s.moves.length;
+      }
+    }
 
     return page({
       items,
       pagination,
-      completedSlugs,
+      bestMoves,
     });
   },
 });
 
 export default define.page<typeof handler>(
   function PuzzlesPage(props) {
-    const { items, pagination, completedSlugs } = props.data;
+    const { items, pagination, bestMoves } = props.data;
 
     const url = new URL(props.req.url);
 
@@ -67,7 +77,7 @@ export default define.page<typeof handler>(
               <li className="list-none pl-0 min-w-0" key={puzzle.slug}>
                 <PuzzleCard
                   puzzle={puzzle}
-                  completed={completedSlugs.includes(puzzle.slug)}
+                  bestMoves={bestMoves[puzzle.slug]}
                 />
               </li>
             ))}
