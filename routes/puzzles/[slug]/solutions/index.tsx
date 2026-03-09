@@ -88,16 +88,16 @@ function SolutionRow(
   const isFound = userCanonicalKeys.includes(group.canonicalKey);
   const isOptimal = minMoves != null &&
     group.firstSolution.moves.length === minMoves;
-  const others = isFound
-    ? Math.max(group.count - 2, 0)
-    : Math.max(group.count - 1, 0);
+  const others = Math.max(group.count - 1, 0);
 
   const metaLine = useMemo(() => {
-    if (isFound && others > 0) {
-      return `+ you and ${others} ${others === 1 ? "other" : "others"}`;
-    }
+    // You are the other one
+    if (isFound && others === 1) return "+ you";
 
-    if (isFound && others === 0) return "+ you";
+    if (isFound && others > 1) {
+      // offset others by 1 more, as "you" counts for 1
+      return `+ you and ${others - 1} ${others - 1 === 1 ? "other" : "others"}`;
+    }
 
     if (others === 0) return "unique solution";
 
