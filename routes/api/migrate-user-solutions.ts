@@ -69,7 +69,9 @@ export const handler = define.handlers({
           log(`    "${name}" → ${userId}`);
         }
         if (collisions.size > 0) {
-          log(`  ${collisions.size} ambiguous name(s) excluded from attribution`);
+          log(
+            `  ${collisions.size} ambiguous name(s) excluded from attribution`,
+          );
         }
 
         // --- Pass 2: scan all puzzle solutions and attribute by name ---
@@ -81,7 +83,9 @@ export const handler = define.handlers({
         let skippedAlreadyIndexed = 0;
         let written = 0;
 
-        const puzzleIter = kv.list<Solution>({ prefix: ["solutions_by_puzzle"] });
+        const puzzleIter = kv.list<Solution>({
+          prefix: ["solutions_by_puzzle"],
+        });
 
         for await (const entry of puzzleIter) {
           const solution = entry.value;
@@ -111,7 +115,9 @@ export const handler = define.handlers({
 
           // Check if this user already has any solution for this puzzle
           const existingIter = kv.list<Solution>(
-            { prefix: ["solutions_by_user_puzzle", userId, solution.puzzleSlug] },
+            {
+              prefix: ["solutions_by_user_puzzle", userId, solution.puzzleSlug],
+            },
             { limit: 1 },
           );
 
@@ -149,7 +155,9 @@ export const handler = define.handlers({
         log(`\nDone.`);
         log(`  Solutions checked: ${checked}`);
         log(`  Skipped (no matching user): ${skippedNoUser}`);
-        log(`  Skipped (attributed to different userId): ${skippedWrongUserId}`);
+        log(
+          `  Skipped (attributed to different userId): ${skippedWrongUserId}`,
+        );
         log(`  Skipped (already indexed): ${skippedAlreadyIndexed}`);
         log(`  Written: ${written}`);
 
