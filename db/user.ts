@@ -1,18 +1,6 @@
 import { kv } from "#/db/kv.ts";
 import type { Onboarding, Puzzle } from "#/game/types.ts";
 
-export async function getUserCompleted(userId: string): Promise<string[]> {
-  const res = await kv.get<string[]>(["user", userId, "completed"]);
-  return res.value ?? [];
-}
-
-export async function setUserCompleted(
-  userId: string,
-  slugs: string[],
-): Promise<void> {
-  await kv.set(["user", userId, "completed"], slugs);
-}
-
 export async function getUserTheme(userId: string): Promise<string | null> {
   const res = await kv.get<string>(["user", userId, "theme"]);
   return res.value ?? null;
