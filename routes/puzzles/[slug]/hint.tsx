@@ -48,7 +48,13 @@ export const handler = define.handlers({
 
     // ...falling back to a just-in-time solve
     if (!solves.length) {
-      const board = resolveMoves(puzzle.board, currentMoves);
+      let board;
+      try {
+        board = resolveMoves(puzzle.board, currentMoves);
+      } catch {
+        // Redirect to a reset puzzle if we are in an invalid state
+        return Response.redirect(new URL(`/puzzles/${slug}`, ctx.url), 303);
+      }
       const nextMoves = solve(board);
 
       // and storing the generated solution

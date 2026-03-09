@@ -1,8 +1,7 @@
 import { type Signal } from "@preact/signals";
 import clsx from "clsx/lite";
-import { useMemo } from "preact/hooks";
+import { useMemo, useState } from "preact/hooks";
 
-import { Solution } from "#/db/types.ts";
 import { isValidSolution, resolveMoves } from "#/game/board.ts";
 import { getSolutionPercentile } from "#/game/stats.ts";
 import { Move, Onboarding, Puzzle, PuzzleStats } from "#/game/types.ts";
@@ -15,13 +14,18 @@ type Props = {
   isPreview?: boolean;
   onboarding?: Onboarding;
   stats: PuzzleStats;
-  existingSolution: Solution | null;
 };
 
 export function SolutionDialog(
-  { href, puzzle, isPreview, onboarding, stats, existingSolution }: Props,
+  { href, puzzle, isPreview, onboarding, stats }: Props,
 ) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const state = useMemo(() => decodeState(href.value), [href.value]);
+  const error = useMemo(
+    () => new URL(href.value).searchParams.get("error"),
+    [href.value],
+  );
 
   const moves = useMemo(
     () => state.moves.slice(0, state.cursor ?? state.moves.length),
@@ -57,7 +61,7 @@ export function SolutionDialog(
             </p>
           )}
 
-        {!isGraduating && stats && (
+        {!isGraduating && stats && !error && (
           <StatsMessage
             stats={stats}
             moves={moves}
@@ -66,23 +70,26 @@ export function SolutionDialog(
         )}
       </div>
 
-      {!isPreview && existingSolution && (
-        <p className="text-text-2">
-          You've already posted this solution —{" "}
-          <a
-            href={`/puzzles/${puzzle.value.slug}/solutions/${existingSolution.id}`}
-          >
-            view it here
-          </a>.
-        </p>
+      {!isPreview && error === "duplicate" && (
+        <div className="flex gap-fl-1 items-center">
+          <i className="ph ph-info text-fl-1" />
+          <p className="text-text-2 leading-tight">
+            You've already posted this solution -
+            <br />
+            <a href={`/puzzles/${puzzle.value.slug}/solutions`}>
+              view all solutions
+            </a>.
+          </p>
+        </div>
       )}
 
-      {!isPreview && !existingSolution && (
+      {!isPreview && !error && (
         <form
           id="solution"
           className="flex flex-col gap-fl-2"
           action={puzzle.value.slug}
           method="post"
+          onSubmit={() => setIsSubmitting(true)}
         >
           <label className="flex flex-col gap-1">
             <span className="text-text-2 text-1">Name</span>
@@ -135,14 +142,16 @@ export function SolutionDialog(
           </form>
         </div>
 
-        {!isPreview && !existingSolution && (
+        {!isPreview && !error && (
           <button
             form="solution"
             className="btn md:ml-auto max-md:w-full"
             type="submit"
-            disabled={!hasSolution}
+            disabled={!hasSolution || isSubmitting}
           >
-            Post solution
+            {isSubmitting
+              ? <i className="ph ph-spinner animate-spin" />
+              : "Post solution"}
           </button>
         )}
       </div>
