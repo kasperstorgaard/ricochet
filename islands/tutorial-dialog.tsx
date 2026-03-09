@@ -97,6 +97,7 @@ function TutorialWelcomeStep({ href, open }: TutorialStepProps) {
           href={nextStep}
           className="btn ml-auto"
           data-router="push"
+          autoFocus
         >
           Next
         </a>
