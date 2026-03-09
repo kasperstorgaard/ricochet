@@ -1,6 +1,7 @@
 import { useSignal } from "@preact/signals";
 import clsx from "clsx/lite";
 import { HttpError, page } from "fresh";
+import { useMemo } from "preact/hooks";
 
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
@@ -16,7 +17,6 @@ import { getPuzzle } from "#/game/loader.ts";
 import { getCanonicalMoveKey } from "#/game/strings.ts";
 import { Puzzle } from "#/game/types.ts";
 import { DifficultyBadge } from "#/islands/difficulty-badge.tsx";
-import { useMemo } from "preact/hooks";
 
 type Data = {
   puzzle: Puzzle;
