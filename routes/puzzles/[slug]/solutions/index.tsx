@@ -129,7 +129,7 @@ function SolutionRow(
               )}
               {isOptimal && (
                 <span className="flex items-center gap-0.5 text-xs px-1 py-px rounded-1 bg-ui-2/10 border border-ui-2/20 text-ui-2 whitespace-nowrap leading-tight">
-                  <i className="ph ph-star" /> optimal
+                  <i className="ph ph-trophy" /> perfect
                 </span>
               )}
             </div>

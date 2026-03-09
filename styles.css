@@ -670,6 +670,19 @@
   }
 }
 
+@utility link-border-dim {
+  /*
+   * Opaque approximation of border-link/60.
+   * `:visited` blocks semi-transparent colors, so we mix with the surface
+   * color instead of transparent to stay fully opaque.
+   */
+  border-color: color-mix(
+    in srgb,
+    var(--color-link) 40%,
+    var(--color-surface-1)
+  );
+}
+
 @utility svg-dim {
   /*
    * Explicit fill/stroke overrides for SVG elements.

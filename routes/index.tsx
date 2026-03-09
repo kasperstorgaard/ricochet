@@ -6,12 +6,14 @@ import { Main } from "#/components/main.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { PuzzleCard } from "#/components/puzzle-card.tsx";
 import { define } from "#/core.ts";
+import { listUserSolutions } from "#/db/solutions.ts";
 import { getLatestPuzzle, getPuzzle, getRandomPuzzle } from "#/game/loader.ts";
 import { Puzzle } from "#/game/types.ts";
 
 type PageData = {
   dailyPuzzle: Puzzle;
   randomPuzzle?: Puzzle;
+  bestMoves: Record<string, number>;
 };
 
 export const handler = define.handlers<PageData>({
@@ -21,26 +23,37 @@ export const handler = define.handlers<PageData>({
     const dailyPuzzle = await getLatestPuzzle(ctx.url.origin);
     if (!dailyPuzzle) throw new HttpError(500, "Unable to get daily puzzle");
 
-    if (onboarding === "new") {
-      return page({ dailyPuzzle });
+    const [randomPuzzleResult, userSolutions] = await Promise.all([
+      onboarding === "new"
+        ? Promise.resolve(null)
+        : onboarding === "started"
+        ? getPuzzle(ctx.url.origin, "karla")
+        : getRandomPuzzle(ctx.url.origin, { excludeSlugs: [dailyPuzzle.slug] }),
+      listUserSolutions(ctx.state.userId, { limit: 500 }),
+    ]);
+
+    if (onboarding !== "new" && !randomPuzzleResult) {
+      throw new HttpError(500, "Unable to get random puzzle");
     }
 
-    const randomPuzzle = onboarding === "started"
-      ? await getPuzzle(ctx.url.origin, "karla")
-      : await getRandomPuzzle(ctx.url.origin, {
-        excludeSlugs: [dailyPuzzle.slug],
-      });
+    const randomPuzzle = randomPuzzleResult ?? undefined;
 
-    if (!randomPuzzle) throw new HttpError(500, "Unable to get random puzzle");
+    const bestMoves: Record<string, number> = {};
+    for (const s of userSolutions) {
+      const current = bestMoves[s.puzzleSlug];
+      if (current === undefined || s.moves.length < current) {
+        bestMoves[s.puzzleSlug] = s.moves.length;
+      }
+    }
 
-    return page({ dailyPuzzle, randomPuzzle });
+    return page({ dailyPuzzle, randomPuzzle, bestMoves });
   },
 });
 
 export default define.page<typeof handler>(function Home(ctx) {
   const url = new URL(ctx.req.url);
 
-  const { dailyPuzzle, randomPuzzle } = ctx.data;
+  const { dailyPuzzle, randomPuzzle, bestMoves } = ctx.data;
   const { onboarding } = ctx.state;
 
   return (
@@ -67,7 +80,11 @@ export default define.page<typeof handler>(function Home(ctx) {
           )}
         >
           <li className="list-none pl-0 min-w-0">
-            <PuzzleCard puzzle={dailyPuzzle} tagline="Daily puzzle" />
+            <PuzzleCard
+              puzzle={dailyPuzzle}
+              tagline="Daily puzzle"
+              bestMoves={bestMoves[dailyPuzzle.slug]}
+            />
           </li>
 
           <li className="list-none pl-0 min-w-0">
@@ -100,6 +117,7 @@ export default define.page<typeof handler>(function Home(ctx) {
                   tagline={onboarding === "started"
                     ? "Warm-up puzzle"
                     : "Random puzzle"}
+                  bestMoves={bestMoves[randomPuzzle!.slug]}
                 />
               )}
           </li>

@@ -48,8 +48,9 @@ export function PuzzleCard({
       <div
         class={clsx(
           "relative flex border-1 border-link",
-          "group-hover:filter-[lighten(1.3)] group-visited:border-text-2 transition-colors",
-          isSolved && "border-ui-2",
+          "group-hover:filter-[lighten(1.3)] transition-colors",
+          !isOptimal && "group-visited:link-border-dim",
+          isOptimal && "border-ui-2",
         )}
       >
         <Thumbnail
@@ -68,14 +69,19 @@ export function PuzzleCard({
         </div>
 
         {isSolved && (
-          <div class="absolute top-0 right-0 p-fl-1 flex items-center gap-0.5 text-ui-2">
-            <i
-              class={clsx(
-                isOptimal ? "ph ph-trophy" : "ph ph-check",
-              )}
-              aria-label={isOptimal ? "Optimal" : "Solved"}
-            />
-            <span class="text-0 leading-none">{bestMoves}</span>
+          <div
+            class={clsx(
+              "absolute top-0 right-0 p-fl-1",
+              isOptimal ? "text-ui-2" : "text-brand",
+            )}
+          >
+            <span class="flex items-center gap-0.5 text-xs px-1 py-px rounded-1 bg-surface-1 border border-current/60 whitespace-nowrap leading-tight">
+              <i
+                class={clsx(isOptimal ? "ph ph-trophy" : "ph ph-check")}
+                aria-label={isOptimal ? "Perfect" : "Solved"}
+              />
+              {bestMoves}
+            </span>
           </div>
         )}
       </div>
