@@ -42,14 +42,22 @@ export const user = define.middleware(async (ctx) => {
     // One-time migration: read legacy cookies and write to KV
     await migrateLegacyCookies(ctx.req.headers, userId);
 
-    // Set the user_id cookie on the response
-    setCookie(response.headers, {
+    // Response.redirect() and some Fresh responses use immutable headers,
+    // so copy into a new mutable Headers before setting the cookie.
+    const headers = new Headers(response.headers);
+    setCookie(headers, {
       name: USER_ID_KEY,
       value: userId,
       httpOnly: true,
       path: "/",
       secure: !isDev,
       maxAge: USER_ID_DURATION,
+    });
+
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers,
     });
   }
 
