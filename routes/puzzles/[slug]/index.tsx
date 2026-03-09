@@ -8,10 +8,7 @@ import { PrintPanel } from "#/components/print-panel.tsx";
 import { define } from "#/core.ts";
 import { addSolution, getCanonicalUserSolution } from "#/db/solutions.ts";
 import { getPuzzleStats } from "#/db/stats.ts";
-import {
-  getUserPuzzleDraft,
-  setUserOnboarding,
-} from "#/db/user.ts";
+import { getUserPuzzleDraft, setUserOnboarding } from "#/db/user.ts";
 import { isValidSolution, resolveMoves } from "#/game/board.ts";
 import { getHintCount } from "#/game/cookies.ts";
 import { getPuzzle } from "#/game/loader.ts";
