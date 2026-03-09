@@ -88,20 +88,18 @@ function SolutionRow(
   const isFound = userCanonicalKeys.includes(group.canonicalKey);
   const isOptimal = minMoves != null &&
     group.firstSolution.moves.length === minMoves;
-  const others = isFound ? group.count - 2 : group.count - 1;
+  const others = isFound
+    ? Math.max(group.count - 2, 0)
+    : Math.max(group.count - 1, 0);
 
   const metaLine = useMemo(() => {
     if (isFound && others > 0) {
       return `+ you and ${others} ${others === 1 ? "other" : "others"}`;
     }
 
-    if (isFound && others === 0) {
-      return "+ you";
-    }
+    if (isFound && others === 0) return "+ you";
 
-    if (others === 0) {
-      return "unique solution";
-    }
+    if (others === 0) return "unique solution";
 
     return `+ ${others} ${others === 1 ? "other" : "others"}`;
   }, [isFound, others]);
@@ -127,24 +125,33 @@ function SolutionRow(
         </div>
 
         <div className="flex flex-col min-w-0 lg:gap-1">
-          <div className="flex items-center gap-fl-1 flex-wrap">
+          <div className="flex items-center gap-fl-1">
             <span className="text-fl-1 text-text-2 overflow-hidden leading-snug text-ellipsis whitespace-nowrap lg:text-fl-0">
               {group.firstSolution.name}
             </span>
-            <div className="flex gap-1 lg:gap-2">
-              {isFound && (
-                <span className="flex items-center gap-0.5 text-xs px-1 py-px rounded-1 bg-brand/10 border border-brand/20 text-brand whitespace-nowrap">
-                  <i className="ph ph-check" />
-                  <span className="max-md:hidden">found</span>
-                </span>
-              )}
-              {isOptimal && (
-                <span className="flex items-center gap-0.5 text-xs px-1 py-px rounded-1 bg-ui-2/10 border border-ui-2/20 text-ui-2 whitespace-nowrap leading-tight">
-                  <i className="ph ph-trophy" />
-                  <span className="max-md:hidden">perfect</span>
-                </span>
-              )}
-            </div>
+
+            {isFound && (
+              <span
+                className={clsx(
+                  "flex items-center shrink-0 gap-0.5 text-xs px-1 py-px",
+                  "rounded-1 bg-brand/10 border border-brand/20 text-brand whitespace-nowrap",
+                  "max-md:hidden",
+                )}
+              >
+                <i className="ph ph-check" /> found
+              </span>
+            )}
+
+            {isOptimal && (
+              <span
+                className={clsx(
+                  "flex items-center shrink-0 gap-0.5 text-xs px-1 py-px",
+                  "rounded-1 bg-ui-2/10 border border-ui-2/20 text-ui-2 whitespace-nowrap leading-tight",
+                )}
+              >
+                <i className="ph ph-trophy" /> perfect
+              </span>
+            )}
           </div>
           <p className="text-xs text-text-3 leading-snug">{metaLine}</p>
         </div>
