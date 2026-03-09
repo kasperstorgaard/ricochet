@@ -60,7 +60,11 @@ export const handler = define.handlers({
         log(`\n  ${nameToUserIds.size} distinct names:`);
         for (const [name, userIds] of nameToUserIds) {
           if (userIds.length > 1) {
-            log(`    "${name}" → ${userIds.join(", ")} (collision — writing to all)`);
+            log(
+              `    "${name}" → ${
+                userIds.join(", ")
+              } (collision — writing to all)`,
+            );
           } else {
             log(`    "${name}" → ${userIds[0]}`);
           }
