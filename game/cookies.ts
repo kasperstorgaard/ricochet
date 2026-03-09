@@ -1,8 +1,5 @@
 import { getCookies, setCookie } from "@std/http/cookie";
 
-import { parsePuzzle } from "./parser.ts";
-import type { Onboarding, Puzzle } from "./types.ts";
-
 const TRACKING_ID_KEY = "tracking_id";
 // 1 year
 const TRACKING_DURATION = 1000 * 60 * 60 * 24 * 365;
@@ -81,51 +78,4 @@ export function setHintCount(
     maxAge: HINT_COUNT_DURATION,
     httpOnly: true,
   });
-}
-
-// --- Migration helpers (used by middleware/user.ts for one-time cookie → KV migration) ---
-
-const ONBOARDING_KEY = "onboarding";
-const PUZZLE_DRAFT_COOKIE_KEY = "stored_puzzle"; // legacy cookie name
-const THEME_VALUES = [
-  "skub",
-  "high-contrast",
-  "dracula",
-  "acid",
-  "ember",
-  "solarized-light",
-  "catppuccin",
-] as const;
-const THEME_KEY = "theme";
-const COMPLETED_KEY = "completed_puzzles";
-
-export function getOnboardingCookie(headers: Headers): Onboarding {
-  const cookies = getCookies(headers);
-  const value = cookies[ONBOARDING_KEY];
-
-  if (value === "new" || value === "started" || value === "done") return value;
-
-  return cookies["skip_tutorial"] === "true" ? "done" : "new";
-}
-
-export function getThemeCookie(headers: Headers): string | null {
-  const cookies = getCookies(headers);
-  const value = cookies[THEME_KEY] || null;
-
-  return THEME_VALUES.some((accepted) => value === accepted) ? value : null;
-}
-
-export function getCompletedSlugs(headers: Headers): string[] {
-  return getCookies(headers)[COMPLETED_KEY]?.split(",").filter(Boolean) ?? [];
-}
-
-export function getPuzzleDraftCookie(headers: Headers): Puzzle | null {
-  const cookies = getCookies(headers);
-  const raw = cookies[PUZZLE_DRAFT_COOKIE_KEY];
-
-  try {
-    return raw ? parsePuzzle(decodeURIComponent(raw)) : null;
-  } catch {
-    return null;
-  }
 }

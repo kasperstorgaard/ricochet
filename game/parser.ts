@@ -46,12 +46,6 @@ import { Board, Piece, Position, type Puzzle, Wall } from "#/game/types.ts";
  * ```
  */
 
-// Parsed puzzle containing metadata and board data
-export type ParsedPuzzle = {
-  metadata: Omit<Puzzle, "board">;
-  board: Board;
-};
-
 // Error thrown when puzzle parsing fails
 export class ParserError extends Error {
   constructor(message: string) {
