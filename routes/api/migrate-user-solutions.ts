@@ -1,18 +1,20 @@
 import { define } from "#/core.ts";
 import { kv } from "#/db/kv.ts";
-import { listCanonicalGroups } from "#/db/solutions.ts";
 import { Solution } from "#/db/types.ts";
 
 /**
  * GET /api/migrate-user-solutions?secret=<MIGRATE_SECRET>
  *
- * Backfills solutions_by_user / solutions_by_user_puzzle indexes for users
- * who only have the old `["user", userId, "completed"]` slug list.
+ * Backfills solutions_by_user / solutions_by_user_puzzle indexes by matching
+ * solution names (case-insensitive) to known users.
  *
- * For each (userId, slug) pair without an existing user-puzzle solution entry:
- * picks the optimal canonical group's firstSolution and writes it into the
- * user's solution indexes. This is "optimistic credit" — we can't know
- * which exact solution the user submitted before per-user indexing existed.
+ * Pass 1: scan solutions_by_user to build a lowercase-name → userId map.
+ *         Collisions (two users sharing a name) are logged and the name is
+ *         excluded from attribution to avoid mis-crediting.
+ * Pass 2: scan all solutions_by_puzzle entries; for any solution whose name
+ *         matches a known user (unambiguously) and isn't already indexed,
+ *         write it in. Solutions that already carry a different userId are
+ *         skipped — they belong to someone else.
  *
  * DELETE this route after confirming migration output.
  */
@@ -33,110 +35,123 @@ export const handler = define.handlers({
           controller.enqueue(encoder.encode(msg + "\n"));
         };
 
-        log(
-          "Starting migration: backfill solutions_by_user from completed list",
-        );
+        log("Starting migration: backfill solutions_by_user by name matching");
 
-        let usersWithCompleted = 0;
-        let usersSkipped = 0;
-        let entriesSkipped = 0;
-        let entriesWritten = 0;
-        let entriesNoGroup = 0;
+        // --- Pass 1: build lowercase-name → userId map ---
+        log("\nPass 1: scanning solutions_by_user for known users...");
 
-        // Scan all ["user", *, "completed"] entries
-        const completedIter = kv.list<string[]>({ prefix: ["user"] });
+        const nameToUserId = new Map<string, string>();
+        const collisions = new Set<string>();
 
-        for await (const entry of completedIter) {
-          // Key shape: ["user", userId, "completed"]
-          const key = entry.key;
-          if (key.length !== 3 || key[2] !== "completed") continue;
+        const userIter = kv.list<Solution>({ prefix: ["solutions_by_user"] });
+        for await (const entry of userIter) {
+          const { userId, name } = entry.value;
+          if (!userId) continue;
+          const key = name.toLowerCase();
+          if (key === "anon") continue;
 
-          const userId = key[1] as string;
-          const slugs = entry.value;
-
-          if (!Array.isArray(slugs) || slugs.length === 0) {
-            usersSkipped++;
-            continue;
-          }
-
-          usersWithCompleted++;
-          log(`\nUser ${userId}: ${slugs.length} completed slugs`);
-
-          // Try to find the user's own name from any existing indexed solution
-          let userName: string | undefined;
-          const existingUserIter = kv.list<Solution>(
-            { prefix: ["solutions_by_user", userId] },
-            { limit: 1 },
-          );
-          for await (const res of existingUserIter) {
-            userName = res.value.name;
-            break;
-          }
-
-          if (userName) {
-            log(`  name: "${userName}" (from existing solution)`);
-          } else {
-            userName = "anon";
-            log(`  name: not found, will use "anon"`);
-          }
-
-          for (const slug of slugs) {
-            // Check if this user already has a solution for this puzzle
-            const existingIter = kv.list<Solution>(
-              { prefix: ["solutions_by_user_puzzle", userId, slug] },
-              { limit: 1 },
-            );
-
-            let hasExisting = false;
-            for await (const _ of existingIter) {
-              hasExisting = true;
-              break;
-            }
-
-            if (hasExisting) {
-              entriesSkipped++;
-              log(`  ${slug}: already indexed, skipping`);
-              continue;
-            }
-
-            // Fetch the optimal (fewest moves) canonical group
-            const groups = await listCanonicalGroups(slug, { limit: 1 });
-            if (groups.length === 0) {
-              entriesNoGroup++;
-              log(`  ${slug}: no canonical groups found, skipping`);
-              continue;
-            }
-
-            const canonical = groups[0].firstSolution;
-            const name = userName ?? canonical.name;
-            const userSolution: Solution = { ...canonical, userId, name };
-
-            const byUserKey = ["solutions_by_user", userId, canonical.id];
-            const byUserPuzzleKey = [
-              "solutions_by_user_puzzle",
-              userId,
-              slug,
-              canonical.id,
-            ];
-
-            await kv.atomic()
-              .set(byUserKey, userSolution)
-              .set(byUserPuzzleKey, userSolution)
-              .commit();
-
-            entriesWritten++;
+          const existing = nameToUserId.get(key);
+          if (existing && existing !== userId) {
+            collisions.add(key);
             log(
-              `  ${slug}: wrote solution ${canonical.id} (${canonical.moves.length} moves, name: "${name}")`,
+              `  COLLISION: "${key}" matches both ${existing} and ${userId} — will skip`,
             );
+          } else {
+            nameToUserId.set(key, userId);
           }
         }
 
+        // Remove colliding names so they aren't mis-attributed
+        for (const name of collisions) nameToUserId.delete(name);
+
+        log(`\n  ${nameToUserId.size} unambiguous users:`);
+        for (const [name, userId] of nameToUserId) {
+          log(`    "${name}" → ${userId}`);
+        }
+        if (collisions.size > 0) {
+          log(`  ${collisions.size} ambiguous name(s) excluded from attribution`);
+        }
+
+        // --- Pass 2: scan all puzzle solutions and attribute by name ---
+        log("\nPass 2: scanning solutions_by_puzzle...");
+
+        let checked = 0;
+        let skippedNoUser = 0;
+        let skippedWrongUserId = 0;
+        let skippedAlreadyIndexed = 0;
+        let written = 0;
+
+        const puzzleIter = kv.list<Solution>({ prefix: ["solutions_by_puzzle"] });
+
+        for await (const entry of puzzleIter) {
+          const solution = entry.value;
+          checked++;
+
+          const lowerName = solution.name.toLowerCase();
+          if (lowerName === "anon") {
+            skippedNoUser++;
+            continue;
+          }
+
+          const userId = nameToUserId.get(lowerName);
+          if (!userId) {
+            skippedNoUser++;
+            continue;
+          }
+
+          // Skip solutions already attributed to a different user — they're
+          // not a name match gone wrong, they belong to someone else.
+          if (solution.userId && solution.userId !== userId) {
+            skippedWrongUserId++;
+            log(
+              `  SKIP: ${solution.puzzleSlug}/${solution.id} has userId ${solution.userId}, name matches ${userId}`,
+            );
+            continue;
+          }
+
+          // Check if this user already has any solution for this puzzle
+          const existingIter = kv.list<Solution>(
+            { prefix: ["solutions_by_user_puzzle", userId, solution.puzzleSlug] },
+            { limit: 1 },
+          );
+
+          let hasExisting = false;
+          for await (const _ of existingIter) {
+            hasExisting = true;
+            break;
+          }
+
+          if (hasExisting) {
+            skippedAlreadyIndexed++;
+            continue;
+          }
+
+          const userSolution: Solution = { ...solution, userId };
+          const byUserKey = ["solutions_by_user", userId, solution.id];
+          const byUserPuzzleKey = [
+            "solutions_by_user_puzzle",
+            userId,
+            solution.puzzleSlug,
+            solution.id,
+          ];
+
+          await kv.atomic()
+            .set(byUserKey, userSolution)
+            .set(byUserPuzzleKey, userSolution)
+            .commit();
+
+          written++;
+          log(
+            `  ${solution.puzzleSlug}: wrote ${solution.id} for "${solution.name}" → ${userId} (${solution.moves.length} moves)`,
+          );
+        }
+
         log(`\nDone.`);
-        log(`  Users with completed list: ${usersWithCompleted}`);
-        log(`  Users skipped (empty list): ${usersSkipped}`);
-        log(`  Entries skipped (already indexed): ${entriesSkipped}`);
-        log(`  Entries with no canonical group: ${entriesNoGroup}`);
-        log(`  Entries written: ${entriesWritten}`);
+        log(`  Solutions checked: ${checked}`);
+        log(`  Skipped (no matching user): ${skippedNoUser}`);
+        log(`  Skipped (attributed to different userId): ${skippedWrongUserId}`);
+        log(`  Skipped (already indexed): ${skippedAlreadyIndexed}`);
+        log(`  Written: ${written}`);
 
         controller.close();
       },
