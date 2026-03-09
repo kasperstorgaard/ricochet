@@ -8,7 +8,6 @@ import { PrintPanel } from "#/components/print-panel.tsx";
 import { define } from "#/core.ts";
 import { addSolution, getCanonicalUserSolution } from "#/db/solutions.ts";
 import { getPuzzleStats } from "#/db/stats.ts";
-import { Solution } from "#/db/types.ts";
 import {
   getUserCompleted,
   getUserPuzzleDraft,
@@ -33,7 +32,6 @@ type PageData = {
   puzzle: Puzzle;
   hintCount: number;
   puzzleStats: PuzzleStats;
-  existingSolution: Solution | null;
 };
 
 export const handler = define.handlers<PageData>({
@@ -58,32 +56,38 @@ export const handler = define.handlers<PageData>({
         puzzle,
         hintCount,
         puzzleStats: defaultPuzzleStats,
-        existingSolution: null,
       });
     }
 
     const { moves } = decodeState(ctx.url);
 
-    const [puzzle, puzzleStats, existingSolution] = await Promise.all([
+    const [puzzle, puzzleStats] = await Promise.all([
       getPuzzle(ctx.url.origin, slug),
       getPuzzleStats(slug),
-      moves.length > 0 && ctx.state.userId
-        ? getCanonicalUserSolution(ctx.state.userId, slug, moves)
-        : Promise.resolve(null),
     ]);
 
     if (!puzzle) {
       throw new HttpError(404, `Unable to find puzzle with slug: ${slug}`);
     }
 
+    if (moves.length > 0) {
+      try {
+        // validate moves
+        resolveMoves(puzzle.board, moves);
+      } catch {
+        // clear moves with error if invalid
+        const url = new URL(`/puzzles/${slug}`, ctx.url);
+        url.searchParams.set("error", "invalid move");
+        return Response.redirect(url, 303);
+      }
+    }
+
     // Stats are fetched at page load, so a user who takes a long time to solve
     // will see slightly stale numbers in the dialog. Acceptable — this is cosmetic.
-
     return page({
       puzzle,
       hintCount,
       puzzleStats: puzzleStats ?? defaultPuzzleStats,
-      existingSolution,
     });
   },
   async POST(ctx) {
@@ -112,13 +116,16 @@ export const handler = define.handlers<PageData>({
       throw new HttpError(400, "Solution is not valid");
     }
 
-    const existing = ctx.state.userId
+    // Check for existing solution, we don't want duplicates
+    const existingSolution = ctx.state.userId
       ? await getCanonicalUserSolution(ctx.state.userId, slug, moves)
       : null;
 
-    if (existing) {
-      const url = new URL(req.url);
-      url.pathname = `puzzles/${slug}/solutions/${existing.id}`;
+    if (existingSolution) {
+      const url = new URL(referer ?? "", req.url);
+      url.pathname = `puzzles/${slug}`;
+      url.searchParams.set("error", "duplicate");
+
       return new Response(null, {
         status: 303,
         headers: { Location: url.href },
@@ -238,7 +245,6 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
         isPreview={isPreview}
         onboarding={props.state.onboarding}
         stats={props.data.puzzleStats}
-        existingSolution={props.data.existingSolution}
       />
     </>
   );
