@@ -55,6 +55,7 @@
     "preact/": "npm:/preact@^10.27.2/",
     "tailwindcss": "npm:tailwindcss@^4.1.10",
     "vite": "npm:vite@^7.3.1",
+    "jose": "npm:jose@^5",
     "zingtouch": "npm:zingtouch@^1.0.6"
   },
   "compilerOptions": {

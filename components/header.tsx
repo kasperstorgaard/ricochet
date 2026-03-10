@@ -1,14 +1,13 @@
 import { ShareButton } from "#/islands/share-button.tsx";
-import { ThemePicker } from "#/islands/theme-picker.tsx";
 
 type Props = {
   url: URL;
   back?: { href: string };
   share?: boolean | { params: boolean };
-  themePicker?: boolean;
+  hideProfile?: boolean;
 };
 
-export function Header({ url, back, share, themePicker }: Props) {
+export function Header({ url, back, share, hideProfile }: Props) {
   const shareUrl = typeof share === "object" && share.params
     ? url.href
     : url.origin + url.pathname;
@@ -20,9 +19,17 @@ export function Header({ url, back, share, themePicker }: Props) {
           <i className="ph ph-arrow-left" />
         </a>
       )}
-      <div className="flex items-center gap-1 ml-auto">
+      <div className="flex items-center gap-2 ml-auto">
         {share && <ShareButton url={shareUrl} />}
-        {themePicker && <ThemePicker />}
+        {!hideProfile && (
+          <a
+            href="/profile"
+            className="p-0 leading-none text-fl-1 text-text-2 no-underline hover:text-link"
+            aria-label="Profile and settings"
+          >
+            <i className="ph ph-user-circle" />
+          </a>
+        )}
       </div>
     </header>
   );

@@ -73,7 +73,7 @@ export default define.page<typeof handler>(function PuzzleTutorial(props) {
   return (
     <>
       <Main>
-        <Header url={url} back={{ href: "/" }} themePicker />
+        <Header url={url} back={{ href: "/" }} />
 
         <h1 className="text-5 text-brand mt-2">{puzzle.value.name}</h1>
 

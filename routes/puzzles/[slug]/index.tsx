@@ -8,7 +8,12 @@ import { PrintPanel } from "#/components/print-panel.tsx";
 import { define } from "#/core.ts";
 import { addSolution, getCanonicalUserSolution } from "#/db/solutions.ts";
 import { getPuzzleStats } from "#/db/stats.ts";
-import { getUserPuzzleDraft, setUserOnboarding } from "#/db/user.ts";
+import {
+  getUserName,
+  getUserPuzzleDraft,
+  setUserName,
+  setUserOnboarding,
+} from "#/db/user.ts";
 import { isValidSolution, resolveMoves } from "#/game/board.ts";
 import { getHintCount } from "#/game/cookies.ts";
 import { getPuzzle } from "#/game/loader.ts";
@@ -27,6 +32,7 @@ type PageData = {
   puzzle: Puzzle;
   hintCount: number;
   puzzleStats: PuzzleStats;
+  savedName: string | null;
 };
 
 export const handler = define.handlers<PageData>({
@@ -38,6 +44,8 @@ export const handler = define.handlers<PageData>({
     if (!/^[a-z]+$/.test(slug)) {
       throw new HttpError(404, `Invalid puzzle slug: ${slug}`);
     }
+
+    const savedName = await getUserName(ctx.state.userId);
 
     if (slug === "preview") {
       const puzzle = await getUserPuzzleDraft(ctx.state.userId);
@@ -51,6 +59,7 @@ export const handler = define.handlers<PageData>({
         puzzle,
         hintCount,
         puzzleStats: defaultPuzzleStats,
+        savedName,
       });
     }
 
@@ -83,6 +92,7 @@ export const handler = define.handlers<PageData>({
       puzzle,
       hintCount,
       puzzleStats: puzzleStats ?? defaultPuzzleStats,
+      savedName,
     });
   },
   async POST(ctx) {
@@ -110,6 +120,8 @@ export const handler = define.handlers<PageData>({
     if (!isValidSolution(resolveMoves(puzzle.board, moves))) {
       throw new HttpError(400, "Solution is not valid");
     }
+
+    await setUserName(ctx.state.userId, name);
 
     // Check for existing solution, we don't want duplicates
     const existingSolution = ctx.state.userId
@@ -191,7 +203,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
   return (
     <>
       <Main>
-        <Header url={url} back={{ href: "/" }} share themePicker />
+        <Header url={url} back={{ href: "/" }} share />
 
         <div className="flex items-center justify-between gap-fl-1 mt-2 flex-wrap">
           <h1 className="text-5 text-brand leading-tight">
@@ -233,6 +245,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
         isPreview={isPreview}
         onboarding={props.state.onboarding}
         stats={props.data.puzzleStats}
+        savedName={props.data.savedName}
       />
     </>
   );

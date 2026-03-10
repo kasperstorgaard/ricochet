@@ -4,7 +4,7 @@ import type { Onboarding } from "#/game/types.ts";
 
 /**
  * Shared state passed through ctx.state in middlewares, layouts, and routes.
- * Set by the tracking middleware in middleware/tracking.ts.
+ * Populated by middleware/auth.ts, middleware/tracking.ts, and others.
  */
 export type State = {
   // Stable anonymous user identity (UUID, httpOnly cookie)
@@ -17,6 +17,9 @@ export type State = {
 
   // Explicit theme override (null = follow OS preference)
   theme?: string | null;
+
+  // Email address when authenticated via Auth0 (undefined = anonymous)
+  email?: string;
 
   // Player onboarding progression
   onboarding: Onboarding;

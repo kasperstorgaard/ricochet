@@ -59,7 +59,7 @@ export default define.page<typeof handler>(function Home(ctx) {
   return (
     <>
       <Main className="max-lg:row-span-full items-stretch place-content-stretch lg:pb-fl-4">
-        <Header url={url} share themePicker />
+        <Header url={url} share />
 
         <div className="flex flex-col gap-1 py-fl-1 pt-fl-2">
           <h1 className="text-fl-3 leading-flat text-brand flex items-baseline gap-fl-1">
@@ -150,24 +150,9 @@ export default define.page<typeof handler>(function Home(ctx) {
           className={clsx(
             "col-[2/3] flex flex-col gap-fl-1 justify-between items-start flex-wrap text-text-2",
             "sm:flex-row sm:items-center",
-            "lg:col-auto lg:row-start-3 lg:flex-col lg:items-stretch",
+            "lg:col-auto lg:row-start-3 lg:flex-col lg:self-end lg:items-start",
           )}
         >
-          <div
-            className={clsx(
-              "flex flex-wrap gap-fl-1 items-start",
-              "lg:flex-col lg:items-stretch",
-            )}
-          >
-            {
-              /*
-              TODO: add an "Extras" page that surfaces power-user features in
-              one place — printing to play offline, remixing puzzles,
-              contributing, keyboard shortcuts, etc.
-              Link to it here as a secondary text link.
-            */
-            }
-          </div>
           <div className="flex gap-2 lg:flex-col">
             <a
               href="https://github.com/kasperstorgaard/ricochet"

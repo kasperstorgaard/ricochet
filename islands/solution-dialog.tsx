@@ -14,10 +14,11 @@ type Props = {
   isPreview?: boolean;
   onboarding?: Onboarding;
   stats: PuzzleStats;
+  savedName?: string | null;
 };
 
 export function SolutionDialog(
-  { href, puzzle, isPreview, onboarding, stats }: Props,
+  { href, puzzle, isPreview, onboarding, stats, savedName }: Props,
 ) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -98,6 +99,7 @@ export function SolutionDialog(
               name="name"
               autocomplete="name"
               placeholder="fx. Jungleboi87"
+              value={savedName ?? undefined}
               required
               className="border border-surface-4 p-2 bg-surface-2 text-2 rounded-1"
             />

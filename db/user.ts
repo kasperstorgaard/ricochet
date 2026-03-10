@@ -42,3 +42,27 @@ export async function setUserPuzzleDraft(
 ): Promise<void> {
   await kv.set(["user", userId, "puzzle_draft"], puzzle);
 }
+
+export async function getUserEmail(userId: string): Promise<string | null> {
+  const res = await kv.get<string>(["user", userId, "email"]);
+  return res.value ?? null;
+}
+
+export async function setUserEmail(
+  userId: string,
+  email: string,
+): Promise<void> {
+  await kv.set(["user", userId, "email"], email);
+}
+
+export async function getUserName(userId: string): Promise<string | null> {
+  const res = await kv.get<string>(["user", userId, "name"]);
+  return res.value ?? null;
+}
+
+export async function setUserName(
+  userId: string,
+  name: string,
+): Promise<void> {
+  await kv.set(["user", userId, "name"], name);
+}

@@ -62,7 +62,6 @@ export default define.page<typeof handler>(function SolutionReplayPage(props) {
           url={url}
           back={{ href: solutionsHref }}
           share={{ params: true }}
-          themePicker
         />
 
         <div className="flex items-center justify-between place-self-start mt-2 w-full flex-wrap">
