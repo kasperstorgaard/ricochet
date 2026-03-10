@@ -7,7 +7,7 @@ import { Pagination } from "#/components/pagination.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { PuzzleCard } from "#/components/puzzle-card.tsx";
 import { define } from "#/core.ts";
-import { listUserSolutions } from "#/db/solutions.ts";
+import { getBestMoves, listUserSolutions } from "#/db/solutions.ts";
 import { getLatestPuzzle, listPuzzles } from "#/game/loader.ts";
 import { PaginatedData, Puzzle } from "#/game/types.ts";
 import { getPage } from "#/game/url.ts";
@@ -38,13 +38,8 @@ export const handler = define.handlers<PageData>({
       limit: 500,
     });
 
-    const bestMoves: Record<string, number> = {};
-    for (const s of userSolutions) {
-      const current = bestMoves[s.puzzleSlug];
-      if (current === undefined || s.moves.length < current) {
-        bestMoves[s.puzzleSlug] = s.moves.length;
-      }
-    }
+    // TODO: use db filtering based on current page of items
+    const bestMoves = getBestMoves(userSolutions);
 
     return page({
       items,
