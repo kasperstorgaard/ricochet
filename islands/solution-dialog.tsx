@@ -129,7 +129,7 @@ export function SolutionDialog(
           <a
             href={getResetHref(href.value)}
           >
-            Play again
+            Try again
           </a>
 
           <form method="dialog" className="inline">

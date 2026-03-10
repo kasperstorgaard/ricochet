@@ -19,10 +19,14 @@ export function buildReplayKeyframes(
   stops: KeyframeStop[],
   totalMoves: number,
 ): string {
-  const increment = 100 / totalMoves;
+  // wait is roughly half a move duration; increment covers only the actual moves.
+  const initialWait = 0.4;
+  const increment = 100 / (totalMoves + initialWait);
+  const waitOffset = initialWait * increment;
 
   // Group stops by piece id
   const lookup: Record<string, { idx: number; stop: KeyframeStop }[]> = {};
+
   for (let idx = 0; idx < stops.length; idx++) {
     const stop = stops[idx];
     if (!lookup[stop.id]) lookup[stop.id] = [{ idx, stop }];
@@ -40,8 +44,8 @@ export function buildReplayKeyframes(
          * not all the way from the start, then animate to position.
          */
         [
-          `  ${writeKeyframeMove(idx * increment, stop.from)}`,
-          `  ${writeKeyframeMove((idx + 1) * increment, stop.to)}`,
+          `  ${writeKeyframeMove(idx * increment + waitOffset, stop.from)}`,
+          `  ${writeKeyframeMove((idx + 1) * increment + waitOffset, stop.to)}`,
         ]),
         "}",
       ].join("");
