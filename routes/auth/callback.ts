@@ -1,12 +1,7 @@
 import { createRemoteJWKSet, jwtVerify } from "jose";
 
 import { define } from "#/core.ts";
-import {
-  consumeOAuthState,
-  getSubUserId,
-  setAuthSession,
-  setSubUserId,
-} from "#/db/auth.ts";
+import { claimUserId, consumeOAuthState, setAuthSession } from "#/db/auth.ts";
 import { setUserEmail } from "#/db/user.ts";
 import { setAuthSessionCookie } from "#/lib/auth-cookie.ts";
 
@@ -79,23 +74,22 @@ export const handler = define.handlers({
         issuer: issuerUrl.href,
         audience: clientId,
       });
-      sub = payload.sub as string;
-      email = payload.email as string;
+      sub = payload.sub;
+      email = payload.email as string | undefined;
     } catch {
       return new Response("ID token validation failed", { status: 401 });
     }
 
-    // Cross-device merge: if this Auth0 sub has logged in before, use that
-    // existing userId (so the user's history follows them). If this is the
-    // first login, adopt the current anonymous userId from the user_id cookie —
-    // the user's existing anonymous progress is preserved rather than lost.
-    const existingUserId = await getSubUserId(sub);
-    const userId = existingUserId ?? ctx.state.userId;
+    if (!sub || !email) {
+      return new Response("Missing claims in ID token", { status: 401 });
+    }
 
-    await Promise.all([
-      setSubUserId(sub, userId),
-      setUserEmail(userId, email),
-    ]);
+    // Cross-device merge: atomically claim sub → userId on first login
+    // (preserves existing anonymous progress).
+    // On subsequent logins the existing userId wins —
+    // the mapping can never be overwritten, so history always follows the account.
+    const userId = await claimUserId(sub, ctx.state.userId);
+    await setUserEmail(userId, email);
 
     const sessionId = crypto.randomUUID();
     await setAuthSession(sessionId, { sub, userId });

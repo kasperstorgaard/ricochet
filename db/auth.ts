@@ -24,16 +24,27 @@ export async function deleteAuthSession(sessionId: string): Promise<void> {
 
 // ── Sub → userId mapping ──────────────────────────────────────────────────────
 
-export async function getSubUserId(sub: string): Promise<string | null> {
-  const res = await kv.get<string>(["auth", sub, "userId"]);
-  return res.value ?? null;
-}
-
-export async function setSubUserId(
+/**
+ * Atomically claims a sub → userId mapping on first login.
+ * If the sub is already mapped (returning user), the existing userId wins and
+ * is returned — the mapping can never be overwritten.
+ * If this is the first login, `userId` is stored and returned.
+ */
+export async function claimUserId(
   sub: string,
   userId: string,
-): Promise<void> {
-  await kv.set(["auth", sub, "userId"], userId);
+): Promise<string> {
+  const key = ["auth", sub, "userId"];
+  const result = await kv.atomic()
+    .check({ key, versionstamp: null }) // only write if absent
+    .set(key, userId)
+    .commit();
+
+  if (result.ok) return userId;
+
+  // Another write won the race — read back the canonical value.
+  const existing = await kv.get<string>(key);
+  return existing.value!;
 }
 
 // ── OAuth state (PKCE handshake, one-time use) ────────────────────────────────
@@ -51,12 +62,20 @@ export async function setOAuthState(
 }
 
 /**
- * Reads and immediately deletes the state — one-time use.
+ * Atomically consumes the oauth state — one-time use.
+ * Returns null if the state is missing, expired, or already consumed.
  */
 export async function consumeOAuthState(
   state: string,
 ): Promise<OAuthState | null> {
-  const entry = await kv.get<OAuthState>(["oauth_state", state]);
-  await kv.delete(["oauth_state", state]);
-  return entry.value ?? null;
+  const key = ["oauth_state", state];
+  const entry = await kv.get<OAuthState>(key);
+  if (!entry.value) return null;
+
+  const result = await kv.atomic()
+    .check(entry) // only delete if unchanged since we read it
+    .delete(key)
+    .commit();
+
+  return result.ok ? entry.value : null;
 }
