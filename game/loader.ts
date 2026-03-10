@@ -9,9 +9,8 @@ import {
 } from "#/game/types.ts";
 import { sortList } from "#/lib/list.ts";
 
-// Resolve path relative to this module file — works across all envs (local, CI, Deno Deploy).
-// See https://docs.deno.com/runtime/tutorials/module_metadata/
-const PUZZLES_DIR = new URL("../static/puzzles", import.meta.url).pathname;
+// Resolve from cwd — always the project root locally and on Deno Deploy.
+const PUZZLES_DIR = `${Deno.cwd()}/static/puzzles`;
 
 // Default items per page
 const ITEMS_PER_PAGE = 6;
