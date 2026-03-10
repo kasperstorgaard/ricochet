@@ -32,7 +32,7 @@ export const handler = define.handlers<Data>({
     const userId = ctx.state.userId;
     const userCanonicalKeys: string[] = [];
 
-    const puzzlePromise = getPuzzle(ctx.url.origin, slug);
+    const puzzlePromise = getPuzzle(slug);
 
     const groupsPromise = listCanonicalGroups(slug, { limit: 6 });
 

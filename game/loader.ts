@@ -9,36 +9,37 @@ import {
 } from "#/game/types.ts";
 import { sortList } from "#/lib/list.ts";
 
+// Resolve path relative to this module file — works across all envs (local, CI, Deno Deploy).
+// See https://docs.deno.com/runtime/tutorials/module_metadata/
+const PUZZLES_DIR = new URL("../static/puzzles", import.meta.url).pathname;
+
 // Default items per page
 const ITEMS_PER_PAGE = 6;
 
+// simple in memory cache for this very important file
+let manifestCache: PuzzleManifestEntry[] | null = null;
+
 /**
- * Fetches the raw puzzle manifest — all puzzles, including future ones.
- * Use getAvailableEntries() to get only puzzles released up to today.
+ * Reads the puzzle manifest from disk. Cached after first read — the manifest
+ * is static and never changes between requests.
  */
-async function getPuzzleManifest(
-  baseUrl: string | URL,
-): Promise<PuzzleManifestEntry[]> {
-  const url = new URL("/puzzles/manifest.json", baseUrl);
-  const response = await fetch(url);
+async function getPuzzleManifest(): Promise<PuzzleManifestEntry[]> {
+  if (manifestCache) return manifestCache;
 
-  if (!response.ok) {
-    throw new Error(`Failed to load puzzle manifest (${response.status})`);
-  }
+  const text = await Deno.readTextFile(`${PUZZLES_DIR}/manifest.json`);
+  manifestCache = JSON.parse(text);
 
-  return response.json();
+  return manifestCache!;
 }
 
 /**
  * Manifest entries available today: number <= day-of-year, tutorial excluded.
  */
-async function getAvailableEntries(
-  baseUrl: string | URL,
-) {
+async function getAvailableEntries() {
   const today = new Date(Date.now());
   const dayOfYear = getDayOfYear(today);
 
-  const manifest = await getPuzzleManifest(baseUrl);
+  const manifest = await getPuzzleManifest();
 
   return manifest
     .filter((entry) => entry.number <= dayOfYear)
@@ -47,27 +48,16 @@ async function getAvailableEntries(
 
 /**
  * Loads a puzzle from a markdown file by slug.
- * Fetches from the static file server to work both locally and on Deno Deploy.
  */
-export async function getPuzzle(
-  baseUrl: string | URL,
-  puzzleSlug: string,
-): Promise<Puzzle | null> {
-  const url = new URL(`/puzzles/${puzzleSlug}.md`, baseUrl);
-  const response = await fetch(url);
-
-  if (response.status === 404) return null;
-
-  if (!response.ok) {
-    throw new Error(
-      `Failed to load puzzle: ${puzzleSlug} (${response.status})`,
-    );
+export async function getPuzzle(puzzleSlug: string): Promise<Puzzle | null> {
+  let content: string;
+  try {
+    content = await Deno.readTextFile(`${PUZZLES_DIR}/${puzzleSlug}.md`);
+  } catch (err) {
+    if (err instanceof Deno.errors.NotFound) return null;
+    throw err;
   }
-
-  const content = await response.text();
-  const parsed = parsePuzzle(content);
-
-  return parsed;
+  return parsePuzzle(content);
 }
 
 type ListOptions = Pick<PaginationState, "page" | "itemsPerPage"> & {
@@ -80,7 +70,6 @@ type ListOptions = Pick<PaginationState, "page" | "itemsPerPage"> & {
  * Lists available puzzles, paginated and sorted.
  */
 export async function listPuzzles(
-  baseUrl: string | URL,
   options: ListOptions = {
     page: 1,
     itemsPerPage: ITEMS_PER_PAGE,
@@ -89,7 +78,7 @@ export async function listPuzzles(
     excludeSlugs: ["tutorial"],
   },
 ): Promise<PaginatedData<Puzzle>> {
-  let entries = await getAvailableEntries(baseUrl);
+  let entries = await getAvailableEntries();
 
   entries = entries.filter((entry) =>
     !options.excludeSlugs?.includes(entry.slug)
@@ -107,7 +96,7 @@ export async function listPuzzles(
   entries = entries.slice(start, end);
 
   const items = await Promise.all(
-    entries.map((entry) => getPuzzle(baseUrl, entry.slug)),
+    entries.map((entry) => getPuzzle(entry.slug)),
   );
 
   if (items.some((item) => item == null)) {
@@ -128,16 +117,11 @@ export async function listPuzzles(
 /**
  * Gets the latest puzzle — the puzzle of the day
  */
-export async function getLatestPuzzle(
-  baseUrl: string | URL,
-) {
-  const entries = await getAvailableEntries(baseUrl);
-
+export async function getLatestPuzzle() {
+  const entries = await getAvailableEntries();
   const entry = entries[0];
-
   if (!entry) return null;
-
-  return getPuzzle(baseUrl, entry.slug);
+  return getPuzzle(entry.slug);
 }
 
 type GetRandomPuzzleOptions = {
@@ -148,11 +132,8 @@ type GetRandomPuzzleOptions = {
 /**
  * Gets a random puzzle from the pool matching the given difficulty options.
  */
-export async function getRandomPuzzle(
-  baseUrl: string | URL,
-  options: GetRandomPuzzleOptions,
-) {
-  let entries = await getAvailableEntries(baseUrl);
+export async function getRandomPuzzle(options: GetRandomPuzzleOptions) {
+  let entries = await getAvailableEntries();
 
   entries = entries
     .filter((puzzle) =>
@@ -164,5 +145,5 @@ export async function getRandomPuzzle(
 
   const entry = entries[Math.floor(Math.random() * entries.length)];
 
-  return getPuzzle(baseUrl, entry.slug);
+  return getPuzzle(entry.slug);
 }

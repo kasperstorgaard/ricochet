@@ -6,13 +6,13 @@ import { Main } from "#/components/main.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { PuzzleCard } from "#/components/puzzle-card.tsx";
 import { define } from "#/core.ts";
-import { listUserSolutions } from "#/db/solutions.ts";
+import { getBestMoves, listUserSolutions } from "#/db/solutions.ts";
 import { getLatestPuzzle, getPuzzle, getRandomPuzzle } from "#/game/loader.ts";
 import { Puzzle } from "#/game/types.ts";
 
 type PageData = {
   dailyPuzzle: Puzzle;
-  randomPuzzle?: Puzzle;
+  randomPuzzle: Puzzle;
   bestMoves: Record<string, number>;
 };
 
@@ -20,31 +20,31 @@ export const handler = define.handlers<PageData>({
   async GET(ctx) {
     const { onboarding } = ctx.state;
 
-    const dailyPuzzle = await getLatestPuzzle(ctx.url.origin);
-    if (!dailyPuzzle) throw new HttpError(500, "Unable to get daily puzzle");
-
-    const [randomPuzzleResult, userSolutions] = await Promise.all([
-      onboarding === "new"
-        ? Promise.resolve(null)
-        : onboarding === "started"
-        ? getPuzzle(ctx.url.origin, "karla")
-        : getRandomPuzzle(ctx.url.origin, { excludeSlugs: [dailyPuzzle.slug] }),
+    const [dailyPuzzle, userSolutions] = await Promise.all([
+      getLatestPuzzle(),
       listUserSolutions(ctx.state.userId, { limit: 500 }),
     ]);
 
-    if (onboarding !== "new" && !randomPuzzleResult) {
-      throw new HttpError(500, "Unable to get random puzzle");
+    if (!dailyPuzzle) throw new HttpError(500, "Unable to get daily puzzle");
+
+    let randomPuzzle: Puzzle | null;
+    if (onboarding === "started") {
+      randomPuzzle = await getPuzzle("karla");
+    } else {
+      randomPuzzle = await getRandomPuzzle({
+        excludeSlugs: [dailyPuzzle.slug],
+      });
     }
 
-    const randomPuzzle = randomPuzzleResult ?? undefined;
+    if (!randomPuzzle) throw new HttpError(500, "Unable to get random puzzle");
 
-    const bestMoves: Record<string, number> = {};
-    for (const s of userSolutions) {
-      const current = bestMoves[s.puzzleSlug];
-      if (current === undefined || s.moves.length < current) {
-        bestMoves[s.puzzleSlug] = s.moves.length;
-      }
-    }
+    // TODO: add direct db filtering for this
+    const relevantSolutions = userSolutions.filter((solution) =>
+      solution.puzzleSlug === dailyPuzzle.slug ||
+      solution.puzzleSlug === randomPuzzle.slug
+    );
+
+    const bestMoves = getBestMoves(relevantSolutions);
 
     return page({ dailyPuzzle, randomPuzzle, bestMoves });
   },
@@ -117,7 +117,7 @@ export default define.page<typeof handler>(function Home(ctx) {
                   tagline={onboarding === "started"
                     ? "Warm-up puzzle"
                     : "Random puzzle"}
-                  bestMoves={bestMoves[randomPuzzle!.slug]}
+                  bestMoves={bestMoves[randomPuzzle.slug]}
                 />
               )}
           </li>

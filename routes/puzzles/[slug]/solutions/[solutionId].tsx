@@ -25,7 +25,7 @@ export const handler = define.handlers<Data>({
     const req = ctx.req;
     const { slug, solutionId } = ctx.params;
 
-    const puzzle = await getPuzzle(ctx.url.origin, slug);
+    const puzzle = await getPuzzle(slug);
     if (!puzzle) {
       throw new HttpError(404, `Unable to find a puzzle with slug: ${slug}`);
     }

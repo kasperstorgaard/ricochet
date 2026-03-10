@@ -19,7 +19,7 @@ const BACKGROUND = "#212529";
 
 export const handler = define.handlers({
   async GET(ctx) {
-    const puzzle = await getPuzzle(ctx.url.origin, ctx.params.slug);
+    const puzzle = await getPuzzle(ctx.params.slug);
     if (!puzzle) throw new HttpError(404);
 
     const svg = renderToString(

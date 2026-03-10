@@ -330,3 +330,21 @@ function getSequenceKey(moves: Move[]) {
   const encoded = encodeMoves(moves);
   return encoded.split("-");
 }
+
+/**
+ * Returns the best (fewest) move count per puzzle slug from a list of solutions.
+ */
+export function getBestMoves(
+  solutions: Solution[],
+): Record<string, number> {
+  const result: Record<string, number> = {};
+
+  for (const solution of solutions) {
+    const current = result[solution.puzzleSlug];
+    if (current === undefined || solution.moves.length < current) {
+      result[solution.puzzleSlug] = solution.moves.length;
+    }
+  }
+
+  return result;
+}

@@ -66,7 +66,7 @@ export const handler = define.handlers<PageData>({
     const { moves } = decodeState(ctx.url);
 
     const [puzzle, puzzleStats] = await Promise.all([
-      getPuzzle(ctx.url.origin, slug),
+      getPuzzle(slug),
       getPuzzleStats(slug),
     ]);
 
@@ -107,7 +107,7 @@ export const handler = define.handlers<PageData>({
     const form = await req.formData();
     const name = form.get("name")?.toString();
 
-    const puzzle = await getPuzzle(ctx.url.origin, slug);
+    const puzzle = await getPuzzle(slug);
     if (!puzzle) {
       throw new HttpError(404, `Unable to find puzzle with slug: ${slug}`);
     }
