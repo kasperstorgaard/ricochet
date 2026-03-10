@@ -85,7 +85,7 @@ export default define.page<typeof handler>(function SolutionReplayPage(props) {
         <div
           className={clsx(
             "col-[2/3] flex items-start gap-fl-1 flex-wrap",
-            "lg:col-auto lg:row-start-3 lg:flex-col",
+            "lg:col-auto lg:row-start-3 lg:flex-col lg:self-end",
           )}
         >
           <a
