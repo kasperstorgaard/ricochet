@@ -67,7 +67,7 @@ export default define.page<typeof handler>(function SolutionReplayPage(props) {
         <div className="flex items-center justify-between place-self-start mt-2 w-full flex-wrap">
           <div className="flex flex-col">
             <h1 className="text-5 text-brand leading-tight">
-              {props.data.puzzle.name}
+              #{props.data.puzzle.number} {props.data.puzzle.name}
             </h1>
             <p className="text-fl-0 text-text-3 leading-tight italic -mb-[.6lh] -mt-[.4lh]">
               solved by{" "}
@@ -84,16 +84,16 @@ export default define.page<typeof handler>(function SolutionReplayPage(props) {
       <Panel>
         <div
           className={clsx(
-            "col-[2/3] flex flex-col items-start place-content-end gap-fl-2",
-            "lg:col-auto lg:row-start-3",
+            "col-[2/3] flex items-start gap-fl-1 flex-wrap",
+            "lg:col-auto lg:row-start-3 lg:flex-col",
           )}
         >
           <a
             href={`/puzzles/${props.data.puzzle.slug}`}
             className="btn"
           >
-            <i className="ph ph-arrow-counter-clockwise" />
-            Play again
+            <i className="ph ph-play" />
+            Watch again
           </a>
         </div>
       </Panel>

@@ -179,8 +179,11 @@ export function ControlsPanel(
           {onboarding !== "done" && !isPreview &&
               puzzle.value.slug !== "preview"
             ? (
-              <a href="/puzzles/tutorial" className="btn">
-                <i className="ph-graduation-cap ph" /> Tutorial
+              <a
+                href={`/puzzles/${puzzle.value.slug}/solutions`}
+                className="btn"
+              >
+                <i className="ph-trophy ph" /> Solutions
               </a>
             )
             : puzzle.value.slug !== "preview" && (

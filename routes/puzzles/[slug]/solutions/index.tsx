@@ -82,6 +82,96 @@ type SolutionRowProps = {
   minMoves: number | undefined;
 };
 
+export default define.page<typeof handler>(function SolutionsListPage(props) {
+  const puzzle = useSignal(props.data.puzzle);
+  const url = new URL(props.req.url);
+  const { groups, extraGroup, userCanonicalKeys } = props.data;
+  const minMoves = props.data.puzzle.minMoves;
+  const solutionsHref = `/puzzles/${props.data.puzzle.slug}/solutions`;
+
+  const visibleGroups: (CanonicalGroup | null)[] = extraGroup
+    ? [...groups.slice(0, 5), null, extraGroup]
+    : groups;
+
+  return (
+    <>
+      <Main className="justify-stretch">
+        <Header
+          url={url}
+          back={{ href: "/" }}
+        />
+
+        <div className="flex items-center justify-between mt-2 flex-wrap gap-fl-1">
+          <div className="flex flex-col">
+            <h1 className="text-5 text-brand leading-tight">
+              #{props.data.puzzle.number} {props.data.puzzle.name}
+            </h1>
+            <p className="text-fl-0 text-text-3 leading-tight italic -mb-[.6lh] -mt-[.4lh]">
+              solutions
+            </p>
+          </div>
+
+          <DifficultyBadge puzzle={puzzle} />
+        </div>
+
+        {
+          /*
+          TODO: 3-tab layout with separate pages:
+          - /solutions           → scoreboard (this page)
+          - /solutions/mine      → my-solutions (all canonical groups the user has found)
+          - /solutions/stats     → stats (move distribution histogram, needs PuzzleStats in page data)
+          Tabs rendered as nav links at the top of Main, active tab highlighted.
+        */
+        }
+        <div>
+          {visibleGroups.length === 0
+            ? <p className="text-text-3">No solutions posted yet.</p>
+            : (
+              <ol className="m-0 p-0 list-none flex flex-col gap-y-1 w-full lg:min-h-96">
+                {visibleGroups.map((group) =>
+                  group === null
+                    ? (
+                      <li
+                        key="delimiter"
+                        className="p-0 text-text-3 text-fl-0 px-fl-1 pr-fl-2"
+                      >
+                        …
+                      </li>
+                    )
+                    : (
+                      <SolutionRow
+                        key={group.canonicalKey}
+                        group={group}
+                        solutionsHref={solutionsHref}
+                        userCanonicalKeys={userCanonicalKeys}
+                        minMoves={minMoves}
+                      />
+                    )
+                )}
+              </ol>
+            )}
+        </div>
+      </Main>
+
+      <Panel>
+        <div
+          className={clsx(
+            "max-lg:col-[2/3] flex flex-col gap-fl-2 items-start place-content-end w-full",
+            "lg:row-[3/4] lg:gap-fl-3",
+          )}
+        >
+          <a
+            href={`/puzzles/${puzzle.value.slug}/clone`}
+            className="btn"
+          >
+            <i className="ph-shuffle ph" /> Remix
+          </a>
+        </div>
+      </Panel>
+    </>
+  );
+});
+
 function SolutionRow(
   { group, solutionsHref, userCanonicalKeys, minMoves }: SolutionRowProps,
 ) {
@@ -130,18 +220,6 @@ function SolutionRow(
               {group.firstSolution.name}
             </span>
 
-            {isFound && (
-              <span
-                className={clsx(
-                  "flex items-center shrink-0 gap-0.5 text-xs px-1 py-px",
-                  "rounded-1 bg-brand/10 border border-brand/20 text-brand whitespace-nowrap",
-                  "max-md:hidden",
-                )}
-              >
-                <i className="ph ph-check" /> found
-              </span>
-            )}
-
             {isOptimal && (
               <span
                 className={clsx(
@@ -164,94 +242,3 @@ function SolutionRow(
     </li>
   );
 }
-
-export default define.page<typeof handler>(function SolutionsListPage(props) {
-  const puzzle = useSignal(props.data.puzzle);
-  const url = new URL(props.req.url);
-  const { groups, extraGroup, userCanonicalKeys } = props.data;
-  const minMoves = props.data.puzzle.minMoves;
-  const solutionsHref = `/puzzles/${props.data.puzzle.slug}/solutions`;
-
-  const visibleGroups: (CanonicalGroup | null)[] = extraGroup
-    ? [...groups.slice(0, 5), null, extraGroup]
-    : groups;
-
-  return (
-    <>
-      <Main className="justify-stretch">
-        <Header
-          url={url}
-          back={{ href: `/puzzles/${props.data.puzzle.slug}` }}
-        />
-
-        <div className="flex items-center justify-between mt-2 flex-wrap gap-fl-1">
-          <div className="flex flex-col">
-            <h1 className="text-5 text-brand leading-tight">
-              {props.data.puzzle.name}
-            </h1>
-            <p className="text-fl-0 text-text-3 leading-tight italic -mb-[.6lh] -mt-[.4lh]">
-              solutions
-            </p>
-          </div>
-
-          <DifficultyBadge puzzle={puzzle} />
-        </div>
-
-        {
-          /*
-          TODO: 3-tab layout with separate pages:
-          - /solutions           → scoreboard (this page)
-          - /solutions/mine      → my-solutions (all canonical groups the user has found)
-          - /solutions/stats     → stats (move distribution histogram, needs PuzzleStats in page data)
-          Tabs rendered as nav links at the top of Main, active tab highlighted.
-        */
-        }
-        <div>
-          {visibleGroups.length === 0
-            ? <p className="text-text-3">No solutions posted yet.</p>
-            : (
-              <ol className="m-0 p-0 list-none flex flex-col gap-y-1 w-full">
-                {visibleGroups.map((group) =>
-                  group === null
-                    ? (
-                      <li
-                        key="delimiter"
-                        className="p-0 text-text-3 text-fl-0 px-fl-1 pr-fl-2"
-                      >
-                        …
-                      </li>
-                    )
-                    : (
-                      <SolutionRow
-                        key={group.canonicalKey}
-                        group={group}
-                        solutionsHref={solutionsHref}
-                        userCanonicalKeys={userCanonicalKeys}
-                        minMoves={minMoves}
-                      />
-                    )
-                )}
-              </ol>
-            )}
-        </div>
-      </Main>
-
-      <Panel>
-        <div
-          className={clsx(
-            "max-lg:col-[2/3] flex flex-col gap-fl-2 items-start place-content-end w-full",
-            "lg:row-[3/4] lg:gap-fl-3",
-          )}
-        >
-          <a
-            href={`/puzzles/${props.data.puzzle.slug}`}
-            className="btn"
-          >
-            <i className="ph ph-arrow-counter-clockwise" />
-            Play again
-          </a>
-        </div>
-      </Panel>
-    </>
-  );
-});
