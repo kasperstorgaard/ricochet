@@ -10,7 +10,10 @@ export function getAuthSessionId(headers: Headers): string | undefined {
   return getCookies(headers)[AUTH_SESSION_KEY];
 }
 
-export function setAuthSessionCookie(headers: Headers, sessionId: string): void {
+export function setAuthSessionCookie(
+  headers: Headers,
+  sessionId: string,
+): void {
   setCookie(headers, {
     name: AUTH_SESSION_KEY,
     value: sessionId,
