@@ -33,5 +33,6 @@ export function clearAuthSessionCookie(headers: Headers): void {
     path: "/",
     secure: !isDev,
     maxAge: 0,
+    sameSite: "Lax",
   });
 }

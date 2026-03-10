@@ -32,6 +32,7 @@ export function setTrackingCookie(headers: Headers, id: string) {
     path: "/",
     secure: isDenoDeploy,
     maxAge: TRACKING_DURATION,
+    sameSite: "Lax",
   });
 
   return headers;

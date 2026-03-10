@@ -18,5 +18,6 @@ export function setUserIdCookie(headers: Headers, userId: string): void {
     path: "/",
     secure: !isDev,
     maxAge: USER_ID_DURATION,
+    sameSite: "Lax",
   });
 }
