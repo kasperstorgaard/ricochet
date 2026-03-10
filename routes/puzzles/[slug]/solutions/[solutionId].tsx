@@ -89,7 +89,7 @@ export default define.page<typeof handler>(function SolutionReplayPage(props) {
           )}
         >
           <a
-            href={`/puzzles/${props.data.puzzle.slug}`}
+            href={props.url.href}
             className="btn"
           >
             <i className="ph ph-play" />
