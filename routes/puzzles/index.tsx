@@ -22,11 +22,11 @@ export const handler = define.handlers<PageData>({
   async GET(ctx) {
     const currentPage = getPage(ctx.url) ?? 1;
 
-    const dailyPuzzle = await getLatestPuzzle(ctx.url.origin);
+    const dailyPuzzle = await getLatestPuzzle();
 
     if (!dailyPuzzle) throw new HttpError(500, "Unable to get daily puzzle");
 
-    const { items, pagination } = await listPuzzles(ctx.url.origin, {
+    const { items, pagination } = await listPuzzles({
       sortBy: "number",
       sortOrder: "descending",
       page: currentPage,

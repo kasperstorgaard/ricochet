@@ -25,7 +25,7 @@ export const handler = define.handlers({
       throw new HttpError(500, "Hint not allowed in preview");
     }
 
-    const puzzle = await getPuzzle(ctx.url.origin, slug);
+    const puzzle = await getPuzzle(slug);
     if (!puzzle) throw new HttpError(404, "Unable to get puzzle");
 
     const hintCount = getHintCount(ctx.req.headers);
