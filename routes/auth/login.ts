@@ -1,26 +1,6 @@
 import { define } from "#/core.ts";
-import { kv } from "#/db/kv.ts";
-
-// 10 minutes in milliseconds
-const STATE_TTL_MS = 10 * 60 * 1000;
-
-function base64url(bytes: Uint8Array): string {
-  return btoa(String.fromCharCode(...bytes))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=/g, "");
-}
-
-async function pkce(): Promise<{ verifier: string; challenge: string }> {
-  const verifierBytes = crypto.getRandomValues(new Uint8Array(32));
-  const verifier = base64url(verifierBytes);
-  const digest = await crypto.subtle.digest(
-    "SHA-256",
-    new TextEncoder().encode(verifier),
-  );
-  const challenge = base64url(new Uint8Array(digest));
-  return { verifier, challenge };
-}
+import { setOAuthState } from "#/db/auth.ts";
+import { pkce } from "#/lib/pkce.ts";
 
 export const handler = define.handlers({
   async GET(ctx) {
@@ -31,31 +11,29 @@ export const handler = define.handlers({
       return new Response("Auth not configured", { status: 503 });
     }
 
-    const rawReturnTo = ctx.url.searchParams.get("returnTo") ?? "/";
-    // Only allow same-origin return URLs
-    const returnTo = rawReturnTo.startsWith("/") ? rawReturnTo : "/";
+    // Only allow same-origin paths to prevent open redirect.
+    const returnTo = ctx.url.searchParams.get("return_to") ?? "/";
+    if (!returnTo.startsWith("/")) {
+      return new Response("Invalid return_to", { status: 400 });
+    }
 
-    const { verifier, challenge } = await pkce();
-    const state = base64url(crypto.getRandomValues(new Uint8Array(16)));
+    // PKCE verifier/challenge + one-time state, verified in /auth/callback.
+    const { verifier, challenge, state } = await pkce();
+    await setOAuthState(state, { code_verifier: verifier, returnTo });
 
-    await kv.set(
-      ["oauth_state", state],
-      { code_verifier: verifier, returnTo },
-      { expireIn: STATE_TTL_MS },
-    );
+    const authorizeUrl = new URL("/authorize", `https://${domain}`);
+    const redirectUrl = new URL("/auth/callback", ctx.url.origin);
 
-    const authorizeUrl = new URL(`https://${domain}/authorize`);
-    authorizeUrl.searchParams.set("response_type", "code");
-    authorizeUrl.searchParams.set("client_id", clientId);
-    authorizeUrl.searchParams.set(
-      "redirect_uri",
-      `${ctx.url.origin}/auth/callback`,
-    );
-    authorizeUrl.searchParams.set("scope", "openid email");
-    authorizeUrl.searchParams.set("connection", "email");
-    authorizeUrl.searchParams.set("state", state);
-    authorizeUrl.searchParams.set("code_challenge", challenge);
-    authorizeUrl.searchParams.set("code_challenge_method", "S256");
+    authorizeUrl.search = new URLSearchParams({
+      response_type: "code",
+      client_id: clientId,
+      redirect_uri: redirectUrl.href,
+      scope: "openid email",
+      connection: "email", // configured as passwordless in auth0
+      state,
+      code_challenge: challenge,
+      code_challenge_method: "S256",
+    }).toString();
 
     return new Response(null, {
       status: 303,

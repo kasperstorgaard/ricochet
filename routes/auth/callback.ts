@@ -1,25 +1,19 @@
-import { setCookie } from "@std/http/cookie";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 
 import { define } from "#/core.ts";
-import { kv } from "#/db/kv.ts";
 import {
+  consumeOAuthState,
   getSubUserId,
   setAuthSession,
   setSubUserId,
-  setUserEmail,
-} from "#/db/user.ts";
-import { isDev } from "#/lib/env.ts";
-
-// 1 year in seconds
-const SESSION_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
-
-const AUTH_SESSION_KEY = "auth_session";
-
-type OAuthState = { code_verifier: string; returnTo: string };
+} from "#/db/auth.ts";
+import { setUserEmail } from "#/db/user.ts";
+import { setAuthSessionCookie } from "#/lib/auth-cookie.ts";
 
 export const handler = define.handlers({
   async GET(ctx) {
+    const { searchParams } = ctx.url;
+
     const domain = Deno.env.get("AUTH0_DOMAIN");
     const clientId = Deno.env.get("AUTH0_CLIENT_ID");
     const clientSecret = Deno.env.get("AUTH0_CLIENT_SECRET");
@@ -28,25 +22,26 @@ export const handler = define.handlers({
       return new Response("Auth not configured", { status: 503 });
     }
 
-    const code = ctx.url.searchParams.get("code");
-    const state = ctx.url.searchParams.get("state");
+    const code = searchParams.get("code");
+    const state = searchParams.get("state");
 
     if (!code || !state) {
       return new Response("Missing code or state", { status: 400 });
     }
 
-    // Look up and immediately delete the state (one-time use)
-    const stateEntry = await kv.get<OAuthState>(["oauth_state", state]);
-    await kv.delete(["oauth_state", state]);
-
-    if (!stateEntry.value) {
+    const oauthState = await consumeOAuthState(state);
+    if (!oauthState) {
       return new Response("Invalid or expired state", { status: 401 });
     }
 
-    const { code_verifier, returnTo } = stateEntry.value;
+    const { code_verifier, returnTo } = oauthState;
+
+    const issuerUrl = new URL(`https://${domain}`);
+    const tokenUrl = new URL("/oauth/token", issuerUrl);
+    const redirectUri = new URL("/auth/callback", ctx.url.origin);
 
     // Exchange code for tokens
-    const tokenRes = await fetch(`https://${domain}/oauth/token`, {
+    const tokenRes = await fetch(tokenUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -54,7 +49,7 @@ export const handler = define.handlers({
         client_id: clientId,
         client_secret: clientSecret,
         code,
-        redirect_uri: `${ctx.url.origin}/auth/callback`,
+        redirect_uri: redirectUri.href,
         code_verifier,
       }),
     });
@@ -67,22 +62,21 @@ export const handler = define.handlers({
     const idToken: string = tokens.id_token;
 
     // We only use the ID token — to extract sub + email and verify the user's
-    // identity via JWKS. The access token and refresh token are intentionally
-    // discarded: we don't call any Auth0 APIs after login, so there is nothing
-    // to keep authorised or to refresh. Our own KV session (no TTL, cleared on
-    // explicit logout) is the only ongoing credential. This is valid OIDC usage
-    // — we just treat the handshake as a one-time identity check rather than
-    // ongoing delegated access.
-    const JWKS = createRemoteJWKSet(
-      new URL(`https://${domain}/.well-known/jwks.json`),
-    );
+    // identity via JWKS.
+    // The access token and refresh token are intentionally discarded:
+    // we don't call any Auth0 APIs after login, so there is nothing to keep authorised or to refresh.
+    // Our own KV session (no TTL, cleared on explicit logout) is the only ongoing credential.
+    // This is valid OIDC usage — we just treat the handshake as a one-time identity check
+    // rather than ongoing delegated access.
+    const jwksUrl = new URL("/.well-known/jwks.json", issuerUrl);
+    const JWKS = createRemoteJWKSet(jwksUrl);
 
     let sub: string;
     let email: string;
 
     try {
       const { payload } = await jwtVerify(idToken, JWKS, {
-        issuer: `https://${domain}/`,
+        issuer: issuerUrl.href,
         audience: clientId,
       });
       sub = payload.sub as string;
@@ -107,15 +101,7 @@ export const handler = define.handlers({
     await setAuthSession(sessionId, { sub, userId });
 
     const headers = new Headers({ Location: returnTo });
-    setCookie(headers, {
-      name: AUTH_SESSION_KEY,
-      value: sessionId,
-      httpOnly: true,
-      path: "/",
-      secure: !isDev,
-      maxAge: SESSION_COOKIE_MAX_AGE,
-      sameSite: "Lax",
-    });
+    setAuthSessionCookie(headers, sessionId);
 
     return new Response(null, { status: 303, headers });
   },

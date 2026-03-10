@@ -1,10 +1,6 @@
 import { clsx } from "clsx/lite";
-import { ComponentChildren } from "preact";
 
-type PanelProps = {
-  children: ComponentChildren;
-  className?: string;
-};
+type PanelProps = preact.HTMLAttributes<HTMLElement>;
 
 /**
  * Shared panel component for sidebars
