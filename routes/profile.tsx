@@ -51,7 +51,7 @@ export default define.page<typeof handler>(function ProfilePage(props) {
             Profile
           </h1>
 
-          <section className="flex flex-col gap-fl-1">
+          <section className="flex flex-col gap-fl-2 md:gap-fl-1">
             {email
               ? (
                 <>
