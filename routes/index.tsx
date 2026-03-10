@@ -59,7 +59,7 @@ export default define.page<typeof handler>(function Home(ctx) {
   return (
     <>
       <Main className="max-lg:row-span-full items-stretch place-content-stretch lg:pb-fl-4">
-        <Header url={url} share themePicker />
+        <Header url={url} share />
 
         <div className="flex flex-col gap-1 py-fl-1 pt-fl-2">
           <h1 className="text-fl-3 leading-flat text-brand flex items-baseline gap-fl-1">
@@ -167,6 +167,9 @@ export default define.page<typeof handler>(function Home(ctx) {
               Link to it here as a secondary text link.
             */
             }
+            <a href="/profile">
+              <i className="ph ph-user" /> Profile
+            </a>
           </div>
           <div className="flex gap-2 lg:flex-col">
             <a

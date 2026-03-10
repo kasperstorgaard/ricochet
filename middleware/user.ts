@@ -21,6 +21,7 @@ export const user = define.middleware(async (ctx) => {
     userId = crypto.randomUUID();
   }
 
+  console.log("uid:", userId);
   ctx.state.userId = userId;
 
   const response = await ctx.next();

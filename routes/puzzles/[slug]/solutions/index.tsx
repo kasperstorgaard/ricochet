@@ -182,7 +182,6 @@ export default define.page<typeof handler>(function SolutionsListPage(props) {
         <Header
           url={url}
           back={{ href: `/puzzles/${props.data.puzzle.slug}` }}
-          themePicker
         />
 
         <div className="flex items-center justify-between mt-2 flex-wrap gap-fl-1">

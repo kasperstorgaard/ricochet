@@ -18,6 +18,9 @@ export type State = {
   // Explicit theme override (null = follow OS preference)
   theme?: string | null;
 
+  // Email address when authenticated via Auth0 (undefined = anonymous)
+  email?: string;
+
   // Player onboarding progression
   onboarding: Onboarding;
 };

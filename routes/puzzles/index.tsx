@@ -63,7 +63,7 @@ export default define.page<typeof handler>(
     return (
       <>
         <Main className="max-lg:row-span-full items-stretch place-content-stretch lg:pb-fl-4">
-          <Header url={url} back={{ href: "/" }} share themePicker />
+          <Header url={url} back={{ href: "/" }} share />
 
           <h1 className="text-5 text-brand -mb-fl-1">Puzzle archives</h1>
 
