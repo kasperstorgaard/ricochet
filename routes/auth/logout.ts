@@ -7,7 +7,7 @@ export const handler = define.handlers({
     const sessionId = getAuthSessionId(ctx.req.headers);
     if (sessionId) await deleteAuthSession(sessionId);
 
-    const headers = new Headers({ Location: "/" });
+    const headers = new Headers({ Location: "/profile" });
     clearAuthSessionCookie(headers);
 
     return new Response(null, { status: 303, headers });
