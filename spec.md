@@ -34,3 +34,7 @@ The parsed manifest is cached in a module-level variable after first read — it
 ### All route callers
 
 Dropped the `ctx.url.origin` argument from every `getPuzzle`, `getLatestPuzzle`, `listPuzzles`, and `getRandomPuzzle` call across all routes.
+
+### `getBestMoves` moved to `db/solutions.ts`
+
+Extracted the per-puzzle best-move aggregation into `getBestMoves(solutions: Solution[])` in `db/solutions.ts` — where solution data lives. Removed the generic key function; `puzzleSlug` is the only key that makes sense here.
