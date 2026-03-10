@@ -50,7 +50,9 @@ export async function setOAuthState(
   await kv.set(["oauth_state", state], value, { expireIn: STATE_TTL_MS });
 }
 
-/** Reads and immediately deletes the state — one-time use. */
+/**
+ * Reads and immediately deletes the state — one-time use.
+ */
 export async function consumeOAuthState(
   state: string,
 ): Promise<OAuthState | null> {
