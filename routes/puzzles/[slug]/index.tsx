@@ -163,7 +163,7 @@ export const handler = define.handlers<PageData>({
     // Complete onboarding on a good solve
     if (
       moves.length <= puzzle.minMoves * 1.33 &&
-      ctx.state.onboarding !== "done"
+      ctx.state.user.onboarding !== "done"
     ) {
       await setUser(ctx.state.userId, { onboarding: "done" });
 
@@ -217,7 +217,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
         hintCount={props.data.hintCount}
         isDev={isDev}
         isPreview={isPreview}
-        onboarding={props.state.onboarding}
+        onboarding={props.state.user.onboarding}
         className="print:hidden"
       />
 
@@ -238,7 +238,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
         href={href}
         puzzle={puzzle}
         isPreview={isPreview}
-        onboarding={props.state.onboarding}
+        onboarding={props.state.user.onboarding}
         stats={props.data.puzzleStats}
         savedName={props.data.savedName}
       />
