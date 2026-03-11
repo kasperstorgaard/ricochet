@@ -34,6 +34,7 @@
   "imports": {
     "#/": "./",
     "@annervisser/slug": "jsr:@annervisser/slug@^1.2.1",
+    "@opentelemetry/api": "npm:@opentelemetry/api@^1",
     "@fresh/plugin-vite": "jsr:@fresh/plugin-vite@^1.0.8",
     "@phosphor-icons/core": "npm:@phosphor-icons/core@^2.1.1",
     "@preact/signals": "npm:@preact/signals@^2.5.0",
