@@ -11,7 +11,7 @@ import { tracer } from "#/lib/telemetry.ts";
  * - /ph/static/* -> eu-assets.i.posthog.com (JS bundles, etc.)
  * - /ph/* -> eu.i.posthog.com (API endpoints)
  */
-export const posthogProxy = define.middleware(async (ctx) => {
+export const posthogProxy = define.middleware((ctx) => {
   const url = new URL(ctx.req.url);
 
   if (!url.pathname.startsWith("/ph/")) return ctx.next();
