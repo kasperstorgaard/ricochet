@@ -4,7 +4,15 @@ import { useCallback, useEffect, useMemo } from "preact/hooks";
 
 import { useGameShortcuts } from "#/client/keyboard.ts";
 import { updateLocation } from "#/client/router.ts";
-import { ArrowArcLeft, ArrowArcRight, Download, Icon, Printer, Shuffle, Trophy } from "#/components/icons.tsx";
+import {
+  ArrowArcLeft,
+  ArrowArcRight,
+  Download,
+  Icon,
+  Printer,
+  Shuffle,
+  Trophy,
+} from "#/components/icons.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { Onboarding, Puzzle } from "#/game/types.ts";
 import {
@@ -177,22 +185,14 @@ export function ControlsPanel(
             <Icon icon={Printer} /> Print
           </button>
 
-          {onboarding !== "done" && !isPreview &&
-              puzzle.value.slug !== "preview"
-            ? (
+          {!isPreview &&
+            puzzle.value.slug !== "preview" &&
+            (
               <a
                 href={`/puzzles/${puzzle.value.slug}/solutions`}
                 className="btn"
               >
                 <Icon icon={Trophy} /> Solutions
-              </a>
-            )
-            : puzzle.value.slug !== "preview" && (
-              <a
-                href={`/puzzles/${puzzle.value.slug}/clone`}
-                className="btn"
-              >
-                <Icon icon={Shuffle} /> Remix
               </a>
             )}
 
