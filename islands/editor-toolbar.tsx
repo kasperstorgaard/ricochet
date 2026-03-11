@@ -115,7 +115,7 @@ export function EditorToolbar({ href, puzzle, className }: EditorToolbarProps) {
         onClick={setDestination}
       >
         <div className="size-5 border-2 border-ui-1 flex items-center justify-center">
-          <Icon icon={X} class="text-ui-1 text-fl-0" />
+          <Icon icon={X} className="text-ui-1 text-fl-0" />
         </div>
       </button>
 

@@ -74,7 +74,7 @@ export function SolutionDialog(
 
       {!isPreview && error === "duplicate" && (
         <div className="flex gap-fl-1 items-center">
-          <Icon icon={Info} class="text-fl-1" />
+          <Icon icon={Info} className="text-fl-1" />
           <p className="text-text-2 leading-tight">
             You've already posted this solution -
             <br />
@@ -153,7 +153,7 @@ export function SolutionDialog(
             disabled={!hasSolution || isSubmitting}
           >
             {isSubmitting
-              ? <Icon icon={Spinner} class="animate-spin" />
+              ? <Icon icon={Spinner} className="animate-spin" />
               : "Post solution"}
           </button>
         )}

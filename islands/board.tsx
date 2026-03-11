@@ -291,7 +291,7 @@ function BoardDestination({ x, y }: Position) {
         "--y": y,
       }}
     >
-      <Icon icon={X} class="text-ui-1 text-[calc(var(--space-w)-4px)]" />
+      <Icon icon={X} className="text-ui-1 text-[calc(var(--space-w)-4px)]" />
     </div>
   );
 }

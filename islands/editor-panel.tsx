@@ -183,7 +183,7 @@ export function EditorPanel(
               disabled={isGenerating}
               onClick={onGenerate}
             >
-              <Icon icon={isGenerating ? CircleNotch : Shuffle} class={isGenerating ? "animate-spin" : undefined} />
+              <Icon icon={isGenerating ? CircleNotch : Shuffle} className={isGenerating ? "animate-spin" : undefined} />
               Generate
             </button>
 

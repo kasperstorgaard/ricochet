@@ -46,7 +46,7 @@ export function EditableName(
         onClick={() => textRef.current?.focus()}
         className="flex items-center bg-transparent m-0 p-0"
       >
-        <Icon icon={PencilSimple} class="text-text-2 text-fl-0" />
+        <Icon icon={PencilSimple} className="text-text-2 text-fl-0" />
       </button>
     </h1>
   );

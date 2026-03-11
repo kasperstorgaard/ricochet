@@ -2,7 +2,12 @@ import clsx from "clsx/lite";
 import { HttpError, page } from "fresh";
 
 import { Header } from "#/components/header.tsx";
-import { ArrowRight, GithubLogo, Icon, LinkedinLogo } from "#/components/icons.tsx";
+import {
+  ArrowRight,
+  GithubLogo,
+  Icon,
+  LinkedinLogo,
+} from "#/components/icons.tsx";
 import { Main } from "#/components/main.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { PuzzleCard } from "#/components/puzzle-card.tsx";
@@ -157,15 +162,15 @@ export default define.page<typeof handler>(function Home(ctx) {
           <div className="flex gap-2 lg:flex-col">
             <a
               href="https://github.com/kasperstorgaard/ricochet"
-              className="text-text-2"
+              className="flex gap-1 text-text-2"
             >
-              <Icon icon={GithubLogo} /> GitHub
+              <Icon icon={GithubLogo} />GitHub
             </a>
             <a
               href="https://www.linkedin.com/in/kasper-storgaard-t-lead"
-              className="text-text-2"
+              className="flex gap-1 text-text-2"
             >
-              <Icon icon={LinkedinLogo} /> LinkedIn
+              <Icon icon={LinkedinLogo} />LinkedIn
             </a>
           </div>
         </div>

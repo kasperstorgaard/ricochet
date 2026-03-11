@@ -255,7 +255,7 @@ function IconBlocker() {
 function IconDestination() {
   return (
     <span className="inline-flex items-center justify-center w-5 h-5 border border-ui-1">
-      <Icon icon={X} class="text-ui-1 text-[1.3em]" />
+      <Icon icon={X} className="text-ui-1 text-[1.3em]" />
     </span>
   );
 }

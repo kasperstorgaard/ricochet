@@ -236,7 +236,7 @@ function SolutionRow(
         </div>
 
         <span className="text-fl-0 text-text-link leading-tight whitespace-nowrap hover:text-link">
-          <Icon icon={Play} class="text-sm leading-flat" />{" "}
+          <Icon icon={Play} className="text-sm leading-flat" />{" "}
           <span className="max-md:hidden">Watch</span>
         </span>
       </a>
