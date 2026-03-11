@@ -2,11 +2,11 @@ import type { Signal } from "@preact/signals";
 import { clsx } from "clsx/lite";
 import { useEffect, useRef, useState } from "preact/hooks";
 
-import { readSolveStream } from "#/lib/solve-stream.ts";
 import { useDebouncedCallback } from "#/client/use-debounced-callback.ts";
 import { Icon, Warning } from "#/components/icons.tsx";
 import { validateBoard } from "#/game/board.ts";
 import type { Board, Puzzle } from "#/game/types.ts";
+import { readSolveStream } from "#/lib/solve-stream.ts";
 
 type DifficultyBadgeProps = {
   puzzle: Signal<Puzzle>;

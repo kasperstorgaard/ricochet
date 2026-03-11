@@ -5,7 +5,7 @@ import type { Board, Move, Piece, Puzzle } from "#/game/types.ts";
  * Default solver limits.
  */
 const DEFAULT_MAX_DEPTH = 20;
-const DEFAULT_MAX_ITERATIONS = 1_000_000;
+const DEFAULT_MAX_ITERATIONS = 3_000_000;
 const ITERATIONS_REPORT_INCREMENT = 10_000;
 
 /**
@@ -115,7 +115,12 @@ function* bfsGen(
       visited.add(stateKey);
 
       const idx = states.length;
-      states.push({ pieces: newPieces, parentIdx: head, move, depth: current.depth + 1 });
+      states.push({
+        pieces: newPieces,
+        parentIdx: head,
+        move,
+        depth: current.depth + 1,
+      });
 
       const puck = newPieces.find((p) => p.type === "puck")!;
       const puckPos = { x: puck.pos % COLS, y: Math.floor(puck.pos / COLS) };
@@ -209,7 +214,10 @@ function applyMove(pieces: CompactPiece[], move: Move): CompactPiece[] {
 /**
  * Generates all valid moves from the current board state.
  */
-function generateAllMoves(pieces: CompactPiece[], walls: Board["walls"]): Move[] {
+function generateAllMoves(
+  pieces: CompactPiece[],
+  walls: Board["walls"],
+): Move[] {
   const moves: Move[] = [];
   const fullPieces = pieces.map(fromCompact);
 
@@ -228,5 +236,9 @@ function toCompact(piece: Piece): CompactPiece {
 }
 
 function fromCompact(piece: CompactPiece): Piece {
-  return { x: piece.pos % COLS, y: Math.floor(piece.pos / COLS), type: piece.type };
+  return {
+    x: piece.pos % COLS,
+    y: Math.floor(piece.pos / COLS),
+    type: piece.type,
+  };
 }
