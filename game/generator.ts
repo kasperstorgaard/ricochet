@@ -1,9 +1,4 @@
 import { getGrid, validateBoard } from "#/game/board.ts";
-import {
-  solve,
-  SolverDepthExceededError,
-  SolverLimitExceededError,
-} from "#/game/solver.ts";
 import type { Board, Piece, Wall } from "#/game/types.ts";
 
 const MAX_ATTEMPTS = 500;
@@ -40,8 +35,8 @@ const INNER_ZONE: Zone = { x: [2, 5], y: [2, 5] };
  * Generates a random solvable puzzle within the given constraints.
  * Uses pure random placement with solver verification and retry.
  */
+// TODO: remove solveRange from GenerateOptions in a follow-up (generator cleanup PR)
 export function generate({
-  solveRange,
   wallsRange,
   blockersRange,
   wallSpread,
@@ -52,34 +47,13 @@ export function generate({
     attempt < maxAttempts;
     attempt++
   ) {
-    const board = generateBoard({
-      solveRange,
-      wallsRange,
-      blockersRange,
-      wallSpread,
-    });
+    const board = generateBoard({ wallsRange, blockersRange, wallSpread });
 
     try {
       validateBoard(board);
+      return { board };
     } catch {
       continue;
-    }
-
-    try {
-      const moves = solve(board, { maxDepth: solveRange[1] });
-
-      if (moves.length >= solveRange[0]) {
-        return { board, moves };
-      }
-    } catch (err) {
-      if (
-        err instanceof SolverDepthExceededError ||
-        err instanceof SolverLimitExceededError
-      ) {
-        continue;
-      }
-
-      throw err;
     }
   }
 
@@ -95,7 +69,7 @@ function generateBoard({
   wallsRange,
   blockersRange,
   wallSpread,
-}: GenerateOptions): Board {
+}: Pick<GenerateOptions, "wallsRange" | "blockersRange" | "wallSpread">): Board {
   const wallCount = randomInt(wallsRange);
   const blockerCount = randomInt(blockersRange);
 

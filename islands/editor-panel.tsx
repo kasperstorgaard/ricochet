@@ -26,6 +26,7 @@ import type { GenerateOptions } from "#/game/generator.ts";
 import { Puzzle } from "#/game/types.ts";
 import { decodeState, encodeState } from "#/game/url.ts";
 import { useRouter } from "#/islands/router.tsx";
+import { readSolveStream } from "#/lib/solve-stream.ts";
 
 type EditorPanelProps = {
   href: Signal<string>;
@@ -114,17 +115,26 @@ export function EditorPanel(
 
       if (!res.ok) throw new Error("Generation failed");
 
-      const { board: newBoard, moves } = await res.json();
+      const { board: newBoard } = await res.json();
 
       puzzle.value = {
         ...puzzle.value,
         board: newBoard,
-        minMoves: moves.length,
+        minMoves: 0,
       };
     } finally {
       setIsGenerating(false);
     }
   }, [options, puzzle]);
+
+  const onPreview = async () => {
+    for await (const event of readSolveStream(board)) {
+      if (event.type === "solution") {
+        const search = encodeState({ moves: event.moves, cursor: 0 });
+        globalThis.open(`/puzzles/preview?${search}`, "_blank");
+      }
+    }
+  };
 
   const [showOptions, setShowOptions] = useState(false);
 
@@ -260,16 +270,7 @@ export function EditorPanel(
           <button
             type="button"
             className="btn"
-            onClick={async () => {
-              const res = await fetch("/api/solve", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(board),
-              });
-              const { moves } = await res.json();
-              const search = encodeState({ moves, cursor: 0 });
-              globalThis.open(`/puzzles/preview?${search}`, "_blank");
-            }}
+            onClick={onPreview}
           >
             <Icon icon={Eye} /> Preview
           </button>

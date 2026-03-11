@@ -8,7 +8,8 @@
     "preview": "deno serve -A _fresh/server.js",
     "tunnel": "deno run --tunnel --allow-env main.ts",
     "archive-spec": "deno run -A ./scripts/archive-spec.ts",
-    "update-icons": "deno run -A ./scripts/update-icons.ts"
+    "update-icons": "deno run -A ./scripts/update-icons.ts",
+    "update-puzzles": "deno run -A ./scripts/update-puzzles.ts"
   },
   "lint": {
     "plugins": ["./plugins/lint-imports.ts"],

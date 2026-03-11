@@ -6,6 +6,7 @@ import type { Board, Move, Piece, Puzzle } from "#/game/types.ts";
  */
 const DEFAULT_MAX_DEPTH = 20;
 const DEFAULT_MAX_ITERATIONS = 1_000_000;
+const ITERATIONS_REPORT_INCREMENT = 10_000;
 
 /**
  * Solver configuration options.
@@ -13,7 +14,7 @@ const DEFAULT_MAX_ITERATIONS = 1_000_000;
 type SolverOptions = {
   // Maximum search depth in moves (default: 20)
   maxDepth?: number;
-  // Maximum states to explore (default: 100,000)
+  // Maximum states to explore (default: 1,000,000)
   maxIterations?: number;
 };
 
@@ -33,6 +34,12 @@ export class SolverDepthExceededError extends Error {
   }
 }
 
+export type SolverProgress = { depth: number; states: number };
+export type SolverEvent =
+  | { type: "progress" } & SolverProgress
+  | { type: "solution"; moves: Move[] }
+  | { type: "error"; message: string };
+
 /**
  * Compact piece representation for efficient state handling.
  * Stores position as a single number (y * COLS + x) for fast comparison.
@@ -43,94 +50,146 @@ type CompactPiece = {
 };
 
 /**
- * Solves a Skub puzzle using BFS to find the minimum move solution.
- *
- * @param puzzleOrBoard - The puzzle or board to solve
- * @param options - Optional solver configuration
- * @returns The solution as Move[] or null if no solution found within limits
+ * BFS state entry using parent pointers instead of copying move arrays.
+ * Reconstruct path by walking parentIdx chain on solution found.
  */
-export function solve(
-  puzzleOrBoard: Puzzle | Board,
-  options: SolverOptions = {},
-): Move[] {
-  const board = "board" in puzzleOrBoard ? puzzleOrBoard.board : puzzleOrBoard;
-  const { destination, walls } = board;
+type Entry = {
+  pieces: CompactPiece[];
+  parentIdx: number;
+  move: Move | null;
+  depth: number;
+};
 
+/**
+ * Core BFS as a sync generator. Yields progress events at each new depth level
+ * and at each iteration increment, then yields the solution event when found.
+ * Throws SolverLimitExceededError, SolverDepthExceededError, or "Unsolvable puzzle".
+ */
+function* bfsGen(
+  board: Board,
+  options: SolverOptions,
+): Generator<SolverEvent> {
+  const { destination, walls } = board;
   const maxDepth = options.maxDepth ?? DEFAULT_MAX_DEPTH;
   const maxIterations = options.maxIterations ?? DEFAULT_MAX_ITERATIONS;
 
-  // Add initial state
   const initialPieces = board.pieces.map(toCompact);
-  const initialKey = serializeState(initialPieces);
+  const visited = new Set([serializeState(initialPieces)]);
 
-  const visited = new Set([initialKey]);
-  const queue = [{
+  const states: Entry[] = [{
     pieces: initialPieces,
-    moves: [] as Move[],
+    parentIdx: -1,
+    move: null,
+    depth: 0,
   }];
 
-  let queueHead = 0;
+  let head = 0;
+  let lastReportedDepth = -1;
+  let lastReportedIterations = 0;
 
-  while (queueHead < queue.length) {
-    if (queueHead > maxIterations) {
+  while (head < states.length) {
+    if (head > maxIterations) {
       throw new SolverLimitExceededError(maxIterations);
     }
 
-    const current = queue[queueHead++];
+    const current = states[head];
 
-    if (current.moves.length >= maxDepth) {
+    if (
+      current.depth > lastReportedDepth ||
+      head - lastReportedIterations >= ITERATIONS_REPORT_INCREMENT
+    ) {
+      lastReportedDepth = current.depth;
+      lastReportedIterations = head;
+      yield { type: "progress", depth: current.depth, states: head };
+    }
+
+    if (current.depth >= maxDepth) {
       throw new SolverDepthExceededError(maxDepth);
     }
 
-    // Convert to full pieces for move generation (needed by getTargets)
-    const fullPieces = current.pieces.map(fromCompact);
-
-    // Generate all possible moves from current state
-    const possibleMoves = generateAllMoves(fullPieces, walls);
-
-    for (const move of possibleMoves) {
+    for (const move of generateAllMoves(current.pieces, walls)) {
       const newPieces = applyMove(current.pieces, move);
       const stateKey = serializeState(newPieces);
 
-      // Skip if we've seen this configuration
       if (visited.has(stateKey)) continue;
       visited.add(stateKey);
 
-      const newMoves = [...current.moves, move];
+      const idx = states.length;
+      states.push({ pieces: newPieces, parentIdx: head, move, depth: current.depth + 1 });
 
-      // Check if this is a solution (puck at destination)
-      const puckPiece = newPieces.find((p) => p.type === "puck")!;
-      const puckPos = {
-        x: puckPiece.pos % COLS,
-        y: Math.floor(puckPiece.pos / COLS),
-      };
+      const puck = newPieces.find((p) => p.type === "puck")!;
+      const puckPos = { x: puck.pos % COLS, y: Math.floor(puck.pos / COLS) };
 
       if (isPositionSame(puckPos, destination)) {
-        return newMoves;
+        yield { type: "solution", moves: reconstructPath(states, idx) };
+        return;
       }
-
-      // Add to queue for further exploration
-      queue.push({ pieces: newPieces, moves: newMoves });
     }
+
+    head++;
   }
 
   throw new Error("Unsolvable puzzle");
 }
 
 /**
+ * Solves a Skub puzzle using BFS to find the minimum move solution.
+ */
+export function solve(
+  puzzleOrBoard: Puzzle | Board,
+  options: SolverOptions = {},
+): Move[] {
+  const board = "board" in puzzleOrBoard ? puzzleOrBoard.board : puzzleOrBoard;
+
+  for (const event of bfsGen(board, options)) {
+    if (event.type === "solution") return event.moves;
+  }
+
+  throw new Error("Unsolvable puzzle");
+}
+
+/**
+ * Async generator variant of solve. Yields progress events and the final
+ * solution event, yielding control to the event loop between depth levels
+ * so that streaming responses can flush progress to the client.
+ */
+export async function* solveStream(
+  puzzleOrBoard: Puzzle | Board,
+  options: SolverOptions = {},
+): AsyncGenerator<SolverEvent> {
+  const board = "board" in puzzleOrBoard ? puzzleOrBoard.board : puzzleOrBoard;
+
+  for (const event of bfsGen(board, options)) {
+    yield event;
+    if (event.type === "progress") {
+      await new Promise((r) => setTimeout(r, 0));
+    }
+  }
+}
+
+/**
+ * Walks the parent pointer chain to reconstruct the solution path.
+ */
+function reconstructPath(states: Entry[], idx: number): Move[] {
+  const moves: Move[] = [];
+  let current = idx;
+  while (states[current].move !== null) {
+    moves.push(states[current].move!);
+    current = states[current].parentIdx;
+  }
+  return moves.reverse();
+}
+
+/**
  * Fast state key using numeric positions.
- * Since positions are 0-63 on an 8x8 board, we can pack them efficiently.
  */
 function serializeState(pieces: CompactPiece[]): number {
-  // Sort: puck first, then by position
   const sorted = [...pieces].sort((a, b) => {
     if (a.type === "puck" && b.type !== "puck") return -1;
     if (a.type !== "puck" && b.type === "puck") return 1;
     return a.pos - b.pos;
   });
 
-  // Pack into a single number (works for up to ~8 pieces on 8x8 board)
-  // Each position needs 6 bits (0-63), so we can fit 8 pieces in 48 bits
   let key = 0;
   for (let i = 0; i < sorted.length; i++) {
     key = key * 64 + sorted[i].pos;
@@ -139,58 +198,35 @@ function serializeState(pieces: CompactPiece[]): number {
 }
 
 /**
- * Applies a move directly without validation (we know it's valid from generateMoves).
+ * Applies a move directly without validation.
  */
-function applyMove(
-  pieces: CompactPiece[],
-  move: Move,
-): CompactPiece[] {
+function applyMove(pieces: CompactPiece[], move: Move): CompactPiece[] {
   const fromPos = move[0].y * COLS + move[0].x;
   const toPos = move[1].y * COLS + move[1].x;
-
   return pieces.map((p) => p.pos === fromPos ? { ...p, pos: toPos } : p);
 }
 
 /**
  * Generates all valid moves from the current board state.
- * Each piece can potentially move in 4 directions (up, right, down, left).
  */
-function generateAllMoves(
-  pieces: Piece[],
-  walls: Board["walls"],
-): Move[] {
+function generateAllMoves(pieces: CompactPiece[], walls: Board["walls"]): Move[] {
   const moves: Move[] = [];
+  const fullPieces = pieces.map(fromCompact);
 
-  for (const piece of pieces) {
-    const targets = getTargets(piece, { pieces, walls });
-
+  for (const piece of fullPieces) {
+    const targets = getTargets(piece, { pieces: fullPieces, walls });
     for (const target of Object.values(targets)) {
-      if (target) {
-        moves.push([{ x: piece.x, y: piece.y }, target]);
-      }
+      if (target) moves.push([{ x: piece.x, y: piece.y }, target]);
     }
   }
 
   return moves;
 }
 
-/**
- * Converts pieces to compact representation.
- */
 function toCompact(piece: Piece): CompactPiece {
-  return {
-    pos: piece.y * COLS + piece.x,
-    type: piece.type,
-  };
+  return { pos: piece.y * COLS + piece.x, type: piece.type };
 }
 
-/**
- * Converts compact piece back to full piece.
- */
 function fromCompact(piece: CompactPiece): Piece {
-  return {
-    x: piece.pos % COLS,
-    y: Math.floor(piece.pos / COLS),
-    type: piece.type,
-  };
+  return { x: piece.pos % COLS, y: Math.floor(piece.pos / COLS), type: piece.type };
 }

@@ -2,6 +2,7 @@ import type { Signal } from "@preact/signals";
 import { clsx } from "clsx/lite";
 import { useEffect, useRef, useState } from "preact/hooks";
 
+import { readSolveStream } from "#/lib/solve-stream.ts";
 import { useDebouncedCallback } from "#/client/use-debounced-callback.ts";
 import { Icon, Warning } from "#/components/icons.tsx";
 import { validateBoard } from "#/game/board.ts";
@@ -19,26 +20,29 @@ export function DifficultyBadge({ puzzle, className }: DifficultyBadgeProps) {
   const [minMoves, setMinMoves] = useState<number | null>(
     puzzle.value.minMoves,
   );
+  const [solving, setSolving] = useState<
+    { depth: number; states: number } | null
+  >(null);
   const [error, setError] = useState<string | null>(null);
 
   const fetchSolution = useDebouncedCallback(async (board: Board) => {
+    setSolving({ depth: 0, states: 0 });
+
     try {
-      const res = await fetch("/api/solve", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(board),
-      });
-
-      if (!res.ok) {
-        setError(await res.text());
-        return;
+      for await (const event of readSolveStream(board)) {
+        if (event.type === "progress") {
+          setSolving({ depth: event.depth, states: event.states });
+        } else if (event.type === "solution") {
+          setMinMoves(event.moves.length);
+          setSolving(null);
+        } else if (event.type === "error") {
+          setError(event.message);
+          setSolving(null);
+        }
       }
-
-      const { moves } = await res.json();
-
-      setMinMoves(moves.length);
     } catch (err) {
       setError((err as Error).message);
+      setSolving(null);
     }
   }, 3000);
 
@@ -48,19 +52,19 @@ export function DifficultyBadge({ puzzle, className }: DifficultyBadgeProps) {
     if (minMoves) {
       setMinMoves(minMoves);
       setError(null);
+      setSolving(null);
       return;
     }
 
-    // Reset state
     setMinMoves(null);
     setError(null);
+    setSolving(null);
 
     if (board.pieces.length === 0) return;
 
     try {
       validateBoard(board);
     } catch (err) {
-      setMinMoves(null);
       setError((err as Error).message);
       return;
     }
@@ -88,7 +92,16 @@ export function DifficultyBadge({ puzzle, className }: DifficultyBadgeProps) {
             {puzzle.value.difficulty ?? "unknown"}
           </span>
 
-          {minMoves && (
+          {solving && (
+            <span
+              className="px-fl-1 pl-fl-1 bg-surface-3 text-fl-0 min-w-[2ch] -ml-1 opacity-50 tabular-nums"
+              title={`searching depth ${solving.depth}, ${solving.states} states`}
+            >
+              {solving.depth}…
+            </span>
+          )}
+
+          {!solving && minMoves != null && minMoves > 0 && (
             <span
               className={clsx(
                 "px-fl-1 pl-fl-1 bg-surface-3 text-fl-0 min-w-[2ch] -ml-1",

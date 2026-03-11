@@ -1,10 +1,12 @@
-import { assertEquals, assertThrows } from "@std/assert";
+import { assertEquals, assertObjectMatch, assertThrows } from "@std/assert";
+import { assertExists } from "@std/assert/exists";
 
 import { isValidSolution, resolveMoves } from "./board.ts";
 import {
   solve,
   SolverDepthExceededError,
   SolverLimitExceededError,
+  solveStream,
 } from "./solver.ts";
 import { encodeMoves } from "./strings.ts";
 import type { Board, Puzzle } from "#/game/types.ts";
@@ -109,6 +111,25 @@ Deno.test("solve() accepts Puzzle type (not just Board)", () => {
   const result = solve(puzzle);
 
   assertEquals(result?.length, 1);
+});
+
+Deno.test("solveStream() yields progress then solution", async () => {
+  const board: Board = {
+    destination: { x: 7, y: 7 },
+    pieces: [{ x: 0, y: 0, type: "puck" }],
+    walls: [],
+  };
+
+  let lastProgress: { depth: number; states: number } | undefined;
+  let solution: unknown;
+
+  for await (const event of solveStream(board)) {
+    if (event.type === "progress") lastProgress = event;
+    if (event.type === "solution") solution = event.moves;
+  }
+
+  assertObjectMatch(lastProgress ?? {}, { depth: 1, states: 1 });
+  assertExists(solution);
 });
 
 Deno.test("solve() solves complex puzzle", () => {
