@@ -10,7 +10,6 @@ import {
   Download,
   Icon,
   Printer,
-  Shuffle,
   Trophy,
 } from "#/components/icons.tsx";
 import { Panel } from "#/components/panel.tsx";

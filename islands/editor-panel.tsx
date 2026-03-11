@@ -3,7 +3,21 @@ import { clsx } from "clsx/lite";
 import { useCallback, useMemo, useState } from "preact/hooks";
 
 import { useRouter } from "#/client/router.ts";
-import { ArrowClockwise, ArrowRight, ArrowSquareIn, CaretLeft, CircleNotch, DownloadSimple, Eye, FlipHorizontal, FlipVertical, FloppyDisk, Gear, Icon, Shuffle } from "#/components/icons.tsx";
+import {
+  ArrowClockwise,
+  ArrowRight,
+  ArrowSquareIn,
+  CaretLeft,
+  CircleNotch,
+  DownloadSimple,
+  Eye,
+  FlipHorizontal,
+  FlipVertical,
+  FloppyDisk,
+  Gear,
+  Icon,
+  Shuffle,
+} from "#/components/icons.tsx";
 import { NumberRange } from "#/components/number-range.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { Select } from "#/components/select.tsx";
@@ -183,7 +197,10 @@ export function EditorPanel(
               disabled={isGenerating}
               onClick={onGenerate}
             >
-              <Icon icon={isGenerating ? CircleNotch : Shuffle} className={isGenerating ? "animate-spin" : undefined} />
+              <Icon
+                icon={isGenerating ? CircleNotch : Shuffle}
+                className={isGenerating ? "animate-spin" : undefined}
+              />
               Generate
             </button>
 

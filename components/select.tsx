@@ -43,7 +43,10 @@ export function Select(
           ))}
         </select>
 
-        <Icon icon={CaretDown} className="absolute right-2 pointer-events-none text-fl-0" />
+        <Icon
+          icon={CaretDown}
+          className="absolute right-2 pointer-events-none text-fl-0"
+        />
       </div>
     </div>
   );
