@@ -1,10 +1,10 @@
 import { define } from "#/core.ts";
 import { validateBoard } from "#/game/board.ts";
-import { solveStream } from "#/game/solver.ts";
+import type { SolverEvent } from "#/game/solver.ts";
 import type { Board } from "#/game/types.ts";
 
 // POST endpoint that streams solve progress as SSE events.
-// Used by the puzzle editor for long-running solves.
+// BFS runs in a Web Worker so the main event loop stays unblocked.
 //
 // Events:
 //   data: {"type":"progress","depth":N,"states":N}
@@ -27,20 +27,34 @@ export const handler = define.handlers({
     }
 
     const encoder = new TextEncoder();
+    const worker = new Worker(
+      new URL("../../game/solver-worker.ts", import.meta.url),
+      { type: "module" },
+    );
+
     const stream = new ReadableStream({
-      async start(controller) {
-        const send = (data: unknown) =>
+      start(controller) {
+        const send = (data: SolverEvent) =>
           controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
 
-        try {
-          for await (const event of solveStream(board)) {
-            send(event);
+        worker.postMessage(board);
+
+        worker.onmessage = (e: MessageEvent<SolverEvent>) => {
+          send(e.data);
+          if (e.data.type === "solution" || e.data.type === "error") {
+            worker.terminate();
+            controller.close();
           }
-        } catch (err) {
-          send({ type: "error", message: err instanceof Error ? err.message : "Solver failed" });
-        } finally {
+        };
+
+        worker.onerror = (e) => {
+          send({ type: "error", message: e.message });
+          worker.terminate();
           controller.close();
-        }
+        };
+      },
+      cancel() {
+        worker.terminate();
       },
     });
 

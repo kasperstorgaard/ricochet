@@ -20,18 +20,16 @@ export function DifficultyBadge({ puzzle, className }: DifficultyBadgeProps) {
   const [minMoves, setMinMoves] = useState<number | null>(
     puzzle.value.minMoves,
   );
-  const [solving, setSolving] = useState<
-    { depth: number; states: number } | null
-  >(null);
+  const [solving, setSolving] = useState<{ depth: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const fetchSolution = useDebouncedCallback(async (board: Board) => {
-    setSolving({ depth: 0, states: 0 });
+    setSolving({ depth: 0 });
 
     try {
       for await (const event of readSolveStream(board)) {
         if (event.type === "progress") {
-          setSolving({ depth: event.depth, states: event.states });
+          setSolving({ depth: event.depth });
         } else if (event.type === "solution") {
           setMinMoves(event.moves.length);
           setSolving(null);
@@ -94,8 +92,8 @@ export function DifficultyBadge({ puzzle, className }: DifficultyBadgeProps) {
 
           {solving && (
             <span
-              className="px-fl-1 pl-fl-1 bg-surface-3 text-fl-0 min-w-[2ch] -ml-1 opacity-50 tabular-nums"
-              title={`searching depth ${solving.depth}, ${solving.states} states`}
+              className="px-fl-1 pl-fl-1 bg-surface-3 text-fl-0 min-w-[2ch] -ml-1 text-text-2 tabular-nums animate-blink"
+              title={`searching depth ${solving.depth}`}
             >
               {solving.depth}…
             </span>

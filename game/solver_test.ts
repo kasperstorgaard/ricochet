@@ -2,13 +2,7 @@ import { assertEquals, assertObjectMatch, assertThrows } from "@std/assert";
 import { assertExists } from "@std/assert/exists";
 
 import { isValidSolution, resolveMoves } from "./board.ts";
-import {
-  solve,
-  SolverDepthExceededError,
-  SolverLimitExceededError,
-  solveStream,
-} from "./solver.ts";
-import { encodeMoves } from "./strings.ts";
+import { bfsGen, solve, SolverDepthExceededError } from "./solver.ts";
 import type { Board, Puzzle } from "#/game/types.ts";
 
 Deno.test("solve() finds 1-move solution (puck slides to destination)", () => {
@@ -38,7 +32,7 @@ Deno.test("solve() finds 2-move solution", () => {
   assertEquals(result?.length, 2);
 });
 
-Deno.test("solve() returns null for unsolvable puzzle (puck trapped)", () => {
+Deno.test("solve() throws for unsolvable puzzle (puck trapped)", () => {
   // Puck at A1 trapped by walls, cannot reach H8
   const board: Board = {
     destination: { x: 7, y: 7 },
@@ -52,7 +46,7 @@ Deno.test("solve() returns null for unsolvable puzzle (puck trapped)", () => {
   assertThrows(() => solve(board));
 });
 
-Deno.test("solve() returns null for unsolvable puzzle (puck can't stop)", () => {
+Deno.test("solve() throws for unsolvable puzzle (puck can't stop)", () => {
   const board: Board = {
     destination: { x: 5, y: 5 },
     pieces: [
@@ -76,23 +70,6 @@ Deno.test("solve() respects maxDepth option", () => {
   assertThrows(() => solve(board, { maxDepth: 1 }), SolverDepthExceededError);
 });
 
-Deno.test("solve() respects maxIterations option", () => {
-  // Impossible puzzle
-  const board: Board = {
-    destination: { x: 5, y: 5 },
-    pieces: [
-      { x: 0, y: 0, type: "puck" },
-    ],
-    walls: [],
-  };
-
-  // With maxIterations 1, it throw before it finds out there is no solution
-  assertThrows(
-    () => solve(board, { maxIterations: 1 }),
-    SolverLimitExceededError,
-  );
-});
-
 Deno.test("solve() accepts Puzzle type (not just Board)", () => {
   const puzzle: Puzzle = {
     number: 5,
@@ -113,22 +90,24 @@ Deno.test("solve() accepts Puzzle type (not just Board)", () => {
   assertEquals(result?.length, 1);
 });
 
-Deno.test("solveStream() yields progress then solution", async () => {
+Deno.test("bfsGen() yields progress then solution", () => {
+  // Puck at (0,0), dest at (7,7) — not aligned, initial threshold = 2
   const board: Board = {
     destination: { x: 7, y: 7 },
     pieces: [{ x: 0, y: 0, type: "puck" }],
     walls: [],
   };
 
-  let lastProgress: { depth: number; states: number } | undefined;
+  let lastProgress: { depth: number };
   let solution: unknown;
 
-  for await (const event of solveStream(board)) {
+  for (const event of bfsGen(board, {})) {
     if (event.type === "progress") lastProgress = event;
     if (event.type === "solution") solution = event.moves;
   }
 
-  assertObjectMatch(lastProgress ?? {}, { depth: 1, states: 1 });
+  // IDA* reports threshold as depth; initial threshold is 2 (h for unaligned puck)
+  assertObjectMatch(lastProgress!, { depth: 2 });
   assertExists(solution);
 });
 
@@ -161,15 +140,9 @@ Deno.test("solve() solves complex puzzle", () => {
 
   const result = solve(board);
 
-  // Check that it finds one of the shortest solutions
-  assertEquals(
-    encodeMoves(result!),
-    "B2B6-A6-G2A2-A5-B7B1-A6B6-B1B5-F5-A5E5-E6",
-  );
-
-  // Check that the solution is valid
-  const endState = resolveMoves(board, result!);
-  assertEquals(isValidSolution(endState), true);
+  // Solution is optimal and valid (IDA* may find a different path of equal length)
+  assertEquals(result.length, 10);
+  assertEquals(isValidSolution(resolveMoves(board, result)), true);
 });
 
 Deno.test("solve() solves complex puzzle with many pieces", () => {
@@ -208,13 +181,7 @@ Deno.test("solve() solves complex puzzle with many pieces", () => {
 
   const result = solve(board);
 
-  // Check that it finds one of the shortest solutions
-  assertEquals(
-    encodeMoves(result!),
-    "F3H3-H4H6-A6-H3H6-D7D6-A6C6-D6D8-H6D6-D7",
-  );
-
-  // Check that the solution is valid
-  const endState = resolveMoves(board, result!);
-  assertEquals(isValidSolution(endState), true);
+  // Solution is optimal and valid (IDA* may find a different path of equal length)
+  assertEquals(result.length, 9);
+  assertEquals(isValidSolution(resolveMoves(board, result)), true);
 });

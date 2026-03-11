@@ -1,30 +1,18 @@
-import { COLS, getTargets, isPositionSame } from "#/game/board.ts";
+import { COLS, getTargets } from "#/game/board.ts";
 import type { Board, Move, Piece, Puzzle } from "#/game/types.ts";
 
 /**
  * Default solver limits.
  */
-const DEFAULT_MAX_DEPTH = 20;
-const DEFAULT_MAX_ITERATIONS = 3_000_000;
-const ITERATIONS_REPORT_INCREMENT = 10_000;
+const DEFAULT_MAX_DEPTH = 15;
 
 /**
  * Solver configuration options.
  */
 type SolverOptions = {
-  // Maximum search depth in moves (default: 20)
+  // Maximum search depth in moves (default: 15)
   maxDepth?: number;
-  // Maximum states to explore (default: 1,000,000)
-  maxIterations?: number;
 };
-
-// Error thrown when the solver exceeds the maximum number of iterations
-export class SolverLimitExceededError extends Error {
-  constructor(limit: number) {
-    super(`Solver limit ${limit} exceeded`);
-    this.name = "SolverLimitExceededError";
-  }
-}
 
 // Error thrown when the solver exceeds the maximum search depth
 export class SolverDepthExceededError extends Error {
@@ -34,7 +22,7 @@ export class SolverDepthExceededError extends Error {
   }
 }
 
-export type SolverProgress = { depth: number; states: number };
+export type SolverProgress = { depth: number };
 export type SolverEvent =
   | { type: "progress" } & SolverProgress
   | { type: "solution"; moves: Move[] }
@@ -50,95 +38,102 @@ type CompactPiece = {
 };
 
 /**
- * BFS state entry using parent pointers instead of copying move arrays.
- * Reconstruct path by walking parentIdx chain on solution found.
+ * Admissible heuristic: lower bound on moves remaining.
+ *   0 — puck already at destination
+ *   1 — puck shares row or column with destination (might reach in one slide)
+ *   2 — puck needs at least two moves to reach destination
+ *
+ * Ignores walls intentionally — checking walls costs more than it saves per node.
+ * Never overestimates, so A* optimality is preserved.
  */
-type Entry = {
-  pieces: CompactPiece[];
-  parentIdx: number;
-  move: Move | null;
-  depth: number;
-};
+function heuristic(puckPos: number, destPos: number): number {
+  if (puckPos === destPos) return 0;
+  if (
+    puckPos % COLS === destPos % COLS ||
+    Math.floor(puckPos / COLS) === Math.floor(destPos / COLS)
+  ) return 1;
+  return 2;
+}
 
 /**
- * Core BFS as a sync generator. Yields progress events at each new depth level
- * and at each iteration increment, then yields the solution event when found.
- * Throws SolverLimitExceededError, SolverDepthExceededError, or "Unsolvable puzzle".
+ * Core IDA* search as a sync generator.
+ *
+ * Uses O(depth) stack memory — no states array, no global visited set, no heap.
+ * A within-pass transposition table (TT) prevents re-exploring states at the
+ * same or higher cost within a threshold pass, matching A* efficiency per pass.
+ * The TT is cleared between passes so memory stays proportional to states
+ * explored in the current pass, not the entire search.
+ *
+ * Yields a progress event before each threshold pass, then yields the solution
+ * event when found. Throws SolverDepthExceededError or "Unsolvable puzzle".
  */
-function* bfsGen(
+export function* bfsGen(
   board: Board,
   options: SolverOptions,
 ): Generator<SolverEvent> {
   const { destination, walls } = board;
   const maxDepth = options.maxDepth ?? DEFAULT_MAX_DEPTH;
-  const maxIterations = options.maxIterations ?? DEFAULT_MAX_ITERATIONS;
 
+  const destPos = destination.y * COLS + destination.x;
   const initialPieces = board.pieces.map(toCompact);
-  const visited = new Set([serializeState(initialPieces)]);
+  const initialPuck = initialPieces.find((p) => p.type === "puck")!;
 
-  const states: Entry[] = [{
-    pieces: initialPieces,
-    parentIdx: -1,
-    move: null,
-    depth: 0,
-  }];
+  let threshold = heuristic(initialPuck.pos, destPos);
 
-  let head = 0;
-  let lastReportedDepth = -1;
-  let lastReportedIterations = 0;
+  // Reusable move history — avoids array allocation per recursive call.
+  const moveHistory: Move[] = [];
 
-  while (head < states.length) {
-    if (head > maxIterations) {
-      throw new SolverLimitExceededError(maxIterations);
+  // Within-pass transposition table: state key → minimum g-cost seen this pass.
+  // Cleared between passes so memory stays bounded to the current pass.
+  const tt = new Map<string, number>();
+
+  function dfs(pieces: CompactPiece[], g: number): Move[] | number {
+    const key = serializeState(pieces);
+    const best = tt.get(key);
+    if (best !== undefined && best <= g) return Infinity;
+    tt.set(key, g);
+
+    const puck = pieces.find((p) => p.type === "puck")!;
+    const f = g + heuristic(puck.pos, destPos);
+
+    if (f > threshold) return f;
+    if (puck.pos === destPos) return [...moveHistory];
+
+    let minNext = Infinity;
+
+    for (const move of generateAllMoves(pieces, walls)) {
+      const newPieces = applyMove(pieces, move);
+      moveHistory.push(move);
+      const result = dfs(newPieces, g + 1);
+      moveHistory.pop();
+      if (Array.isArray(result)) return result;
+      if (result < minNext) minNext = result;
     }
 
-    const current = states[head];
-
-    if (
-      current.depth > lastReportedDepth ||
-      head - lastReportedIterations >= ITERATIONS_REPORT_INCREMENT
-    ) {
-      lastReportedDepth = current.depth;
-      lastReportedIterations = head;
-      yield { type: "progress", depth: current.depth, states: head };
-    }
-
-    if (current.depth >= maxDepth) {
-      throw new SolverDepthExceededError(maxDepth);
-    }
-
-    for (const move of generateAllMoves(current.pieces, walls)) {
-      const newPieces = applyMove(current.pieces, move);
-      const stateKey = serializeState(newPieces);
-
-      if (visited.has(stateKey)) continue;
-      visited.add(stateKey);
-
-      const idx = states.length;
-      states.push({
-        pieces: newPieces,
-        parentIdx: head,
-        move,
-        depth: current.depth + 1,
-      });
-
-      const puck = newPieces.find((p) => p.type === "puck")!;
-      const puckPos = { x: puck.pos % COLS, y: Math.floor(puck.pos / COLS) };
-
-      if (isPositionSame(puckPos, destination)) {
-        yield { type: "solution", moves: reconstructPath(states, idx) };
-        return;
-      }
-    }
-
-    head++;
+    return minNext;
   }
 
-  throw new Error("Unsolvable puzzle");
+  while (threshold <= maxDepth) {
+    tt.clear();
+    yield { type: "progress", depth: threshold };
+
+    const result = dfs(initialPieces, 0);
+
+    if (Array.isArray(result)) {
+      yield { type: "solution", moves: result };
+      return;
+    }
+
+    if (result === Infinity) throw new Error("Unsolvable puzzle");
+
+    threshold = result;
+  }
+
+  throw new SolverDepthExceededError(maxDepth);
 }
 
 /**
- * Solves a Skub puzzle using BFS to find the minimum move solution.
+ * Solves a Skub puzzle using IDA* to find the minimum move solution.
  */
 export function solve(
   puzzleOrBoard: Puzzle | Board,
@@ -154,52 +149,18 @@ export function solve(
 }
 
 /**
- * Async generator variant of solve. Yields progress events and the final
- * solution event, yielding control to the event loop between depth levels
- * so that streaming responses can flush progress to the client.
+ * String state key — safe for any number of pieces (no float precision overflow).
+ * Puck first, then blockers sorted by position.
  */
-export async function* solveStream(
-  puzzleOrBoard: Puzzle | Board,
-  options: SolverOptions = {},
-): AsyncGenerator<SolverEvent> {
-  const board = "board" in puzzleOrBoard ? puzzleOrBoard.board : puzzleOrBoard;
-
-  for (const event of bfsGen(board, options)) {
-    yield event;
-    if (event.type === "progress") {
-      await new Promise((r) => setTimeout(r, 0));
-    }
-  }
-}
-
-/**
- * Walks the parent pointer chain to reconstruct the solution path.
- */
-function reconstructPath(states: Entry[], idx: number): Move[] {
-  const moves: Move[] = [];
-  let current = idx;
-  while (states[current].move !== null) {
-    moves.push(states[current].move!);
-    current = states[current].parentIdx;
-  }
-  return moves.reverse();
-}
-
-/**
- * Fast state key using numeric positions.
- */
-function serializeState(pieces: CompactPiece[]): number {
-  const sorted = [...pieces].sort((a, b) => {
-    if (a.type === "puck" && b.type !== "puck") return -1;
-    if (a.type !== "puck" && b.type === "puck") return 1;
-    return a.pos - b.pos;
-  });
-
-  let key = 0;
-  for (let i = 0; i < sorted.length; i++) {
-    key = key * 64 + sorted[i].pos;
-  }
-  return key;
+function serializeState(pieces: CompactPiece[]): string {
+  return [...pieces]
+    .sort((a, b) => {
+      if (a.type === "puck" && b.type !== "puck") return -1;
+      if (a.type !== "puck" && b.type === "puck") return 1;
+      return a.pos - b.pos;
+    })
+    .map((p) => `${p.type[0]}${p.pos}`)
+    .join(",");
 }
 
 /**
