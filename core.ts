@@ -1,6 +1,6 @@
 import { createDefine } from "fresh";
 
-import type { Onboarding } from "#/game/types.ts";
+import type { User } from "#/db/types.ts";
 
 /**
  * Shared state passed through ctx.state in middlewares, layouts, and routes.
@@ -15,14 +15,8 @@ export type State = {
   // The user's tracking ID (UUID), either temporary or stored in cookie
   trackingId: string;
 
-  // Explicit theme override (null = follow OS preference)
-  theme?: string | null;
-
-  // Email address when authenticated via Auth0 (undefined = anonymous)
-  email?: string;
-
-  // Player onboarding progression
-  onboarding: Onboarding;
+  // Full user record from KV (populated by middleware/user.ts)
+  user: User;
 };
 
 export const define = createDefine<State>();

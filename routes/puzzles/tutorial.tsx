@@ -5,7 +5,7 @@ import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
 import { define } from "#/core.ts";
 import { Solution } from "#/db/types.ts";
-import { setUserOnboarding } from "#/db/user.ts";
+import { setUser } from "#/db/user.ts";
 import { getPuzzle } from "#/game/loader.ts";
 import { Puzzle } from "#/game/types.ts";
 import { decodeState } from "#/game/url.ts";
@@ -33,8 +33,8 @@ export const handler = define.handlers<Data>({
     if (!puzzle) throw new HttpError(404, "Tutorial puzzle not found");
 
     if (!ctx.url.searchParams.has("moves")) {
-      if (ctx.state.onboarding === "new") {
-        await setUserOnboarding(ctx.state.userId, "started");
+      if (ctx.state.user.onboarding === "new") {
+        await setUser(ctx.state.userId, { onboarding: "started" });
       }
       return new Response(null, {
         status: 303,
