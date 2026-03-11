@@ -10,7 +10,7 @@ player is in their journey, nudging them forward without forcing anything.
 ## Onboarding state
 
 The `onboarding` cookie tracks progression as an enum, set by `middleware/onboarding.ts`
-and available on all routes via `ctx.state.onboarding`:
+and available on all routes via `ctx.state.user.onboarding`:
 
 | Value | Meaning |
 |---|---|
@@ -39,7 +39,7 @@ Replace the boolean `skip_tutorial` cookie with an `onboarding` cookie.
 
 ### `middleware/onboarding.ts`
 
-Reads the cookie and sets `ctx.state.onboarding` on every request.
+Reads the cookie and sets `ctx.state.user.onboarding` on every request.
 
 ### `routes/index.tsx` — home page adapts to onboarding state
 

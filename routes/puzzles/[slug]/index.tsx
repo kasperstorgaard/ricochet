@@ -8,12 +8,7 @@ import { PrintPanel } from "#/components/print-panel.tsx";
 import { define } from "#/core.ts";
 import { addSolution, getCanonicalUserSolution } from "#/db/solutions.ts";
 import { getPuzzleStats } from "#/db/stats.ts";
-import {
-  getUserName,
-  getUserPuzzleDraft,
-  setUserName,
-  setUserOnboarding,
-} from "#/db/user.ts";
+import { getUserPuzzleDraft, setUser } from "#/db/user.ts";
 import { isValidSolution, resolveMoves } from "#/game/board.ts";
 import { getHintCount } from "#/game/cookies.ts";
 import { getPuzzle } from "#/game/loader.ts";
@@ -45,7 +40,7 @@ export const handler = define.handlers<PageData>({
       throw new HttpError(404, `Invalid puzzle slug: ${slug}`);
     }
 
-    const savedName = await getUserName(ctx.state.userId);
+    const savedName = ctx.state.user?.name ?? null;
 
     if (slug === "preview") {
       const puzzle = await getUserPuzzleDraft(ctx.state.userId);
@@ -121,7 +116,7 @@ export const handler = define.handlers<PageData>({
       throw new HttpError(400, "Solution is not valid");
     }
 
-    await setUserName(ctx.state.userId, name);
+    await setUser(ctx.state.userId, { name });
 
     // Check for existing solution, we don't want duplicates
     const existingSolution = ctx.state.userId
@@ -170,7 +165,7 @@ export const handler = define.handlers<PageData>({
       moves.length <= puzzle.minMoves * 1.33 &&
       ctx.state.onboarding !== "done"
     ) {
-      await setUserOnboarding(ctx.state.userId, "done");
+      await setUser(ctx.state.userId, { onboarding: "done" });
 
       posthog?.capture({
         distinctId: ctx.state.trackingId,

@@ -1,30 +1,22 @@
 import clsx from "clsx/lite";
-import { page } from "fresh";
 
 import { Header } from "#/components/header.tsx";
 import { EnvelopeSimple, Icon } from "#/components/icons.tsx";
 import { Main } from "#/components/main.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { define } from "#/core.ts";
-import { getUserName, setUserName, setUserTheme } from "#/db/user.ts";
+import { setUser } from "#/db/user.ts";
 import { THEMES } from "#/lib/themes.ts";
 
-type PageData = { savedName: string | null };
-
-export const handler = define.handlers<PageData>({
-  async GET(ctx) {
-    const savedName = await getUserName(ctx.state.userId);
-    return page({ savedName });
-  },
-
+export const handler = define.handlers({
   async POST(ctx) {
     const form = await ctx.req.formData();
 
     const name = form.get("name")?.toString().trim();
-    if (name) await setUserName(ctx.state.userId, name);
+    if (name) await setUser(ctx.state.userId, { name });
 
     const theme = form.get("theme")?.toString();
-    if (theme) await setUserTheme(ctx.state.userId, theme || null);
+    if (theme) await setUser(ctx.state.userId, { theme });
 
     return new Response(null, {
       status: 303,
@@ -35,12 +27,12 @@ export const handler = define.handlers<PageData>({
 
 export default define.page<typeof handler>(function ProfilePage(props) {
   const url = new URL(props.req.url);
-  const { email, theme } = props.state;
-  const { savedName } = props.data;
+  const { user } = props.state;
 
+  const savedName = user?.name ?? null;
   const darkThemes = THEMES.filter((t) => t.mode === "dark");
   const lightThemes = THEMES.filter((t) => t.mode === "light");
-  const activeTheme = theme ?? "skub";
+  const activeTheme = user.theme ?? "skub";
 
   return (
     <>
@@ -53,11 +45,11 @@ export default define.page<typeof handler>(function ProfilePage(props) {
           </h1>
 
           <section className="flex flex-col gap-fl-2 md:gap-fl-1">
-            {email
+            {user.email
               ? (
                 <>
                   <div className="flex items-center gap-fl-2">
-                    <span>{email}</span>
+                    <span>{user.email}</span>
                     <a href="/auth/logout">
                       Log out
                     </a>

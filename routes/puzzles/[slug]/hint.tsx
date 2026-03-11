@@ -30,7 +30,7 @@ export const handler = define.handlers({
 
     const hintCount = getHintCount(ctx.req.headers);
     const hintLimit = getHintLimit(puzzle.difficulty);
-    const onboarding = ctx.state.onboarding;
+    const onboarding = ctx.state.user.onboarding;
 
     if (!isDev && onboarding === "done" && hintCount >= hintLimit) {
       throw new HttpError(400, "Hint limit exceeded");

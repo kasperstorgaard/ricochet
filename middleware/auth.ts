@@ -1,6 +1,5 @@
 import { define } from "#/core.ts";
 import { getAuthSession } from "#/db/auth.ts";
-import { getUserEmail } from "#/db/user.ts";
 import { getAuthSessionId } from "#/lib/auth-cookie.ts";
 import { tracer } from "#/lib/telemetry.ts";
 import { getUserIdCookie, setUserIdCookie } from "#/lib/user-cookie.ts";
@@ -29,19 +28,6 @@ export const auth = define.middleware((ctx) =>
 
       ctx.state.userId = userId;
       span.setAttribute("user.id", userId);
-
-      if (session) {
-        ctx.state.email = await tracer.startActiveSpan(
-          "kv.getUserEmail",
-          async (span) => {
-            try {
-              return (await getUserEmail(userId)) ?? undefined;
-            } finally {
-              span.end();
-            }
-          },
-        );
-      }
 
       const response = await ctx.next();
 

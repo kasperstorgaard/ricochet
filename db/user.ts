@@ -1,32 +1,23 @@
 import { kv } from "#/db/kv.ts";
-import type { Onboarding, Puzzle } from "#/game/types.ts";
+import { User } from "#/db/types.ts";
+import type { Puzzle } from "#/game/types.ts";
 
-export async function getUserTheme(userId: string): Promise<string | null> {
-  const res = await kv.get<string>(["user", userId, "theme"]);
-  return res.value ?? null;
+export async function getUser(userId: string): Promise<User | null> {
+  const res = await kv.get<User>(["user", userId]);
+  if (!res.value) return null;
+  return { ...res.value, id: userId };
 }
 
-export async function setUserTheme(
+/**
+ * Merges a partial update into the existing user record.
+ * Creates a new record with defaults if none exists.
+ */
+export async function setUser(
   userId: string,
-  theme: string | null,
+  patch: Partial<Omit<User, "id">>,
 ): Promise<void> {
-  if (theme === null) {
-    await kv.delete(["user", userId, "theme"]);
-  } else {
-    await kv.set(["user", userId, "theme"], theme);
-  }
-}
-
-export async function getUserOnboarding(userId: string): Promise<Onboarding> {
-  const res = await kv.get<Onboarding>(["user", userId, "onboarding"]);
-  return res.value ?? "new";
-}
-
-export async function setUserOnboarding(
-  userId: string,
-  value: Onboarding,
-): Promise<void> {
-  await kv.set(["user", userId, "onboarding"], value);
+  const existing = (await kv.get<User>(["user", userId])).value ?? {};
+  await kv.set(["user", userId], { ...existing, ...patch });
 }
 
 export async function getUserPuzzleDraft(
@@ -41,28 +32,4 @@ export async function setUserPuzzleDraft(
   puzzle: Puzzle,
 ): Promise<void> {
   await kv.set(["user", userId, "puzzle_draft"], puzzle);
-}
-
-export async function getUserEmail(userId: string): Promise<string | null> {
-  const res = await kv.get<string>(["user", userId, "email"]);
-  return res.value ?? null;
-}
-
-export async function setUserEmail(
-  userId: string,
-  email: string,
-): Promise<void> {
-  await kv.set(["user", userId, "email"], email);
-}
-
-export async function getUserName(userId: string): Promise<string | null> {
-  const res = await kv.get<string>(["user", userId, "name"]);
-  return res.value ?? null;
-}
-
-export async function setUserName(
-  userId: string,
-  name: string,
-): Promise<void> {
-  await kv.set(["user", userId, "name"], name);
 }

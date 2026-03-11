@@ -1,6 +1,14 @@
-import { Move, PuzzleStats } from "#/game/types.ts";
+import { Move, Onboarding, PuzzleStats } from "#/game/types.ts";
 
 export type { PuzzleStats };
+
+export type User = {
+  id: string;
+  theme?: string;
+  onboarding: Onboarding;
+  email?: string;
+  name?: string;
+};
 
 // Human entered solution for a puzzle
 export type Solution = {
