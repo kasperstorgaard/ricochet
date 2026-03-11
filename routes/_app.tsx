@@ -49,16 +49,6 @@ export default define.page(
             href="/favicon-dark.svg"
             media="(prefers-color-scheme: dark)"
           />
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link
-            rel="preconnect"
-            href="https://fonts.gstatic.com"
-            crossorigin="anonymous"
-          />
-          <link
-            href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500&display=swap"
-            rel="stylesheet"
-          />
           {/* Tiny script to indicate JavaScript is enabled, needed for styling */}
           <script
             // deno-lint-ignore react-no-danger
