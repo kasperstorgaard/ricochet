@@ -1,3 +1,4 @@
+import { ArrowLeft, Icon, UserCircle } from "#/components/icons.tsx";
 import { ShareButton } from "#/islands/share-button.tsx";
 
 type Props = {
@@ -16,7 +17,7 @@ export function Header({ url, back, share, hideProfile }: Props) {
     <header className="print:hidden flex items-center justify-between">
       {back && (
         <a href={back.href} className="text-fl-1 no-underline leading-none">
-          <i className="ph ph-arrow-left" />
+          <Icon icon={ArrowLeft} />
         </a>
       )}
       <div className="flex items-center gap-2 ml-auto">
@@ -27,7 +28,7 @@ export function Header({ url, back, share, hideProfile }: Props) {
             className="p-0 leading-none text-fl-1 text-text-2 no-underline hover:text-link"
             aria-label="Profile and settings"
           >
-            <i className="ph ph-user-circle" />
+            <Icon icon={UserCircle} />
           </a>
         )}
       </div>

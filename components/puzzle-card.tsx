@@ -1,6 +1,7 @@
 import { clsx } from "clsx/lite";
 import { AnchorHTMLAttributes } from "preact";
 
+import { Check, Icon, Trophy } from "#/components/icons.tsx";
 import { Thumbnail } from "#/components/thumbnail.tsx";
 import type { Puzzle } from "#/game/types.ts";
 
@@ -76,8 +77,8 @@ export function PuzzleCard({
             )}
           >
             <span class="flex items-center gap-0.5 text-xs px-1 py-px rounded-1 bg-surface-1 border border-current/60 whitespace-nowrap leading-tight">
-              <i
-                class={clsx(isOptimal ? "ph ph-trophy" : "ph ph-check")}
+              <Icon
+                icon={isOptimal ? Trophy : Check}
                 aria-label={isOptimal ? "Perfect" : "Solved"}
               />
               {bestMoves}

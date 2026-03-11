@@ -49,11 +49,6 @@ export default define.page(
             href="/favicon-dark.svg"
             media="(prefers-color-scheme: dark)"
           />
-          <link
-            rel="stylesheet"
-            type="text/css"
-            href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css"
-          />
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link
             rel="preconnect"

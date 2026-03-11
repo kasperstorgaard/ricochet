@@ -1,6 +1,8 @@
 import { clsx } from "clsx/lite";
 import { HTMLAttributes } from "preact";
 
+import { CaretDown, Icon } from "#/components/icons.tsx";
+
 type SelectProps = HTMLAttributes<HTMLSelectElement> & {
   label: string;
   value: string;
@@ -41,7 +43,7 @@ export function Select(
           ))}
         </select>
 
-        <i className="ph-caret-down ph absolute right-2 pointer-events-none text-fl-0" />
+        <Icon icon={CaretDown} class="absolute right-2 pointer-events-none text-fl-0" />
       </div>
     </div>
   );

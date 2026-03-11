@@ -2,6 +2,7 @@ import clsx from "clsx/lite";
 import { page } from "fresh";
 
 import { Header } from "#/components/header.tsx";
+import { EnvelopeSimple, Icon } from "#/components/icons.tsx";
 import { Main } from "#/components/main.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { define } from "#/core.ts";
@@ -78,7 +79,7 @@ export default define.page<typeof handler>(function ProfilePage(props) {
                   </div>
                   <div>
                     <a href="/auth/login?return_to=/profile" className="btn">
-                      <i className="ph ph-envelope-simple" aria-hidden="true" />
+                      <Icon icon={EnvelopeSimple} />
                       Log in with email
                     </a>
                   </div>

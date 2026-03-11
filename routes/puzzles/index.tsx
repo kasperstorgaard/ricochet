@@ -2,6 +2,7 @@ import { clsx } from "clsx/lite";
 import { HttpError, page } from "fresh";
 
 import { Header } from "#/components/header.tsx";
+import { Icon, Pencil } from "#/components/icons.tsx";
 import { Main } from "#/components/main.tsx";
 import { Pagination } from "#/components/pagination.tsx";
 import { Panel } from "#/components/panel.tsx";
@@ -111,7 +112,7 @@ export default define.page<typeof handler>(
               href="/puzzles/new"
               className="btn"
             >
-              <i className="ph ph-pencil" />
+              <Icon icon={Pencil} />
               Build a puzzle
             </a>
           </div>

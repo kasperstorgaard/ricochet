@@ -1,6 +1,7 @@
 import { page } from "fresh";
 
 import { Header } from "#/components/header.tsx";
+import { Icon, Info } from "#/components/icons.tsx";
 import { Main } from "#/components/main.tsx";
 import { define } from "#/core.ts";
 
@@ -86,7 +87,7 @@ export default define.page<typeof handler>(function ContributePage(props) {
             </p>
 
             <blockquote className="callout">
-              <i className="ph-info ph" />
+              <Icon icon={Info} />
               <p>
                 There is a <strong>Preview</strong>{" "}
                 button in the editor that you can use to test your puzzle.
@@ -146,7 +147,7 @@ export default define.page<typeof handler>(function ContributePage(props) {
             </ol>
 
             <blockquote className="callout">
-              <i className="ph-info ph" />
+              <Icon icon={Info} />
               <p>
                 You can also follow the directions from the github README.md on
                 how to run the app locally — this will let you save them

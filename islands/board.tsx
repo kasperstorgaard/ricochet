@@ -5,6 +5,7 @@ import { useCallback, useMemo, useRef } from "preact/hooks";
 import { useMoves } from "#/client/moves.ts";
 import { useRouter } from "#/client/router.ts";
 import { calculateMoveSpeed } from "#/client/touch.ts";
+import { Icon, X } from "#/components/icons.tsx";
 import {
   getGrid,
   getTargets,
@@ -290,7 +291,7 @@ function BoardDestination({ x, y }: Position) {
         "--y": y,
       }}
     >
-      <i className="ph-x ph text-ui-1 text-[calc(var(--space-w)-4px)]" />
+      <Icon icon={X} class="text-ui-1 text-[calc(var(--space-w)-4px)]" />
     </div>
   );
 }
