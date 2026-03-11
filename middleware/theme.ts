@@ -5,7 +5,17 @@ import { tracer } from "#/lib/telemetry.ts";
 export const theme = define.middleware((ctx) =>
   tracer.startActiveSpan("middleware.theme", async (span) => {
     try {
-      ctx.state.theme = (await getUserTheme(ctx.state.userId)) ?? "skub";
+      ctx.state.theme = await tracer.startActiveSpan(
+        "kv.getUserTheme",
+        async (span) => {
+          try {
+            return (await getUserTheme(ctx.state.userId)) ?? "skub";
+          } finally {
+            span.end();
+          }
+        },
+      );
+
       return await ctx.next();
     } catch (err) {
       span.recordException(err as Error);

@@ -9,7 +9,17 @@ import { tracer } from "#/lib/telemetry.ts";
 export const onboarding = define.middleware((ctx) =>
   tracer.startActiveSpan("middleware.onboarding", async (span) => {
     try {
-      ctx.state.onboarding = await getUserOnboarding(ctx.state.userId);
+      ctx.state.onboarding = await tracer.startActiveSpan(
+        "kv.getUserOnboarding",
+        async (span) => {
+          try {
+            return await getUserOnboarding(ctx.state.userId);
+          } finally {
+            span.end();
+          }
+        },
+      );
+
       return await ctx.next();
     } catch (err) {
       span.recordException(err as Error);
