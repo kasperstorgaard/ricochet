@@ -24,7 +24,7 @@ type PageData = {
 
 export const handler = define.handlers<PageData>({
   async GET(ctx) {
-    const { onboarding } = ctx.state;
+    const { user } = ctx.state;
 
     const [dailyPuzzle, userSolutions] = await Promise.all([
       getLatestPuzzle(),
@@ -34,7 +34,7 @@ export const handler = define.handlers<PageData>({
     if (!dailyPuzzle) throw new HttpError(500, "Unable to get daily puzzle");
 
     let randomPuzzle: Puzzle | null;
-    if (onboarding === "started") {
+    if (user.onboarding === "started") {
       randomPuzzle = await getPuzzle("karla");
     } else {
       randomPuzzle = await getRandomPuzzle({
@@ -60,7 +60,7 @@ export default define.page<typeof handler>(function Home(ctx) {
   const url = new URL(ctx.req.url);
 
   const { dailyPuzzle, randomPuzzle, bestMoves } = ctx.data;
-  const { onboarding } = ctx.state;
+  const { user } = ctx.state;
 
   return (
     <>
@@ -94,7 +94,7 @@ export default define.page<typeof handler>(function Home(ctx) {
           </li>
 
           <li className="list-none pl-0 min-w-0">
-            {onboarding === "new"
+            {user.onboarding === "new"
               ? (
                 <div className="flex flex-col gap-0.5">
                   <a
@@ -120,7 +120,7 @@ export default define.page<typeof handler>(function Home(ctx) {
               : (
                 <PuzzleCard
                   puzzle={randomPuzzle!}
-                  tagline={onboarding === "started"
+                  tagline={user.onboarding === "started"
                     ? "Warm-up puzzle"
                     : "Random puzzle"}
                   bestMoves={bestMoves[randomPuzzle.slug]}

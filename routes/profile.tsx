@@ -45,11 +45,11 @@ export default define.page<typeof handler>(function ProfilePage(props) {
           </h1>
 
           <section className="flex flex-col gap-fl-2 md:gap-fl-1">
-            {user.theme
+            {user.email
               ? (
                 <>
                   <div className="flex items-center gap-fl-2">
-                    <span>{user.theme}</span>
+                    <span>{user.email}</span>
                     <a href="/auth/logout">
                       Log out
                     </a>

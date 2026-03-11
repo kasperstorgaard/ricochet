@@ -22,7 +22,7 @@ export default define.page(
     return (
       <html
         className="min-h-dvh"
-        data-theme={state.user.theme ?? undefined}
+        data-theme={state.user.theme ?? "skub"}
       >
         <head>
           <meta charset="utf-8" />

@@ -15,13 +15,13 @@ export const user = define.middleware((ctx) => {
 
   return tracer.startActiveSpan("middleware.user", async (span) => {
     try {
-      const user = await tracer.startActiveSpan(
+      let user = await tracer.startActiveSpan(
         "kv.getUser",
-        async (s) => {
+        async (span) => {
           try {
             return await getUser(ctx.state.userId);
           } finally {
-            s.end();
+            span.end();
           }
         },
       );
@@ -29,8 +29,9 @@ export const user = define.middleware((ctx) => {
       if (user) {
         ctx.state.user = user;
       } else {
-        await setUser(ctx.state.userId, { onboarding: "new" });
-        ctx.state.user = { id: ctx.state.userId, onboarding: "new" };
+        user = { id: ctx.state.userId, onboarding: "new", theme: "skub" };
+        await setUser(ctx.state.userId, user);
+        ctx.state.user = user;
       }
 
       return await ctx.next();
