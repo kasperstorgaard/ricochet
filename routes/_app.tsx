@@ -42,27 +42,20 @@ export default define.page(
               content={`${url.origin}/puzzles/${ogSlug}/og-image`}
             />
           )}
+          <link
+            rel="preload"
+            as="font"
+            type="font/woff2"
+            href="/fonts/chakra-petch-400.woff2"
+            crossOrigin="anonymous"
+          />
+
           <link rel="icon" type="image/svg+xml" href="/favicon-light.svg" />
           <link
             rel="icon"
             type="image/svg+xml"
             href="/favicon-dark.svg"
             media="(prefers-color-scheme: dark)"
-          />
-          <link
-            rel="stylesheet"
-            type="text/css"
-            href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css"
-          />
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link
-            rel="preconnect"
-            href="https://fonts.gstatic.com"
-            crossorigin="anonymous"
-          />
-          <link
-            href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500&display=swap"
-            rel="stylesheet"
           />
           {/* Tiny script to indicate JavaScript is enabled, needed for styling */}
           <script

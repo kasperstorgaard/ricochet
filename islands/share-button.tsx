@@ -1,6 +1,8 @@
 import { clsx } from "clsx/lite";
 import { useCallback } from "preact/hooks";
 
+import { Icon, ShareNetwork } from "#/components/icons.tsx";
+
 type ShareButtonProps = {
   url: string;
   title?: string;
@@ -26,7 +28,7 @@ export function ShareButton({ url }: ShareButtonProps) {
         "hover:text-link",
       )}
     >
-      <i className="ph ph-share-network" />
+      <Icon icon={ShareNetwork} />
     </button>
   );
 }

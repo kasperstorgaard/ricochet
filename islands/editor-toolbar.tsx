@@ -3,6 +3,7 @@ import clsx from "clsx/lite";
 import { useMemo } from "preact/hooks";
 
 import { useEditor } from "#/client/editor.ts";
+import { Icon, X } from "#/components/icons.tsx";
 import type { Puzzle } from "#/game/types.ts";
 import { decodeState } from "#/game/url.ts";
 
@@ -114,7 +115,7 @@ export function EditorToolbar({ href, puzzle, className }: EditorToolbarProps) {
         onClick={setDestination}
       >
         <div className="size-5 border-2 border-ui-1 flex items-center justify-center">
-          <i className="ph-x ph text-ui-1 text-fl-0" />
+          <Icon icon={X} className="text-ui-1 text-fl-0" />
         </div>
       </button>
 

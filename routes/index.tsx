@@ -2,6 +2,12 @@ import clsx from "clsx/lite";
 import { HttpError, page } from "fresh";
 
 import { Header } from "#/components/header.tsx";
+import {
+  ArrowRight,
+  GithubLogo,
+  Icon,
+  LinkedinLogo,
+} from "#/components/icons.tsx";
 import { Main } from "#/components/main.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { PuzzleCard } from "#/components/puzzle-card.tsx";
@@ -101,7 +107,7 @@ export default define.page<typeof handler>(function Home(ctx) {
                     )}
                   >
                     Tutorial
-                    <i className="ph ph-arrow-right" />
+                    <Icon icon={ArrowRight} />
                   </a>
                   <span className="text-0 text-text-2 tracking-wide leading-flat mt-1.5 -mb-0.5">
                     New here?
@@ -132,7 +138,7 @@ export default define.page<typeof handler>(function Home(ctx) {
                 "hover:filter-[lighten(1.3)] hover:no-underline",
               )}
             >
-              Archives <i className="ph ph-arrow-right" />
+              Archives <Icon icon={ArrowRight} />
             </a>
           </li>
         </ul>
@@ -156,15 +162,15 @@ export default define.page<typeof handler>(function Home(ctx) {
           <div className="flex gap-2 lg:flex-col">
             <a
               href="https://github.com/kasperstorgaard/ricochet"
-              className="text-text-2"
+              className="flex gap-1 text-text-2"
             >
-              <i className="ph ph-github-logo" /> GitHub
+              <Icon icon={GithubLogo} />GitHub
             </a>
             <a
               href="https://www.linkedin.com/in/kasper-storgaard-t-lead"
-              className="text-text-2"
+              className="flex gap-1 text-text-2"
             >
-              <i className="ph ph-linkedin-logo" /> LinkedIn
+              <Icon icon={LinkedinLogo} />LinkedIn
             </a>
           </div>
         </div>

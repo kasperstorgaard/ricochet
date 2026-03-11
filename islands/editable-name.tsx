@@ -3,6 +3,7 @@ import type { Signal } from "@preact/signals";
 import clsx from "clsx/lite";
 import { useRef } from "preact/hooks";
 
+import { Icon, PencilSimple } from "#/components/icons.tsx";
 import type { Puzzle } from "#/game/types.ts";
 
 type EditableNameProps = {
@@ -45,7 +46,7 @@ export function EditableName(
         onClick={() => textRef.current?.focus()}
         className="flex items-center bg-transparent m-0 p-0"
       >
-        <i className="ph-pencil-simple ph text-text-2 text-fl-0" />
+        <Icon icon={PencilSimple} className="text-text-2 text-fl-0" />
       </button>
     </h1>
   );

@@ -2,6 +2,7 @@ import type { Signal } from "@preact/signals";
 import { clsx } from "clsx/lite";
 import { useEffect, useMemo } from "preact/hooks";
 
+import { Icon, X } from "#/components/icons.tsx";
 import type { Solution } from "#/db/types.ts";
 import { getReplaySpeed } from "#/game/url.ts";
 import { Dialog } from "#/islands/dialog.tsx";
@@ -254,7 +255,7 @@ function IconBlocker() {
 function IconDestination() {
   return (
     <span className="inline-flex items-center justify-center w-5 h-5 border border-ui-1">
-      <i className="ph-x ph text-ui-1 text-[1.3em]" />
+      <Icon icon={X} className="text-ui-1 text-[1.3em]" />
     </span>
   );
 }

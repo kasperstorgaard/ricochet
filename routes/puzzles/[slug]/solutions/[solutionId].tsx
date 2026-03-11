@@ -3,6 +3,7 @@ import clsx from "clsx/lite";
 import { HttpError, page } from "fresh";
 
 import { Header } from "#/components/header.tsx";
+import { Icon, Play } from "#/components/icons.tsx";
 import { Main } from "#/components/main.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { define } from "#/core.ts";
@@ -92,7 +93,7 @@ export default define.page<typeof handler>(function SolutionReplayPage(props) {
             href={props.url.href}
             className="btn"
           >
-            <i className="ph ph-play" />
+            <Icon icon={Play} />
             Watch again
           </a>
         </div>

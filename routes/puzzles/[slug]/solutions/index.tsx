@@ -4,6 +4,7 @@ import { HttpError, page } from "fresh";
 import { useMemo } from "preact/hooks";
 
 import { Header } from "#/components/header.tsx";
+import { Icon, Play, Shuffle, Trophy } from "#/components/icons.tsx";
 import { Main } from "#/components/main.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { define } from "#/core.ts";
@@ -164,7 +165,7 @@ export default define.page<typeof handler>(function SolutionsListPage(props) {
             href={`/puzzles/${puzzle.value.slug}/clone`}
             className="btn"
           >
-            <i className="ph-shuffle ph" /> Remix
+            <Icon icon={Shuffle} /> Remix
           </a>
         </div>
       </Panel>
@@ -227,7 +228,7 @@ function SolutionRow(
                   "rounded-1 bg-ui-2/10 border border-ui-2/20 text-ui-2 whitespace-nowrap leading-tight",
                 )}
               >
-                <i className="ph ph-trophy" /> perfect
+                <Icon icon={Trophy} /> perfect
               </span>
             )}
           </div>
@@ -235,7 +236,7 @@ function SolutionRow(
         </div>
 
         <span className="text-fl-0 text-text-link leading-tight whitespace-nowrap hover:text-link">
-          <i className="text-sm leading-flat ph ph-play" />{" "}
+          <Icon icon={Play} className="text-sm leading-flat" />{" "}
           <span className="max-md:hidden">Watch</span>
         </span>
       </a>

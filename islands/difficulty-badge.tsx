@@ -3,6 +3,7 @@ import { clsx } from "clsx/lite";
 import { useEffect, useRef, useState } from "preact/hooks";
 
 import { useDebouncedCallback } from "#/client/use-debounced-callback.ts";
+import { Icon, Warning } from "#/components/icons.tsx";
 import { validateBoard } from "#/game/board.ts";
 import type { Board, Puzzle } from "#/game/types.ts";
 
@@ -78,7 +79,7 @@ export function DifficultyBadge({ puzzle, className }: DifficultyBadgeProps) {
       )}
       title={error ? error : undefined}
     >
-      {error ? <i className="ph-warning ph" /> : (
+      {error ? <Icon icon={Warning} /> : (
         <>
           <span
             className="text-center text-fl-0 px-fl-1 uppercase cursor-help"

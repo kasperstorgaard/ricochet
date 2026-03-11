@@ -1,5 +1,7 @@
 import { clsx } from "clsx/lite";
 
+import { CaretLeft, CaretRight, Icon } from "#/components/icons.tsx";
+
 type Props = {
   page: number;
   totalPages: number;
@@ -36,7 +38,7 @@ export function Pagination({ page, totalPages, baseUrl, className }: Props) {
         aria-disabled={!hasNext ? true : undefined}
         aria-label="Previous page"
       >
-        <i className="ph-caret-left ph" />
+        <Icon icon={CaretLeft} />
       </a>
 
       <span className="text-fl-0 text-text-2">
@@ -50,7 +52,7 @@ export function Pagination({ page, totalPages, baseUrl, className }: Props) {
         aria-disabled={!hasNext ? true : undefined}
         aria-label="Next page"
       >
-        <i className="ph-caret-right ph" />
+        <Icon icon={CaretRight} />
       </a>
     </nav>
   );

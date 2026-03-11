@@ -3,6 +3,21 @@ import { clsx } from "clsx/lite";
 import { useCallback, useMemo, useState } from "preact/hooks";
 
 import { useRouter } from "#/client/router.ts";
+import {
+  ArrowClockwise,
+  ArrowRight,
+  ArrowSquareIn,
+  CaretLeft,
+  CircleNotch,
+  DownloadSimple,
+  Eye,
+  FlipHorizontal,
+  FlipVertical,
+  FloppyDisk,
+  Gear,
+  Icon,
+  Shuffle,
+} from "#/components/icons.tsx";
 import { NumberRange } from "#/components/number-range.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { Select } from "#/components/select.tsx";
@@ -140,7 +155,7 @@ export function EditorPanel(
                 };
               }}
             >
-              <i className="ph-arrow-clockwise ph" />
+              <Icon icon={ArrowClockwise} />
               <span className="sr-only">Rotate 90°</span>
             </button>
 
@@ -155,7 +170,7 @@ export function EditorPanel(
                 };
               }}
             >
-              <i className="ph-flip-horizontal ph" />
+              <Icon icon={FlipHorizontal} />
               <span className="sr-only">Mirror Horizontally</span>
             </button>
 
@@ -170,7 +185,7 @@ export function EditorPanel(
                 };
               }}
             >
-              <i className="ph-flip-vertical ph" />
+              <Icon icon={FlipVertical} />
               <span className="sr-only">Mirror Vertically</span>
             </button>
           </div>
@@ -182,11 +197,9 @@ export function EditorPanel(
               disabled={isGenerating}
               onClick={onGenerate}
             >
-              <i
-                className={clsx(
-                  "ph",
-                  isGenerating ? "ph-circle-notch animate-spin" : "ph-shuffle",
-                )}
+              <Icon
+                icon={isGenerating ? CircleNotch : Shuffle}
+                className={isGenerating ? "animate-spin" : undefined}
               />
               Generate
             </button>
@@ -197,7 +210,7 @@ export function EditorPanel(
               data-size="sm"
               onClick={() => setShowOptions(!showOptions)}
             >
-              <i className="ph-gear ph" />
+              <Icon icon={Gear} />
             </button>
           </div>
         </div>
@@ -209,7 +222,7 @@ export function EditorPanel(
               className="btn"
               onClick={onSave}
             >
-              <i className="ph-floppy-disk ph" />Save
+              <Icon icon={FloppyDisk} />Save
             </button>
           )}
 
@@ -218,7 +231,7 @@ export function EditorPanel(
             download
             className="btn"
           >
-            <i className="ph-download-simple ph" />Download
+            <Icon icon={DownloadSimple} />Download
           </a>
 
           <form
@@ -228,7 +241,7 @@ export function EditorPanel(
             className="flex flex-row gap-1"
           >
             <label className="btn cursor-pointer flex-1">
-              <i className="ph-arrow-square-in ph" />Import
+              <Icon icon={ArrowSquareIn} />Import
               <input
                 type="file"
                 name="file"
@@ -239,7 +252,7 @@ export function EditorPanel(
             </label>
             <noscript>
               <button className="icon-btn" type="submit" data-size="sm">
-                <i className="ph-arrow-right ph" />
+                <Icon icon={ArrowRight} />
               </button>
             </noscript>
           </form>
@@ -258,7 +271,7 @@ export function EditorPanel(
               globalThis.open(`/puzzles/preview?${search}`, "_blank");
             }}
           >
-            <i className="ph-eye ph" /> Preview
+            <Icon icon={Eye} /> Preview
           </button>
         </div>
       </div>
@@ -276,7 +289,7 @@ export function EditorPanel(
             className="btn"
             onClick={() => setShowOptions(false)}
           >
-            <i className="ph-caret-left ph" />Back
+            <Icon icon={CaretLeft} />Back
           </button>
         </div>
 

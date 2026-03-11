@@ -2,6 +2,7 @@ import { type Signal } from "@preact/signals";
 import clsx from "clsx/lite";
 import { useMemo, useState } from "preact/hooks";
 
+import { Icon, Info, Spinner } from "#/components/icons.tsx";
 import { isValidSolution, resolveMoves } from "#/game/board.ts";
 import { getSolutionPercentile } from "#/game/stats.ts";
 import { Move, Onboarding, Puzzle, PuzzleStats } from "#/game/types.ts";
@@ -73,7 +74,7 @@ export function SolutionDialog(
 
       {!isPreview && error === "duplicate" && (
         <div className="flex gap-fl-1 items-center">
-          <i className="ph ph-info text-fl-1" />
+          <Icon icon={Info} className="text-fl-1" />
           <p className="text-text-2 leading-tight">
             You've already posted this solution -
             <br />
@@ -152,7 +153,7 @@ export function SolutionDialog(
             disabled={!hasSolution || isSubmitting}
           >
             {isSubmitting
-              ? <i className="ph ph-spinner animate-spin" />
+              ? <Icon icon={Spinner} className="animate-spin" />
               : "Post solution"}
           </button>
         )}

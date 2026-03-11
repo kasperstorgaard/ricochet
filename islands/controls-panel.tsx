@@ -4,6 +4,14 @@ import { useCallback, useEffect, useMemo } from "preact/hooks";
 
 import { useGameShortcuts } from "#/client/keyboard.ts";
 import { updateLocation } from "#/client/router.ts";
+import {
+  ArrowArcLeft,
+  ArrowArcRight,
+  Download,
+  Icon,
+  Printer,
+  Trophy,
+} from "#/components/icons.tsx";
 import { Panel } from "#/components/panel.tsx";
 import { Onboarding, Puzzle } from "#/game/types.ts";
 import {
@@ -99,7 +107,7 @@ export function ControlsPanel(
               data-size="lg"
               data-router="replace"
             >
-              <i className="ph-arrow-arc-left ph" />
+              <Icon icon={ArrowArcLeft} />
             </a>
 
             <div
@@ -124,7 +132,7 @@ export function ControlsPanel(
               data-size="lg"
               data-router="replace"
             >
-              <i className="ph-arrow-arc-right text-current ph" />
+              <Icon icon={ArrowArcRight} />
             </a>
           </div>
 
@@ -173,31 +181,23 @@ export function ControlsPanel(
             className="btn"
             onClick={() => globalThis.print()}
           >
-            <i className="ph-printer ph" /> Print
+            <Icon icon={Printer} /> Print
           </button>
 
-          {onboarding !== "done" && !isPreview &&
-              puzzle.value.slug !== "preview"
-            ? (
+          {!isPreview &&
+            puzzle.value.slug !== "preview" &&
+            (
               <a
                 href={`/puzzles/${puzzle.value.slug}/solutions`}
                 className="btn"
               >
-                <i className="ph-trophy ph" /> Solutions
-              </a>
-            )
-            : puzzle.value.slug !== "preview" && (
-              <a
-                href={`/puzzles/${puzzle.value.slug}/clone`}
-                className="btn"
-              >
-                <i className="ph-shuffle ph" /> Remix
+                <Icon icon={Trophy} /> Solutions
               </a>
             )}
 
           {isPreview && (
             <a href="/api/export" download className="btn">
-              <i className="ph-download ph" />
+              <Icon icon={Download} />
               Download
             </a>
           )}

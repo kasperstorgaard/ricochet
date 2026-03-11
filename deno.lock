@@ -43,6 +43,7 @@
     "npm:@babel/preset-react@^7.27.1": "7.28.5_@babel+core@7.29.0",
     "npm:@mjackson/node-fetch-server@0.7": "0.7.0",
     "npm:@opentelemetry/api@^1.9.0": "1.9.0",
+    "npm:@phosphor-icons/core@^2.1.1": "2.1.1",
     "npm:@preact/signals@^2.2.1": "2.6.2_preact@10.28.3",
     "npm:@preact/signals@^2.5.0": "2.6.2_preact@10.28.3",
     "npm:@prefresh/vite@^2.4.8": "2.4.11_preact@10.28.3_vite@7.3.1__picomatch@4.0.3",
@@ -940,6 +941,9 @@
     "@opentelemetry/semantic-conventions@1.39.0": {
       "integrity": "sha512-R5R9tb2AXs2IRLNKLBJDynhkfmx7mX0vi8NkhZb3gUkPWHn6HXk5J8iQ/dql0U3ApfWym4kXXmBDRGO+oeOfjg=="
     },
+    "@phosphor-icons/core@2.1.1": {
+      "integrity": "sha512-v4ARvrip4qBCImOE5rmPUylOEK4iiED9ZyKjcvzuezqMaiRASCHKcRIuvvxL/twvLpkfnEODCOJp5dM4eZilxQ=="
+    },
     "@posthog/core@1.19.0": {
       "integrity": "sha512-OMcdu5cJcvkle2hw0rpe+1mTOFRlerTHTtZKZFvB8z0hgzbN1WeaGZfGFY5wOq42LVTSxwdUgK1MYERyzG1Epw==",
       "dependencies": [
@@ -1794,6 +1798,7 @@
       "jsr:@std/text@^1.0.17",
       "jsr:@std/ulid@1",
       "jsr:@std/yaml@^1.0.11",
+      "npm:@phosphor-icons/core@^2.1.1",
       "npm:@preact/signals@^2.5.0",
       "npm:@tailwindcss/vite@^4.1.18",
       "npm:clsx@^2.1.1",

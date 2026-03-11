@@ -74,8 +74,8 @@ export const handler = define.handlers({
         issuer: issuerUrl.href,
         audience: clientId,
       });
-      sub = payload.sub;
-      email = payload.email as string | undefined;
+      sub = payload.sub as string;
+      email = payload.email as string;
     } catch {
       return new Response("ID token validation failed", { status: 401 });
     }
