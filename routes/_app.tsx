@@ -42,6 +42,14 @@ export default define.page(
               content={`${url.origin}/puzzles/${ogSlug}/og-image`}
             />
           )}
+          <link
+            rel="preload"
+            as="font"
+            type="font/woff2"
+            href="/fonts/chakra-petch-400.woff2"
+            crossOrigin="anonymous"
+          />
+
           <link rel="icon" type="image/svg+xml" href="/favicon-light.svg" />
           <link
             rel="icon"

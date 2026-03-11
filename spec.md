@@ -19,31 +19,37 @@ Instead of loading a CSS+woff2 icon font from unpkg, render icons as inline SVGs
 **Codegen script** — `scripts/update-icons.ts`:
 - Reads all SVG files from `node_modules/@phosphor-icons/core/assets/regular/`
 - Strips the `<svg>` wrapper, keeps the inner path content
-- Writes `components/icons.ts` with all ~1300 icons as named exports (`ArrowLeft`, `Check`, etc.)
+- Writes one `.ts` file per icon into `components/icons/` (e.g. `arrow-left.ts`)
+- Regenerates `components/icons/index.ts` as a barrel re-exporting all icons
 - Run once after install; re-run only when upgrading `@phosphor-icons/core`
-- Add as `deno task update-icons`
+- Available as `deno task update-icons`
 
-**`components/icons.ts`** — single file for everything icon-related:
-- Generated path data: all ~1300 icons as named exports (`ArrowLeft`, `Check`, etc.)
-- `Icon` component: accepts a path-data string + optional `class` prop, renders `<svg width="1em" height="1em" fill="currentColor">` so icons scale with `text-*` classes as before, `aria-hidden="true"` by default
-- One import covers both: `import { Icon, ArrowLeft } from "#/components/icons"`
+**`components/icons.tsx`** — thin entry point:
+- `Icon` component: accepts a path-data string + optional `className`, renders `<svg width="1em" height="1em" fill="currentColor" class="inline align-middle">` so icons scale with `text-*` classes
+- Re-exports all icons via `export * from "#/components/icons/index.ts"`
+- One import covers both: `import { Icon, ArrowLeft } from "#/components/icons.tsx"`
 
-**Migration**: Replace all `<i className="ph ph-name extra">` usages with `<Icon icon={ArrowLeft} class="extra" />` across 19 files (33 instances).
+Individual icon files stay small (~200 bytes each), avoiding Babel's 500KB deoptimisation limit. Tree-shaking removes unused icons in production.
+
+**Migration**: Replaced all `<i className="ph ph-name extra">` usages with `<Icon icon={ArrowLeft} className="extra" />` across 19 files (33 instances).
 
 Remove the Phosphor `<link>` from `_app.tsx`.
 
 ### 2. Self-host Chakra Petch
 
-Download the three `.woff2` files (weights 300, 400, 500) from Google Fonts and serve them from `/static/fonts/`. Add `@font-face` declarations with `font-display: swap` in `styles.css`. Remove both `<link rel="preconnect">` and the `fonts.googleapis.com` stylesheet link from `_app.tsx`.
+Downloaded the latin-subset `.woff2` files (weights 300, 400, 500) from Google Fonts, served from `/static/fonts/`. Added `@font-face` declarations with `font-display: swap` in `styles.css`. Removed both `<link rel="preconnect">` and the `fonts.googleapis.com` stylesheet link from `_app.tsx`.
+
+Added `<link rel="preload" as="font">` for weight 400 only (most-used weight; others load from cache after first visit).
 
 ## Files changed
 
-- `deno.json` — remove `@phosphor-icons/core` (not needed at runtime)
-- `components/icons.ts` — generated SVG path data + `Icon` component
+- `deno.json` — added `@phosphor-icons/core` import + `update-icons` task
+- `scripts/update-icons.ts` — codegen script
+- `components/icons.tsx` — `Icon` component + barrel re-export
+- `components/icons/` — 1512 generated icon files + `index.ts` barrel
 - `components/header.tsx`, `components/pagination.tsx`, `components/puzzle-card.tsx`, `components/select.tsx` — icon migration
 - `islands/board.tsx`, `islands/controls-panel.tsx`, `islands/difficulty-badge.tsx`, `islands/editable-name.tsx`, `islands/editor-panel.tsx`, `islands/editor-toolbar.tsx`, `islands/share-button.tsx`, `islands/solution-dialog.tsx`, `islands/tutorial-dialog.tsx` — icon migration
 - `routes/contribute.tsx`, `routes/index.tsx`, `routes/profile.tsx`, `routes/puzzles/index.tsx`, `routes/puzzles/[slug]/solutions/index.tsx`, `routes/puzzles/[slug]/solutions/[solutionId].tsx` — icon migration
-- `routes/_app.tsx` — remove Phosphor link, remove Google Fonts links
+- `routes/_app.tsx` — remove Phosphor link, remove Google Fonts links, add font preload
 - `styles.css` — add `@font-face` for Chakra Petch
-- `static/fonts/` — add 3 Chakra Petch woff2 files
-- `.claude/skills/frontend/ui-style.md` — update icon approach note
+- `static/fonts/` — Chakra Petch woff2 files (latin subset, weights 300/400/500)
