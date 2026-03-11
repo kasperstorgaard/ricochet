@@ -1,3 +1,6 @@
+User-agent: Grok
+Disallow: /
+
 User-agent: GPTBot
 Disallow: /
 
@@ -10,6 +13,9 @@ Disallow: /
 User-agent: anthropic-ai
 Disallow: /
 
+User-agent: ClaudeBot
+Disallow: /
+
 User-agent: Bytespider
 Disallow: /
 
@@ -20,6 +26,12 @@ User-agent: meta-externalagent
 Disallow: /
 
 User-agent: facebookexternalhit
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: PerplexityBot
 Disallow: /
 
 User-agent: *
