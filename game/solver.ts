@@ -1,29 +1,18 @@
-import { COLS, getTargets, isPositionSame } from "#/game/board.ts";
+import { COLS, getTargets } from "#/game/board.ts";
 import type { Board, Move, Piece, Puzzle } from "#/game/types.ts";
 
 /**
  * Default solver limits.
  */
-const DEFAULT_MAX_DEPTH = 20;
-const DEFAULT_MAX_ITERATIONS = 1_000_000;
+const DEFAULT_MAX_DEPTH = 15;
 
 /**
  * Solver configuration options.
  */
 type SolverOptions = {
-  // Maximum search depth in moves (default: 20)
+  // Maximum search depth in moves (default: 15)
   maxDepth?: number;
-  // Maximum states to explore (default: 100,000)
-  maxIterations?: number;
 };
-
-// Error thrown when the solver exceeds the maximum number of iterations
-export class SolverLimitExceededError extends Error {
-  constructor(limit: number) {
-    super(`Solver limit ${limit} exceeded`);
-    this.name = "SolverLimitExceededError";
-  }
-}
 
 // Error thrown when the solver exceeds the maximum search depth
 export class SolverDepthExceededError extends Error {
@@ -32,6 +21,12 @@ export class SolverDepthExceededError extends Error {
     this.name = "SolverDepthExceededError";
   }
 }
+
+export type SolverProgress = { depth: number };
+export type SolverEvent =
+  | { type: "progress" } & SolverProgress
+  | { type: "solution"; moves: Move[] }
+  | { type: "error"; message: string };
 
 /**
  * Compact piece representation for efficient state handling.
@@ -43,131 +38,141 @@ type CompactPiece = {
 };
 
 /**
- * Solves a Skub puzzle using BFS to find the minimum move solution.
+ * Core IDA* Best First Search as a sync generator.
  *
- * @param puzzleOrBoard - The puzzle or board to solve
- * @param options - Optional solver configuration
- * @returns The solution as Move[] or null if no solution found within limits
+ * Uses O(depth) stack memory — no states array, no global visited set, no heap.
+ * A within-pass transposition table (TT) prevents re-exploring states at the
+ * same or higher cost within a threshold pass, matching A* efficiency per pass.
+ * The TT is cleared between passes so memory stays proportional to states
+ * explored in the current pass, not the entire search.
+ *
+ * Yields a progress event before each threshold pass, then yields the solution
+ * event when found.
+ * Throws SolverDepthExceededError or "Unsolvable puzzle".
  */
-export function solve(
+export function* solve(
+  puzzleOrBoard: Board | Puzzle,
+  options: SolverOptions,
+): Generator<SolverEvent> {
+  const board = "board" in puzzleOrBoard ? puzzleOrBoard.board : puzzleOrBoard;
+
+  const { destination, walls } = board;
+  const maxDepth = options.maxDepth ?? DEFAULT_MAX_DEPTH;
+
+  const destPos = destination.y * COLS + destination.x;
+  const initialPieces = board.pieces.map(toCompact);
+  const initialPuck = initialPieces.find((p) => p.type === "puck")!;
+
+  let threshold = heuristicRank(initialPuck.pos, destPos);
+
+  // Reusable move history — avoids array allocation per recursive call.
+  const moveHistory: Move[] = [];
+
+  // Within-pass transposition table: state key -> minimum g-cost seen this pass.
+  // Cleared between passes so memory stays bounded to the current pass.
+  const transpositionTable = new Map<string, number>();
+
+  const dfs = (pieces: CompactPiece[], g: number): Move[] | number => {
+    const key = serializeState(pieces);
+    const best = transpositionTable.get(key);
+    if (best !== undefined && best <= g) return Infinity;
+    transpositionTable.set(key, g);
+
+    const puck = pieces.find((p) => p.type === "puck")!;
+    const f = g + heuristicRank(puck.pos, destPos);
+
+    if (f > threshold) return f;
+    if (puck.pos === destPos) return [...moveHistory];
+
+    let minNext = Infinity;
+
+    for (const move of enumerateMoves(pieces, walls)) {
+      const newPieces = applyMove(pieces, move);
+      moveHistory.push(move);
+      const result = dfs(newPieces, g + 1);
+      moveHistory.pop();
+      if (Array.isArray(result)) return result;
+      if (result < minNext) minNext = result;
+    }
+
+    return minNext;
+  };
+
+  while (threshold <= maxDepth) {
+    transpositionTable.clear();
+    yield { type: "progress", depth: threshold };
+
+    const result = dfs(initialPieces, 0);
+
+    if (Array.isArray(result)) {
+      yield { type: "solution", moves: result };
+      return;
+    }
+
+    if (result === Infinity) throw new Error("Unsolvable puzzle");
+
+    threshold = result;
+  }
+
+  throw new SolverDepthExceededError(maxDepth);
+}
+
+/**
+ * Solves a puzzle using IDA* to find the minimum move solution.
+ */
+export function solveSync(
   puzzleOrBoard: Puzzle | Board,
   options: SolverOptions = {},
 ): Move[] {
   const board = "board" in puzzleOrBoard ? puzzleOrBoard.board : puzzleOrBoard;
-  const { destination, walls } = board;
 
-  const maxDepth = options.maxDepth ?? DEFAULT_MAX_DEPTH;
-  const maxIterations = options.maxIterations ?? DEFAULT_MAX_ITERATIONS;
-
-  // Add initial state
-  const initialPieces = board.pieces.map(toCompact);
-  const initialKey = serializeState(initialPieces);
-
-  const visited = new Set([initialKey]);
-  const queue = [{
-    pieces: initialPieces,
-    moves: [] as Move[],
-  }];
-
-  let queueHead = 0;
-
-  while (queueHead < queue.length) {
-    if (queueHead > maxIterations) {
-      throw new SolverLimitExceededError(maxIterations);
-    }
-
-    const current = queue[queueHead++];
-
-    if (current.moves.length >= maxDepth) {
-      throw new SolverDepthExceededError(maxDepth);
-    }
-
-    // Convert to full pieces for move generation (needed by getTargets)
-    const fullPieces = current.pieces.map(fromCompact);
-
-    // Generate all possible moves from current state
-    const possibleMoves = generateAllMoves(fullPieces, walls);
-
-    for (const move of possibleMoves) {
-      const newPieces = applyMove(current.pieces, move);
-      const stateKey = serializeState(newPieces);
-
-      // Skip if we've seen this configuration
-      if (visited.has(stateKey)) continue;
-      visited.add(stateKey);
-
-      const newMoves = [...current.moves, move];
-
-      // Check if this is a solution (puck at destination)
-      const puckPiece = newPieces.find((p) => p.type === "puck")!;
-      const puckPos = {
-        x: puckPiece.pos % COLS,
-        y: Math.floor(puckPiece.pos / COLS),
-      };
-
-      if (isPositionSame(puckPos, destination)) {
-        return newMoves;
-      }
-
-      // Add to queue for further exploration
-      queue.push({ pieces: newPieces, moves: newMoves });
-    }
+  for (const event of solve(board, options)) {
+    if (event.type === "solution") return event.moves;
   }
 
   throw new Error("Unsolvable puzzle");
 }
 
 /**
- * Fast state key using numeric positions.
- * Since positions are 0-63 on an 8x8 board, we can pack them efficiently.
+ * String state key — safe for any number of pieces (no float precision overflow).
+ * Puck first, then blockers sorted by position.
  */
-function serializeState(pieces: CompactPiece[]): number {
-  // Sort: puck first, then by position
-  const sorted = [...pieces].sort((a, b) => {
-    if (a.type === "puck" && b.type !== "puck") return -1;
-    if (a.type !== "puck" && b.type === "puck") return 1;
-    return a.pos - b.pos;
-  });
-
-  // Pack into a single number (works for up to ~8 pieces on 8x8 board)
-  // Each position needs 6 bits (0-63), so we can fit 8 pieces in 48 bits
-  let key = 0;
-  for (let i = 0; i < sorted.length; i++) {
-    key = key * 64 + sorted[i].pos;
-  }
-  return key;
+function serializeState(pieces: CompactPiece[]): string {
+  return [...pieces]
+    .sort((a, b) => {
+      if (a.type === "puck" && b.type !== "puck") return -1;
+      if (a.type !== "puck" && b.type === "puck") return 1;
+      return a.pos - b.pos;
+    })
+    .map((piece) => `${piece.type[0]}${piece.pos}`)
+    .join(",");
 }
 
 /**
- * Applies a move directly without validation (we know it's valid from generateMoves).
+ * Applies a move directly without validation.
  */
-function applyMove(
-  pieces: CompactPiece[],
-  move: Move,
-): CompactPiece[] {
+function applyMove(pieces: CompactPiece[], move: Move): CompactPiece[] {
   const fromPos = move[0].y * COLS + move[0].x;
   const toPos = move[1].y * COLS + move[1].x;
-
-  return pieces.map((p) => p.pos === fromPos ? { ...p, pos: toPos } : p);
+  return pieces.map((piece) =>
+    piece.pos === fromPos ? { ...piece, pos: toPos } : piece
+  );
 }
 
 /**
- * Generates all valid moves from the current board state.
- * Each piece can potentially move in 4 directions (up, right, down, left).
+ * Enumerates all valid moves based on current board state.
  */
-function generateAllMoves(
-  pieces: Piece[],
+function enumerateMoves(
+  pieces: CompactPiece[],
   walls: Board["walls"],
 ): Move[] {
   const moves: Move[] = [];
+  const fullPieces = pieces.map(fromCompact);
 
-  for (const piece of pieces) {
-    const targets = getTargets(piece, { pieces, walls });
-
+  for (const piece of fullPieces) {
+    const targets = getTargets(piece, { pieces: fullPieces, walls });
     for (const target of Object.values(targets)) {
-      if (target) {
-        moves.push([{ x: piece.x, y: piece.y }, target]);
-      }
+      if (target) moves.push([{ x: piece.x, y: piece.y }, target]);
     }
   }
 
@@ -175,18 +180,27 @@ function generateAllMoves(
 }
 
 /**
- * Converts pieces to compact representation.
+ * Gets heuristic rank: lower bound on moves remaining.
+ *   0 — puck already at destination
+ *   1 — puck shares row or column with destination (might reach in one slide)
+ *   2 — puck needs at least two moves to reach destination
+ *
+ * Ignores walls intentionally — checking walls costs more than it saves per node.
+ * Never overestimates, so A* optimality is preserved.
  */
-function toCompact(piece: Piece): CompactPiece {
-  return {
-    pos: piece.y * COLS + piece.x,
-    type: piece.type,
-  };
+function heuristicRank(puckPos: number, destPos: number): number {
+  if (puckPos === destPos) return 0;
+  if (
+    puckPos % COLS === destPos % COLS ||
+    Math.floor(puckPos / COLS) === Math.floor(destPos / COLS)
+  ) return 1;
+  return 2;
 }
 
-/**
- * Converts compact piece back to full piece.
- */
+function toCompact(piece: Piece): CompactPiece {
+  return { pos: piece.y * COLS + piece.x, type: piece.type };
+}
+
 function fromCompact(piece: CompactPiece): Piece {
   return {
     x: piece.pos % COLS,

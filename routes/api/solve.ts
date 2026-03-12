@@ -1,6 +1,6 @@
 import { define } from "#/core.ts";
 import { validateBoard } from "#/game/board.ts";
-import { solve } from "#/game/solver.ts";
+import { solveSync } from "#/game/solver.ts";
 import type { Board } from "#/game/types.ts";
 
 // POST endpoint that returns a solve for the board, if possible.
@@ -22,7 +22,7 @@ export const handler = define.handlers({
     }
 
     try {
-      const solution = solve(board, { maxDepth: 20 });
+      const solution = solveSync(board, { maxDepth: 20 });
       return Response.json({ moves: solution });
     } catch {
       return new Response("Unsolvable", { status: 400 });

@@ -6,7 +6,7 @@ import { incrementHintUsageCount } from "#/db/stats.ts";
 import { resolveMoves } from "#/game/board.ts";
 import { getHintCount, setHintCount } from "#/game/cookies.ts";
 import { getPuzzle } from "#/game/loader.ts";
-import { solve } from "#/game/solver.ts";
+import { solveSync } from "#/game/solver.ts";
 import { encodeMoves } from "#/game/strings.ts";
 import { decodeState } from "#/game/url.ts";
 import { isDev } from "#/lib/env.ts";
@@ -55,7 +55,7 @@ export const handler = define.handlers({
         // Redirect to a reset puzzle if we are in an invalid state
         return Response.redirect(new URL(`/puzzles/${slug}`, ctx.url), 303);
       }
-      const nextMoves = solve(board);
+      const nextMoves = solveSync(board);
 
       // and storing the generated solution
       const addedSolve = await addSolve({
