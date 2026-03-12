@@ -2,11 +2,11 @@ import type { Signal } from "@preact/signals";
 import { clsx } from "clsx/lite";
 import { useEffect, useRef, useState } from "preact/hooks";
 
+import { useSolveStream } from "#/client/solve-stream.ts";
 import { useDebouncedCallback } from "#/client/use-debounced-callback.ts";
 import { Icon, Warning } from "#/components/icons.tsx";
 import { validateBoard } from "#/game/board.ts";
 import type { Board, Puzzle } from "#/game/types.ts";
-import { readSolveStream } from "#/lib/solve-stream.ts";
 
 type DifficultyBadgeProps = {
   puzzle: Signal<Puzzle>;
@@ -23,25 +23,21 @@ export function DifficultyBadge({ puzzle, className }: DifficultyBadgeProps) {
   const [solving, setSolving] = useState<{ depth: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchSolution = useDebouncedCallback(async (board: Board) => {
-    setSolving({ depth: 0 });
-
-    try {
-      for await (const event of readSolveStream(board)) {
-        if (event.type === "progress") {
-          setSolving({ depth: event.depth });
-        } else if (event.type === "solution") {
-          setMinMoves(event.moves.length);
-          setSolving(null);
-        } else if (event.type === "error") {
-          setError(event.message);
-          setSolving(null);
-        }
-      }
-    } catch (err) {
-      setError((err as Error).message);
+  const { start: startSolve } = useSolveStream((event) => {
+    if (event.type === "progress") {
+      setSolving({ depth: event.depth });
+    } else if (event.type === "solution") {
+      setMinMoves(event.moves.length);
+      setSolving(null);
+    } else if (event.type === "error") {
+      setError(event.message);
       setSolving(null);
     }
+  });
+
+  const fetchSolution = useDebouncedCallback((board: Board) => {
+    setSolving({ depth: 0 });
+    startSolve(board);
   }, 3000);
 
   useEffect(() => {

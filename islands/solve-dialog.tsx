@@ -1,24 +1,29 @@
 import type { Signal } from "@preact/signals";
 import { clsx } from "clsx/lite";
-import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
+import { useEffect, useMemo, useState } from "preact/hooks";
 
 import { Dialog } from "./dialog.tsx";
-import { updateLocation } from "#/client/router.ts";
 import { isValidSolution, resolveMoves } from "#/game/board.ts";
 import { encodeMoves } from "#/game/strings.ts";
 import { Puzzle } from "#/game/types.ts";
 import { decodeState, encodeState } from "#/game/url.ts";
-import { readSolveStream } from "#/lib/solve-stream.ts";
+import { useRouter } from "#/islands/router.tsx";
+import { useSolveStream } from "#/client/solve-stream.ts";
 
 type Props = {
-  open: boolean;
   puzzle: Signal<Puzzle>;
   href: Signal<string>;
 };
 
-export function SolveDialog({ open, puzzle, href }: Props) {
+export function SolveDialog({ puzzle, href }: Props) {
   const [modalState, setModalState] = useState<"solving" | "done" | null>(null);
   const gameState = useMemo(() => decodeState(href.value), [href.value]);
+  const { updateLocation } = useRouter();
+
+  const open = useMemo(() => {
+    const url = new URL(href.value);
+    return url.searchParams.get("dialog") === "solve";
+  }, [href.value]);
 
   const moves = useMemo(
     () => gameState.moves.slice(0, gameState.cursor ?? gameState.moves.length),
@@ -44,13 +49,30 @@ export function SolveDialog({ open, puzzle, href }: Props) {
     updateLocation(url.href);
   };
 
+  const { start: startSolve, cancel: cancelSolve } = useSolveStream((event) => {
+    if (event.type === "progress") {
+      setModalState("solving");
+      setRemainingMoves(event.depth);
+    } else if (event.type === "solution") {
+      const url = new URL(href.value);
+      url.searchParams.set("moves", encodeMoves(event.moves));
+      url.searchParams.set("cursor", (gameState.cursor ?? 0).toString());
+      updateLocation(url.href);
+      setModalState("done");
+    } else if (event.type === "error") {
+      // TODO: show error
+    }
+  });
+
   // React to ?dialog=solve appearing in the URL (set by the server-side hint route)
   useEffect(() => {
-    if (!open) return;
+    console.log({ open });
+    if (!open) {
+      cancelSolve();
+      return;
+    }
 
     const board = resolveMoves(puzzle.value.board, moves);
-
-    // Not cached: stream the solve client-side
     const isSolved = isValidSolution(board);
 
     if (isSolved) {
@@ -58,32 +80,16 @@ export function SolveDialog({ open, puzzle, href }: Props) {
       return;
     }
 
-    setModalState("solving");
+    console.log("start it!");
 
-    (async () => {
-      // TODO: add a hook for this to avoid useEffect with async
-      for await (const event of readSolveStream(board)) {
-        if (event.type === "progress") {
-          setModalState("solving");
-          setRemainingMoves(event.depth);
-        } else if (event.type === "solution") {
-          const url = new URL(href.value);
-          url.searchParams.set("moves", encodeMoves(event.moves));
-          url.searchParams.set("cursor", (gameState.cursor ?? 0).toString());
-          updateLocation(url.href);
-          setModalState("done");
-        } else if (event.type === "error") {
-          // TODO: show error
-          close();
-        }
-      }
-    })();
-  }, [open, href.value, puzzle.value]);
+    // Not cached: stream the solve client-side
+    startSolve(board);
+  }, [open, puzzle.value, moves]);
 
   return (
     <Dialog
       open={open}
-      className="max-w-sm!"
+      className="w-sm!"
     >
       {modalState === "solving" && (
         <div class="flex flex-col gap-fl-3">
@@ -129,7 +135,7 @@ export function SolveDialog({ open, puzzle, href }: Props) {
                 disabled={!open}
                 onClick={closeModal}
               >
-                Nice, show me
+                Got it
               </button>
             </form>
           </div>
