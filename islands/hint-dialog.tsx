@@ -1,6 +1,6 @@
 import type { Signal } from "@preact/signals";
 import { clsx } from "clsx/lite";
-import { useEffect, useMemo, useState } from "preact/hooks";
+import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 
 import { Dialog } from "./dialog.tsx";
 import { useSolveStream } from "../client/solve-stream.ts";
@@ -20,12 +20,25 @@ export function HintDialog({ puzzle, href }: Props) {
   const [modalState, setModalState] = useState<"solving" | "done" | null>(null);
   const gameState = useMemo(() => decodeState(href.value), [href.value]);
   const minMoves = puzzle.value.minMoves;
-  const { updateLocation } = useRouter();
+  const [searchDepth, setSearchDepth] = useState<number | null>(null);
+
+  const onLocationUpdated = useCallback((url: URL) => {
+    href.value = url.href;
+  }, []);
+
+  const { updateLocation } = useRouter({ onLocationUpdated });
 
   const open = useMemo(() => {
     const url = new URL(href.value);
     return url.searchParams.get("dialog") === "hint";
   }, [href.value]);
+
+  const [remainingMoves, setRemainingMoves] = useState(() => {
+    const url = new URL(href.value);
+    const rawValue = url.searchParams.get("remaining_moves");
+    const parsed = rawValue ? Number.parseInt(rawValue, 10) : null;
+    return Number.isNaN(parsed) || parsed == null ? null : parsed;
+  });
 
   const moves = useMemo(
     () => gameState.moves.slice(0, gameState.cursor ?? gameState.moves.length),
@@ -34,13 +47,6 @@ export function HintDialog({ puzzle, href }: Props) {
       gameState.cursor,
     ],
   );
-
-  const [remainingMoves, setRemainingMoves] = useState(() => {
-    const url = new URL(href.value);
-    const rawValue = url.searchParams.get("remaining_moves");
-    const parsed = rawValue ? Number.parseInt(rawValue, 10) : null;
-    return Number.isNaN(parsed) || parsed == null ? null : parsed;
-  });
 
   const totalMoves = useMemo(
     () => moves.length + (remainingMoves ?? 0),
@@ -63,12 +69,13 @@ export function HintDialog({ puzzle, href }: Props) {
 
   const { start: startSolve, cancel: cancelSolve } = useSolveStream((event) => {
     if (event.type === "progress") {
+      setSearchDepth(event.depth);
       setModalState("solving");
-      setRemainingMoves(event.depth);
     } else if (event.type === "solution") {
       const url = new URL(href.value);
       url.searchParams.set("hint", encodeMove(event.moves[0]));
       updateLocation(url.href);
+      setRemainingMoves(event.moves.length);
       setModalState("done");
     } else if (event.type === "error") {
       // TODO: show error
@@ -87,9 +94,14 @@ export function HintDialog({ puzzle, href }: Props) {
       return;
     }
 
+    const board = resolveMoves(puzzle.value.board, moves);
+
     setModalState("solving");
-    startSolve(resolveMoves(puzzle.value.board, moves));
-  }, [open, href.value, remainingMoves]);
+    setSearchDepth(null);
+    startSolve(board);
+
+    return cancelSolve;
+  }, [open, puzzle.value, moves, remainingMoves]);
 
   return (
     <Dialog
@@ -107,7 +119,7 @@ export function HintDialog({ puzzle, href }: Props) {
               "animate-blink",
             )}
           >
-            Searching {remainingMoves} move solutions...
+            Searching {searchDepth} move solutions...
           </span>
 
           <form method="dialog" className="inline">
@@ -172,7 +184,7 @@ export function HintDialog({ puzzle, href }: Props) {
                 disabled={!open}
                 onClick={closeModal}
               >
-                Nice, show me
+                Got it
               </button>
             </form>
           </div>
