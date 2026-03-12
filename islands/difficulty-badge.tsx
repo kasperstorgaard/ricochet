@@ -74,34 +74,27 @@ export function DifficultyBadge({ puzzle, className }: DifficultyBadgeProps) {
       className={clsx(
         "flex items-center justify-center",
         "bg-surface-2 cursor-help",
-        error && "bg-red-700 text-white",
         className,
       )}
       title={error ? error : undefined}
     >
-      {error ? <Icon icon={Warning} /> : (
-        <>
-          <span
-            className="text-center text-fl-0 px-fl-1 uppercase cursor-help"
-            title="puzzle difficulty"
-          >
-            {puzzle.value.difficulty ?? "unknown"}
-          </span>
+      <span
+        className="text-center text-fl-0 px-fl-1 uppercase cursor-help"
+        title={error ?? "puzzle difficulty"}
+      >
+        {error ? "error" : puzzle.value.difficulty ?? "unknown"}
+      </span>
 
-          {minMoves && (
-            <span
-              className={clsx(
-                "px-fl-1 pl-fl-1 bg-surface-3 text-fl-0 min-w-[2ch] -ml-1",
-                "cursor-help",
-                "[clip-path:polygon(20%_0,100%_0,100%_100%,0_100%)]",
-              )}
-              title="shortest possible solution"
-            >
-              {minMoves}
-            </span>
-          )}
-        </>
-      )}
+      <span
+        className={clsx(
+          "px-fl-1 pl-fl-1 bg-surface-3 text-fl-0 min-w-[3ch] -ml-1",
+          "cursor-help",
+          "[clip-path:polygon(20%_0,100%_0,100%_100%,0_100%)]",
+        )}
+        title={error ?? "shortest possible solution"}
+      >
+        {error ? <Icon icon={Warning} className="-mt-1" /> : minMoves || "?"}
+      </span>
     </span>
   );
 }
