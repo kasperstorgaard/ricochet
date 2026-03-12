@@ -43,6 +43,12 @@ export function HintDialog({ puzzle, href }: Props) {
     ],
   );
 
+  const resetHref = useMemo(() => {
+    const url = new URL(href.value);
+    url.searchParams.delete("dialog");
+    return getResetHref(url.href);
+  }, [href.value]);
+
   const totalMoves = useMemo(
     () => moves.length + (remainingMoves ?? 0),
     [gameState, remainingMoves],
@@ -52,7 +58,7 @@ export function HintDialog({ puzzle, href }: Props) {
   // TODO: consider how much is needed for "off-track" really
   const offTrack = useMemo(() => {
     return modalState === "done" &&
-      totalMoves > minMoves + 1;
+      totalMoves > minMoves + 2;
   }, [modalState, minMoves, remainingMoves]);
 
   const closeModal = () => {
@@ -99,8 +105,7 @@ export function HintDialog({ puzzle, href }: Props) {
     >
       {modalState === "solving" && (
         <div class="flex flex-col gap-fl-3">
-          <p class="text-fl-1 font-semibold">Solving…</p>
-          {/* <p class="text-text-2 text-fl-0">Watching the computer think</p> */}
+          <p class="text-fl-1 font-semibold">Finding the shortest path…</p>
 
           <span
             class={clsx(
@@ -108,7 +113,7 @@ export function HintDialog({ puzzle, href }: Props) {
               "animate-blink",
             )}
           >
-            Searching {searchDepth} move solutions...
+            Trying {searchDepth}-move solutions…
           </span>
 
           <button
@@ -124,15 +129,14 @@ export function HintDialog({ puzzle, href }: Props) {
 
       {modalState === "done" && offTrack && (
         <div class="flex flex-col gap-fl-3">
-          <p class="text-fl-1 font-semibold">You've gone off track</p>
+          <p class="text-fl-1 font-semibold">You've gone a bit off track</p>
           <p class="text-text-2 text-fl-0">
-            There's a solution from here - but you need {totalMoves}{" "}
-            total moves, and this puzzle has {minMoves === 8 ? "an" : "a"}{" "}
-            {minMoves}-move solution.
+            You can still solve the puzzle, but you'll need {totalMoves}{" "}
+            moves total (optimal is {minMoves})
           </p>
 
           <div class="flex items-center gap-fl-2">
-            <a href={getResetHref(href.value)} class="btn">
+            <a href={resetHref} class="btn">
               <Icon icon={ArrowCounterClockwise} />
               Start over
             </a>
@@ -152,10 +156,11 @@ export function HintDialog({ puzzle, href }: Props) {
       {modalState === "done" && !offTrack && (
         <div class="flex flex-col gap-fl-2 text-text-2">
           <h2 className="text-fl-1 leading-tight text-text-1">
-            There is a solution in {remainingMoves} more moves
+            You've got {remainingMoves}{" "}
+            {remainingMoves && remainingMoves === 1 ? "move" : "moves"} to go
           </h2>
           <p class="text-text-2 text-fl-0">
-            The first move is highlighted on the board
+            The first one is highlighted on the board
           </p>
 
           <div class="flex items-center gap-fl-2">
