@@ -2,8 +2,8 @@ import type { Signal } from "@preact/signals";
 import { clsx } from "clsx/lite";
 import { useCallback, useMemo, useRef } from "preact/hooks";
 
+import { useRouter } from "./router.tsx";
 import { useMoves } from "#/client/moves.ts";
-import { useRouter } from "#/client/router.ts";
 import { calculateMoveSpeed } from "#/client/touch.ts";
 import { Icon, X } from "#/components/icons.tsx";
 import {
@@ -60,9 +60,7 @@ export default function Board(
     href.value = url.href;
   }, [board]);
 
-  const { updateLocation } = useRouter({
-    onLocationUpdated,
-  });
+  const { updateLocation } = useRouter({ onLocationUpdated });
 
   const spaces = useMemo(() => getGrid(), []);
 

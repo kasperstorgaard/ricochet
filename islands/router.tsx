@@ -1,10 +1,10 @@
 import { useEffect } from "preact/hooks";
 
 type UseRouterOptions = {
-  onLocationUpdated?: (url: URL) => void;
+  onLocationUpdated: (url: URL) => void;
 };
 
-export function updateLocation(href: string, options?: { replace?: boolean }) {
+function updateLocation(href: string, options?: { replace?: boolean }) {
   if (options?.replace) {
     self.history.replaceState({}, "", href);
   } else {
@@ -14,7 +14,27 @@ export function updateLocation(href: string, options?: { replace?: boolean }) {
   self.dispatchEvent(new CustomEvent("location-changed"));
 }
 
-export function useRouter({ onLocationUpdated }: UseRouterOptions = {}) {
+export function useRouter({ onLocationUpdated }: UseRouterOptions) {
+  useEffect(() => {
+    const handler = () => onLocationUpdated?.(new URL(self.location.href));
+
+    self.addEventListener("popstate", handler);
+    self.addEventListener("location-changed", handler);
+
+    // Fire on initial load.
+    handler();
+
+    return () => {
+      self.removeEventListener("popstate", handler);
+      self.removeEventListener("location-changed", handler);
+    };
+  }, [onLocationUpdated]);
+
+  return { updateLocation };
+}
+
+// Simple client side enhancement to allow links out-in popstate/pushstate to avoid full page reloads.
+export function Router() {
   useEffect(() => {
     const onClick = (event: MouseEvent) => {
       const anchor = (event.target as HTMLElement).closest("a");
@@ -35,22 +55,5 @@ export function useRouter({ onLocationUpdated }: UseRouterOptions = {}) {
     };
   }, [updateLocation]);
 
-  useEffect(() => {
-    const handler = () => onLocationUpdated?.(new URL(self.location.href));
-
-    self.addEventListener("popstate", handler);
-    self.addEventListener("location-changed", handler);
-
-    // Fire on initial load.
-    handler();
-
-    return () => {
-      self.removeEventListener("popstate", handler);
-      self.removeEventListener("location-changed", handler);
-    };
-  }, [onLocationUpdated]);
-
-  return {
-    updateLocation,
-  };
+  return null;
 }
