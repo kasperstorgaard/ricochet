@@ -3,7 +3,6 @@ import { clsx } from "clsx/lite";
 import { useCallback, useEffect, useMemo } from "preact/hooks";
 
 import { useGameShortcuts } from "#/client/keyboard.ts";
-import { updateLocation } from "#/client/router.ts";
 import {
   ArrowArcLeft,
   ArrowArcRight,
@@ -21,6 +20,7 @@ import {
   getResetHref,
   getUndoHref,
 } from "#/game/url.ts";
+import { useRouter } from "#/islands/router.tsx";
 
 type ControlsPanelProps = {
   puzzle: Signal<Puzzle>;
@@ -47,6 +47,8 @@ export function ControlsPanel(
     state.cursor,
   ]);
 
+  const { updateLocation } = useRouter();
+
   const onReset = useCallback(() => updateLocation(getResetHref(href.value)), [
     href.value,
   ]);
@@ -62,6 +64,7 @@ export function ControlsPanel(
   });
 
   // Clear game state before print
+  // TODO: find a less magic place for this global board concern
   useEffect(() => {
     if (!("onbeforeprint" in globalThis)) return;
 
@@ -70,6 +73,7 @@ export function ControlsPanel(
   }, []);
 
   // Print on load if search params has ?print
+  // TODO: find a less magic place for this global board concern
   useEffect(() => {
     const url = new URL(href.value);
 
