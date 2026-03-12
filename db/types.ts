@@ -26,9 +26,3 @@ export type CanonicalGroup = {
   count: number;
 };
 
-// Machine generated solve for a puzzle
-export type Solve = {
-  id: string;
-  puzzleSlug: string;
-  moves: Move[];
-};

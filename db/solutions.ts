@@ -2,8 +2,8 @@ import { ulid } from "@std/ulid";
 
 import { kv } from "#/db/kv.ts";
 import { updatePuzzleStats } from "#/db/stats.ts";
-import { CanonicalGroup, Solution, Solve } from "#/db/types.ts";
-import { encodeMoves, getCanonicalMoveKey } from "#/game/strings.ts";
+import { CanonicalGroup, Solution } from "#/db/types.ts";
+import { getCanonicalMoveKey } from "#/game/strings.ts";
 import { Move } from "#/game/types.ts";
 
 /**
@@ -240,95 +240,6 @@ export async function getCanonicalUserSolution(
   return (
     existing.find((s) => getCanonicalMoveKey(s.moves) === canonicalKey) ?? null
   );
-}
-
-/**
- * Stores a machine-generated solve under two index keys:
- * - primary (by puzzle slug + ID, for direct lookup and per-puzzle listing)
- * - by puzzle slug + move sequence (for hints for a user who has partially made this solve)
- */
-export async function addSolve(payload: Omit<Solve, "id" | "name">) {
-  const { puzzleSlug, moves } = payload;
-
-  const id = ulid().toLowerCase();
-  const solution = { ...payload, id };
-
-  const primaryKey = ["solves_by_puzzle", puzzleSlug, id];
-
-  // key for listing solutions by sequence, for hints
-  // note: this will store the entire solution to reference by each move
-  const bySequenceKey = [
-    "solves_by_puzzle_move_sequence",
-    puzzleSlug,
-    ...getSequenceKey(moves),
-    id,
-  ];
-
-  await kv.atomic()
-    .check({ key: primaryKey, versionstamp: null })
-    .check({ key: bySequenceKey, versionstamp: null })
-    .set(primaryKey, solution)
-    .set(bySequenceKey, solution)
-    .commit();
-
-  return solution;
-}
-
-type ListPuzzleSolvesOptions = Omit<Deno.KvListOptions, "limit"> & {
-  limit: number;
-  bySequence?: Move[];
-};
-
-/**
- * Lists machine-generated solves.
- *
- * Pass `bySequence` with the moves the user has made so far to find solves matching sequence.
- * Without `bySequence`, lists all solves across all puzzles (primary index).
- *
- * `limit` is required.
- */
-export async function listPuzzleSolves(
-  puzzleSlug: string,
-  options: ListPuzzleSolvesOptions,
-) {
-  const solves: Solve[] = [];
-  const { limit, bySequence } = options;
-
-  if (!limit) throw new Error("Must provide a limit");
-
-  let key: string[];
-
-  if (bySequence) {
-    key = [
-      "solves_by_puzzle_move_sequence",
-      puzzleSlug,
-      ...getSequenceKey(bySequence),
-    ];
-  } else {
-    key = ["solves_by_puzzle", puzzleSlug];
-  }
-
-  const iter = kv.list<Solve>({ prefix: key }, options);
-
-  for await (const res of iter) solves.push(res.value);
-
-  return solves;
-}
-
-/** Fetches a single machine-generated solve by puzzle slug and solve ID. Returns `null` if not found. */
-export async function getPuzzleSolve(
-  puzzleSlug: string,
-  solutionId: string,
-) {
-  const key = ["solves_by_puzzle", puzzleSlug, solutionId];
-  const res = await kv.get<Solve>(key);
-
-  return res.value;
-}
-
-function getSequenceKey(moves: Move[]) {
-  const encoded = encodeMoves(moves);
-  return encoded.split("-");
 }
 
 /**
