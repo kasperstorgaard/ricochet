@@ -2,6 +2,7 @@ import { clsx } from "clsx/lite";
 
 import { define } from "#/core.ts";
 import { CookieBanner } from "#/islands/cookie-banner.tsx";
+import { Router } from "#/islands/router.tsx";
 import { TrackingScript } from "#/islands/tracking-script.tsx";
 
 export default define.page(
@@ -86,6 +87,7 @@ export default define.page(
             cookieChoice={state.cookieChoice}
             trackingId={state.trackingId}
           />
+          <Router />
         </body>
       </html>
     );

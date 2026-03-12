@@ -2,7 +2,6 @@ import type { Signal } from "@preact/signals";
 import { clsx } from "clsx/lite";
 import { useCallback, useMemo, useState } from "preact/hooks";
 
-import { useRouter } from "#/client/router.ts";
 import {
   ArrowClockwise,
   ArrowRight,
@@ -26,6 +25,7 @@ import { formatPuzzle } from "#/game/formatter.ts";
 import type { GenerateOptions } from "#/game/generator.ts";
 import { Puzzle } from "#/game/types.ts";
 import { decodeState, encodeState } from "#/game/url.ts";
+import { useRouter } from "#/islands/router.tsx";
 
 type EditorPanelProps = {
   href: Signal<string>;

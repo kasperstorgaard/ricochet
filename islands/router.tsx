@@ -1,10 +1,10 @@
 import { useEffect } from "preact/hooks";
 
-type UseRouterOptions = {
-  onLocationUpdated?: (url: URL) => void;
-};
-
-export function updateLocation(href: string, options?: { replace?: boolean }) {
+/**
+ * Helper function to update client side routing
+ * using custom event "location-changed".
+ */
+function updateLocation(href: string, options?: { replace?: boolean }) {
   if (options?.replace) {
     self.history.replaceState({}, "", href);
   } else {
@@ -14,7 +14,14 @@ export function updateLocation(href: string, options?: { replace?: boolean }) {
   self.dispatchEvent(new CustomEvent("location-changed"));
 }
 
-export function useRouter({ onLocationUpdated }: UseRouterOptions = {}) {
+/**
+ * Simple client side router to progressively allow client side routing where needed
+ * To opt-in: use data-router on any link.
+ *
+ * Inspired by lit-html router approach,
+ * does not rely on rendering, only bubbling click events.
+ */
+export function Router() {
   useEffect(() => {
     const onClick = (event: MouseEvent) => {
       const anchor = (event.target as HTMLElement).closest("a");
@@ -35,6 +42,19 @@ export function useRouter({ onLocationUpdated }: UseRouterOptions = {}) {
     };
   }, [updateLocation]);
 
+  return null;
+}
+
+type UseRouterOptions = {
+  onLocationUpdated?: (url: URL) => void;
+};
+
+/**
+ * Hook to push / react to client side routing events.
+ *
+ * Note: needs <Router> to be attached to work.
+ */
+export function useRouter({ onLocationUpdated }: UseRouterOptions = {}) {
   useEffect(() => {
     const handler = () => onLocationUpdated?.(new URL(self.location.href));
 
@@ -50,7 +70,5 @@ export function useRouter({ onLocationUpdated }: UseRouterOptions = {}) {
     };
   }, [onLocationUpdated]);
 
-  return {
-    updateLocation,
-  };
+  return { updateLocation };
 }
