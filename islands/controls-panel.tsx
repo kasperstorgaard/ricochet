@@ -153,6 +153,7 @@ export function ControlsPanel(
                   onClick={(event) => {
                     if (hintDisabled) event.preventDefault();
                   }}
+                  className="noscript:hidden"
                 >
                   {!hintDisabled
                     ? "Get a hint"
@@ -164,6 +165,7 @@ export function ControlsPanel(
               : (
                 <a
                   href={getSolveHref(href.value)}
+                  className="noscript:hidden"
                 >
                   Solve
                 </a>
