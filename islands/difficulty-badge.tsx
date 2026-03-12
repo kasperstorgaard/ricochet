@@ -72,42 +72,43 @@ export function DifficultyBadge({ puzzle, className }: DifficultyBadgeProps) {
       className={clsx(
         "flex items-center justify-center",
         "bg-surface-2 cursor-help",
-        error && "bg-red-700 text-white",
         className,
       )}
       title={error ? error : undefined}
     >
-      {error ? <Icon icon={Warning} /> : (
-        <>
-          <span
-            className="text-center text-fl-0 px-fl-1 uppercase cursor-help"
-            title="puzzle difficulty"
-          >
-            {puzzle.value.difficulty ?? "unknown"}
-          </span>
+      <span
+        className="text-center text-fl-0 px-fl-1 uppercase"
+        title={error ? undefined : "puzzle difficulty"}
+      >
+        {error ? "error" : puzzle.value.difficulty ?? "unknown"}
+      </span>
 
-          {solving && (
-            <span
-              className="px-fl-1 pl-fl-1 bg-surface-3 text-fl-0 min-w-[2ch] -ml-1 text-text-2 tabular-nums animate-blink"
-              title={`searching depth ${solving.depth}`}
-            >
-              {solving.depth}…
-            </span>
-          )}
+      {error && (
+        <span className="px-1 bg-surface-3 text-fl-0 -ml-1 text-text-2">
+          <Icon icon={Warning} className="m-1" />
+        </span>
+      )}
 
-          {!solving && minMoves != null && minMoves > 0 && (
-            <span
-              className={clsx(
-                "px-fl-1 pl-fl-1 bg-surface-3 text-fl-0 min-w-[2ch] -ml-1",
-                "cursor-help",
-                "[clip-path:polygon(20%_0,100%_0,100%_100%,0_100%)]",
-              )}
-              title="shortest possible solution"
-            >
-              {minMoves}
-            </span>
+      {!error && solving && (
+        <span
+          className="px-fl-1 pl-fl-1 bg-surface-3 text-fl-0 min-w-[3ch] -ml-1 text-text-2 tabular-nums animate-blink"
+          title={`searching depth ${solving.depth}`}
+        >
+          {solving.depth ? solving.depth : "?"}
+        </span>
+      )}
+
+      {!error && !solving && (
+        <span
+          className={clsx(
+            "px-fl-1 pl-fl-1 bg-surface-3 text-fl-0 min-w-[3ch] -ml-1",
+            "cursor-help",
+            "[clip-path:polygon(20%_0,100%_0,100%_100%,0_100%)]",
           )}
-        </>
+          title="shortest possible solution"
+        >
+          {minMoves ?? "?"}
+        </span>
       )}
     </span>
   );
