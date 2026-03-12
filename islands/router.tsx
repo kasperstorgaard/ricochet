@@ -11,8 +11,6 @@ function updateLocation(href: string, options?: { replace?: boolean }) {
     self.history.pushState({}, "", href);
   }
 
-  console.log("location-changed");
-
   self.dispatchEvent(new CustomEvent("location-changed"));
 }
 
