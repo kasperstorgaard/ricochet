@@ -1,28 +1,23 @@
 import type { Signal } from "@preact/signals";
 import { clsx } from "clsx/lite";
-import { useCallback, useMemo, useState } from "preact/hooks";
+import { useCallback, useMemo } from "preact/hooks";
 
 import {
   ArrowClockwise,
   ArrowRight,
   ArrowSquareIn,
-  CaretLeft,
-  CircleNotch,
   DownloadSimple,
   Eye,
   FlipHorizontal,
   FlipVertical,
   FloppyDisk,
-  Gear,
   Icon,
   Shuffle,
+  Trash,
 } from "#/components/icons.tsx";
-import { NumberRange } from "#/components/number-range.tsx";
 import { Panel } from "#/components/panel.tsx";
-import { Select } from "#/components/select.tsx";
 import { flipBoard, resolveMoves, rotateBoard } from "#/game/board.ts";
 import { formatPuzzle } from "#/game/formatter.ts";
-import type { GenerateOptions } from "#/game/generator.ts";
 import { Puzzle } from "#/game/types.ts";
 import { decodeState, encodeState } from "#/game/url.ts";
 import { useRouter } from "#/islands/router.tsx";
@@ -33,11 +28,11 @@ type EditorPanelProps = {
   isDev: boolean;
 };
 
-const SPREAD_OPTIONS = [
-  { value: "mid", label: "Mid" },
-  { value: "balanced", label: "Balanced" },
-  { value: "spread", label: "Spread" },
-];
+const GENERATE_OPTIONS = {
+  wallsRange: [5, 15],
+  blockersRange: [3, 5],
+  wallSpread: "balanced",
+};
 
 /**
  * Side panel for the puzzle editor.
@@ -51,9 +46,7 @@ export function EditorPanel(
     href.value = url.href;
   }, []);
 
-  const { updateLocation } = useRouter({
-    onLocationUpdated,
-  });
+  const { updateLocation } = useRouter({ onLocationUpdated });
 
   const board = useMemo(() => {
     const url = new URL(href.value);
@@ -67,14 +60,6 @@ export function EditorPanel(
 
     return resolveMoves(puzzle.value.board, moves);
   }, [href.value, puzzle.value.board]);
-
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [options, setOptions] = useState<GenerateOptions>({
-    solveRange: [6, 11],
-    wallsRange: [5, 15],
-    blockersRange: [3, 5],
-    wallSpread: "balanced",
-  });
 
   const formatted = useMemo(() =>
     formatPuzzle({
@@ -103,33 +88,33 @@ export function EditorPanel(
   }, [href.value, puzzle.value.slug, formatted]);
 
   const onGenerate = useCallback(async () => {
-    setIsGenerating(true);
+    const res = await fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(GENERATE_OPTIONS),
+    });
 
-    try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(options),
-      });
+    if (!res.ok) throw new Error("Generation failed");
 
-      if (!res.ok) throw new Error("Generation failed");
+    const { board: newBoard } = await res.json();
 
-      const { board: newBoard, moves } = await res.json();
+    puzzle.value = {
+      ...puzzle.value,
+      board: newBoard,
+      minMoves: 0,
+    };
+  }, [puzzle]);
 
-      puzzle.value = {
-        ...puzzle.value,
-        board: newBoard,
-        minMoves: moves.length,
-      };
-    } finally {
-      setIsGenerating(false);
-    }
-  }, [options, puzzle]);
-
-  const [showOptions, setShowOptions] = useState(false);
+  const onClear = useCallback(() => {
+    puzzle.value = {
+      ...puzzle.value,
+      board: { destination: { x: 3, y: 3 }, pieces: [], walls: [] },
+      minMoves: 0,
+    };
+  }, [puzzle]);
 
   return (
-    <Panel className="relative overflow-hidden">
+    <Panel>
       <a
         href="/contribute"
         target="_blank"
@@ -190,29 +175,23 @@ export function EditorPanel(
             </button>
           </div>
 
-          <div className="flex w-full">
-            <button
-              type="button"
-              className="btn rounded-r-none! border-r-0! grow!"
-              disabled={isGenerating}
-              onClick={onGenerate}
-            >
-              <Icon
-                icon={isGenerating ? CircleNotch : Shuffle}
-                className={isGenerating ? "animate-spin" : undefined}
-              />
-              Generate
-            </button>
+          <button
+            type="button"
+            className="btn"
+            onClick={onGenerate}
+          >
+            <Icon icon={Shuffle} />
+            Generate
+          </button>
 
-            <button
-              type="button"
-              className="icon-btn rounded-l-none! -ml-px!"
-              data-size="sm"
-              onClick={() => setShowOptions(!showOptions)}
-            >
-              <Icon icon={Gear} />
-            </button>
-          </div>
+          <button
+            type="button"
+            className="btn"
+            onClick={onClear}
+          >
+            <Icon icon={Trash} />
+            Clear
+          </button>
         </div>
 
         <div className="flex flex-col flex-wrap gap-fl-1">
@@ -257,82 +236,13 @@ export function EditorPanel(
             </noscript>
           </form>
 
-          <button
-            type="button"
+          <a
+            href="/puzzles/preview"
             className="btn"
-            onClick={async () => {
-              const res = await fetch("/api/solve", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(board),
-              });
-              const { moves } = await res.json();
-              const search = encodeState({ moves, cursor: 0 });
-              globalThis.open(`/puzzles/preview?${search}`, "_blank");
-            }}
+            target="_blank"
           >
             <Icon icon={Eye} /> Preview
-          </button>
-        </div>
-      </div>
-
-      <div
-        className={clsx(
-          "absolute inset-0 bg-surface-2 flex flex-col py-fl-3 px-fl-2",
-          "transition-transform duration-200 ease-out",
-          showOptions ? "translate-x-0" : "translate-x-full",
-        )}
-      >
-        <div className="flex items-start">
-          <button
-            type="button"
-            className="btn"
-            onClick={() => setShowOptions(false)}
-          >
-            <Icon icon={CaretLeft} />Back
-          </button>
-        </div>
-
-        <div className="flex flex-col gap-fl-2 mt-fl-2">
-          <NumberRange
-            name="solve_range"
-            label="Shortest solution"
-            value={options.solveRange}
-            min={1}
-            max={20}
-            onChange={(solveRange) => setOptions({ ...options, solveRange })}
-          />
-
-          <NumberRange
-            name="walls_range"
-            label="Walls"
-            value={options.wallsRange}
-            min={0}
-            max={40}
-            onChange={(wallsRange) => setOptions({ ...options, wallsRange })}
-          />
-
-          <NumberRange
-            name="blockers_range"
-            label="Blockers"
-            value={options.blockersRange}
-            min={0}
-            max={20}
-            onChange={(blockersRange) =>
-              setOptions({ ...options, blockersRange })}
-          />
-
-          <Select
-            name="wall_spread"
-            label="Wall spread"
-            value={options.wallSpread}
-            options={SPREAD_OPTIONS}
-            onChange={(wallSpread) =>
-              setOptions({
-                ...options,
-                wallSpread: wallSpread as GenerateOptions["wallSpread"],
-              })}
-          />
+          </a>
         </div>
       </div>
     </Panel>
