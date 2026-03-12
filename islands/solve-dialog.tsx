@@ -66,7 +66,6 @@ export function SolveDialog({ puzzle, href }: Props) {
 
   // React to ?dialog=solve appearing in the URL (set by the server-side hint route)
   useEffect(() => {
-    console.log({ open });
     if (!open) {
       cancelSolve();
       return;
@@ -79,8 +78,6 @@ export function SolveDialog({ puzzle, href }: Props) {
       setModalState("done");
       return;
     }
-
-    console.log("start it!");
 
     // Not cached: stream the solve client-side
     startSolve(board);
