@@ -91,7 +91,7 @@ export function SolveDialog({ puzzle, href }: Props) {
     startSolve(board);
 
     return cancelSolve;
-  }, [open, puzzle.value, moves]);
+  }, [open]);
 
   return (
     <Dialog

@@ -86,10 +86,11 @@ export function HintDialog({ puzzle, href }: Props) {
 
     setModalState("solving");
     setSearchDepth(null);
-    startSolve(resolveMoves(puzzle.value.board, moves));
+    const board = resolveMoves(puzzle.value.board, moves);
+    startSolve(board);
 
     return cancelSolve;
-  }, [open, puzzle.value, moves]);
+  }, [open]);
 
   return (
     <Dialog
