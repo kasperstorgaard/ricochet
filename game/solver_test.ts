@@ -2,12 +2,7 @@ import { assertEquals, assertObjectMatch, assertThrows } from "@std/assert";
 import { assertExists } from "@std/assert/exists";
 
 import { isValidSolution, resolveMoves } from "./board.ts";
-import {
-  solve,
-  SolverDepthExceededError,
-  solveSync,
-  solveSync,
-} from "./solver.ts";
+import { solve, SolverDepthExceededError, solveSync } from "./solver.ts";
 import type { Board, Puzzle } from "#/game/types.ts";
 
 Deno.test("solveSync() finds 1-move solution (puck slides to destination)", () => {
