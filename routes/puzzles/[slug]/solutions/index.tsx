@@ -158,7 +158,7 @@ export default define.page<typeof handler>(function SolutionsListPage(props) {
         <div
           className={clsx(
             "max-lg:col-[2/3] flex flex-col gap-fl-2 items-start place-content-end w-full",
-            "lg:row-[3/4] lg:gap-fl-3",
+            "lg:row-[3/4] lg:gap-fl-3 lg:grid lg:grid-cols-1",
           )}
         >
           <a
