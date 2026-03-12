@@ -10,7 +10,6 @@ export type WallSpread = "mid" | "balanced" | "spread";
 
 // Options for puzzle generation.
 export type GenerateOptions = {
-  solveRange: [number, number];
   wallsRange: [number, number];
   blockersRange: [number, number];
   wallSpread: WallSpread;
@@ -35,7 +34,6 @@ const INNER_ZONE: Zone = { x: [2, 5], y: [2, 5] };
  * Generates a random solvable puzzle within the given constraints.
  * Uses pure random placement with solver verification and retry.
  */
-// TODO: remove solveRange from GenerateOptions in a follow-up (generator cleanup PR)
 export function generate({
   wallsRange,
   blockersRange,
