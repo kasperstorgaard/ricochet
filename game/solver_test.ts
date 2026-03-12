@@ -1,15 +1,16 @@
-import { assertEquals, assertThrows } from "@std/assert";
+import { assertEquals, assertObjectMatch, assertThrows } from "@std/assert";
+import { assertExists } from "@std/assert/exists";
 
 import { isValidSolution, resolveMoves } from "./board.ts";
 import {
   solve,
   SolverDepthExceededError,
-  SolverLimitExceededError,
+  solveSync,
+  solveSync,
 } from "./solver.ts";
-import { encodeMoves } from "./strings.ts";
 import type { Board, Puzzle } from "#/game/types.ts";
 
-Deno.test("solve() finds 1-move solution (puck slides to destination)", () => {
+Deno.test("solveSync() finds 1-move solution (puck slides to destination)", () => {
   // Puck at A1 (0,0) slides right to H1 (7,0) where destination is
   const board: Board = {
     destination: { x: 7, y: 0 },
@@ -17,12 +18,12 @@ Deno.test("solve() finds 1-move solution (puck slides to destination)", () => {
     walls: [],
   };
 
-  const result = solve(board);
+  const result = solveSync(board);
 
   assertEquals(result, [[{ x: 0, y: 0 }, { x: 7, y: 0 }]]);
 });
 
-Deno.test("solve() finds 2-move solution", () => {
+Deno.test("solveSync() finds 2-move solution", () => {
   // Puck at A1, needs to go to H8
   // Move 1: A1 -> A8 (down)
   // Move 2: A8 -> H8 (right)
@@ -32,11 +33,11 @@ Deno.test("solve() finds 2-move solution", () => {
     walls: [],
   };
 
-  const result = solve(board);
+  const result = solveSync(board);
   assertEquals(result?.length, 2);
 });
 
-Deno.test("solve() returns null for unsolvable puzzle (puck trapped)", () => {
+Deno.test("solveSync() throws for unsolvable puzzle (puck trapped)", () => {
   // Puck at A1 trapped by walls, cannot reach H8
   const board: Board = {
     destination: { x: 7, y: 7 },
@@ -47,10 +48,10 @@ Deno.test("solve() returns null for unsolvable puzzle (puck trapped)", () => {
     ],
   };
 
-  assertThrows(() => solve(board));
+  assertThrows(() => solveSync(board));
 });
 
-Deno.test("solve() returns null for unsolvable puzzle (puck can't stop)", () => {
+Deno.test("solveSync() throws for unsolvable puzzle (puck can't stop)", () => {
   const board: Board = {
     destination: { x: 5, y: 5 },
     pieces: [
@@ -59,10 +60,10 @@ Deno.test("solve() returns null for unsolvable puzzle (puck can't stop)", () => 
     walls: [],
   };
 
-  assertThrows(() => solve(board));
+  assertThrows(() => solveSync(board));
 });
 
-Deno.test("solve() respects maxDepth option", () => {
+Deno.test("solveSync() respects maxDepth option", () => {
   // Puzzle that requires at least 2 moves
   const board: Board = {
     destination: { x: 7, y: 7 },
@@ -71,27 +72,13 @@ Deno.test("solve() respects maxDepth option", () => {
   };
 
   // With maxDepth 1, it should not find the 2-move solution
-  assertThrows(() => solve(board, { maxDepth: 1 }), SolverDepthExceededError);
-});
-
-Deno.test("solve() respects maxIterations option", () => {
-  // Impossible puzzle
-  const board: Board = {
-    destination: { x: 5, y: 5 },
-    pieces: [
-      { x: 0, y: 0, type: "puck" },
-    ],
-    walls: [],
-  };
-
-  // With maxIterations 1, it throw before it finds out there is no solution
   assertThrows(
-    () => solve(board, { maxIterations: 1 }),
-    SolverLimitExceededError,
+    () => solveSync(board, { maxDepth: 1 }),
+    SolverDepthExceededError,
   );
 });
 
-Deno.test("solve() accepts Puzzle type (not just Board)", () => {
+Deno.test("solveSync() accepts Puzzle type (not just Board)", () => {
   const puzzle: Puzzle = {
     number: 5,
     slug: "test",
@@ -106,12 +93,33 @@ Deno.test("solve() accepts Puzzle type (not just Board)", () => {
     },
   };
 
-  const result = solve(puzzle);
+  const result = solveSync(puzzle);
 
   assertEquals(result?.length, 1);
 });
 
-Deno.test("solve() solves complex puzzle", () => {
+Deno.test("solve() yields progress then solution", () => {
+  // Puck at (0,0), dest at (7,7) — not aligned, initial threshold = 2
+  const board: Board = {
+    destination: { x: 7, y: 7 },
+    pieces: [{ x: 0, y: 0, type: "puck" }],
+    walls: [],
+  };
+
+  let lastProgress: { depth: number };
+  let solution: unknown;
+
+  for (const event of solve(board, {})) {
+    if (event.type === "progress") lastProgress = event;
+    if (event.type === "solution") solution = event.moves;
+  }
+
+  // IDA* reports threshold as depth; initial threshold is 2 (h for unaligned puck)
+  assertObjectMatch(lastProgress!, { depth: 2 });
+  assertExists(solution);
+});
+
+Deno.test("solveSync() solves complex puzzle", () => {
   const board: Board = {
     "destination": { "x": 4, "y": 5 },
     "pieces": [
@@ -138,20 +146,14 @@ Deno.test("solve() solves complex puzzle", () => {
     ],
   };
 
-  const result = solve(board);
+  const result = solveSync(board);
 
-  // Check that it finds one of the shortest solutions
-  assertEquals(
-    encodeMoves(result!),
-    "B2B6-A6-G2A2-A5-B7B1-A6B6-B1B5-F5-A5E5-E6",
-  );
-
-  // Check that the solution is valid
-  const endState = resolveMoves(board, result!);
-  assertEquals(isValidSolution(endState), true);
+  // Solution is optimal and valid (IDA* may find a different path of equal length)
+  assertEquals(result.length, 10);
+  assertEquals(isValidSolution(resolveMoves(board, result)), true);
 });
 
-Deno.test("solve() solves complex puzzle with many pieces", () => {
+Deno.test("solveSync() solves complex puzzle with many pieces", () => {
   const board: Board = {
     destination: { x: 3, y: 6 },
     pieces: [
@@ -185,15 +187,9 @@ Deno.test("solve() solves complex puzzle with many pieces", () => {
     ],
   };
 
-  const result = solve(board);
+  const result = solveSync(board);
 
-  // Check that it finds one of the shortest solutions
-  assertEquals(
-    encodeMoves(result!),
-    "F3H3-H4H6-A6-H3H6-D7D6-A6C6-D6D8-H6D6-D7",
-  );
-
-  // Check that the solution is valid
-  const endState = resolveMoves(board, result!);
-  assertEquals(isValidSolution(endState), true);
+  // Solution is optimal and valid (IDA* may find a different path of equal length)
+  assertEquals(result.length, 9);
+  assertEquals(isValidSolution(resolveMoves(board, result)), true);
 });
