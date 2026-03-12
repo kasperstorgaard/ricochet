@@ -9,6 +9,7 @@ import { parsePuzzle } from "#/game/parser.ts";
 import { solve } from "#/game/solver.ts";
 
 const PUZZLES_DIR = new URL("../static/puzzles", import.meta.url).pathname;
+const updateAll = Deno.env.get("UPDATE_ALL");
 
 const entries: { path: string; name: string }[] = [];
 
@@ -26,33 +27,33 @@ const puzzles = await Promise.all(
   }),
 );
 
-const toSolve = puzzles.filter((p) => !p.puzzle.minMoves);
+const toSolve = updateAll
+  ? puzzles
+  : puzzles.filter(({ puzzle }) => !puzzle.minMoves);
 const skipped = puzzles.length - toSolve.length;
 
 console.log(
-  `Solving ${toSolve.length} puzzles (${skipped} already have minMoves)…\n`,
+  updateAll
+    ? `Solving ${toSolve.length} puzzles...`
+    : `Solving ${toSolve.length} puzzles (${skipped} already have minMoves)...`,
 );
 
+let updated = 0;
+let failed = 0;
+
 // Solve all in parallel — each runs in its own worker
-const results = await Promise.allSettled(
-  toSolve.map(async ({ path, name, puzzle }) => {
+for (const { path, name, puzzle } of toSolve) {
+  try {
     const moves = solve(puzzle.board);
     const markdown = formatPuzzle({ ...puzzle, minMoves: moves.length });
     await Deno.writeTextFile(path, markdown);
     console.log(`  ${name}: ${moves.length} moves`);
-    return moves.length;
-  }),
-);
-
-const updated = results.filter((r) => r.status === "fulfilled").length;
-const failed = results.filter((r) => r.status === "rejected").length;
-
-for (const [i, result] of results.entries()) {
-  if (result.status === "rejected") {
-    console.error(`  ${toSolve[i].name}: failed — ${result.reason}`);
+    updated++;
+  } catch (err) {
+    console.error(`  ${name}: failed — ${(err as Error).message}`);
+    failed++;
   }
 }
-
 console.log(
   `\nDone. Updated: ${updated}, skipped: ${skipped}, failed: ${failed}`,
 );
