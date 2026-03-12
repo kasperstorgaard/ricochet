@@ -6,7 +6,6 @@ import {
   ArrowClockwise,
   ArrowRight,
   ArrowSquareIn,
-  Cross,
   DownloadSimple,
   Eye,
   FlipHorizontal,
