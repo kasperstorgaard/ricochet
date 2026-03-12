@@ -14,11 +14,14 @@ export function Dialog({ open, className, children, ...rest }: Props) {
     if (open) ref.current?.showModal();
   }, [open]);
 
+  // Remove from DOM if not open
+  if (!open) return null;
+
   return (
     <dialog
       ref={ref}
-      open={open}
       data-modal
+      open
       className={clsx(
         "m-auto rounded-cond-2 max-w-lg shadow-4 z-5",
         "lg:min-w-100",

@@ -684,6 +684,10 @@
     background-color: var(--color-surface-1);
   }
 
+  [data-js] dialog[data-modal][open]:not(:modal) {
+    opacity: 0;
+  }
+
   dialog[open] {
     opacity: 1;
     transition: opacity 200ms ease;
@@ -692,10 +696,6 @@
   dialog::backdrop {
     background-color: rgb(0 0 0 / 0.4);
     transition: background-color 200ms ease;
-  }
-
-  [data-js] dialog[data-modal][open]:not(:modal) {
-    opacity: 0;
   }
 
   /* Not supported in tailwind yet, so we add it here */
