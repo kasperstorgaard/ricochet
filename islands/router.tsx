@@ -1,4 +1,4 @@
-import { useEffect } from "preact/hooks";
+import { useEffect, useReducer, useRef } from "preact/hooks";
 
 /**
  * Helper function to update client side routing
@@ -55,8 +55,10 @@ type UseRouterOptions = {
  * Note: needs <Router> to be attached to work.
  */
 export function useRouter({ onLocationUpdated }: UseRouterOptions = {}) {
+  const callback = useRef(onLocationUpdated);
+
   useEffect(() => {
-    const handler = () => onLocationUpdated?.(new URL(self.location.href));
+    const handler = () => callback.current?.(new URL(self.location.href));
 
     self.addEventListener("popstate", handler);
     self.addEventListener("location-changed", handler);
@@ -68,7 +70,7 @@ export function useRouter({ onLocationUpdated }: UseRouterOptions = {}) {
       self.removeEventListener("popstate", handler);
       self.removeEventListener("location-changed", handler);
     };
-  }, [onLocationUpdated]);
+  }, []);
 
   return { updateLocation };
 }
