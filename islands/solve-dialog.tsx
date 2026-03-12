@@ -28,7 +28,7 @@ export function SolveDialog({ puzzle, href }: Props) {
 
   const open = useMemo(() => {
     const url = new URL(href.value);
-    return url.searchParams.get("dialog") === "hint";
+    return url.searchParams.get("dialog") === "solve";
   }, [href.value]);
 
   const moves = useMemo(
