@@ -69,7 +69,10 @@ function generateBoard({
   wallsRange,
   blockersRange,
   wallSpread,
-}: Pick<GenerateOptions, "wallsRange" | "blockersRange" | "wallSpread">): Board {
+}: Pick<
+  GenerateOptions,
+  "wallsRange" | "blockersRange" | "wallSpread"
+>): Board {
   const wallCount = randomInt(wallsRange);
   const blockerCount = randomInt(blockersRange);
 

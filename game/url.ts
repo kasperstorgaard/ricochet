@@ -150,8 +150,6 @@ export function getRedoHref(
     ? Math.min(state.cursor + 1, state.moves.length)
     : state.moves.length;
 
-  console.log({ state });
-
   url.search = encodeState({ ...state, cursor, hint: undefined });
 
   return url.href;

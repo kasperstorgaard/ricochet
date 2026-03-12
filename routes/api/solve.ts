@@ -35,7 +35,9 @@ export const handler = define.handlers({
     const stream = new ReadableStream({
       start(controller) {
         const send = (data: SolverEvent) =>
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify(data)}\n\n`),
+          );
 
         worker.postMessage(board);
 
