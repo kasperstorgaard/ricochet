@@ -1,14 +1,13 @@
-import { assertEquals } from "@std/assert";
+import { assertExists } from "@std/assert/exists";
 
 import { generate } from "./generator.ts";
 
-Deno.test("generate() produces a valid, solvable board", () => {
+Deno.test("generate() produces a valid board", () => {
   const result = generate({
-    solveRange: [4, 4],
     wallsRange: [5, 10],
     blockersRange: [4, 10],
     wallSpread: "balanced",
   });
 
-  assertEquals(result.moves.length, 4);
+  assertExists(result.board);
 });
