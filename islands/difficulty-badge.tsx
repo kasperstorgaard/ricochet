@@ -2,8 +2,8 @@ import type { Signal } from "@preact/signals";
 import { clsx } from "clsx/lite";
 import { useEffect, useRef, useState } from "preact/hooks";
 
-import { useSolveStream } from "#/client/solve-stream.ts";
 import { useDebouncedCallback } from "#/client/use-debounced-callback.ts";
+import { useSolveStream } from "#/client/use-solve-stream.ts";
 import { Icon, Warning } from "#/components/icons.tsx";
 import { validateBoard } from "#/game/board.ts";
 import type { Board, Puzzle } from "#/game/types.ts";

@@ -3,12 +3,12 @@ import { clsx } from "clsx/lite";
 import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
 
 import { Dialog } from "./dialog.tsx";
+import { useSolveStream } from "#/client/use-solve-stream.ts";
 import { isValidSolution, resolveMoves } from "#/game/board.ts";
 import { encodeMoves } from "#/game/strings.ts";
 import { Puzzle } from "#/game/types.ts";
 import { decodeState, encodeState } from "#/game/url.ts";
 import { useRouter } from "#/islands/router.tsx";
-import { useSolveStream } from "#/client/solve-stream.ts";
 
 type Props = {
   puzzle: Signal<Puzzle>;
@@ -111,16 +111,14 @@ export function SolveDialog({ puzzle, href }: Props) {
             Searching {searchDepth} move solutions...
           </span>
 
-          <form method="dialog" className="inline">
-            <button
-              type="submit"
-              className="link p-0 bg-transparent"
-              formNoValidate
-              disabled={!open}
-            >
-              Cancel
-            </button>
-          </form>
+          <button
+            type="button"
+            className="btn"
+            disabled={!open}
+            onClick={closeModal}
+          >
+            Cancel it
+          </button>
         </div>
       )}
 
@@ -134,17 +132,14 @@ export function SolveDialog({ puzzle, href }: Props) {
           </p>
 
           <div class="flex items-center gap-fl-2">
-            <form method="dialog" className="inline">
-              <button
-                type="submit"
-                className="btn"
-                formNoValidate
-                disabled={!open}
-                onClick={closeModal}
-              >
-                Got it
-              </button>
-            </form>
+            <button
+              type="button"
+              className="btn"
+              disabled={!open}
+              onClick={closeModal}
+            >
+              Got it
+            </button>
           </div>
         </div>
       )}

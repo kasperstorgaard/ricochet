@@ -1,7 +1,6 @@
 import { useSignal } from "@preact/signals";
 import clsx from "clsx/lite";
 import { HttpError, page } from "fresh";
-import { useMemo } from "preact/hooks";
 
 import { Header } from "#/components/header.tsx";
 import { Main } from "#/components/main.tsx";
