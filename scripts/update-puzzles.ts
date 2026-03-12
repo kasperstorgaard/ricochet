@@ -6,7 +6,7 @@
  */
 import { formatPuzzle } from "#/game/formatter.ts";
 import { parsePuzzle } from "#/game/parser.ts";
-import { solve } from "#/game/solver.ts";
+import { solveSync } from "#/game/solver.ts";
 
 const PUZZLES_DIR = new URL("../static/puzzles", import.meta.url).pathname;
 const updateAll = Deno.env.get("UPDATE_ALL");
@@ -44,7 +44,7 @@ let failed = 0;
 // Solve all in parallel — each runs in its own worker
 for (const { path, name, puzzle } of toSolve) {
   try {
-    const moves = solve(puzzle.board);
+    const moves = solveSync(puzzle.board);
     const markdown = formatPuzzle({ ...puzzle, minMoves: moves.length });
     await Deno.writeTextFile(path, markdown);
     console.log(`  ${name}: ${moves.length} moves`);
