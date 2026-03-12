@@ -38,25 +38,7 @@ type CompactPiece = {
 };
 
 /**
- * Admissible heuristic: lower bound on moves remaining.
- *   0 — puck already at destination
- *   1 — puck shares row or column with destination (might reach in one slide)
- *   2 — puck needs at least two moves to reach destination
- *
- * Ignores walls intentionally — checking walls costs more than it saves per node.
- * Never overestimates, so A* optimality is preserved.
- */
-function heuristic(puckPos: number, destPos: number): number {
-  if (puckPos === destPos) return 0;
-  if (
-    puckPos % COLS === destPos % COLS ||
-    Math.floor(puckPos / COLS) === Math.floor(destPos / COLS)
-  ) return 1;
-  return 2;
-}
-
-/**
- * Core IDA* search as a sync generator.
+ * Core IDA* Best First Search as a sync generator.
  *
  * Uses O(depth) stack memory — no states array, no global visited set, no heap.
  * A within-pass transposition table (TT) prevents re-exploring states at the
@@ -65,12 +47,15 @@ function heuristic(puckPos: number, destPos: number): number {
  * explored in the current pass, not the entire search.
  *
  * Yields a progress event before each threshold pass, then yields the solution
- * event when found. Throws SolverDepthExceededError or "Unsolvable puzzle".
+ * event when found.
+ * Throws SolverDepthExceededError or "Unsolvable puzzle".
  */
-export function* bfsGen(
-  board: Board,
+export function* solve(
+  puzzleOrBoard: Board | Puzzle,
   options: SolverOptions,
 ): Generator<SolverEvent> {
+  const board = "board" in puzzleOrBoard ? puzzleOrBoard.board : puzzleOrBoard;
+
   const { destination, walls } = board;
   const maxDepth = options.maxDepth ?? DEFAULT_MAX_DEPTH;
 
@@ -78,30 +63,30 @@ export function* bfsGen(
   const initialPieces = board.pieces.map(toCompact);
   const initialPuck = initialPieces.find((p) => p.type === "puck")!;
 
-  let threshold = heuristic(initialPuck.pos, destPos);
+  let threshold = heuristicRank(initialPuck.pos, destPos);
 
   // Reusable move history — avoids array allocation per recursive call.
   const moveHistory: Move[] = [];
 
-  // Within-pass transposition table: state key → minimum g-cost seen this pass.
+  // Within-pass transposition table: state key -> minimum g-cost seen this pass.
   // Cleared between passes so memory stays bounded to the current pass.
-  const tt = new Map<string, number>();
+  const transpositionTable = new Map<string, number>();
 
-  function dfs(pieces: CompactPiece[], g: number): Move[] | number {
+  const dfs = (pieces: CompactPiece[], g: number): Move[] | number => {
     const key = serializeState(pieces);
-    const best = tt.get(key);
+    const best = transpositionTable.get(key);
     if (best !== undefined && best <= g) return Infinity;
-    tt.set(key, g);
+    transpositionTable.set(key, g);
 
     const puck = pieces.find((p) => p.type === "puck")!;
-    const f = g + heuristic(puck.pos, destPos);
+    const f = g + heuristicRank(puck.pos, destPos);
 
     if (f > threshold) return f;
     if (puck.pos === destPos) return [...moveHistory];
 
     let minNext = Infinity;
 
-    for (const move of generateAllMoves(pieces, walls)) {
+    for (const move of enumerateMoves(pieces, walls)) {
       const newPieces = applyMove(pieces, move);
       moveHistory.push(move);
       const result = dfs(newPieces, g + 1);
@@ -111,10 +96,10 @@ export function* bfsGen(
     }
 
     return minNext;
-  }
+  };
 
   while (threshold <= maxDepth) {
-    tt.clear();
+    transpositionTable.clear();
     yield { type: "progress", depth: threshold };
 
     const result = dfs(initialPieces, 0);
@@ -133,15 +118,15 @@ export function* bfsGen(
 }
 
 /**
- * Solves a Skub puzzle using IDA* to find the minimum move solution.
+ * Solves a puzzle using IDA* to find the minimum move solution.
  */
-export function solve(
+export function solveSync(
   puzzleOrBoard: Puzzle | Board,
   options: SolverOptions = {},
 ): Move[] {
   const board = "board" in puzzleOrBoard ? puzzleOrBoard.board : puzzleOrBoard;
 
-  for (const event of bfsGen(board, options)) {
+  for (const event of solve(board, options)) {
     if (event.type === "solution") return event.moves;
   }
 
@@ -159,7 +144,7 @@ function serializeState(pieces: CompactPiece[]): string {
       if (a.type !== "puck" && b.type === "puck") return 1;
       return a.pos - b.pos;
     })
-    .map((p) => `${p.type[0]}${p.pos}`)
+    .map((piece) => `${piece.type[0]}${piece.pos}`)
     .join(",");
 }
 
@@ -169,13 +154,15 @@ function serializeState(pieces: CompactPiece[]): string {
 function applyMove(pieces: CompactPiece[], move: Move): CompactPiece[] {
   const fromPos = move[0].y * COLS + move[0].x;
   const toPos = move[1].y * COLS + move[1].x;
-  return pieces.map((p) => p.pos === fromPos ? { ...p, pos: toPos } : p);
+  return pieces.map((piece) =>
+    piece.pos === fromPos ? { ...piece, pos: toPos } : piece
+  );
 }
 
 /**
- * Generates all valid moves from the current board state.
+ * Enumerates all valid moves based on current board state.
  */
-function generateAllMoves(
+function enumerateMoves(
   pieces: CompactPiece[],
   walls: Board["walls"],
 ): Move[] {
@@ -190,6 +177,24 @@ function generateAllMoves(
   }
 
   return moves;
+}
+
+/**
+ * Gets heuristic rank: lower bound on moves remaining.
+ *   0 — puck already at destination
+ *   1 — puck shares row or column with destination (might reach in one slide)
+ *   2 — puck needs at least two moves to reach destination
+ *
+ * Ignores walls intentionally — checking walls costs more than it saves per node.
+ * Never overestimates, so A* optimality is preserved.
+ */
+function heuristicRank(puckPos: number, destPos: number): number {
+  if (puckPos === destPos) return 0;
+  if (
+    puckPos % COLS === destPos % COLS ||
+    Math.floor(puckPos / COLS) === Math.floor(destPos / COLS)
+  ) return 1;
+  return 2;
 }
 
 function toCompact(piece: Piece): CompactPiece {

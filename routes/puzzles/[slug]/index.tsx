@@ -19,9 +19,11 @@ import { decodeState } from "#/game/url.ts";
 import Board from "#/islands/board.tsx";
 import { ControlsPanel } from "#/islands/controls-panel.tsx";
 import { DifficultyBadge } from "#/islands/difficulty-badge.tsx";
+import { HintDialog } from "#/islands/hint-dialog.tsx";
 import { SolutionDialog } from "#/islands/solution-dialog.tsx";
 import { isDev } from "#/lib/env.ts";
 import { posthog } from "#/lib/posthog.ts";
+import { SolveDialog } from "../../../islands/solve-dialog.tsx";
 
 type PageData = {
   puzzle: Puzzle;
@@ -195,6 +197,8 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
 
   const url = new URL(props.req.url);
 
+  const dialog = url.searchParams.get("dialog");
+
   return (
     <>
       <Main>
@@ -233,6 +237,9 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
       >
         {printUrl}
       </a>
+
+      <HintDialog open={dialog === "hint"} puzzle={puzzle} href={href} />
+      <SolveDialog open={dialog === "solve"} puzzle={puzzle} href={href} />
 
       <SolutionDialog
         href={href}

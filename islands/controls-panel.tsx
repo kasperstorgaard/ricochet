@@ -18,6 +18,7 @@ import {
   getHintHref,
   getRedoHref,
   getResetHref,
+  getSolveHref,
   getUndoHref,
 } from "#/game/url.ts";
 import { useRouter } from "#/islands/router.tsx";
@@ -80,10 +81,8 @@ export function ControlsPanel(
     if (!url.searchParams.has("print")) return;
     if (!("print" in globalThis)) return;
 
-    // print the page
     globalThis.print();
 
-    // Clear the search params to avoid weird loops
     url.searchParams.delete("print");
     updateLocation(url.href);
   }, [href.value]);
@@ -146,28 +145,29 @@ export function ControlsPanel(
               "lg:text-fl-0 lg:justify-self-center",
             )}
           >
-            {
-              /*
-            Navigates to the /hint route,
-            which provides a hint as a redirect back in the query params.
-            This is slightly expensive, so needs to be on demand, not optimistic.
-          */
-            }
-            {puzzle.value.slug !== "preview" && (
-              <a
-                href={hintDisabled ? "#" : getHintHref(href.value)}
-                aria-disabled={hintDisabled ? true : undefined}
-                onClick={(event) => {
-                  if (hintDisabled) event.preventDefault();
-                }}
-              >
-                {!hintDisabled
-                  ? "Get a hint"
-                  : puzzle.value.difficulty === "easy"
-                  ? "Hints used"
-                  : "Hint used"}
-              </a>
-            )}
+            {puzzle.value.slug !== "preview"
+              ? (
+                <a
+                  href={hintDisabled ? "#" : getHintHref(href.value)}
+                  aria-disabled={hintDisabled ? true : undefined}
+                  onClick={(event) => {
+                    if (hintDisabled) event.preventDefault();
+                  }}
+                >
+                  {!hintDisabled
+                    ? "Get a hint"
+                    : puzzle.value.difficulty === "easy"
+                    ? "Hints used"
+                    : "Hint used"}
+                </a>
+              )
+              : (
+                <a
+                  href={getSolveHref(href.value)}
+                >
+                  Solve
+                </a>
+              )}
 
             <a
               href={getResetHref(href.value)}
@@ -205,14 +205,6 @@ export function ControlsPanel(
               Download
             </a>
           )}
-
-          {
-            /*
-              TODO: surface solutions post-solve once per-puzzle completion
-              state is tracked — removed from here as it was a heavy CTA on
-              mobile for a "give up / compare" action that should be contextual.
-            */
-          }
         </div>
       </div>
     </Panel>

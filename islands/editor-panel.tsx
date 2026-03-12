@@ -26,7 +26,6 @@ import type { GenerateOptions } from "#/game/generator.ts";
 import { Puzzle } from "#/game/types.ts";
 import { decodeState, encodeState } from "#/game/url.ts";
 import { useRouter } from "#/islands/router.tsx";
-import { readSolveStream } from "#/lib/solve-stream.ts";
 
 type EditorPanelProps = {
   href: Signal<string>;
@@ -52,9 +51,7 @@ export function EditorPanel(
     href.value = url.href;
   }, []);
 
-  const { updateLocation } = useRouter({
-    onLocationUpdated,
-  });
+  const { updateLocation } = useRouter({ onLocationUpdated });
 
   const board = useMemo(() => {
     const url = new URL(href.value);
@@ -126,15 +123,6 @@ export function EditorPanel(
       setIsGenerating(false);
     }
   }, [options, puzzle]);
-
-  const onPreview = async () => {
-    for await (const event of readSolveStream(board)) {
-      if (event.type === "solution") {
-        const search = encodeState({ moves: event.moves, cursor: 0 });
-        globalThis.open(`/puzzles/preview?${search}`, "_blank");
-      }
-    }
-  };
 
   const [showOptions, setShowOptions] = useState(false);
 
@@ -267,13 +255,13 @@ export function EditorPanel(
             </noscript>
           </form>
 
-          <button
-            type="button"
+          <a
+            href="/puzzles/preview"
             className="btn"
-            onClick={onPreview}
+            target="_blank"
           >
             <Icon icon={Eye} /> Preview
-          </button>
+          </a>
         </div>
       </div>
 

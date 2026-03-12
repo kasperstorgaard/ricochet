@@ -150,6 +150,8 @@ export function getRedoHref(
     ? Math.min(state.cursor + 1, state.moves.length)
     : state.moves.length;
 
+  console.log({ state });
+
   url.search = encodeState({ ...state, cursor, hint: undefined });
 
   return url.href;
@@ -163,6 +165,7 @@ export function getResetHref(href: string) {
   url.searchParams.delete("cursor");
   url.searchParams.delete("moves");
   url.searchParams.delete("hint");
+  url.searchParams.delete("dialog");
 
   return url.href;
 }
@@ -181,6 +184,24 @@ export function getHintHref(href: string) {
   if (!slug) throw new Error("Unable to get slug from URL");
 
   url.pathname = `/puzzles/${slug}/hint`;
+
+  return url.href;
+}
+
+/**
+ * Builds an href pointing to the server-side solve route for the current preview puzzle.
+ * Extracts the puzzle slug from the pathname and redirects to `/puzzles/:slug/solve`.
+ */
+export function getSolveHref(href: string) {
+  const url = new URL(href);
+  const slugMatcher = /\/puzzles\/([^/]+)/;
+
+  const matches = url.pathname.match(slugMatcher) ?? [];
+  const slug = matches[1];
+
+  if (!slug) throw new Error("Unable to get slug from URL");
+
+  url.pathname = `/puzzles/${slug}/solve`;
 
   return url.href;
 }
