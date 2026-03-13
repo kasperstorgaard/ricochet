@@ -160,6 +160,7 @@ export function ControlsPanel(
                 onClick={(event) => {
                   if (hintDisabled) event.preventDefault();
                 }}
+                className="noscript:hidden"
               >
                 {!hintDisabled
                   ? "Get a hint"
