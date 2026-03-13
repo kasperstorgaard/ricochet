@@ -44,55 +44,21 @@ export type SolverEvent =
  */
 type State = Uint8Array;
 
-/**
- * Per-cell wall slide bounds — the furthest a piece can reach in each direction
- * considering only walls (not other pieces). Computed once per board.
- *
- * Indexed by position (y * COLS + x). Values are row/col coordinates:
- *   up[pos]    — lowest y the piece can reach sliding up
- *   down[pos]  — highest y the piece can reach sliding down
- *   left[pos]  — lowest x the piece can reach sliding left
- *   right[pos] — highest x the piece can reach sliding right
- */
-type WallSlide = {
-  up: Uint8Array;
-  down: Uint8Array;
-  left: Uint8Array;
-  right: Uint8Array;
+type WallIndex = {
+  /** hWalls[x] = y-values of horizontal walls that block vertical movement in column x */
+  hWalls: number[][];
+  /** vWalls[y] = x-values of vertical walls that block horizontal movement in row y */
+  vWalls: number[][];
 };
 
-/**
- * Pre-computes wall slide bounds for every cell.
- * Replaces per-move wall iteration with O(1) lookups in getMoves.
- */
-function buildWallSlide(walls: Board["walls"]): WallSlide {
-  const size = COLS * ROWS;
-  const up = new Uint8Array(size); // default 0
-  const down = new Uint8Array(size).fill(ROWS - 1);
-  const left = new Uint8Array(size); // default 0
-  const right = new Uint8Array(size).fill(COLS - 1);
-
+function buildWallSlide(walls: Board["walls"]): WallIndex {
+  const hWalls: number[][] = Array.from({ length: COLS }, () => []);
+  const vWalls: number[][] = Array.from({ length: ROWS }, () => []);
   for (const wall of walls) {
-    if (wall.orientation === "horizontal") {
-      // Horizontal wall at (wall.x, wall.y) blocks vertical movement in column wall.x
-      const wy = wall.y;
-      for (let y = 0; y < ROWS; y++) {
-        const pos = y * COLS + wall.x;
-        if (wy <= y && wy > up[pos]) up[pos] = wy;
-        if (wy > y && wy - 1 < down[pos]) down[pos] = wy - 1;
-      }
-    } else {
-      // Vertical wall at (wall.x, wall.y) blocks horizontal movement in row wall.y
-      const wx = wall.x;
-      for (let x = 0; x < COLS; x++) {
-        const pos = wall.y * COLS + x;
-        if (wx <= x && wx > left[pos]) left[pos] = wx;
-        if (wx > x && wx - 1 < right[pos]) right[pos] = wx - 1;
-      }
-    }
+    if (wall.orientation === "horizontal") hWalls[wall.x].push(wall.y);
+    else vWalls[wall.y].push(wall.x);
   }
-
-  return { up, down, left, right };
+  return { hWalls, vWalls };
 }
 
 function initState(board: Board): State {
@@ -150,7 +116,7 @@ function applyMove(state: State, fromPos: number, toPos: number): State {
  * Wall constraints narrow the axis-aligned range; piece constraints narrow it further.
  * Target occupancy is checked last to avoid emitting blocked squares.
  */
-function getMoves(state: State, ws: WallSlide): number[] {
+function getMoves(state: State, { hWalls, vWalls }: WallIndex): number[] {
   const moves: number[] = [];
   const n = state.length;
 
@@ -159,11 +125,16 @@ function getMoves(state: State, ws: WallSlide): number[] {
     const srcX = pos % COLS;
     const srcY = (pos / COLS) | 0;
 
-    // Wall-limited bounds — O(1) lookup replacing two inner wall loops
-    let upY = ws.up[pos];
-    let downY = ws.down[pos];
-    let leftX = ws.left[pos];
-    let rightX = ws.right[pos];
+    let upY = 0, downY = ROWS - 1, leftX = 0, rightX = COLS - 1;
+
+    for (const wy of hWalls[srcX]) {
+      if (wy <= srcY && wy > upY) upY = wy;
+      if (wy > srcY && wy - 1 < downY) downY = wy - 1;
+    }
+    for (const wx of vWalls[srcY]) {
+      if (wx <= srcX && wx > leftX) leftX = wx;
+      if (wx > srcX && wx - 1 < rightX) rightX = wx - 1;
+    }
 
     for (let qi = 0; qi < n; qi++) {
       if (qi === pi) continue;
