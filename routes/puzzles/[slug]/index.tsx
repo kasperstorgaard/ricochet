@@ -38,10 +38,6 @@ export const handler = define.handlers<PageData>({
 
     const hintCount = getHintCount(ctx.req.headers);
 
-    if (!/^[a-z]+$/.test(slug)) {
-      throw new HttpError(404, `Invalid puzzle slug: ${slug}`);
-    }
-
     const savedName = ctx.state.user?.name ?? null;
 
     if (slug === "preview") {
