@@ -155,25 +155,22 @@ function getMoves(
       }
     }
 
-    const c0 = upY !== srcY ? upY * COLS + srcX : -1;
-    const c1 = downY !== srcY ? downY * COLS + srcX : -1;
-    const c2 = leftX !== srcX ? srcY * COLS + leftX : -1;
-    const c3 = rightX !== srcX ? srcY * COLS + rightX : -1;
-
-    for (let ci = 0; ci < 4; ci++) {
-      const toPos = ci === 0 ? c0 : ci === 1 ? c1 : ci === 2 ? c2 : c3;
-      if (toPos === -1) continue;
-      let occupied = false;
-      for (let qi = 0; qi < n; qi++) {
-        if (pool[offset + qi] === toPos) {
-          occupied = true;
-          break;
-        }
-      }
-      if (!occupied) {
-        buf[count++] = pos;
-        buf[count++] = toPos;
-      }
+    // Emit one move per direction where the piece actually slides somewhere new.
+    if (upY !== srcY) {
+      buf[count++] = pos;
+      buf[count++] = upY * COLS + srcX;
+    }
+    if (downY !== srcY) {
+      buf[count++] = pos;
+      buf[count++] = downY * COLS + srcX;
+    }
+    if (leftX !== srcX) {
+      buf[count++] = pos;
+      buf[count++] = srcY * COLS + leftX;
+    }
+    if (rightX !== srcX) {
+      buf[count++] = pos;
+      buf[count++] = srcY * COLS + rightX;
     }
   }
 
@@ -312,7 +309,13 @@ function bfsSolve(board: Board, maxDepth: number): Move[] {
       continue;
     }
 
-    const moveCount = getMoves(statePool, stateOff, PIECE_COUNT, wallIndex, moveBuf);
+    const moveCount = getMoves(
+      statePool,
+      stateOff,
+      PIECE_COUNT,
+      wallIndex,
+      moveBuf,
+    );
 
     for (let i = 0; i < moveCount; i += 2) {
       const fromPos = moveBuf[i];
