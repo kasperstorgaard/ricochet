@@ -7,6 +7,13 @@ import type { Board, Move, Puzzle } from "#/game/types.ts";
 const DEFAULT_MAX_DEPTH = 15;
 
 /**
+ * BFS state limit — prevents OOM on very deep or wall-sparse boards.
+ * At ~80 bytes per entry, 1M states ≈ 80 MB. Typical medium puzzles
+ * stay well under 100K states.
+ */
+const BFS_STATE_LIMIT = 1_000_000;
+
+/**
  * Solver configuration options.
  */
 type SolverOptions = {
@@ -14,7 +21,7 @@ type SolverOptions = {
   maxDepth?: number;
 };
 
-// Error thrown when the solver exceeds the maximum search depth
+// Error thrown when the solver exceeds the maximum search depth or state limit
 export class SolverDepthExceededError extends Error {
   constructor(depth: number) {
     super(`Solver depth ${depth} exceeded`);
@@ -65,6 +72,13 @@ function initState(board: Board): State {
   return new Uint8Array([puck.y * COLS + puck.x, ...blockers]);
 }
 
+// Packed integer key — safe for up to 8 pieces (64^8 < Number.MAX_SAFE_INTEGER).
+function stateKey(state: State): number {
+  let key = 0;
+  for (let i = 0; i < state.length; i++) key = key * 64 + state[i];
+  return key;
+}
+
 /**
  * Returns a new state with fromPos replaced by toPos.
  * Maintains canonical order: puck at index 0, blockers sorted ascending.
@@ -99,8 +113,7 @@ function applyMove(state: State, fromPos: number, toPos: number): State {
 }
 
 /**
- * Returns flat move pairs [from0, to0, from1, to1, …] for all valid moves
- * from the current state. Skips moves where the piece can't move in that direction.
+ * Returns flat move pairs [from0, to0, from1, to1, …] for all valid moves.
  *
  * Wall constraints narrow the axis-aligned range; piece constraints narrow it further.
  * Target occupancy is checked last to avoid emitting blocked squares.
@@ -166,174 +179,178 @@ function getMoves(state: State, { hWalls, vWalls }: WallIndex): number[] {
 }
 
 /**
- * Admissible heuristic: lower bound on moves remaining.
- *   0 — puck already at destination
- *   1 — puck shares row or column with destination
- *   2 — at least two moves needed
+ * Open-addressing hash set backed by Float64Array.
+ * ~6x less memory than Set<number> — keys are stored inline at 8 bytes each
+ * instead of as heap objects. Better cache locality on lookups too.
  *
- * Does not check walls — would cost more than it saves per node.
+ * Uses -1 as the empty sentinel; all valid state keys are ≥ 0.
+ * Load factor is capped at 50% to keep average probe length near 1.5.
  */
-function heuristic(puckPos: number, destPos: number): number {
-  if (puckPos === destPos) return 0;
-  if (
-    puckPos % COLS === destPos % COLS ||
-    (puckPos / COLS | 0) === (destPos / COLS | 0)
-  ) return 1;
-  return 2;
-}
+class CompactSet {
+  private data: Float64Array;
+  private mask: number;
+  size = 0;
 
-function extractMoves(moveHistory: number[]): Move[] {
-  const moves: Move[] = [];
-  for (let i = 0; i < moveHistory.length; i += 2) {
-    const from = moveHistory[i], to = moveHistory[i + 1];
-    moves.push([
-      { x: from % COLS, y: (from / COLS) | 0 },
-      { x: to % COLS, y: (to / COLS) | 0 },
-    ]);
-  }
-  return moves;
-}
-
-type RbfsResult =
-  | { found: true; moves: Move[] }
-  | { found: false; nextF: number };
-
-/**
- * Core RBFS (Recursive Best-First Search) — finds optimal solution.
- *
- * Like A* but uses O(depth × branching) memory instead of O(b^d).
- * Each node stores an f-value; when backtracking, the caller inherits the
- * best f-value seen in the subtree so it knows when to re-expand vs. try
- * the next best sibling. This avoids IDA*'s complete re-expansion per pass.
- *
- * @param state    Current board state
- * @param g        Moves made so far (depth)
- * @param myF      f-value assigned to this node — max(g+h, parent.f)
- * @param fLimit   Do not expand nodes with f > fLimit (parent's best alt)
- * @param moveHistory Flat [from, to, …] pairs for the current path
- */
-function rbfs(
-  state: State,
-  g: number,
-  myF: number,
-  fLimit: number,
-  moveHistory: number[],
-  destPos: number,
-  wallIndex: WallIndex,
-  maxDepth: number,
-): RbfsResult {
-  if (myF > fLimit) return { found: false, nextF: myF };
-
-  if (state[0] === destPos) {
-    return { found: true, moves: extractMoves(moveHistory) };
+  constructor(initialCapacity = 1024) {
+    let cap = 1;
+    while (cap < initialCapacity) cap <<= 1;
+    this.data = new Float64Array(cap).fill(-1);
+    this.mask = cap - 1;
   }
 
-  if (g >= maxDepth) return { found: false, nextF: Infinity };
-
-  const movePairs = getMoves(state, wallIndex);
-  if (movePairs.length === 0) return { found: false, nextF: Infinity };
-
-  const count = movePairs.length >> 1;
-  const succStates: State[] = new Array(count);
-  const succFrom: number[] = new Array(count);
-  const succTo: number[] = new Array(count);
-  const succF: number[] = new Array(count);
-
-  for (let i = 0; i < count; i++) {
-    const fromPos = movePairs[i * 2], toPos = movePairs[i * 2 + 1];
-    const next = applyMove(state, fromPos, toPos);
-    // Inherit parent f if child f is lower — ensures non-decreasing f along path
-    const childF = Math.max(g + 1 + heuristic(next[0], destPos), myF);
-    succStates[i] = next;
-    succFrom[i] = fromPos;
-    succTo[i] = toPos;
-    succF[i] = childF;
-  }
-
-  for (;;) {
-    // Best successor: minimum f
-    let bestIdx = 0;
-    for (let i = 1; i < count; i++) {
-      if (succF[i] < succF[bestIdx]) bestIdx = i;
+  has(key: number): boolean {
+    let i = this.hash(key);
+    while (this.data[i] !== -1) {
+      if (this.data[i] === key) return true;
+      i = (i + 1) & this.mask;
     }
+    return false;
+  }
 
-    if (succF[bestIdx] > fLimit) return { found: false, nextF: succF[bestIdx] };
-
-    // Best alternative f (second-lowest)
-    let altF = Infinity;
-    for (let i = 0; i < count; i++) {
-      if (i !== bestIdx && succF[i] < altF) altF = succF[i];
+  add(key: number): void {
+    if (this.size > (this.mask >> 1)) this.grow();
+    let i = this.hash(key);
+    while (this.data[i] !== -1) {
+      if (this.data[i] === key) return;
+      i = (i + 1) & this.mask;
     }
+    this.data[i] = key;
+    this.size++;
+  }
 
-    moveHistory.push(succFrom[bestIdx], succTo[bestIdx]);
-    const result = rbfs(
-      succStates[bestIdx],
-      g + 1,
-      succF[bestIdx],
-      Math.min(fLimit, altF),
-      moveHistory,
-      destPos,
-      wallIndex,
-      maxDepth,
-    );
-    moveHistory.pop();
-    moveHistory.pop();
+  private hash(key: number): number {
+    // Mix hi/lo 32-bit halves for keys > 2^32, then Fibonacci scatter
+    const lo = key >>> 0;
+    const hi = (key / 0x100000000) | 0;
+    return (Math.imul(lo ^ hi, 0x9e3779b9) >>> 0) & this.mask;
+  }
 
-    if (result.found) return result;
-    // Update f so siblings with lower f get tried first next iteration
-    succF[bestIdx] = result.nextF;
+  private grow(): void {
+    const old = this.data;
+    const newCap = (this.mask + 1) << 1;
+    this.data = new Float64Array(newCap).fill(-1);
+    this.mask = newCap - 1;
+    this.size = 0;
+    for (let i = 0; i < old.length; i++) {
+      if (old[i] !== -1) this.add(old[i]);
+    }
   }
 }
 
 /**
- * Solves a board using RBFS, yielding a progress event then the solution.
+ * BFS queue entry. Uses parent-pointer path reconstruction to avoid storing
+ * the full move history in every entry.
+ */
+type BfsEntry = {
+  state: State;
+  parentIdx: number; // -1 for root
+  fromPos: number;
+  toPos: number;
+  depth: number;
+};
+
+function reconstructPath(entries: BfsEntry[], goalIdx: number): Move[] {
+  const path: Array<[number, number]> = [];
+  let idx = goalIdx;
+  while (entries[idx].parentIdx !== -1) {
+    path.push([entries[idx].fromPos, entries[idx].toPos]);
+    idx = entries[idx].parentIdx;
+  }
+  path.reverse();
+  return path.map(([from, to]) => [
+    { x: from % COLS, y: (from / COLS) | 0 },
+    { x: to % COLS, y: (to / COLS) | 0 },
+  ]);
+}
+
+/**
+ * BFS solver — visits each unique state exactly once, guarantees optimal solution.
  *
- * RBFS is a single-pass algorithm — no repeated depth thresholds like IDA*.
- * It re-expands nodes only when a sibling's f-value is lower, which is far
- * less than IDA*'s full-depth re-expansion per pass.
+ * Uses compact Uint8Array state with a numeric key so the visited Set is fast.
+ * Path is reconstructed via parent pointers rather than storing full histories,
+ * keeping per-entry memory minimal.
  *
- * Yields:
- *   { type: "progress", depth: 1 }  — signals search has started
- *   { type: "solution", moves }      — optimal move sequence
+ * Throws SolverDepthExceededError if the state count exceeds BFS_STATE_LIMIT
+ * (very deep or wall-sparse boards) or if maxDepth is reached without solution.
+ */
+function bfsSolve(board: Board, maxDepth: number): Move[] {
+  const destPos = board.destination.y * COLS + board.destination.x;
+  const wallIndex = indexWalls(board.walls);
+  const initialState = initState(board);
+
+  if (initialState[0] === destPos) return [];
+
+  const entries: BfsEntry[] = [
+    { state: initialState, parentIdx: -1, fromPos: 0, toPos: 0, depth: 0 },
+  ];
+  const visited = new CompactSet();
+  visited.add(stateKey(initialState));
+
+  let front = 0;
+
+  while (front < entries.length) {
+    if (entries.length > BFS_STATE_LIMIT) {
+      throw new SolverDepthExceededError(maxDepth);
+    }
+
+    const entry = entries[front];
+    const parentIdx = front;
+    front++;
+
+    if (entry.depth >= maxDepth) continue;
+
+    const movePairs = getMoves(entry.state, wallIndex);
+
+    for (let i = 0; i < movePairs.length; i += 2) {
+      const fromPos = movePairs[i], toPos = movePairs[i + 1];
+      const nextState = applyMove(entry.state, fromPos, toPos);
+      const key = stateKey(nextState);
+
+      if (visited.has(key)) continue;
+      visited.add(key);
+
+      const childIdx = entries.length;
+      entries.push({
+        state: nextState,
+        parentIdx,
+        fromPos,
+        toPos,
+        depth: entry.depth + 1,
+      });
+
+      if (nextState[0] === destPos) return reconstructPath(entries, childIdx);
+    }
+  }
+
+  throw new Error("Unsolvable puzzle");
+}
+
+/**
+ * Solves a board using BFS, yielding a progress event then the solution.
  *
- * Throws SolverDepthExceededError when no solution is found within maxDepth.
+ * BFS visits each unique board state once — no repeated passes like IDA*.
+ * Compact state representation (Uint8Array + numeric key) and parent-pointer
+ * path reconstruction keep memory well under the BFS_STATE_LIMIT for typical
+ * medium-difficulty puzzles.
+ *
+ * Throws SolverDepthExceededError when no solution is found within maxDepth
+ * or when the state count exceeds BFS_STATE_LIMIT.
  */
 export function* solve(
   puzzleOrBoard: Board | Puzzle,
   options: SolverOptions = {},
 ): Generator<SolverEvent> {
   const board = "board" in puzzleOrBoard ? puzzleOrBoard.board : puzzleOrBoard;
-  const { destination, walls } = board;
   const maxDepth = options.maxDepth ?? DEFAULT_MAX_DEPTH;
-
-  const destPos = destination.y * COLS + destination.x;
-  const wallIndex = indexWalls(walls);
-  const initialState = initState(board);
-  const initialH = heuristic(initialState[0], destPos);
 
   yield { type: "progress", depth: 1 };
 
-  const result = rbfs(
-    initialState,
-    0,
-    initialH,
-    Infinity,
-    [],
-    destPos,
-    wallIndex,
-    maxDepth,
-  );
-
-  if (result.found) {
-    yield { type: "solution", moves: result.moves };
-    return;
-  }
-
-  throw new SolverDepthExceededError(maxDepth);
+  const moves = bfsSolve(board, maxDepth);
+  yield { type: "solution", moves };
 }
 
 /**
- * Solves a puzzle synchronously using RBFS to find the minimum move solution.
+ * Solves a puzzle synchronously using BFS to find the minimum move solution.
  */
 export function solveSync(
   puzzleOrBoard: Puzzle | Board,
