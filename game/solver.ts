@@ -36,150 +36,16 @@ export type SolverEvent =
   | { type: "solution"; moves: Move[] }
   | { type: "error"; message: string };
 
-type WallIndex = {
+type WallLookup = {
   /** hWalls[x] = y-values of horizontal walls that block vertical movement in column x */
   hWalls: number[][];
   /** vWalls[y] = x-values of vertical walls that block horizontal movement in row y */
   vWalls: number[][];
 };
 
-function indexWalls(walls: Board["walls"]): WallIndex {
-  const hWalls: number[][] = Array.from({ length: COLS }, () => []);
-  const vWalls: number[][] = Array.from({ length: ROWS }, () => []);
-
-  for (const wall of walls) {
-    if (wall.orientation === "horizontal") hWalls[wall.x].push(wall.y);
-    else vWalls[wall.y].push(wall.x);
-  }
-
-  return { hWalls, vWalls };
-}
-
-function initState(board: Board): Uint8Array {
-  const puck = board.pieces.find((p) => p.type === "puck")!;
-  const blockers = board.pieces
-    .filter((piece) => piece.type === "blocker")
-    .map((piece) => piece.y * COLS + piece.x)
-    .sort((a, b) => a - b);
-  return new Uint8Array([puck.y * COLS + puck.x, ...blockers]);
-}
-
-// Packed integer key — safe for up to 8 pieces (64^8 < Number.MAX_SAFE_INTEGER).
-function stateKeyAt(pool: Uint8Array, offset: number, config: {
+type Config = {
   pieceCount: number;
-}): number {
-  let key = 0;
-  for (let i = 0; i < config.pieceCount; i++) key = key * 64 + pool[offset + i];
-  return key;
-}
-
-/**
- * Copies state from pool[srcOff..srcOff+n] into pool[dstOff..dstOff+n],
- * replacing fromPos with toPos.
- * Maintains canonical order: puck at index 0, blockers sorted ascending.
- * Uses insertion sort on the single changed element — O(n) worst case.
- */
-function applyMoveInto(
-  pool: Uint8Array,
-  srcOff: number,
-  n: number,
-  fromPos: number,
-  toPos: number,
-  dstOff: number,
-): void {
-  pool.copyWithin(dstOff, srcOff, srcOff + n);
-  if (pool[dstOff] === fromPos) {
-    pool[dstOff] = toPos;
-    return;
-  }
-  for (let i = 1; i < n; i++) {
-    if (pool[dstOff + i] === fromPos) {
-      pool[dstOff + i] = toPos;
-      let j = i;
-      while (j > 1 && pool[dstOff + j] < pool[dstOff + j - 1]) {
-        const tmp = pool[dstOff + j];
-        pool[dstOff + j] = pool[dstOff + j - 1];
-        pool[dstOff + j - 1] = tmp;
-        j--;
-      }
-      while (j < n - 1 && pool[dstOff + j] > pool[dstOff + j + 1]) {
-        const tmp = pool[dstOff + j];
-        pool[dstOff + j] = pool[dstOff + j + 1];
-        pool[dstOff + j + 1] = tmp;
-        j++;
-      }
-      return;
-    }
-  }
-}
-
-/**
- * Writes flat move pairs [from0, to0, from1, to1, …] into buf for all valid moves.
- * Returns the number of values written (always even).
- *
- * Wall constraints narrow the axis-aligned range; piece constraints narrow it further.
- * Target occupancy is checked last to avoid emitting blocked squares.
- */
-function getMoves(
-  pool: Uint8Array,
-  offset: number,
-  n: number,
-  { hWalls, vWalls }: WallIndex,
-  buf: Uint8Array,
-): number {
-  let count = 0;
-
-  for (let pi = 0; pi < n; pi++) {
-    const pos = pool[offset + pi];
-    const srcX = pos % COLS;
-    const srcY = (pos / COLS) | 0;
-
-    let upY = 0, downY = ROWS - 1, leftX = 0, rightX = COLS - 1;
-
-    for (const wy of hWalls[srcX]) {
-      if (wy <= srcY && wy > upY) upY = wy;
-      if (wy > srcY && wy - 1 < downY) downY = wy - 1;
-    }
-    for (const wx of vWalls[srcY]) {
-      if (wx <= srcX && wx > leftX) leftX = wx;
-      if (wx > srcX && wx - 1 < rightX) rightX = wx - 1;
-    }
-
-    for (let qi = 0; qi < n; qi++) {
-      if (qi === pi) continue;
-      const opos = pool[offset + qi];
-      const ox = opos % COLS;
-      const oy = (opos / COLS) | 0;
-      if (oy === srcY) {
-        if (ox < srcX && ox >= leftX) leftX = ox + 1;
-        if (ox > srcX && ox <= rightX) rightX = ox - 1;
-      } else if (ox === srcX) {
-        if (oy < srcY && oy >= upY) upY = oy + 1;
-        if (oy > srcY && oy <= downY) downY = oy - 1;
-      }
-    }
-
-    // Emit one move per direction where the piece actually slides somewhere new.
-    if (upY !== srcY) {
-      buf[count++] = pos;
-      buf[count++] = upY * COLS + srcX;
-    }
-    if (downY !== srcY) {
-      buf[count++] = pos;
-      buf[count++] = downY * COLS + srcX;
-    }
-    if (leftX !== srcX) {
-      buf[count++] = pos;
-      buf[count++] = srcY * COLS + leftX;
-    }
-    if (rightX !== srcX) {
-      buf[count++] = pos;
-      buf[count++] = srcY * COLS + rightX;
-    }
-  }
-
-  return count;
-}
+} & WallLookup;
 
 /**
  * Open-addressing hash set backed by Float64Array.
@@ -276,12 +142,12 @@ function reconstructPath(
  */
 function bfsSolve(board: Board, maxDepth: number): Move[] {
   const destPos = board.destination.y * COLS + board.destination.x;
-  const wallIndex = indexWalls(board.walls);
   const initialState = initState(board);
 
   if (initialState[0] === destPos) return [];
 
-  const config = {
+  const config: Config = {
+    ...buildWallLookup(board.walls),
     pieceCount: initialState.length,
   };
 
@@ -298,7 +164,6 @@ function bfsSolve(board: Board, maxDepth: number): Move[] {
   };
 
   // Pre-allocated moves buffer: 4 directions × n pieces × 2 values
-  const moveBuffer = new Uint8Array(config.pieceCount * 8);
 
   const visited = new CompactSet();
   const stateKey = stateKeyAt(statePool, 0, config);
@@ -313,7 +178,7 @@ function bfsSolve(board: Board, maxDepth: number): Move[] {
       throw new SolverDepthExceededError(maxDepth);
     }
 
-    const stateOff = front * config.pieceCount;
+    const frontOffset = front * config.pieceCount;
     const depth = metadata.depths[front];
     const parentIdx = front;
     front++;
@@ -323,41 +188,43 @@ function bfsSolve(board: Board, maxDepth: number): Move[] {
       continue;
     }
 
-    const moveCount = getMoves(
+    const moves = getMoves(
       statePool,
-      stateOff,
-      config.pieceCount,
-      wallIndex,
-      moveBuffer,
+      frontOffset,
+      config,
     );
 
-    // why 2?
-    for (let idx = 0; idx < moveCount; idx += 2) {
-      const fromPos = moveBuffer[idx];
-      const toPos = moveBuffer[idx + 1];
+    // loop over moves (increment by 2 bc. moves have 2 positions)
+    for (let idx = 0; idx < moves.count; idx += 2) {
+      const move: [number, number] = [moves.buffer[idx], moves.buffer[idx + 1]];
 
       // Write next state directly into statePool at entryCount offset
-      const nextOff = entryCount * config.pieceCount;
+      const target = entryCount * config.pieceCount;
+
+      const copyRange: [number, number] = [
+        frontOffset,
+        frontOffset + config.pieceCount,
+      ];
+
       applyMoveInto(
         statePool,
-        stateOff,
-        config.pieceCount,
-        fromPos,
-        toPos,
-        nextOff,
+        target,
+        copyRange,
+        config,
+        move,
       );
 
-      const stateKey = stateKeyAt(statePool, nextOff, config);
+      const stateKey = stateKeyAt(statePool, target, config);
 
       if (visited.has(stateKey)) continue;
       visited.add(stateKey);
 
       metadata.parentIndexes[entryCount] = parentIdx;
-      metadata.fromPositions[entryCount] = fromPos;
-      metadata.toPositions[entryCount] = toPos;
+      metadata.fromPositions[entryCount] = move[0];
+      metadata.toPositions[entryCount] = move[1];
       metadata.depths[entryCount] = depth + 1;
 
-      if (statePool[nextOff] === destPos) {
+      if (statePool[target] === destPos) {
         return reconstructPath(metadata, entryCount);
       }
 
@@ -407,4 +274,168 @@ export function solveSync(
   }
 
   throw new Error("Unsolvable puzzle");
+}
+
+/**
+ * Copies state from pool[srcOff..srcOff+n] into pool[dstOff..dstOff+n],
+ * replacing fromPos with toPos.
+ * Maintains canonical order: puck at index 0, blockers sorted ascending.
+ * Uses insertion sort on the single changed element — O(n) worst case.
+ */
+// TODO: refactor these args, it's crazy
+function applyMoveInto(
+  pool: Uint8Array,
+  target: number,
+  copyRange: [number, number],
+  config: Config,
+  move: [number, number],
+): void {
+  pool.copyWithin(target, ...copyRange);
+
+  if (pool[target] === move[0]) {
+    pool[target] = move[1];
+    return;
+  }
+
+  for (let pieceIdx = 1; pieceIdx < config.pieceCount; pieceIdx++) {
+    if (pool[target + pieceIdx] === move[0]) {
+      pool[target + pieceIdx] = move[1];
+
+      let current = pieceIdx;
+
+      // Sort the pieces
+      // TODO: what is going on in this case?
+      while (
+        current > 1 && pool[target + current] < pool[target + current - 1]
+      ) {
+        const tmp = pool[target + current];
+        pool[target + current] = pool[target + current - 1];
+        pool[target + current - 1] = tmp;
+        current--;
+      }
+
+      // TODO: what is going on in this case?
+      while (
+        current < config.pieceCount - 1 &&
+        pool[target + current] > pool[target + current + 1]
+      ) {
+        const tmp = pool[target + current];
+        pool[target + current] = pool[target + current + 1];
+        pool[target + current + 1] = tmp;
+        current++;
+      }
+
+      return;
+    }
+  }
+}
+
+/**
+ * Writes flat move pairs [from0, to0, from1, to1, …] into buf for all valid moves.
+ * Returns a move buffer and the number of values written (always even).
+ *
+ * Wall constraints narrow the axis-aligned range; piece constraints narrow it further.
+ * Target occupancy is checked last to avoid emitting blocked squares.
+ */
+function getMoves(
+  pool: Uint8Array,
+  offset: number,
+  config: Config,
+) {
+  let count = 0;
+  const buffer = new Uint8Array(config.pieceCount * 8);
+
+  for (let piece = 0; piece < config.pieceCount; piece++) {
+    const piecePos = pool[offset + piece];
+    const pieceX = piecePos % COLS;
+    const pieceY = (piecePos / COLS) | 0;
+
+    // Target min/max positions along the outer bounds of the grid
+    let up = 0, down = ROWS - 1, left = 0, right = COLS - 1;
+
+    // Check all vertical walls, and stop when hit
+    for (const wallY of config.hWalls[pieceX]) {
+      if (wallY <= pieceY && wallY > up) up = wallY;
+      if (wallY > pieceY && wallY - 1 < down) down = wallY - 1;
+    }
+
+    // Check all horizontal walls, and stop when hit
+    for (const wallX of config.vWalls[pieceY]) {
+      if (wallX <= pieceX && wallX > left) left = wallX;
+      if (wallX > pieceX && wallX - 1 < right) right = wallX - 1;
+    }
+
+    // Check against all other pieces
+    for (let otherPiece = 0; otherPiece < config.pieceCount; otherPiece++) {
+      if (otherPiece === piece) continue;
+
+      const otherPos = pool[offset + otherPiece];
+      const otherX = otherPos % COLS;
+      const otherY = (otherPos / COLS) | 0;
+
+      if (otherY === pieceY) {
+        if (otherX < pieceX && otherX >= left) left = otherX + 1;
+        if (otherX > pieceX && otherX <= right) right = otherX - 1;
+      } else if (otherX === pieceX) {
+        if (otherY < pieceY && otherY >= up) up = otherY + 1;
+        if (otherY > pieceY && otherY <= down) down = otherY - 1;
+      }
+    }
+
+    // Emit one move per direction where the piece actually slides somewhere new.
+    if (up !== pieceY) {
+      buffer[count++] = piecePos;
+      buffer[count++] = up * COLS + pieceX;
+    }
+
+    if (down !== pieceY) {
+      buffer[count++] = piecePos;
+      buffer[count++] = down * COLS + pieceX;
+    }
+    if (left !== pieceX) {
+      buffer[count++] = piecePos;
+      buffer[count++] = pieceY * COLS + left;
+    }
+    if (right !== pieceX) {
+      buffer[count++] = piecePos;
+      buffer[count++] = pieceY * COLS + right;
+    }
+  }
+
+  return {
+    buffer,
+    count,
+  };
+}
+
+function buildWallLookup(walls: Board["walls"]): WallLookup {
+  const hWalls: number[][] = Array.from({ length: COLS }, () => []);
+  const vWalls: number[][] = Array.from({ length: ROWS }, () => []);
+
+  for (const wall of walls) {
+    if (wall.orientation === "horizontal") hWalls[wall.x].push(wall.y);
+    else vWalls[wall.y].push(wall.x);
+  }
+
+  return { hWalls, vWalls };
+}
+
+function initState(board: Board): Uint8Array {
+  const puck = board.pieces.find((p) => p.type === "puck")!;
+  const blockers = board.pieces
+    .filter((piece) => piece.type === "blocker")
+    .map((piece) => piece.y * COLS + piece.x)
+    .sort((a, b) => a - b);
+  return new Uint8Array([puck.y * COLS + puck.x, ...blockers]);
+}
+
+// Packed integer key — safe for up to 8 pieces (64^8 < Number.MAX_SAFE_INTEGER).
+function stateKeyAt(pool: Uint8Array, offset: number, config: Config): number {
+  let key = 0;
+
+  for (let pieceIdx = 0; pieceIdx < config.pieceCount; pieceIdx++) {
+    key = key * 64 + pool[offset + pieceIdx];
+  }
+
+  return key;
 }
