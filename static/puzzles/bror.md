@@ -1,10 +1,10 @@
 ---
-number: 0
+number: 95
 name: Bror
 slug: bror
 createdAt: 2026-03-09T20:59:42.559Z
 difficulty: medium
-minMoves: 0
+minMoves: 10
 ---
 
 ```

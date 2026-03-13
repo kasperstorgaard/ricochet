@@ -1,10 +1,10 @@
 ---
-number: 0
+number: 94
 name: Dylan
 slug: dylan
 createdAt: 2026-03-07T13:27:33.906Z
 difficulty: medium
-minMoves: 0
+minMoves: 12
 ---
 
 ```

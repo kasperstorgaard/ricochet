@@ -1,10 +1,10 @@
 ---
-number: 30
+number: 98
 name: Mons
 slug: mons
 createdAt: 2026-03-06T13:39:00.339Z
 difficulty: hard
-minMoves: 0
+minMoves: 11
 ---
 
 ```

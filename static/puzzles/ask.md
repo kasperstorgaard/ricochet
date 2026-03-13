@@ -1,9 +1,9 @@
 ---
-number: 104
+number: 99
 name: Ask
 slug: ask
 createdAt: 2026-03-11T10:33:12.877Z
-difficulty: medium
+difficulty: easy
 minMoves: 8
 ---
 
