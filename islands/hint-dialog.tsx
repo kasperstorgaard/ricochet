@@ -1,13 +1,14 @@
 import type { Signal } from "@preact/signals";
 import { clsx } from "clsx/lite";
-import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
+import { useCallback, useEffect, useMemo } from "preact/hooks";
 
 import { Dialog } from "./dialog.tsx";
+import { useDelayedValue } from "#/client/use-delayed-value.ts";
 import { useSolveStream } from "#/client/use-solve-stream.ts";
 import { ArrowCounterClockwise, Icon } from "#/components/icons.tsx";
 import { resolveMoves } from "#/game/board.ts";
 import { encodeMove } from "#/game/strings.ts";
-import { Puzzle } from "#/game/types.ts";
+import { Move, Puzzle } from "#/game/types.ts";
 import { decodeState, encodeState, getResetHref } from "#/game/url.ts";
 import { useRouter } from "#/islands/router.tsx";
 
@@ -16,11 +17,31 @@ type Props = {
   href: Signal<string>;
 };
 
+type SolveState = {
+  status: "starting";
+} | {
+  status: "solving";
+  depth: number;
+} | {
+  status: "done";
+  moves: Move[];
+} | {
+  status: "error";
+};
+
 export function HintDialog({ puzzle, href }: Props) {
-  const [modalState, setModalState] = useState<"solving" | "done" | null>(null);
   const gameState = useMemo(() => decodeState(href.value), [href.value]);
   const minMoves = puzzle.value.minMoves;
-  const [searchDepth, setSearchDepth] = useState<number | null>(null);
+  const {
+    value: solveState,
+    queueValue: queueSolveState,
+    clearQueue: clearSolveValue,
+  } = useDelayedValue<
+    SolveState
+  >({
+    status: "solving",
+    depth: 0,
+  });
 
   const onLocationUpdated = useCallback((url: URL) => {
     href.value = url.href;
@@ -33,14 +54,17 @@ export function HintDialog({ puzzle, href }: Props) {
     return url.searchParams.get("dialog") === "hint";
   }, [href.value]);
 
-  const [remainingMoves, setRemainingMoves] = useState<number | null>(null);
-
   const moves = useMemo(
     () => gameState.moves.slice(0, gameState.cursor ?? gameState.moves.length),
     [
       gameState.moves,
       gameState.cursor,
     ],
+  );
+
+  const remainingMoves = useMemo(
+    () => solveState?.status === "done" ? solveState.moves.length : 0,
+    [solveState],
   );
 
   const resetHref = useMemo(() => {
@@ -50,16 +74,16 @@ export function HintDialog({ puzzle, href }: Props) {
   }, [href.value]);
 
   const totalMoves = useMemo(
-    () => moves.length + (remainingMoves ?? 0),
+    () => moves.length + remainingMoves,
     [gameState, remainingMoves],
   );
 
   // If you are 1 off from a perfect solution, you are considered off track
   // TODO: consider how much is needed for "off-track" really
   const offTrack = useMemo(() => {
-    return modalState === "done" &&
+    return solveState?.status === "done" &&
       totalMoves > minMoves + 2;
-  }, [modalState, minMoves, remainingMoves]);
+  }, [solveState, minMoves, remainingMoves]);
 
   const closeModal = () => {
     const url = new URL(href.value);
@@ -70,111 +94,174 @@ export function HintDialog({ puzzle, href }: Props) {
 
   const { start: startSolve, cancel: cancelSolve } = useSolveStream((event) => {
     if (event.type === "progress") {
-      setSearchDepth(event.depth);
-      setModalState("solving");
+      queueSolveState({
+        status: "solving",
+        depth: event.depth,
+      }, {
+        delay: event.depth <= 2 ? 1400 : 700,
+      });
     } else if (event.type === "solution") {
-      const url = new URL(href.value);
-      url.searchParams.set("hint", encodeMove(event.moves[0]));
-      updateLocation(url.href);
-      setRemainingMoves(event.moves.length);
-      setModalState("done");
+      queueSolveState({ status: "done", moves: event.moves }, { delay: 1000 });
     } else if (event.type === "error") {
-      // TODO: show error
+      queueSolveState({ status: "error" }, { immediate: true });
     }
   });
 
   // React to ?dialog=hint appearing in the URL (set by the server-side hint route)
   useEffect(() => {
     if (!open) {
-      cancelSolve();
+      clearSolveValue();
       return;
     }
 
-    setModalState("solving");
-    setSearchDepth(null);
+    queueSolveState({ status: "starting" }, { immediate: true });
+
     const board = resolveMoves(puzzle.value.board, moves);
     startSolve(board);
 
     return cancelSolve;
   }, [open]);
 
+  useEffect(() => {
+    if (solveState?.status !== "done") return;
+
+    const url = new URL(href.value);
+    url.searchParams.set("hint", encodeMove(solveState.moves[0]));
+    updateLocation(url.href);
+  }, [solveState]);
+
   return (
     <Dialog
       open={open}
       className="max-w-sm!"
     >
-      {modalState === "solving" && (
-        <div class="flex flex-col gap-fl-3">
-          <p class="text-fl-1 font-semibold">Finding the shortest path…</p>
+      <div class="flex flex-col gap-fl-2 text-text-2">
+        {solveState?.status === "starting" && (
+          <>
+            <h2 class="text-fl-1 text-text-1 font-semibold leading-tight">
+              Warming up the solver…
+            </h2>
 
-          <span
-            class={clsx(
-              "text-fl-4 font-3 tabular-nums leading-flat",
-              "animate-blink",
-            )}
-          >
-            Trying {searchDepth}-move solutions…
-          </span>
+            <p class="leading-snug">
+              Crunching your moves…
+            </p>
 
-          <button
-            type="button"
-            className="link p-0 bg-transparent"
-            disabled={!open}
-            onClick={closeModal}
-          >
-            Cancel
-          </button>
-        </div>
-      )}
+            <div class="flex items-center gap-fl-2 mt-fl-1">
+              <button
+                type="button"
+                className="link p-0 bg-transparent"
+                disabled={!open}
+                onClick={closeModal}
+              >
+                Cancel
+              </button>
+            </div>
+          </>
+        )}
 
-      {modalState === "done" && offTrack && (
-        <div class="flex flex-col gap-fl-3">
-          <p class="text-fl-1 font-semibold">You've gone a bit off track</p>
-          <p class="text-text-2 text-fl-0">
-            You can still solve the puzzle, but you'll need {totalMoves}{" "}
-            moves total (optimal is {minMoves})
-          </p>
+        {solveState?.status === "solving" && (
+          <>
+            <p class="text-fl-1 text-text-1 font-semibold leading-tight">
+              Finding the shortest path…
+            </p>
 
-          <div class="flex items-center gap-fl-2">
-            <a href={resetHref} class="btn">
-              <Icon icon={ArrowCounterClockwise} />
-              Start over
-            </a>
+            <span class="leading-snug animate-blink">
+              Trying all {solveState.depth}-move paths from here…
+            </span>
 
-            <button
-              type="button"
-              className="link p-0 bg-transparent"
-              disabled={!open}
-              onClick={closeModal}
-            >
-              Keep going
-            </button>
-          </div>
-        </div>
-      )}
+            <div class="flex items-center gap-fl-2 mt-fl-1">
+              <button
+                type="button"
+                className="link p-0 bg-transparent"
+                disabled={!open}
+                onClick={closeModal}
+              >
+                Cancel
+              </button>
+            </div>
+          </>
+        )}
 
-      {modalState === "done" && !offTrack && (
-        <div class="flex flex-col gap-fl-2 text-text-2">
-          <h2 className="text-fl-1 leading-tight text-text-1">
-            You've got {remainingMoves}{" "}
-            {remainingMoves && remainingMoves === 1 ? "move" : "moves"} to go
-          </h2>
-          <p class="text-text-2 text-fl-0">
-            The first one is highlighted on the board
-          </p>
+        {solveState?.status === "done" && offTrack && (
+          <>
+            <h2 class="text-fl-1 text-text-1 font-semibold leading-tight">
+              You've gone a bit off track
+            </h2>
 
-          <div class="flex items-center gap-fl-2">
-            <button
-              type="button"
-              className="btn"
-              disabled={!open}
-              onClick={closeModal}
-            >
-              Got it
-            </button>
-          </div>
-        </div>
-      )}
+            <p className="leading-snug">
+              You can still solve the puzzle, but you'll need {totalMoves}{" "}
+              moves total (optimal is {minMoves})
+            </p>
+
+            <p className="leading-snug">
+              The next move is highlighted on the board
+            </p>
+
+            <div class="flex items-center gap-fl-2 mt-fl-1">
+              <a href={resetHref} class="btn">
+                <Icon icon={ArrowCounterClockwise} />
+                Start over
+              </a>
+
+              <button
+                type="button"
+                className="link p-0 bg-transparent"
+                disabled={!open}
+                onClick={closeModal}
+              >
+                Keep going
+              </button>
+            </div>
+          </>
+        )}
+
+        {solveState?.status === "done" && !offTrack && (
+          <>
+            <h2 className="text-fl-1 leading-tight text-text-1">
+              Found it - {remainingMoves}{" "}
+              {remainingMoves && remainingMoves === 1 ? "move" : "moves"} to go
+            </h2>
+
+            <p className="leading-snug">
+              The first move is highlighted, the rest is on you
+            </p>
+
+            <div class="flex items-center gap-fl-2 mt-fl-1">
+              <button
+                type="button"
+                className="btn"
+                disabled={!open}
+                onClick={closeModal}
+              >
+                Got it
+              </button>
+            </div>
+          </>
+        )}
+
+        {solveState?.status === "error" && (
+          <>
+            <h2 class="text-fl-1 text-text-1 font-semibold leading-tight">
+              Something went wrong
+            </h2>
+
+            <p>
+              The solver couldn't find a solution. Try again later.
+            </p>
+
+            <div class="flex items-center gap-fl-2 mt-fl-1">
+              <button
+                type="button"
+                className="btn"
+                disabled={!open}
+                onClick={closeModal}
+              >
+                Close
+              </button>
+            </div>
+          </>
+        )}
+      </div>
     </Dialog>
   );
 }
