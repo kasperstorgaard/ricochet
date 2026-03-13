@@ -7,11 +7,12 @@ import type { Board, Move, Puzzle } from "#/game/types.ts";
 const DEFAULT_MAX_DEPTH = 15;
 
 /**
- * BFS state limit — prevents OOM on very deep or wall-sparse boards.
- * At ~80 bytes per entry, 1M states ≈ 80 MB. Typical medium puzzles
- * stay well under 100K states.
+ * BFS state limit — hard cap to prevent OOM on pathological boards.
+ * At ~80 bytes per entry, 10M states ≈ 800 MB worst case.
+ * Medium puzzles stay well under 100K; hard puzzles (7+ pieces) may need
+ * several million.
  */
-const BFS_STATE_LIMIT = 1_000_000;
+const BFS_STATE_LIMIT = 10_000_000;
 
 /**
  * Solver configuration options.
@@ -43,24 +44,55 @@ export type SolverEvent =
  */
 type State = Uint8Array;
 
-type WallIndex = {
-  /** hWalls[x] = y-values of horizontal walls that block vertical movement in column x */
-  hWalls: number[][];
-  /** vWalls[y] = x-values of vertical walls that block horizontal movement in row y */
-  vWalls: number[][];
+/**
+ * Per-cell wall slide bounds — the furthest a piece can reach in each direction
+ * considering only walls (not other pieces). Computed once per board.
+ *
+ * Indexed by position (y * COLS + x). Values are row/col coordinates:
+ *   up[pos]    — lowest y the piece can reach sliding up
+ *   down[pos]  — highest y the piece can reach sliding down
+ *   left[pos]  — lowest x the piece can reach sliding left
+ *   right[pos] — highest x the piece can reach sliding right
+ */
+type WallSlide = {
+  up: Uint8Array;
+  down: Uint8Array;
+  left: Uint8Array;
+  right: Uint8Array;
 };
 
 /**
- * Pre-indexes walls by column/row so each move only iterates relevant walls.
+ * Pre-computes wall slide bounds for every cell.
+ * Replaces per-move wall iteration with O(1) lookups in getMoves.
  */
-function indexWalls(walls: Board["walls"]): WallIndex {
-  const hWalls: number[][] = Array.from({ length: COLS }, () => []);
-  const vWalls: number[][] = Array.from({ length: ROWS }, () => []);
+function buildWallSlide(walls: Board["walls"]): WallSlide {
+  const size = COLS * ROWS;
+  const up = new Uint8Array(size); // default 0
+  const down = new Uint8Array(size).fill(ROWS - 1);
+  const left = new Uint8Array(size); // default 0
+  const right = new Uint8Array(size).fill(COLS - 1);
+
   for (const wall of walls) {
-    if (wall.orientation === "horizontal") hWalls[wall.x].push(wall.y);
-    else vWalls[wall.y].push(wall.x);
+    if (wall.orientation === "horizontal") {
+      // Horizontal wall at (wall.x, wall.y) blocks vertical movement in column wall.x
+      const wy = wall.y;
+      for (let y = 0; y < ROWS; y++) {
+        const pos = y * COLS + wall.x;
+        if (wy <= y && wy > up[pos]) up[pos] = wy;
+        if (wy > y && wy - 1 < down[pos]) down[pos] = wy - 1;
+      }
+    } else {
+      // Vertical wall at (wall.x, wall.y) blocks horizontal movement in row wall.y
+      const wx = wall.x;
+      for (let x = 0; x < COLS; x++) {
+        const pos = wall.y * COLS + x;
+        if (wx <= x && wx > left[pos]) left[pos] = wx;
+        if (wx > x && wx - 1 < right[pos]) right[pos] = wx - 1;
+      }
+    }
   }
-  return { hWalls, vWalls };
+
+  return { up, down, left, right };
 }
 
 function initState(board: Board): State {
@@ -118,7 +150,7 @@ function applyMove(state: State, fromPos: number, toPos: number): State {
  * Wall constraints narrow the axis-aligned range; piece constraints narrow it further.
  * Target occupancy is checked last to avoid emitting blocked squares.
  */
-function getMoves(state: State, { hWalls, vWalls }: WallIndex): number[] {
+function getMoves(state: State, ws: WallSlide): number[] {
   const moves: number[] = [];
   const n = state.length;
 
@@ -127,16 +159,11 @@ function getMoves(state: State, { hWalls, vWalls }: WallIndex): number[] {
     const srcX = pos % COLS;
     const srcY = (pos / COLS) | 0;
 
-    let upY = 0, downY = ROWS - 1, leftX = 0, rightX = COLS - 1;
-
-    for (const wy of hWalls[srcX]) {
-      if (wy <= srcY && wy > upY) upY = wy;
-      if (wy > srcY && wy - 1 < downY) downY = wy - 1;
-    }
-    for (const wx of vWalls[srcY]) {
-      if (wx <= srcX && wx > leftX) leftX = wx;
-      if (wx > srcX && wx - 1 < rightX) rightX = wx - 1;
-    }
+    // Wall-limited bounds — O(1) lookup replacing two inner wall loops
+    let upY = ws.up[pos];
+    let downY = ws.down[pos];
+    let leftX = ws.left[pos];
+    let rightX = ws.right[pos];
 
     for (let qi = 0; qi < n; qi++) {
       if (qi === pi) continue;
@@ -275,7 +302,7 @@ function reconstructPath(entries: BfsEntry[], goalIdx: number): Move[] {
  */
 function bfsSolve(board: Board, maxDepth: number): Move[] {
   const destPos = board.destination.y * COLS + board.destination.x;
-  const wallIndex = indexWalls(board.walls);
+  const wallSlide = buildWallSlide(board.walls);
   const initialState = initState(board);
 
   if (initialState[0] === destPos) return [];
@@ -287,6 +314,7 @@ function bfsSolve(board: Board, maxDepth: number): Move[] {
   visited.add(stateKey(initialState));
 
   let front = 0;
+  let hitMaxDepth = false;
 
   while (front < entries.length) {
     if (entries.length > BFS_STATE_LIMIT) {
@@ -297,9 +325,12 @@ function bfsSolve(board: Board, maxDepth: number): Move[] {
     const parentIdx = front;
     front++;
 
-    if (entry.depth >= maxDepth) continue;
+    if (entry.depth >= maxDepth) {
+      hitMaxDepth = true;
+      continue;
+    }
 
-    const movePairs = getMoves(entry.state, wallIndex);
+    const movePairs = getMoves(entry.state, wallSlide);
 
     for (let i = 0; i < movePairs.length; i += 2) {
       const fromPos = movePairs[i], toPos = movePairs[i + 1];
@@ -322,6 +353,7 @@ function bfsSolve(board: Board, maxDepth: number): Move[] {
     }
   }
 
+  if (hitMaxDepth) throw new SolverDepthExceededError(maxDepth);
   throw new Error("Unsolvable puzzle");
 }
 

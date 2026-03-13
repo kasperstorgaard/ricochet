@@ -2,6 +2,7 @@ import { assertEquals, assertObjectMatch, assertThrows } from "@std/assert";
 import { assertExists } from "@std/assert/exists";
 
 import { isValidSolution, resolveMoves } from "./board.ts";
+import { parsePuzzle } from "./parser.ts";
 import { solve, SolverDepthExceededError, solveSync } from "./solver.ts";
 import type { Board, Puzzle } from "#/game/types.ts";
 
@@ -109,8 +110,7 @@ Deno.test("solve() yields progress then solution", () => {
     if (event.type === "solution") solution = event.moves;
   }
 
-  // IDA* reports threshold as depth; initial threshold is 2 (h for unaligned puck)
-  assertObjectMatch(lastProgress!, { depth: 2 });
+  assertObjectMatch(lastProgress!, { depth: 1 });
   assertExists(solution);
 });
 
@@ -187,4 +187,15 @@ Deno.test("solveSync() solves complex puzzle with many pieces", () => {
   // Solution is optimal and valid (IDA* may find a different path of equal length)
   assertEquals(result.length, 9);
   assertEquals(isValidSolution(resolveMoves(board, result)), true);
+});
+
+Deno.test("solveSync() finds 8-move solution for sara puzzle", async () => {
+  const src = await Deno.readTextFile(
+    new URL("../static/puzzles/sara.md", import.meta.url),
+  );
+  const puzzle = parsePuzzle(src);
+  const result = solveSync(puzzle);
+
+  assertEquals(result.length, 8);
+  assertEquals(isValidSolution(resolveMoves(puzzle.board, result)), true);
 });
