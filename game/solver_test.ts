@@ -2,7 +2,6 @@ import { assertEquals, assertObjectMatch, assertThrows } from "@std/assert";
 import { assertExists } from "@std/assert/exists";
 
 import { isValidSolution, resolveMoves } from "./board.ts";
-import { parsePuzzle } from "./parser.ts";
 import { solve, SolverDepthExceededError, solveSync } from "./solver.ts";
 import type { Board, Puzzle } from "#/game/types.ts";
 
