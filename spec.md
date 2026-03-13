@@ -16,42 +16,49 @@ Best-First Search), which is faster than IDA* in practice.
 - The solve dialog gives players a way to step through the optimal path from their
   current position using existing undo/redo controls.
 
-## Algorithm: RBFS
+## Algorithm: BFS
 
-RBFS is a memory-efficient variant of A*:
+BFS visits each unique board state exactly once, guaranteeing the shortest solution.
+It is faster than IDA*/RBFS in practice because there is no repeated work — each state
+is enqueued once and dequeued once.
 
 ```
-rbfs(state, g, myF, fLimit):
-  if myF > fLimit: return (null, myF)         # exceeded — tell parent
-  if state is goal: return (path, 0)
-  if g >= maxDepth: return (null, ∞)
-
-  successors = expand(state)
-  each successor: f = max(g+1 + h, myF)       # inherit parent f if higher
-
-  loop:
-    best = min-f successor
-    if best.f > fLimit: return (null, best.f)
-    alt = second-min f
-    result, best.f = rbfs(best, g+1, best.f, min(fLimit, alt))
-    if result: return (result, _)
+bfs(board):
+  enqueue initialState
+  while queue not empty:
+    state = dequeue
+    for each move in enumerateMoves(state):
+      next = applyMove(state, move)
+      if visited(next): skip
+      mark visited
+      if next is goal: reconstruct path via parent pointers
+      enqueue next
 ```
 
-Heuristic: 0 (puck at dest), 1 (same row or col), 2 (otherwise). Admissible; does not
-check walls (cost > benefit per node).
+Path is reconstructed by following `parentIndexes` back to the root rather than storing
+the full move history in every entry.
+
+Throws `SolverDepthExceededError` if the queue exceeds `BFS_STATE_LIMIT` (10M states)
+or if `maxDepth` is reached without finding a solution.
 
 ## Data structures
 
-All hot paths use compact representations to minimise allocations:
+All allocations happen once before the BFS loop — nothing is allocated per state:
 
-- **State**: `Uint8Array [puckPos, ...blockersSortedAsc]` — positions as `y*8+x`.
-  Canonical order maintained by `applyMove` (insertion sort on the changed element),
-  so no sort in `stateKey`.
-- **Wall index**: `hWalls[x]` = y-values of horizontal walls in column x;
-  `vWalls[y]` = x-values of vertical walls in row y. Each piece only iterates its
-  own row/column, not all walls.
-- **Move pairs**: flat `[from, to, from, to, …]` — better cache locality than
-  array of objects.
+- **State pool**: `Uint8Array(BFS_STATE_LIMIT * pieceCount)` — all BFS states packed
+  flat. Each state is `[puckPos, ...blockersSortedAsc]` with positions as `y*COLS+x`.
+  Canonical blocker order is maintained by `applyMove` (insertion sort on the moved
+  piece), so `stateKey` never needs to sort.
+- **Metadata arrays**: parallel `Int32Array`/`Uint8Array` for `parentIndexes`,
+  `fromPositions`, `toPositions`, `depths` — one entry per queued state, no heap
+  objects.
+- **Move buffer**: `Uint8Array(pieceCount * 8)` — reused each node; `enumerateMoves`
+  writes flat `[from, to, from, to, …]` pairs and returns the count.
+- **Visited set**: `CompactSet` — open-addressing hash set backed by `Float64Array`.
+  ~6× less memory than `Set<number>`; uses Fibonacci hashing and a 50% load factor.
+- **Wall lookup**: `hWalls[x]` = y-values of horizontal walls in column x;
+  `vWalls[y]` = x-values of vertical walls in row y. Built once; each piece only
+  iterates its own row/column.
 - Integer division with `| 0` throughout instead of `Math.floor`.
 
 ## Changes
@@ -61,14 +68,19 @@ All hot paths use compact representations to minimise allocations:
 Full rewrite — same public interface (`SolverEvent`, `solve()`, `solveSync()`), new
 internals:
 
-- `Uint8Array` state + `indexWalls` + `getMoves` (inlined; no longer calls `getTargets`)
-- `rbfs()` — recursive RBFS, returns `{ found, moves | nextF }`
-- `solve()` generator: yields one `{ type: "progress", depth: 1 }` to signal start,
-  then runs `rbfs()` synchronously, yields `{ type: "solution", moves }`
+- `bfsSolve()` — BFS with flat typed array queue; `enumerateMoves` + `applyMove` +
+  `CompactSet` visited set; path via `reconstructPath` (parent pointers)
+- `solve()` generator: yields one `{ type: "progress", depth: 1 }` to signal start
+  to the worker UI, then runs `bfsSolve()` synchronously, yields `{ type: "solution", moves }`
 - `solveSync()` unchanged semantically; options now optional in both
 
-`SolverDepthExceededError` is still thrown when `maxDepth` is reached with no solution.
+`SolverDepthExceededError` is thrown when `maxDepth` or `BFS_STATE_LIMIT` is exceeded.
 `getTargets` import removed; `COLS` / `ROWS` still imported from `board.ts`.
+
+### `lib/compact-set.ts` (new)
+
+`CompactSet` extracted from `solver.ts` into `lib/` — generic enough for any non-negative
+numeric keys, no game-specific logic.
 
 ### `game/solver-worker.ts` (new)
 
