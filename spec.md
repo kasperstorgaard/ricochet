@@ -20,15 +20,12 @@ The actual solve happens client-side on demand, triggered by the dialog opening.
 
 ### SSE solve endpoint (`routes/api/solve.ts`)
 
-New POST endpoint that runs the solver in a Deno Worker and streams `SolverEvent`s back as SSE:
+New POST endpoint that runs the solver inline and streams `SolverEvent`s back as SSE:
 - `{ type: "progress", depth }` — emitted before each IDA* threshold pass
 - `{ type: "solution", moves }` — emitted when solved
 - `{ type: "error", message }` — emitted on failure
-- Worker is terminated on stream cancel (client disconnect or abort)
 
-### Solver worker (`game/solver-worker.ts`)
-
-Thin worker wrapper — receives a `Board`, runs `solve()` as a generator, posts each event back. Runs in its own thread so the main server loop is not blocked.
+Solver runs synchronously in the request handler — acceptable since it completes in <1s for typical puzzles and Deno Deploy isolates requests. A worker-based approach was tried but Deno Deploy can't resolve worker script URLs in a Vite-bundled build.
 
 ### Client stream hook (`client/use-solve-stream.ts`)
 
@@ -79,8 +76,7 @@ Always renders both slots (difficulty label + move count). When `minMoves` is un
 | File | Change |
 |------|--------|
 | `routes/puzzles/[slug]/hint.tsx` | Remove inline solve; redirect to `?dialog=hint` |
-| `routes/api/solve.ts` | New SSE endpoint — worker-based streaming solver |
-| `game/solver-worker.ts` | New worker — runs `solve()` generator, posts events |
+| `routes/api/solve.ts` | New SSE endpoint — inline streaming solver |
 | `client/use-solve-stream.ts` | New hook — streams solver events from `/api/solve` |
 | `client/use-delayed-value.ts` | New hook — queues values with per-item delays |
 | `islands/hint-dialog.tsx` | New dialog with 4 states, paced reveal, off-track detection |
