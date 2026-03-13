@@ -15,7 +15,9 @@ export const handler = define.handlers({
         } catch {
           controller.enqueue(
             encode(
-              `data: ${JSON.stringify({ type: "error", message: "Invalid JSON" })}\n\n`,
+              `data: ${
+                JSON.stringify({ type: "error", message: "Invalid JSON" })
+              }\n\n`,
             ),
           );
           controller.close();
