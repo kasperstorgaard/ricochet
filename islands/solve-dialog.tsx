@@ -1,12 +1,13 @@
 import type { Signal } from "@preact/signals";
 import { clsx } from "clsx/lite";
-import { useCallback, useEffect, useMemo, useState } from "preact/hooks";
+import { useCallback, useEffect, useMemo } from "preact/hooks";
 
 import { Dialog } from "./dialog.tsx";
+import { useDelayedValue } from "#/client/use-delayed-value.ts";
 import { useSolveStream } from "#/client/use-solve-stream.ts";
 import { isValidSolution, resolveMoves } from "#/game/board.ts";
 import { encodeMoves } from "#/game/strings.ts";
-import { Puzzle } from "#/game/types.ts";
+import { Move, Puzzle } from "#/game/types.ts";
 import { decodeState, encodeState } from "#/game/url.ts";
 import { useRouter } from "#/islands/router.tsx";
 
@@ -15,10 +16,26 @@ type Props = {
   href: Signal<string>;
 };
 
+type SolveState = {
+  status: "starting";
+} | {
+  status: "solving";
+  depth: number;
+} | {
+  status: "done";
+  moves: Move[];
+} | {
+  status: "error";
+};
+
 export function SolveDialog({ puzzle, href }: Props) {
-  const [modalState, setModalState] = useState<"solving" | "done" | null>(null);
   const gameState = useMemo(() => decodeState(href.value), [href.value]);
-  const [searchDepth, setSearchDepth] = useState<number | null>(null);
+
+  const {
+    value: solveState,
+    queueValue: queueSolveState,
+    clearQueue: clearSolveState,
+  } = useDelayedValue<SolveState>({ status: "starting" });
 
   const onLocationUpdated = useCallback((url: URL) => {
     href.value = url.href;
@@ -33,48 +50,45 @@ export function SolveDialog({ puzzle, href }: Props) {
 
   const moves = useMemo(
     () => gameState.moves.slice(0, gameState.cursor ?? gameState.moves.length),
-    [
-      gameState.moves,
-      gameState.cursor,
-    ],
+    [gameState.moves, gameState.cursor],
   );
 
-  const [remainingMoves, setRemainingMoves] = useState(() =>
-    gameState.moves.slice(gameState.cursor ?? 0).length
-  );
+  const totalMoves = useMemo(() => {
+    if (solveState?.status !== "done") return 0;
+    return moves.length + solveState.moves.length;
+  }, [moves.length, solveState]);
 
-  const totalMoves = useMemo(
-    () => moves.length + (remainingMoves ?? 0),
-    [gameState, remainingMoves],
-  );
+  useEffect(() => {
+    if (solveState?.status !== "done") return;
+
+    const url = new URL(href.value);
+    url.searchParams.set("moves", encodeMoves(solveState.moves));
+    url.searchParams.set("cursor", (gameState.cursor ?? 0).toString());
+    updateLocation(url.href);
+  }, [solveState]);
 
   const closeModal = () => {
     const url = new URL(href.value);
-    // Clear all non-relevant state and update url
     url.search = encodeState({ ...gameState, hint: undefined });
     updateLocation(url.href);
   };
 
   const { start: startSolve, cancel: cancelSolve } = useSolveStream((event) => {
     if (event.type === "progress") {
-      setModalState("solving");
-      setSearchDepth(event.depth);
+      queueSolveState({ status: "solving", depth: event.depth }, {
+        delay: 500,
+      });
     } else if (event.type === "solution") {
-      const url = new URL(href.value);
-      url.searchParams.set("moves", encodeMoves(event.moves));
-      url.searchParams.set("cursor", (gameState.cursor ?? 0).toString());
-      updateLocation(url.href);
-      setRemainingMoves(event.moves.length);
-      setModalState("done");
+      queueSolveState({ status: "done", moves: event.moves }, { delay: 500 });
     } else if (event.type === "error") {
-      // TODO: show error
+      queueSolveState({ status: "error" }, { immediate: true });
     }
   });
 
-  // React to ?dialog=solve appearing in the URL (set by the server-side hint route)
   useEffect(() => {
     if (!open) {
       cancelSolve();
+      clearSolveState();
       return;
     }
 
@@ -82,67 +96,112 @@ export function SolveDialog({ puzzle, href }: Props) {
     const isSolved = isValidSolution(board);
 
     if (isSolved) {
-      setModalState("done");
+      queueSolveState({ status: "done", moves: [] }, { immediate: true });
       return;
     }
 
-    setSearchDepth(null);
-    // Not cached: stream the solve client-side
+    queueSolveState({ status: "starting" }, { immediate: true });
     startSolve(board);
 
     return cancelSolve;
   }, [open]);
 
   return (
-    <Dialog
-      open={open}
-      className="w-sm!"
-    >
-      {modalState === "solving" && (
-        <div class="flex flex-col gap-fl-3">
-          <p class="text-fl-1 font-semibold">Solving…</p>
+    <Dialog open={open} className="w-sm!">
+      <div class="flex flex-col gap-fl-2 text-text-2">
+        {solveState?.status === "starting" && (
+          <>
+            <h2 class="text-fl-1 text-text-1 font-semibold leading-tight">
+              Warming up the solver…
+            </h2>
 
-          <span
-            class={clsx(
-              "text-fl-4 font-3 tabular-nums leading-flat",
-              "animate-blink",
-            )}
-          >
-            Searching {searchDepth} move solutions...
-          </span>
+            <p class="leading-snug">
+              Crunching your moves…
+            </p>
 
-          <button
-            type="button"
-            className="btn"
-            disabled={!open}
-            onClick={closeModal}
-          >
-            Cancel it
-          </button>
-        </div>
-      )}
+            <div class="flex items-center gap-fl-2 mt-fl-1">
+              <button
+                type="button"
+                className="link p-0 bg-transparent"
+                disabled={!open}
+                onClick={closeModal}
+              >
+                Cancel
+              </button>
+            </div>
+          </>
+        )}
 
-      {modalState === "done" && (
-        <div class="flex flex-col gap-fl-2 text-text-2">
-          <h2 className="text-fl-1 leading-tight text-text-1">
-            Found {totalMoves === 8 ? "an" : "a"} {totalMoves}-move solution
-          </h2>
-          <p class="text-text-2 text-fl-0">
-            Use the control panel undo/redo to see it
-          </p>
+        {solveState?.status === "solving" && (
+          <>
+            <p class="text-fl-1 text-text-1 font-semibold leading-tight">
+              Finding the shortest path…
+            </p>
 
-          <div class="flex items-center gap-fl-2">
-            <button
-              type="button"
-              className="btn"
-              disabled={!open}
-              onClick={closeModal}
-            >
-              Got it
-            </button>
-          </div>
-        </div>
-      )}
+            <span class={clsx("leading-snug", "animate-blink")}>
+              Trying all {solveState.depth}-move paths from here…
+            </span>
+
+            <div class="flex items-center gap-fl-2 mt-fl-1">
+              <button
+                type="button"
+                className="link p-0 bg-transparent"
+                disabled={!open}
+                onClick={closeModal}
+              >
+                Cancel
+              </button>
+            </div>
+          </>
+        )}
+
+        {solveState?.status === "done" && (
+          <>
+            <h2 class="text-fl-1 leading-tight text-text-1">
+              Found it - {totalMoves} {totalMoves === 1 ? "move" : "moves"}{" "}
+              total
+            </h2>
+
+            <p class="leading-snug">
+              Use the control panel undo/redo to see it
+            </p>
+
+            <div class="flex items-center gap-fl-2 mt-fl-1">
+              <button
+                type="button"
+                className="btn"
+                disabled={!open}
+                onClick={closeModal}
+              >
+                Got it
+              </button>
+            </div>
+          </>
+        )}
+
+        {solveState?.status === "error" && (
+          <>
+            <h2 class="text-fl-1 text-text-1 font-semibold leading-tight">
+              Something went wrong
+            </h2>
+
+            <p class="leading-snug">
+              The solver couldn't find a solution. Try again later.
+            </p>
+
+            <div class="flex items-center gap-fl-2 mt-fl-1">
+              <button
+                type="button"
+                className="btn"
+                disabled={!open}
+                onClick={closeModal}
+              >
+                Close
+              </button>
+            </div>
+          </>
+        )}
+      </div>
     </Dialog>
   );
 }
