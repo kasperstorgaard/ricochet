@@ -21,6 +21,7 @@ import { ControlsPanel } from "#/islands/controls-panel.tsx";
 import { DifficultyBadge } from "#/islands/difficulty-badge.tsx";
 import { HintDialog } from "#/islands/hint-dialog.tsx";
 import { SolutionDialog } from "#/islands/solution-dialog.tsx";
+import { SolveDialog } from "#/islands/solve-dialog.tsx";
 import { isDev } from "#/lib/env.ts";
 import { posthog } from "#/lib/posthog.ts";
 
@@ -236,6 +237,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
       </a>
 
       <HintDialog puzzle={puzzle} href={href} />
+      <SolveDialog puzzle={puzzle} href={href} />
 
       <SolutionDialog
         href={href}
