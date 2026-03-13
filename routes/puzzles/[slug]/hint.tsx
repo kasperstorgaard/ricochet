@@ -10,7 +10,7 @@ import { posthog } from "#/lib/posthog.ts";
 
 export const handler = define.handlers({
   async GET(ctx) {
-    const { cookieChoice, trackingId, user } = ctx.state;
+    const { cookieChoice, trackingId } = ctx.state;
 
     const slug = ctx.params.slug;
 
@@ -24,12 +24,8 @@ export const handler = define.handlers({
     }
 
     const hintCount = getHintCount(ctx.req.headers);
-    const hintLimit = getHintLimit(puzzle.difficulty);
 
-    if (
-      !isDev && user.onboarding === "done" &&
-      hintCount >= hintLimit
-    ) {
+    if (!isDev && hintCount >= 1) {
       throw new HttpError(400, "Hint limit exceeded");
     }
 
@@ -61,7 +57,3 @@ export const handler = define.handlers({
     return new Response(null, { headers, status: 303 });
   },
 });
-
-function getHintLimit(difficulty: string | undefined) {
-  return difficulty === "easy" ? 3 : 1;
-}
