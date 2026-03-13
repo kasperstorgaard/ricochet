@@ -44,10 +44,11 @@ let failed = 0;
 // Solve all in parallel — each runs in its own worker
 for (const { path, name, puzzle } of toSolve) {
   try {
+    console.log(`  ${name}:`);
     const moves = solveSync(puzzle.board);
     const markdown = formatPuzzle({ ...puzzle, minMoves: moves.length });
     await Deno.writeTextFile(path, markdown);
-    console.log(`  ${name}: ${moves.length} moves`);
+    console.log(`${moves.length} moves`);
     updated++;
   } catch (err) {
     console.error(`  ${name}: failed — ${(err as Error).message}`);
