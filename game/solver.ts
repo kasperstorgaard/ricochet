@@ -46,26 +46,30 @@ type WallIndex = {
 function indexWalls(walls: Board["walls"]): WallIndex {
   const hWalls: number[][] = Array.from({ length: COLS }, () => []);
   const vWalls: number[][] = Array.from({ length: ROWS }, () => []);
+
   for (const wall of walls) {
     if (wall.orientation === "horizontal") hWalls[wall.x].push(wall.y);
     else vWalls[wall.y].push(wall.x);
   }
+
   return { hWalls, vWalls };
 }
 
 function initState(board: Board): Uint8Array {
   const puck = board.pieces.find((p) => p.type === "puck")!;
   const blockers = board.pieces
-    .filter((p) => p.type === "blocker")
-    .map((p) => p.y * COLS + p.x)
+    .filter((piece) => piece.type === "blocker")
+    .map((piece) => piece.y * COLS + piece.x)
     .sort((a, b) => a - b);
   return new Uint8Array([puck.y * COLS + puck.x, ...blockers]);
 }
 
 // Packed integer key — safe for up to 8 pieces (64^8 < Number.MAX_SAFE_INTEGER).
-function stateKeyAt(pool: Uint8Array, offset: number, n: number): number {
+function stateKeyAt(pool: Uint8Array, offset: number, config: {
+  pieceCount: number;
+}): number {
   let key = 0;
-  for (let i = 0; i < n; i++) key = key * 64 + pool[offset + i];
+  for (let i = 0; i < config.pieceCount; i++) key = key * 64 + pool[offset + i];
   return key;
 }
 
@@ -237,18 +241,23 @@ class CompactSet {
 }
 
 function reconstructPath(
-  parentIdxs: Int32Array,
-  fromPoss: Uint8Array,
-  toposs: Uint8Array,
+  metadata: {
+    parentIndexes: Int32Array;
+    fromPositions: Uint8Array;
+    toPositions: Uint8Array;
+  },
   goalIdx: number,
 ): Move[] {
   const path: Array<[number, number]> = [];
   let idx = goalIdx;
-  while (parentIdxs[idx] !== -1) {
-    path.push([fromPoss[idx], toposs[idx]]);
-    idx = parentIdxs[idx];
+
+  while (metadata.parentIndexes[idx] !== -1) {
+    path.push([metadata.fromPositions[idx], metadata.toPositions[idx]]);
+    idx = metadata.parentIndexes[idx];
   }
+
   path.reverse();
+
   return path.map(([from, to]) => [
     { x: from % COLS, y: (from / COLS) | 0 },
     { x: to % COLS, y: (to / COLS) | 0 },
@@ -272,23 +281,28 @@ function bfsSolve(board: Board, maxDepth: number): Move[] {
 
   if (initialState[0] === destPos) return [];
 
-  const PIECE_COUNT = initialState.length;
+  const config = {
+    pieceCount: initialState.length,
+  };
 
   // State pool: all states packed flat — no heap object per state
-  const statePool = new Uint8Array(BFS_STATE_LIMIT * PIECE_COUNT);
+  const statePool = new Uint8Array(BFS_STATE_LIMIT * config.pieceCount);
   statePool.set(initialState, 0);
 
   // Parallel arrays for entry metadata
-  const parentIdxs = new Int32Array(BFS_STATE_LIMIT).fill(-1);
-  const fromPoss = new Uint8Array(BFS_STATE_LIMIT);
-  const toposs = new Uint8Array(BFS_STATE_LIMIT);
-  const depths = new Uint8Array(BFS_STATE_LIMIT); // max depth 15 fits in u8
+  const metadata = {
+    parentIndexes: new Int32Array(BFS_STATE_LIMIT).fill(-1),
+    fromPositions: new Uint8Array(BFS_STATE_LIMIT),
+    toPositions: new Uint8Array(BFS_STATE_LIMIT),
+    depths: new Uint8Array(BFS_STATE_LIMIT), // max depth 15 fits in u8
+  };
 
   // Pre-allocated moves buffer: 4 directions × n pieces × 2 values
-  const moveBuf = new Uint8Array(PIECE_COUNT * 8);
+  const moveBuffer = new Uint8Array(config.pieceCount * 8);
 
   const visited = new CompactSet();
-  visited.add(stateKeyAt(statePool, 0, PIECE_COUNT));
+  const stateKey = stateKeyAt(statePool, 0, config);
+  visited.add(stateKey);
 
   let entryCount = 1;
   let front = 0;
@@ -299,8 +313,8 @@ function bfsSolve(board: Board, maxDepth: number): Move[] {
       throw new SolverDepthExceededError(maxDepth);
     }
 
-    const stateOff = front * PIECE_COUNT;
-    const depth = depths[front];
+    const stateOff = front * config.pieceCount;
+    const depth = metadata.depths[front];
     const parentIdx = front;
     front++;
 
@@ -312,30 +326,39 @@ function bfsSolve(board: Board, maxDepth: number): Move[] {
     const moveCount = getMoves(
       statePool,
       stateOff,
-      PIECE_COUNT,
+      config.pieceCount,
       wallIndex,
-      moveBuf,
+      moveBuffer,
     );
 
-    for (let i = 0; i < moveCount; i += 2) {
-      const fromPos = moveBuf[i];
-      const toPos = moveBuf[i + 1];
+    // why 2?
+    for (let idx = 0; idx < moveCount; idx += 2) {
+      const fromPos = moveBuffer[idx];
+      const toPos = moveBuffer[idx + 1];
 
       // Write next state directly into statePool at entryCount offset
-      const nextOff = entryCount * PIECE_COUNT;
-      applyMoveInto(statePool, stateOff, PIECE_COUNT, fromPos, toPos, nextOff);
+      const nextOff = entryCount * config.pieceCount;
+      applyMoveInto(
+        statePool,
+        stateOff,
+        config.pieceCount,
+        fromPos,
+        toPos,
+        nextOff,
+      );
 
-      const key = stateKeyAt(statePool, nextOff, PIECE_COUNT);
-      if (visited.has(key)) continue;
-      visited.add(key);
+      const stateKey = stateKeyAt(statePool, nextOff, config);
 
-      parentIdxs[entryCount] = parentIdx;
-      fromPoss[entryCount] = fromPos;
-      toposs[entryCount] = toPos;
-      depths[entryCount] = depth + 1;
+      if (visited.has(stateKey)) continue;
+      visited.add(stateKey);
+
+      metadata.parentIndexes[entryCount] = parentIdx;
+      metadata.fromPositions[entryCount] = fromPos;
+      metadata.toPositions[entryCount] = toPos;
+      metadata.depths[entryCount] = depth + 1;
 
       if (statePool[nextOff] === destPos) {
-        return reconstructPath(parentIdxs, fromPoss, toposs, entryCount);
+        return reconstructPath(metadata, entryCount);
       }
 
       entryCount++;
