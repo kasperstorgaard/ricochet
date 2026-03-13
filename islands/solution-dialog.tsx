@@ -63,7 +63,7 @@ export function SolutionDialog(
             </p>
           )}
 
-        {!isGraduating && stats && !error && (
+        {!error && !isPreview && !isGraduating && stats && (
           <StatsMessage
             stats={stats}
             moves={moves}
