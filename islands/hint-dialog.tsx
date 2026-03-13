@@ -96,9 +96,7 @@ export function HintDialog({ puzzle, href }: Props) {
       queueSolveState({
         status: "solving",
         depth: event.depth,
-      }, {
-        delay: event.depth <= 2 ? 1400 : 700,
-      });
+      }, { delay: 700 });
     } else if (event.type === "solution") {
       queueSolveState({ status: "done", moves: event.moves }, { delay: 1000 });
     } else if (event.type === "error") {
