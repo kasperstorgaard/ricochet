@@ -20,7 +20,8 @@
       ]
     },
     "exclude": [
-      "static/*"
+      "static/*",
+      "routes/api/solver-worker.js"
     ]
   },
   "fmt": {
@@ -29,7 +30,8 @@
       "README.md",
       "spec.md",
       "static/*",
-      "specs/*"
+      "specs/*",
+      "routes/api/solver-worker.js"
     ]
   },
   "exclude": [
