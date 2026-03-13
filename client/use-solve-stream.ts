@@ -54,7 +54,9 @@ export function useSolveStream(
           buffer = messages.pop() ?? "";
 
           for (const message of messages) {
-            const line = message.split("\n").find((l) => l.startsWith("data: "));
+            const line = message.split("\n").find((l) =>
+              l.startsWith("data: ")
+            );
             if (!line) continue;
             onEventRef.current(JSON.parse(line.slice(6)) as SolverEvent);
           }

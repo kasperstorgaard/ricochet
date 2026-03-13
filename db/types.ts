@@ -25,4 +25,3 @@ export type CanonicalGroup = {
   firstSolution: Solution;
   count: number;
 };
-

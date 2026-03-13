@@ -1,5 +1,4 @@
 import type { Signal } from "@preact/signals";
-import { clsx } from "clsx/lite";
 import { useCallback, useEffect, useMemo } from "preact/hooks";
 
 import { Dialog } from "./dialog.tsx";
