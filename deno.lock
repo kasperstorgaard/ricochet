@@ -1790,6 +1790,7 @@
     }
   },
   "remote": {
+    "http://0.0.0.0:8000/solver-worker.js": "6ddd9534a9d1ca4498cef4091f5b74e37d2215857e4c2c2745aa55815907b406",
     "http://localhost:5173/solver-worker.js": "16f588891f25e970c63d390cdbdf39b73bc761cf5f84f9eb0a658622c7825a63"
   },
   "workspace": {
