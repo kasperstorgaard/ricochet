@@ -1,5 +1,6 @@
 import { COLS, ROWS } from "#/game/board.ts";
 import type { Board, Move, Puzzle } from "#/game/types.ts";
+import { CompactSet } from "#/lib/compact-set.ts";
 
 /**
  * Default solver limits.
@@ -8,9 +9,9 @@ const DEFAULT_MAX_DEPTH = 15;
 
 /**
  * BFS state limit — hard cap to prevent OOM on pathological boards.
- * At ~80 bytes per entry, 10M states ≈ 800 MB worst case.
- * Medium puzzles stay well under 100K; hard puzzles (7+ pieces) may need
- * several million.
+ * Flat typed arrays cost ~31 bytes per entry (statePool + metadata + CompactSet),
+ * so 10M states ≈ 310 MB worst case with 8 pieces.
+ * Medium puzzles stay well under 100K; hard puzzles (7+ pieces) may need several million.
  */
 const BFS_STATE_LIMIT = 10_000_000;
 
@@ -46,65 +47,6 @@ type WallLookup = {
 type Config = {
   pieceCount: number;
 } & WallLookup;
-
-/**
- * Open-addressing hash set backed by Float64Array.
- * ~6x less memory than Set<number> — keys are stored inline at 8 bytes each
- * instead of as heap objects. Better cache locality on lookups too.
- *
- * Uses -1 as the empty sentinel; all valid state keys are ≥ 0.
- * Load factor is capped at 50% to keep average probe length near 1.5.
- */
-class CompactSet {
-  private data: Float64Array;
-  private mask: number;
-  size = 0;
-
-  constructor(initialCapacity = 1024) {
-    let cap = 1;
-    while (cap < initialCapacity) cap <<= 1;
-    this.data = new Float64Array(cap).fill(-1);
-    this.mask = cap - 1;
-  }
-
-  has(key: number): boolean {
-    let i = this.hash(key);
-    while (this.data[i] !== -1) {
-      if (this.data[i] === key) return true;
-      i = (i + 1) & this.mask;
-    }
-    return false;
-  }
-
-  add(key: number): void {
-    if (this.size > (this.mask >> 1)) this.grow();
-    let i = this.hash(key);
-    while (this.data[i] !== -1) {
-      if (this.data[i] === key) return;
-      i = (i + 1) & this.mask;
-    }
-    this.data[i] = key;
-    this.size++;
-  }
-
-  private hash(key: number): number {
-    // Mix hi/lo 32-bit halves for keys > 2^32, then Fibonacci scatter
-    const lo = key >>> 0;
-    const hi = (key / 0x100000000) | 0;
-    return (Math.imul(lo ^ hi, 0x9e3779b9) >>> 0) & this.mask;
-  }
-
-  private grow(): void {
-    const old = this.data;
-    const newCap = (this.mask + 1) << 1;
-    this.data = new Float64Array(newCap).fill(-1);
-    this.mask = newCap - 1;
-    this.size = 0;
-    for (let i = 0; i < old.length; i++) {
-      if (old[i] !== -1) this.add(old[i]);
-    }
-  }
-}
 
 function reconstructPath(
   metadata: {
@@ -163,72 +105,63 @@ function bfsSolve(board: Board, maxDepth: number): Move[] {
     depths: new Uint8Array(BFS_STATE_LIMIT), // max depth 15 fits in u8
   };
 
-  // Pre-allocated moves buffer: 4 directions × n pieces × 2 values
+  // Pre-allocated moves buffer: 4 directions × n pieces × 2 values (from + to)
+  const buffer = new Uint8Array(config.pieceCount * 8);
 
   const visited = new CompactSet();
   const stateKey = stateKeyAt(statePool, 0, config);
   visited.add(stateKey);
 
-  let entryCount = 1;
-  let front = 0;
+  let tail = 1; // next free slot (write end of the queue)
+  let head = 0; // next state to process (read end of the queue)
   let hitMaxDepth = false;
 
-  while (front < entryCount) {
-    if (entryCount >= BFS_STATE_LIMIT) {
+  while (head < tail) {
+    if (tail >= BFS_STATE_LIMIT) {
       throw new SolverDepthExceededError(maxDepth);
     }
 
-    const frontOffset = front * config.pieceCount;
-    const depth = metadata.depths[front];
-    const parentIdx = front;
-    front++;
+    const headOffset = head * config.pieceCount;
+    const depth = metadata.depths[head];
+    const parentIdx = head;
+    head++;
 
     if (depth >= maxDepth) {
       hitMaxDepth = true;
       continue;
     }
 
-    const moves = getMoves(
-      statePool,
-      frontOffset,
-      config,
-    );
+    const moveCount = getMoves(statePool, headOffset, config, buffer);
 
-    // loop over moves (increment by 2 bc. moves have 2 positions)
-    for (let idx = 0; idx < moves.count; idx += 2) {
-      const move: [number, number] = [moves.buffer[idx], moves.buffer[idx + 1]];
+    // Each move is a [fromPos, toPos] pair packed consecutively in moveBuf
+    for (let idx = 0; idx < moveCount; idx += 2) {
+      const move: [number, number] = [buffer[idx], buffer[idx + 1]];
 
-      // Write next state directly into statePool at entryCount offset
-      const target = entryCount * config.pieceCount;
+      // Write next state directly into statePool at tail offset
+      const target = tail * config.pieceCount;
 
       const copyRange: [number, number] = [
-        frontOffset,
-        frontOffset + config.pieceCount,
+        headOffset,
+        headOffset + config.pieceCount,
       ];
 
-      applyMoveInto(
-        statePool,
-        target,
-        copyRange,
-        config,
-        move,
-      );
+      applyMove(statePool, target, copyRange, move);
 
       const stateKey = stateKeyAt(statePool, target, config);
 
       if (visited.has(stateKey)) continue;
       visited.add(stateKey);
 
-      metadata.parentIndexes[entryCount] = parentIdx;
-      metadata.fromPositions[entryCount] = move[0];
-      metadata.toPositions[entryCount] = move[1];
-      metadata.depths[entryCount] = depth + 1;
+      metadata.parentIndexes[tail] = parentIdx;
+      metadata.fromPositions[tail] = move[0];
+      metadata.toPositions[tail] = move[1];
+      metadata.depths[tail] = depth + 1;
 
       if (statePool[target] === destPos) {
-        return reconstructPath(metadata, entryCount);
+        return reconstructPath(metadata, tail);
       }
 
-      entryCount++;
+      tail++;
     }
   }
 
@@ -277,73 +210,73 @@ export function solveSync(
 }
 
 /**
- * Copies state from pool[srcOff..srcOff+n] into pool[dstOff..dstOff+n],
- * replacing fromPos with toPos.
- * Maintains canonical order: puck at index 0, blockers sorted ascending.
- * Uses insertion sort on the single changed element — O(n) worst case.
+ * Copies the current state into a new pool slot, then applies the move.
+ *
+ * Blockers are kept sorted in ascending position order so that any two states
+ * representing the same board layout produce the same stateKey — regardless of
+ * which blocker moved. Without this, BFS would revisit equivalent states.
+ *
+ * After updating the moved blocker's position, one of the two insertion-sort
+ * passes runs to restore order: bubble left if the new position is smaller than
+ * its left neighbour, or bubble right if larger than its right neighbour.
+ * Only one direction fires per move; the other loop exits immediately.
  */
-// TODO: refactor these args, it's crazy
-function applyMoveInto(
+function applyMove(
   pool: Uint8Array,
   target: number,
   copyRange: [number, number],
-  config: Config,
   move: [number, number],
 ): void {
+  const pieceCount = copyRange[1] - copyRange[0];
   pool.copyWithin(target, ...copyRange);
 
+  // Puck is always at index 0 — no sorting needed when it moves.
   if (pool[target] === move[0]) {
     pool[target] = move[1];
     return;
   }
 
-  for (let pieceIdx = 1; pieceIdx < config.pieceCount; pieceIdx++) {
-    if (pool[target + pieceIdx] === move[0]) {
-      pool[target + pieceIdx] = move[1];
+  // Find the moved blocker and update its position.
+  let idx = 1;
+  while (idx < pieceCount) {
+    if (pool[target + idx] === move[0]) break;
+    idx++;
+  }
 
-      let current = pieceIdx;
+  pool[target + idx] = move[1];
 
-      // Sort the pieces
-      // TODO: what is going on in this case?
-      while (
-        current > 1 && pool[target + current] < pool[target + current - 1]
-      ) {
-        const tmp = pool[target + current];
-        pool[target + current] = pool[target + current - 1];
-        pool[target + current - 1] = tmp;
-        current--;
-      }
+  // Bubble left if the blocker moved to a smaller position.
+  while (idx > 1 && pool[target + idx] < pool[target + idx - 1]) {
+    const tmp = pool[target + idx];
+    pool[target + idx] = pool[target + idx - 1];
+    pool[target + idx - 1] = tmp;
+    idx--;
+  }
 
-      // TODO: what is going on in this case?
-      while (
-        current < config.pieceCount - 1 &&
-        pool[target + current] > pool[target + current + 1]
-      ) {
-        const tmp = pool[target + current];
-        pool[target + current] = pool[target + current + 1];
-        pool[target + current + 1] = tmp;
-        current++;
-      }
-
-      return;
-    }
+  // Bubble right if the blocker moved to a larger position.
+  while (idx < pieceCount - 1 && pool[target + idx] > pool[target + idx + 1]) {
+    const tmp = pool[target + idx];
+    pool[target + idx] = pool[target + idx + 1];
+    pool[target + idx + 1] = tmp;
+    idx++;
   }
 }
 
 /**
  * Writes flat move pairs [from0, to0, from1, to1, …] into buf for all valid moves.
- * Returns a move buffer and the number of values written (always even).
+ * Returns the number of values written (always even).
  *
- * Wall constraints narrow the axis-aligned range; piece constraints narrow it further.
- * Target occupancy is checked last to avoid emitting blocked squares.
+ * For each piece, walls and other pieces narrow the four sliding ranges.
+ * No occupancy check needed — the piece-constraint loop already stops the slider
+ * one cell before any blocker, so the destination is always free.
  */
 function getMoves(
   pool: Uint8Array,
   offset: number,
   config: Config,
-) {
+  buffer: Uint8Array,
+): number {
   let count = 0;
-  const buffer = new Uint8Array(config.pieceCount * 8);
 
   for (let piece = 0; piece < config.pieceCount; piece++) {
     const piecePos = pool[offset + piece];
@@ -402,12 +335,13 @@ function getMoves(
     }
   }
 
-  return {
-    buffer,
-    count,
-  };
+  return count;
 }
 
+/**
+ * Takes the board walls and builds 2 index arrays
+ * one for horizontal, one for vertical.
+ */
 function buildWallLookup(walls: Board["walls"]): WallLookup {
   const hWalls: number[][] = Array.from({ length: COLS }, () => []);
   const vWalls: number[][] = Array.from({ length: ROWS }, () => []);
@@ -420,6 +354,9 @@ function buildWallLookup(walls: Board["walls"]): WallLookup {
   return { hWalls, vWalls };
 }
 
+/**
+ * Initialised the indexed board state
+ */
 function initState(board: Board): Uint8Array {
   const puck = board.pieces.find((p) => p.type === "puck")!;
   const blockers = board.pieces
@@ -429,7 +366,9 @@ function initState(board: Board): Uint8Array {
   return new Uint8Array([puck.y * COLS + puck.x, ...blockers]);
 }
 
-// Packed integer key — safe for up to 8 pieces (64^8 < Number.MAX_SAFE_INTEGER).
+/**
+ * Get packed integer key — safe for up to 8 pieces (64^8 < Number.MAX_SAFE_INTEGER).
+ */
 function stateKeyAt(pool: Uint8Array, offset: number, config: Config): number {
   let key = 0;
 
