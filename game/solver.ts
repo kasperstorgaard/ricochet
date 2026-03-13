@@ -109,7 +109,7 @@ function bfsSolve(board: Board, maxDepth: number): Move[] {
   const buffer = new Uint8Array(config.pieceCount * 8);
 
   const visited = new CompactSet();
-  const stateKey = stateKeyAt(statePool, 0, config);
+  const stateKey = stateKeyAt(statePool, config, 0);
   visited.add(stateKey);
 
   let tail = 1; // next free slot (write end of the queue)
@@ -131,33 +131,29 @@ function bfsSolve(board: Board, maxDepth: number): Move[] {
       continue;
     }
 
-    const moveCount = getMoves(statePool, headOffset, config, buffer);
+    const moveCount = getMoves(statePool, config, headOffset, buffer);
 
-    // Each move is a [fromPos, toPos] pair packed consecutively in moveBuf
+    // Each move is a [fromPos, toPos] pair packed consecutively in buffer
     for (let idx = 0; idx < moveCount; idx += 2) {
-      const move: [number, number] = [buffer[idx], buffer[idx + 1]];
+      const fromPos = buffer[idx];
+      const toPos = buffer[idx + 1];
 
       // Write next state directly into statePool at tail offset
-      const target = tail * config.pieceCount;
+      const tailOffset = tail * config.pieceCount;
 
-      const copyRange: [number, number] = [
-        headOffset,
-        headOffset + config.pieceCount,
-      ];
+      applyMove(statePool, config, headOffset, tailOffset, fromPos, toPos);
 
-      applyMove(statePool, target, copyRange, move);
-
-      const stateKey = stateKeyAt(statePool, target, config);
+      const stateKey = stateKeyAt(statePool, config, tailOffset);
 
       if (visited.has(stateKey)) continue;
       visited.add(stateKey);
 
       metadata.parentIndexes[tail] = parentIdx;
-      metadata.fromPositions[tail] = move[0];
-      metadata.toPositions[tail] = move[1];
+      metadata.fromPositions[tail] = fromPos;
+      metadata.toPositions[tail] = toPos;
       metadata.depths[tail] = depth + 1;
 
-      if (statePool[target] === destPos) {
+      if (statePool[tailOffset] === destPos) {
         return reconstructPath(metadata, tail);
       }
 
@@ -223,42 +219,45 @@ export function solveSync(
  */
 function applyMove(
   pool: Uint8Array,
-  target: number,
-  copyRange: [number, number],
-  move: [number, number],
+  config: Config,
+  srcOffset: number,
+  dstOffset: number,
+  fromPos: number,
+  toPos: number,
 ): void {
-  const pieceCount = copyRange[1] - copyRange[0];
-  pool.copyWithin(target, ...copyRange);
+  pool.copyWithin(dstOffset, srcOffset, srcOffset + config.pieceCount);
 
   // Puck is always at index 0 — no sorting needed when it moves.
-  if (pool[target] === move[0]) {
-    pool[target] = move[1];
+  if (pool[dstOffset] === fromPos) {
+    pool[dstOffset] = toPos;
     return;
   }
 
   // Find the moved blocker and update its position.
-  let idx = 1;
-  while (idx < pieceCount) {
-    if (pool[target + idx] === move[0]) break;
-    idx++;
+  let i = 1;
+  while (i < config.pieceCount) {
+    if (pool[dstOffset + i] === fromPos) break;
+    i++;
   }
 
-  pool[target + idx] = move[1];
+  pool[dstOffset + i] = toPos;
 
   // Bubble left if the blocker moved to a smaller position.
-  while (idx > 1 && pool[target + idx] < pool[target + idx - 1]) {
-    const tmp = pool[target + idx];
-    pool[target + idx] = pool[target + idx - 1];
-    pool[target + idx - 1] = tmp;
-    idx--;
+  while (i > 1 && pool[dstOffset + i] < pool[dstOffset + i - 1]) {
+    const tmp = pool[dstOffset + i];
+    pool[dstOffset + i] = pool[dstOffset + i - 1];
+    pool[dstOffset + i - 1] = tmp;
+    i--;
   }
 
   // Bubble right if the blocker moved to a larger position.
-  while (idx < pieceCount - 1 && pool[target + idx] > pool[target + idx + 1]) {
-    const tmp = pool[target + idx];
-    pool[target + idx] = pool[target + idx + 1];
-    pool[target + idx + 1] = tmp;
-    idx++;
+  while (
+    i < config.pieceCount - 1 && pool[dstOffset + i] > pool[dstOffset + i + 1]
+  ) {
+    const tmp = pool[dstOffset + i];
+    pool[dstOffset + i] = pool[dstOffset + i + 1];
+    pool[dstOffset + i + 1] = tmp;
+    i++;
   }
 }
 
@@ -272,8 +271,8 @@ function applyMove(
  */
 function getMoves(
   pool: Uint8Array,
-  offset: number,
   config: Config,
+  offset: number,
   buffer: Uint8Array,
 ): number {
   let count = 0;
@@ -369,7 +368,7 @@ function initState(board: Board): Uint8Array {
 /**
  * Get packed integer key — safe for up to 8 pieces (64^8 < Number.MAX_SAFE_INTEGER).
  */
-function stateKeyAt(pool: Uint8Array, offset: number, config: Config): number {
+function stateKeyAt(pool: Uint8Array, config: Config, offset: number): number {
   let key = 0;
 
   for (let pieceIdx = 0; pieceIdx < config.pieceCount; pieceIdx++) {
