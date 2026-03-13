@@ -2,23 +2,23 @@ import { define } from "#/core.ts";
 import type { SolverEvent } from "#/game/solver.ts";
 import type { Board } from "#/game/types.ts";
 
+// Resolves to a file:// URL at runtime, bypassing Deno Deploy's
+// --cached-only restriction (which only blocks HTTP module fetches).
+// The Vite plugin copies solver-worker.js to _fresh/server/assets/
+// alongside this compiled route so the relative path resolves correctly.
+const workerUrl = new URL("./solver-worker.js", import.meta.url);
+
+const encoder = new TextEncoder();
+const encode = encoder.encode.bind(encoder);
+
 export const handler = define.handlers({
   async POST(ctx) {
     const board = await ctx.req.json() as Board;
 
-    // Resolves to a file:// URL at runtime, bypassing Deno Deploy's
-    // --cached-only restriction (which only blocks HTTP module fetches).
-    // The Vite plugin copies solver-worker.js to _fresh/server/assets/
-    // alongside this compiled route so the relative path resolves correctly.
-    const workerUrl = new URL("./solver-worker.js", import.meta.url);
     const worker = new Worker(workerUrl, { type: "module" });
-
-    const encode = new TextEncoder().encode.bind(new TextEncoder());
 
     const stream = new ReadableStream({
       start(controller) {
-        worker.postMessage(board);
-
         worker.onmessage = (e: MessageEvent<SolverEvent>) => {
           controller.enqueue(encode(`data: ${JSON.stringify(e.data)}\n\n`));
           if (e.data.type === "solution" || e.data.type === "error") {
@@ -33,6 +33,8 @@ export const handler = define.handlers({
           worker.terminate();
           controller.close();
         };
+
+        worker.postMessage(board);
       },
       cancel() {
         worker.terminate();

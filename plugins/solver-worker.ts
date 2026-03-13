@@ -18,7 +18,6 @@ export function solverWorker(): Plugin {
       const result = await esbuild.build({
         plugins: [denoPlugin()],
         entryPoints: ["./game/solver-worker.ts"],
-        outfile: "./static/solver-worker.js",
         bundle: true,
         format: "esm",
         target: "esnext",
@@ -42,8 +41,9 @@ export function solverWorker(): Plugin {
           "./static/solver-worker.js",
           "./_fresh/server/assets/solver-worker.js",
         );
-      } catch {
+      } catch (e) {
         // _fresh/ doesn't exist in watch/dev mode — skip silently
+        if (!(e instanceof Deno.errors.NotFound)) throw e;
       }
     },
   };
