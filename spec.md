@@ -1,33 +1,31 @@
-# Solve Dialog + Worker Solver
+# Solver Rewrite + Worker Bundling
 
 ## What
 
-A "solve from here" dialog for the puzzle page, plus a TypeScript worker-based solver
-so SSE streaming actually flushes in real time. The core algorithm is RBFS (Recursive
-Best-First Search), which is faster than IDA* in practice.
+BFS solver replacing the old IDA* implementation, running in a Web Worker so SSE
+progress events flush in real time. Includes a "solve from here" dialog that steps
+through the optimal path via existing undo/redo controls.
 
 ## Why
 
-- The existing solver ran inline, blocking the server event loop — SSE chunks buffered
-  until fully done, no streaming.
-- RBFS re-expands far fewer nodes than IDA*. IDA* re-expands all depth-d states at
-  each new threshold pass. RBFS stores per-successor f-values and only re-expands a
-  branch when a sibling's f drops below it — much less redundant work.
-- The solve dialog gives players a way to step through the optimal path from their
-  current position using existing undo/redo controls.
+- The old solver ran inline, blocking the server event loop — SSE chunks buffered until
+  fully done.
+- BFS guarantees the shortest solution and visits each state exactly once — no repeated
+  work like IDA*.
+- Workers on Deno Deploy can't load scripts from runtime-constructed `https://` URLs
+  (`--cached-only` blocks them). Bundling the worker to a local file and referencing it
+  via `import.meta.url` produces a `file://` URL that reads from disk directly.
 
 ## Algorithm: BFS
 
 BFS visits each unique board state exactly once, guaranteeing the shortest solution.
-It is faster than IDA*/RBFS in practice because there is no repeated work — each state
-is enqueued once and dequeued once.
 
 ```
 bfs(board):
   enqueue initialState
   while queue not empty:
     state = dequeue
-    for each move in enumerateMoves(state):
+    for each move in getMoves(state):
       next = applyMove(state, move)
       if visited(next): skip
       mark visited
@@ -52,80 +50,67 @@ All allocations happen once before the BFS loop — nothing is allocated per sta
 - **Metadata arrays**: parallel `Int32Array`/`Uint8Array` for `parentIndexes`,
   `fromPositions`, `toPositions`, `depths` — one entry per queued state, no heap
   objects.
-- **Move buffer**: `Uint8Array(pieceCount * 8)` — reused each node; `enumerateMoves`
-  writes flat `[from, to, from, to, …]` pairs and returns the count.
+- **Move buffer**: `Uint8Array(pieceCount * 8)` — reused each node; `getMoves` writes
+  flat `[from, to, from, to, …]` pairs and returns the count.
 - **Visited set**: `CompactSet` — open-addressing hash set backed by `Float64Array`.
   ~6× less memory than `Set<number>`; uses Fibonacci hashing and a 50% load factor.
 - **Wall lookup**: `hWalls[x]` = y-values of horizontal walls in column x;
   `vWalls[y]` = x-values of vertical walls in row y. Built once; each piece only
   iterates its own row/column.
-- Integer division with `| 0` throughout instead of `Math.floor`.
 
 ## Changes
 
 ### `game/solver.ts`
 
-Full rewrite — same public interface (`SolverEvent`, `solve()`, `solveSync()`), new
-internals:
+Full rewrite — same public interface (`SolverEvent`, `solve()`, `solveSync()`):
 
-- `bfsSolve()` — BFS with flat typed array queue; `enumerateMoves` + `applyMove` +
-  `CompactSet` visited set; path via `reconstructPath` (parent pointers)
-- `solve()` generator: yields one `{ type: "progress", depth: 1 }` to signal start
-  to the worker UI, then runs `bfsSolve()` synchronously, yields `{ type: "solution", moves }`
-- `solveSync()` unchanged semantically; options now optional in both
-
-`SolverDepthExceededError` is thrown when `maxDepth` or `BFS_STATE_LIMIT` is exceeded.
-`getTargets` import removed; `COLS` / `ROWS` still imported from `board.ts`.
+- `bfsSolve()` generator — BFS with flat typed array queue; `getMoves` + `applyMove` +
+  `CompactSet` visited set; path via `reconstructPath` (parent pointers). Yields current
+  depth at each level boundary so callers get real-time progress.
+- `solve()` maps depth yields to `{ type: "progress", depth }` events, then emits
+  `{ type: "solution", moves }` when done.
+- `solveSync()` unchanged semantically.
 
 ### `lib/compact-set.ts` (new)
 
-`CompactSet` extracted from `solver.ts` into `lib/` — generic enough for any non-negative
-numeric keys, no game-specific logic.
+`CompactSet` extracted from `solver.ts` into `lib/` — generic open-addressing hash set
+for non-negative numeric keys, no game-specific logic.
 
 ### `game/solver-worker.ts` (new)
 
-TypeScript worker that imports `solve` from `solver.ts` and posts `SolverEvent`
-messages back to the main thread.
+Web Worker entry point — calls `solve()` and posts `SolverEvent` messages back to the
+main thread. Catches solver errors and posts them as `{ type: "error" }`.
 
 ### `plugins/solver-worker.ts` (new)
 
-Vite plugin that bundles `game/solver-worker.ts` → `static/solver-worker.js` via
-esbuild (`@deno/esbuild-plugin`). Runs at `buildStart` (dev + prod). Also writes the
-bundle to `routes/api/solver-worker.js` so the dev-mode `import.meta.url` path resolves
-correctly. After a production build (`closeBundle`), copies the file to
-`_fresh/server/assets/` alongside the compiled route.
+Vite plugin that bundles `game/solver-worker.ts` via esbuild (`@deno/esbuild-plugin`):
+
+- `buildStart`: writes the bundle to `static/solver-worker.js` (served as a static
+  asset) and `routes/api/solver-worker.js` (so `import.meta.url` resolves correctly in
+  dev mode, where it points to the source file).
+- `closeBundle`: copies the bundle to `_fresh/server/assets/` alongside the compiled
+  route for production.
 
 ### `routes/api/solve.ts`
 
-Worker URL uses `import.meta.url` so it resolves to a `file://` path at runtime:
+Replaced inline `solve()` call with a Worker:
 
 ```ts
 const workerUrl = new URL("./solver-worker.js", import.meta.url);
 ```
 
-On Deno Deploy, `import.meta.url` is a `file://` URL pointing to the compiled module on
-the deployment's local filesystem. A `file://` worker URL reads directly from disk —
-bypassing Deploy's `--cached-only` restriction, which only blocks HTTP module fetches.
-Constructing a URL from `ctx.url` (the request URL) produces an `https://` URL that
-Deploy refuses to fetch at runtime.
+On Deno Deploy, `import.meta.url` is a `file://` URL — the compiled modules run from
+the deployment's local filesystem. So the worker URL is also `file://`, which reads
+from disk and bypasses the `--cached-only` restriction entirely. The `closeBundle` copy
+ensures the file exists at that path.
 
-## Solve dialog (`islands/solve-dialog.tsx`)
+### `islands/solve-dialog.tsx`
 
-- Computes current `board` from `puzzle.value.board` + moves via `resolveMoves` (memo)
-- Re-runs solver on `[open, board]` change
-- Uses `useDelayedValue<SolveState>` with 500 ms delays
-- On done: appends solution moves to URL via `updateLocation` for undo/redo replay
+- Memoizes `board` via `resolveMoves(puzzle.value.board, moves)`
+- Clears state before starting a new solve
+- States: `starting` → `solving` (with depth) → `done` (moves appended to URL for
+  undo/redo replay) or `error`
 
-States and copy:
+### `vite.config.ts`
 
-| State | Headline | Body |
-|---|---|---|
-| starting | Warming up the solver… | Crunching your moves… |
-| solving | Finding the shortest path… | Trying all {n}-move paths from here… |
-| done | Found it — {n} moves total | Use the control panel undo/redo to see it |
-| error | Something went wrong | The solver couldn't find a solution. Try again later. |
-
-### `islands/difficulty-badge.tsx`
-
-Fixed `useEffect` dependency bug: the effect watched local `minMoves` state instead of
-`puzzle.value.board` and `puzzle.value.minMoves`, so it never re-ran on board changes.
+Registers `solverWorker()` plugin.
