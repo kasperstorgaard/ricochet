@@ -6,7 +6,9 @@ export const handler = define.handlers({
   async POST(ctx) {
     const board = await ctx.req.json() as Board;
 
-    const workerUrl = import.meta.resolve("#/game/solver-worker.ts");
+    // solver-worker.js is bundled to static/ by the solverWorker Vite plugin.
+    // Constructing from the request origin works on both local dev and Deploy.
+    const workerUrl = new URL("/solver-worker.js", ctx.url);
     const worker = new Worker(workerUrl, { type: "module" });
 
     const encode = new TextEncoder().encode.bind(new TextEncoder());
