@@ -36,14 +36,6 @@ export type SolverEvent =
   | { type: "solution"; moves: Move[] }
   | { type: "error"; message: string };
 
-/**
- * State: Uint8Array [puckPos, ...blockerPositionsSortedAsc]
- * Positions are encoded as y * COLS + x.
- * Canonical order (puck at 0, blockers sorted) is maintained by applyMove,
- * so stateKey never needs to sort.
- */
-type State = Uint8Array;
-
 type WallIndex = {
   /** hWalls[x] = y-values of horizontal walls that block vertical movement in column x */
   hWalls: number[][];
@@ -51,7 +43,7 @@ type WallIndex = {
   vWalls: number[][];
 };
 
-function buildWallSlide(walls: Board["walls"]): WallIndex {
+function indexWalls(walls: Board["walls"]): WallIndex {
   const hWalls: number[][] = Array.from({ length: COLS }, () => []);
   const vWalls: number[][] = Array.from({ length: ROWS }, () => []);
   for (const wall of walls) {
@@ -61,7 +53,7 @@ function buildWallSlide(walls: Board["walls"]): WallIndex {
   return { hWalls, vWalls };
 }
 
-function initState(board: Board): State {
+function initState(board: Board): Uint8Array {
   const puck = board.pieces.find((p) => p.type === "puck")!;
   const blockers = board.pieces
     .filter((p) => p.type === "blocker")
@@ -71,57 +63,70 @@ function initState(board: Board): State {
 }
 
 // Packed integer key — safe for up to 8 pieces (64^8 < Number.MAX_SAFE_INTEGER).
-function stateKey(state: State): number {
+function stateKeyAt(pool: Uint8Array, offset: number, n: number): number {
   let key = 0;
-  for (let i = 0; i < state.length; i++) key = key * 64 + state[i];
+  for (let i = 0; i < n; i++) key = key * 64 + pool[offset + i];
   return key;
 }
 
 /**
- * Returns a new state with fromPos replaced by toPos.
+ * Copies state from pool[srcOff..srcOff+n] into pool[dstOff..dstOff+n],
+ * replacing fromPos with toPos.
  * Maintains canonical order: puck at index 0, blockers sorted ascending.
  * Uses insertion sort on the single changed element — O(n) worst case.
  */
-function applyMove(state: State, fromPos: number, toPos: number): State {
-  const next = new Uint8Array(state);
-  if (next[0] === fromPos) {
-    next[0] = toPos;
-    return next;
+function applyMoveInto(
+  pool: Uint8Array,
+  srcOff: number,
+  n: number,
+  fromPos: number,
+  toPos: number,
+  dstOff: number,
+): void {
+  pool.copyWithin(dstOff, srcOff, srcOff + n);
+  if (pool[dstOff] === fromPos) {
+    pool[dstOff] = toPos;
+    return;
   }
-  for (let i = 1; i < next.length; i++) {
-    if (next[i] === fromPos) {
-      next[i] = toPos;
+  for (let i = 1; i < n; i++) {
+    if (pool[dstOff + i] === fromPos) {
+      pool[dstOff + i] = toPos;
       let j = i;
-      while (j > 1 && next[j] < next[j - 1]) {
-        const tmp = next[j];
-        next[j] = next[j - 1];
-        next[j - 1] = tmp;
+      while (j > 1 && pool[dstOff + j] < pool[dstOff + j - 1]) {
+        const tmp = pool[dstOff + j];
+        pool[dstOff + j] = pool[dstOff + j - 1];
+        pool[dstOff + j - 1] = tmp;
         j--;
       }
-      while (j < next.length - 1 && next[j] > next[j + 1]) {
-        const tmp = next[j];
-        next[j] = next[j + 1];
-        next[j + 1] = tmp;
+      while (j < n - 1 && pool[dstOff + j] > pool[dstOff + j + 1]) {
+        const tmp = pool[dstOff + j];
+        pool[dstOff + j] = pool[dstOff + j + 1];
+        pool[dstOff + j + 1] = tmp;
         j++;
       }
-      return next;
+      return;
     }
   }
-  return next;
 }
 
 /**
- * Returns flat move pairs [from0, to0, from1, to1, …] for all valid moves.
+ * Writes flat move pairs [from0, to0, from1, to1, …] into buf for all valid moves.
+ * Returns the number of values written (always even).
  *
  * Wall constraints narrow the axis-aligned range; piece constraints narrow it further.
  * Target occupancy is checked last to avoid emitting blocked squares.
  */
-function getMoves(state: State, { hWalls, vWalls }: WallIndex): number[] {
-  const moves: number[] = [];
-  const n = state.length;
+function getMoves(
+  pool: Uint8Array,
+  offset: number,
+  n: number,
+  { hWalls, vWalls }: WallIndex,
+  buf: Uint8Array,
+): number {
+  let count = 0;
 
   for (let pi = 0; pi < n; pi++) {
-    const pos = state[pi];
+    const pos = pool[offset + pi];
     const srcX = pos % COLS;
     const srcY = (pos / COLS) | 0;
 
@@ -138,7 +143,7 @@ function getMoves(state: State, { hWalls, vWalls }: WallIndex): number[] {
 
     for (let qi = 0; qi < n; qi++) {
       if (qi === pi) continue;
-      const opos = state[qi];
+      const opos = pool[offset + qi];
       const ox = opos % COLS;
       const oy = (opos / COLS) | 0;
       if (oy === srcY) {
@@ -150,30 +155,29 @@ function getMoves(state: State, { hWalls, vWalls }: WallIndex): number[] {
       }
     }
 
-    const candidates: number[] = [
-      upY !== srcY ? upY * COLS + srcX : -1,
-      downY !== srcY ? downY * COLS + srcX : -1,
-      leftX !== srcX ? srcY * COLS + leftX : -1,
-      rightX !== srcX ? srcY * COLS + rightX : -1,
-    ];
+    const c0 = upY !== srcY ? upY * COLS + srcX : -1;
+    const c1 = downY !== srcY ? downY * COLS + srcX : -1;
+    const c2 = leftX !== srcX ? srcY * COLS + leftX : -1;
+    const c3 = rightX !== srcX ? srcY * COLS + rightX : -1;
 
-    for (const toPos of candidates) {
+    for (let ci = 0; ci < 4; ci++) {
+      const toPos = ci === 0 ? c0 : ci === 1 ? c1 : ci === 2 ? c2 : c3;
       if (toPos === -1) continue;
       let occupied = false;
       for (let qi = 0; qi < n; qi++) {
-        if (state[qi] === toPos) {
+        if (pool[offset + qi] === toPos) {
           occupied = true;
           break;
         }
       }
       if (!occupied) {
-        moves.push(pos);
-        moves.push(toPos);
+        buf[count++] = pos;
+        buf[count++] = toPos;
       }
     }
   }
 
-  return moves;
+  return count;
 }
 
 /**
@@ -235,24 +239,17 @@ class CompactSet {
   }
 }
 
-/**
- * BFS queue entry. Uses parent-pointer path reconstruction to avoid storing
- * the full move history in every entry.
- */
-type BfsEntry = {
-  state: State;
-  parentIdx: number; // -1 for root
-  fromPos: number;
-  toPos: number;
-  depth: number;
-};
-
-function reconstructPath(entries: BfsEntry[], goalIdx: number): Move[] {
+function reconstructPath(
+  parentIdxs: Int32Array,
+  fromPoss: Uint8Array,
+  toposs: Uint8Array,
+  goalIdx: number,
+): Move[] {
   const path: Array<[number, number]> = [];
   let idx = goalIdx;
-  while (entries[idx].parentIdx !== -1) {
-    path.push([entries[idx].fromPos, entries[idx].toPos]);
-    idx = entries[idx].parentIdx;
+  while (parentIdxs[idx] !== -1) {
+    path.push([fromPoss[idx], toposs[idx]]);
+    idx = parentIdxs[idx];
   }
   path.reverse();
   return path.map(([from, to]) => [
@@ -264,63 +261,81 @@ function reconstructPath(entries: BfsEntry[], goalIdx: number): Move[] {
 /**
  * BFS solver — visits each unique state exactly once, guarantees optimal solution.
  *
- * Uses compact Uint8Array state with a numeric key so the visited Set is fast.
- * Path is reconstructed via parent pointers rather than storing full histories,
- * keeping per-entry memory minimal.
+ * Uses flat typed arrays for the BFS queue (statePool + parallel metadata arrays)
+ * to eliminate heap object allocation per state. Path is reconstructed via parent
+ * pointers rather than storing full histories.
  *
  * Throws SolverDepthExceededError if the state count exceeds BFS_STATE_LIMIT
  * (very deep or wall-sparse boards) or if maxDepth is reached without solution.
  */
 function bfsSolve(board: Board, maxDepth: number): Move[] {
   const destPos = board.destination.y * COLS + board.destination.x;
-  const wallSlide = buildWallSlide(board.walls);
+  const wallIndex = indexWalls(board.walls);
   const initialState = initState(board);
 
   if (initialState[0] === destPos) return [];
 
-  const entries: BfsEntry[] = [
-    { state: initialState, parentIdx: -1, fromPos: 0, toPos: 0, depth: 0 },
-  ];
-  const visited = new CompactSet();
-  visited.add(stateKey(initialState));
+  const PIECE_COUNT = initialState.length;
 
+  // State pool: all states packed flat — no heap object per state
+  const statePool = new Uint8Array(BFS_STATE_LIMIT * PIECE_COUNT);
+  statePool.set(initialState, 0);
+
+  // Parallel arrays for entry metadata
+  const parentIdxs = new Int32Array(BFS_STATE_LIMIT).fill(-1);
+  const fromPoss = new Uint8Array(BFS_STATE_LIMIT);
+  const toposs = new Uint8Array(BFS_STATE_LIMIT);
+  const depths = new Uint8Array(BFS_STATE_LIMIT); // max depth 15 fits in u8
+
+  // Pre-allocated moves buffer: 4 directions × n pieces × 2 values
+  const moveBuf = new Uint8Array(PIECE_COUNT * 8);
+
+  const visited = new CompactSet();
+  visited.add(stateKeyAt(statePool, 0, PIECE_COUNT));
+
+  let entryCount = 1;
   let front = 0;
   let hitMaxDepth = false;
 
-  while (front < entries.length) {
-    if (entries.length > BFS_STATE_LIMIT) {
+  while (front < entryCount) {
+    if (entryCount >= BFS_STATE_LIMIT) {
       throw new SolverDepthExceededError(maxDepth);
     }
 
-    const entry = entries[front];
+    const stateOff = front * PIECE_COUNT;
+    const depth = depths[front];
     const parentIdx = front;
     front++;
 
-    if (entry.depth >= maxDepth) {
+    if (depth >= maxDepth) {
       hitMaxDepth = true;
       continue;
     }
 
-    const movePairs = getMoves(entry.state, wallSlide);
+    const moveCount = getMoves(statePool, stateOff, PIECE_COUNT, wallIndex, moveBuf);
 
-    for (let i = 0; i < movePairs.length; i += 2) {
-      const fromPos = movePairs[i], toPos = movePairs[i + 1];
-      const nextState = applyMove(entry.state, fromPos, toPos);
-      const key = stateKey(nextState);
+    for (let i = 0; i < moveCount; i += 2) {
+      const fromPos = moveBuf[i];
+      const toPos = moveBuf[i + 1];
 
+      // Write next state directly into statePool at entryCount offset
+      const nextOff = entryCount * PIECE_COUNT;
+      applyMoveInto(statePool, stateOff, PIECE_COUNT, fromPos, toPos, nextOff);
+
+      const key = stateKeyAt(statePool, nextOff, PIECE_COUNT);
       if (visited.has(key)) continue;
       visited.add(key);
 
-      const childIdx = entries.length;
-      entries.push({
-        state: nextState,
-        parentIdx,
-        fromPos,
-        toPos,
-        depth: entry.depth + 1,
-      });
+      parentIdxs[entryCount] = parentIdx;
+      fromPoss[entryCount] = fromPos;
+      toposs[entryCount] = toPos;
+      depths[entryCount] = depth + 1;
 
-      if (nextState[0] === destPos) return reconstructPath(entries, childIdx);
+      if (statePool[nextOff] === destPos) {
+        return reconstructPath(parentIdxs, fromPoss, toposs, entryCount);
+      }
+
+      entryCount++;
     }
   }
 
