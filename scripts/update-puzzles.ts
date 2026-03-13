@@ -12,6 +12,7 @@ const PUZZLES_DIR = new URL("../static/puzzles", import.meta.url).pathname;
 const updateAll = Deno.env.get("UPDATE_ALL");
 
 const entries: { path: string; name: string }[] = [];
+console.time("update-puzzles");
 
 for await (const entry of Deno.readDir(PUZZLES_DIR)) {
   if (entry.isFile && entry.name.endsWith(".md")) {
@@ -47,7 +48,7 @@ for (const { path, name, puzzle } of toSolve) {
     const moves = solveSync(puzzle.board);
     const markdown = formatPuzzle({ ...puzzle, minMoves: moves.length });
     await Deno.writeTextFile(path, markdown);
-    console.log(`  ${name}: ${moves.length} moves`);
+    console.log(`  ${name}:${moves.length} moves`);
     updated++;
   } catch (err) {
     console.error(`  ${name}: failed — ${(err as Error).message}`);
@@ -57,3 +58,5 @@ for (const { path, name, puzzle } of toSolve) {
 console.log(
   `\nDone. Updated: ${updated}, skipped: ${skipped}, failed: ${failed}`,
 );
+
+console.timeEnd("update-puzzles");

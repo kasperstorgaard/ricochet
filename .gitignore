@@ -15,3 +15,5 @@ node_modules/
 
 # Generated manifest file for puzzles
 static/puzzles/manifest.json
+static/solver-worker.js
+routes/api/solver-worker.js

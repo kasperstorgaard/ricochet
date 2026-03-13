@@ -1,5 +1,6 @@
-import { COLS, getTargets } from "#/game/board.ts";
-import type { Board, Move, Piece, Puzzle } from "#/game/types.ts";
+import { COLS, ROWS } from "#/game/board.ts";
+import type { Board, Move, Puzzle } from "#/game/types.ts";
+import { CompactSet } from "#/lib/compact-set.ts";
 
 /**
  * Default solver limits.
@@ -7,14 +8,14 @@ import type { Board, Move, Piece, Puzzle } from "#/game/types.ts";
 const DEFAULT_MAX_DEPTH = 15;
 
 /**
- * Solver configuration options.
+ * BFS state limit — hard cap to prevent OOM on pathological boards.
+ * Flat typed arrays cost ~31 bytes per entry (statePool + metadata + CompactSet),
+ * so 10M states ≈ 310 MB worst case with 8 pieces.
+ * Medium puzzles stay well under 100K; hard puzzles (7+ pieces) may need several million.
  */
-type SolverOptions = {
-  // Maximum search depth in moves (default: 15)
-  maxDepth?: number;
-};
+const BFS_STATE_LIMIT = 10_000_000;
 
-// Error thrown when the solver exceeds the maximum search depth
+// Error thrown when the solver exceeds the maximum search depth or state limit
 export class SolverDepthExceededError extends Error {
   constructor(depth: number) {
     super(`Solver depth ${depth} exceeded`);
@@ -28,97 +29,54 @@ export type SolverEvent =
   | { type: "solution"; moves: Move[] }
   | { type: "error"; message: string };
 
+type WallLookup = {
+  /** hWalls[x] = y-values of horizontal walls that block vertical movement in column x */
+  hWalls: number[][];
+  /** vWalls[y] = x-values of vertical walls that block horizontal movement in row y */
+  vWalls: number[][];
+};
+
+type Config = {
+  pieceCount: number;
+} & WallLookup;
+
 /**
- * Compact piece representation for efficient state handling.
- * Stores position as a single number (y * COLS + x) for fast comparison.
+ * Solver configuration options.
  */
-type CompactPiece = {
-  pos: number; // y * COLS + x
-  type: "puck" | "blocker";
+type SolverOptions = {
+  // Maximum search depth in moves (default: 15)
+  maxDepth?: number;
 };
 
 /**
- * Core IDA* Best First Search as a sync generator.
+ * Solves a board using BFS, yielding a progress event then the solution.
  *
- * Uses O(depth) stack memory — no states array, no global visited set, no heap.
- * A within-pass transposition table (TT) prevents re-exploring states at the
- * same or higher cost within a threshold pass, matching A* efficiency per pass.
- * The TT is cleared between passes so memory stays proportional to states
- * explored in the current pass, not the entire search.
+ * BFS visits each unique board state once — no repeated passes like IDA*.
+ * Compact state representation (Uint8Array + numeric key) and parent-pointer
+ * path reconstruction keep memory well under the BFS_STATE_LIMIT for typical
+ * medium-difficulty puzzles.
  *
- * Yields a progress event before each threshold pass, then yields the solution
- * event when found.
- * Throws SolverDepthExceededError or "Unsolvable puzzle".
+ * Throws SolverDepthExceededError when no solution is found within maxDepth
+ * or when the state count exceeds BFS_STATE_LIMIT.
  */
 export function* solve(
   puzzleOrBoard: Board | Puzzle,
-  options: SolverOptions,
+  options: SolverOptions = {},
 ): Generator<SolverEvent> {
   const board = "board" in puzzleOrBoard ? puzzleOrBoard.board : puzzleOrBoard;
-
-  const { destination, walls } = board;
   const maxDepth = options.maxDepth ?? DEFAULT_MAX_DEPTH;
 
-  const destPos = destination.y * COLS + destination.x;
-  const initialPieces = board.pieces.map(toCompact);
-  const initialPuck = initialPieces.find((p) => p.type === "puck")!;
-
-  let threshold = heuristicRank(initialPuck.pos, destPos);
-
-  // Reusable move history — avoids array allocation per recursive call.
-  const moveHistory: Move[] = [];
-
-  // Within-pass transposition table: state key -> minimum g-cost seen this pass.
-  // Cleared between passes so memory stays bounded to the current pass.
-  const transpositionTable = new Map<string, number>();
-
-  const dfs = (pieces: CompactPiece[], g: number): Move[] | number => {
-    const key = serializeState(pieces);
-    const best = transpositionTable.get(key);
-    if (best !== undefined && best <= g) return Infinity;
-    transpositionTable.set(key, g);
-
-    const puck = pieces.find((p) => p.type === "puck")!;
-    const f = g + heuristicRank(puck.pos, destPos);
-
-    if (f > threshold) return f;
-    if (puck.pos === destPos) return [...moveHistory];
-
-    let minNext = Infinity;
-
-    for (const move of enumerateMoves(pieces, walls)) {
-      const newPieces = applyMove(pieces, move);
-      moveHistory.push(move);
-      const result = dfs(newPieces, g + 1);
-      moveHistory.pop();
-      if (Array.isArray(result)) return result;
-      if (result < minNext) minNext = result;
-    }
-
-    return minNext;
-  };
-
-  while (threshold <= maxDepth) {
-    transpositionTable.clear();
-    yield { type: "progress", depth: threshold };
-
-    const result = dfs(initialPieces, 0);
-
-    if (Array.isArray(result)) {
-      yield { type: "solution", moves: result };
-      return;
-    }
-
-    if (result === Infinity) throw new Error("Unsolvable puzzle");
-
-    threshold = result;
+  const solver = bfsSolve(board, maxDepth);
+  let result = solver.next();
+  while (!result.done) {
+    yield { type: "progress", depth: result.value };
+    result = solver.next();
   }
-
-  throw new SolverDepthExceededError(maxDepth);
+  yield { type: "solution", moves: result.value };
 }
 
 /**
- * Solves a puzzle using IDA* to find the minimum move solution.
+ * Solves a puzzle synchronously using BFS to find the minimum move solution.
  */
 export function solveSync(
   puzzleOrBoard: Puzzle | Board,
@@ -134,77 +92,297 @@ export function solveSync(
 }
 
 /**
- * String state key — safe for any number of pieces (no float precision overflow).
- * Puck first, then blockers sorted by position.
+ * BFS solver — visits each unique state exactly once, guarantees optimal solution.
+ *
+ * Uses flat typed arrays for the BFS queue (statePool + parallel metadata arrays)
+ * to eliminate heap object allocation per state. Path is reconstructed via parent
+ * pointers rather than storing full histories.
+ *
+ * Throws SolverDepthExceededError if the state count exceeds BFS_STATE_LIMIT
+ * (very deep or wall-sparse boards) or if maxDepth is reached without solution.
  */
-function serializeState(pieces: CompactPiece[]): string {
-  return [...pieces]
-    .sort((a, b) => {
-      if (a.type === "puck" && b.type !== "puck") return -1;
-      if (a.type !== "puck" && b.type === "puck") return 1;
-      return a.pos - b.pos;
-    })
-    .map((piece) => `${piece.type[0]}${piece.pos}`)
-    .join(",");
-}
+function* bfsSolve(board: Board, maxDepth: number): Generator<number, Move[]> {
+  const destPos = board.destination.y * COLS + board.destination.x;
+  const initialState = initState(board);
 
-/**
- * Applies a move directly without validation.
- */
-function applyMove(pieces: CompactPiece[], move: Move): CompactPiece[] {
-  const fromPos = move[0].y * COLS + move[0].x;
-  const toPos = move[1].y * COLS + move[1].x;
-  return pieces.map((piece) =>
-    piece.pos === fromPos ? { ...piece, pos: toPos } : piece
-  );
-}
+  if (initialState[0] === destPos) return [];
 
-/**
- * Enumerates all valid moves based on current board state.
- */
-function enumerateMoves(
-  pieces: CompactPiece[],
-  walls: Board["walls"],
-): Move[] {
-  const moves: Move[] = [];
-  const fullPieces = pieces.map(fromCompact);
+  const config: Config = {
+    ...buildWallLookup(board.walls),
+    pieceCount: initialState.length,
+  };
 
-  for (const piece of fullPieces) {
-    const targets = getTargets(piece, { pieces: fullPieces, walls });
-    for (const target of Object.values(targets)) {
-      if (target) moves.push([{ x: piece.x, y: piece.y }, target]);
+  // State pool: all states packed flat — no heap object per state
+  const statePool = new Uint8Array(BFS_STATE_LIMIT * config.pieceCount);
+  statePool.set(initialState, 0);
+
+  // Parallel arrays for entry metadata
+  const metadata = {
+    parentIndexes: new Int32Array(BFS_STATE_LIMIT).fill(-1),
+    fromPositions: new Uint8Array(BFS_STATE_LIMIT),
+    toPositions: new Uint8Array(BFS_STATE_LIMIT),
+    depths: new Uint8Array(BFS_STATE_LIMIT), // max depth 15 fits in u8
+  };
+
+  // Pre-allocated moves buffer: 4 directions × n pieces × 2 values (from + to)
+  const buffer = new Uint8Array(config.pieceCount * 8);
+
+  const visited = new CompactSet();
+  const stateKey = stateKeyAt(statePool, config, 0);
+  visited.add(stateKey);
+
+  let tail = 1; // next free slot (write end of the queue)
+  let head = 0; // next state to process (read end of the queue)
+  let lastDepth = 0;
+  let hitMaxDepth = false;
+
+  while (head < tail) {
+    if (tail >= BFS_STATE_LIMIT) {
+      throw new SolverDepthExceededError(maxDepth);
+    }
+
+    const headOffset = head * config.pieceCount;
+    const depth = metadata.depths[head];
+    const parentIdx = head;
+    head++;
+
+    if (depth > lastDepth) {
+      lastDepth = depth;
+      yield depth;
+    }
+
+    if (depth >= maxDepth) {
+      hitMaxDepth = true;
+      continue;
+    }
+
+    const moveCount = getMoves(statePool, config, headOffset, buffer);
+
+    // Each move is a [fromPos, toPos] pair packed consecutively in buffer
+    for (let idx = 0; idx < moveCount; idx += 2) {
+      const fromPos = buffer[idx];
+      const toPos = buffer[idx + 1];
+
+      // Write next state directly into statePool at tail offset
+      const tailOffset = tail * config.pieceCount;
+
+      applyMove(statePool, config, headOffset, tailOffset, fromPos, toPos);
+
+      const stateKey = stateKeyAt(statePool, config, tailOffset);
+
+      if (visited.has(stateKey)) continue;
+      visited.add(stateKey);
+
+      metadata.parentIndexes[tail] = parentIdx;
+      metadata.fromPositions[tail] = fromPos;
+      metadata.toPositions[tail] = toPos;
+      metadata.depths[tail] = depth + 1;
+
+      if (statePool[tailOffset] === destPos) {
+        return reconstructPath(metadata, tail);
+      }
+
+      tail++;
     }
   }
 
-  return moves;
+  if (hitMaxDepth) throw new SolverDepthExceededError(maxDepth);
+  throw new Error("Unsolvable puzzle");
 }
 
 /**
- * Gets heuristic rank: lower bound on moves remaining.
- *   0 — puck already at destination
- *   1 — puck shares row or column with destination (might reach in one slide)
- *   2 — puck needs at least two moves to reach destination
+ * Copies the current state into a new pool slot, then applies the move.
  *
- * Ignores walls intentionally — checking walls costs more than it saves per node.
- * Never overestimates, so A* optimality is preserved.
+ * Blockers are kept sorted in ascending position order so that any two states
+ * representing the same board layout produce the same stateKey — regardless of
+ * which blocker moved. Without this, BFS would revisit equivalent states.
+ *
+ * After updating the moved blocker's position, one of the two insertion-sort
+ * passes runs to restore order: bubble left if the new position is smaller than
+ * its left neighbour, or bubble right if larger than its right neighbour.
+ * Only one direction fires per move; the other loop exits immediately.
  */
-function heuristicRank(puckPos: number, destPos: number): number {
-  if (puckPos === destPos) return 0;
-  if (
-    puckPos % COLS === destPos % COLS ||
-    Math.floor(puckPos / COLS) === Math.floor(destPos / COLS)
-  ) return 1;
-  return 2;
+function applyMove(
+  pool: Uint8Array,
+  config: Config,
+  srcOffset: number,
+  dstOffset: number,
+  fromPos: number,
+  toPos: number,
+): void {
+  pool.copyWithin(dstOffset, srcOffset, srcOffset + config.pieceCount);
+
+  // Puck is always at index 0 — no sorting needed when it moves.
+  if (pool[dstOffset] === fromPos) {
+    pool[dstOffset] = toPos;
+    return;
+  }
+
+  // Find the moved blocker and update its position.
+  let i = 1;
+  while (i < config.pieceCount) {
+    if (pool[dstOffset + i] === fromPos) break;
+    i++;
+  }
+
+  pool[dstOffset + i] = toPos;
+
+  // Bubble left if the blocker moved to a smaller position.
+  while (i > 1 && pool[dstOffset + i] < pool[dstOffset + i - 1]) {
+    const tmp = pool[dstOffset + i];
+    pool[dstOffset + i] = pool[dstOffset + i - 1];
+    pool[dstOffset + i - 1] = tmp;
+    i--;
+  }
+
+  // Bubble right if the blocker moved to a larger position.
+  while (
+    i < config.pieceCount - 1 && pool[dstOffset + i] > pool[dstOffset + i + 1]
+  ) {
+    const tmp = pool[dstOffset + i];
+    pool[dstOffset + i] = pool[dstOffset + i + 1];
+    pool[dstOffset + i + 1] = tmp;
+    i++;
+  }
 }
 
-function toCompact(piece: Piece): CompactPiece {
-  return { pos: piece.y * COLS + piece.x, type: piece.type };
+/**
+ * Writes flat move pairs [from0, to0, from1, to1, …] into buf for all valid moves.
+ * Returns the number of values written (always even).
+ *
+ * For each piece, walls and other pieces narrow the four sliding ranges.
+ * No occupancy check needed — the piece-constraint loop already stops the slider
+ * one cell before any blocker, so the destination is always free.
+ */
+function getMoves(
+  pool: Uint8Array,
+  config: Config,
+  offset: number,
+  buffer: Uint8Array,
+): number {
+  let count = 0;
+
+  for (let piece = 0; piece < config.pieceCount; piece++) {
+    const piecePos = pool[offset + piece];
+    const pieceX = piecePos % COLS;
+    const pieceY = (piecePos / COLS) | 0;
+
+    // Target min/max positions along the outer bounds of the grid
+    let up = 0, down = ROWS - 1, left = 0, right = COLS - 1;
+
+    // Check all vertical walls, and stop when hit
+    for (const wallY of config.hWalls[pieceX]) {
+      if (wallY <= pieceY && wallY > up) up = wallY;
+      if (wallY > pieceY && wallY - 1 < down) down = wallY - 1;
+    }
+
+    // Check all horizontal walls, and stop when hit
+    for (const wallX of config.vWalls[pieceY]) {
+      if (wallX <= pieceX && wallX > left) left = wallX;
+      if (wallX > pieceX && wallX - 1 < right) right = wallX - 1;
+    }
+
+    // Check against all other pieces
+    for (let otherPiece = 0; otherPiece < config.pieceCount; otherPiece++) {
+      if (otherPiece === piece) continue;
+
+      const otherPos = pool[offset + otherPiece];
+      const otherX = otherPos % COLS;
+      const otherY = (otherPos / COLS) | 0;
+
+      if (otherY === pieceY) {
+        if (otherX < pieceX && otherX >= left) left = otherX + 1;
+        if (otherX > pieceX && otherX <= right) right = otherX - 1;
+      } else if (otherX === pieceX) {
+        if (otherY < pieceY && otherY >= up) up = otherY + 1;
+        if (otherY > pieceY && otherY <= down) down = otherY - 1;
+      }
+    }
+
+    // Emit one move per direction where the piece actually slides somewhere new.
+    if (up !== pieceY) {
+      buffer[count++] = piecePos;
+      buffer[count++] = up * COLS + pieceX;
+    }
+
+    if (down !== pieceY) {
+      buffer[count++] = piecePos;
+      buffer[count++] = down * COLS + pieceX;
+    }
+    if (left !== pieceX) {
+      buffer[count++] = piecePos;
+      buffer[count++] = pieceY * COLS + left;
+    }
+    if (right !== pieceX) {
+      buffer[count++] = piecePos;
+      buffer[count++] = pieceY * COLS + right;
+    }
+  }
+
+  return count;
 }
 
-function fromCompact(piece: CompactPiece): Piece {
-  return {
-    x: piece.pos % COLS,
-    y: Math.floor(piece.pos / COLS),
-    type: piece.type,
-  };
+/**
+ * Takes the board walls and builds 2 index arrays
+ * one for horizontal, one for vertical.
+ */
+function buildWallLookup(walls: Board["walls"]): WallLookup {
+  const hWalls: number[][] = Array.from({ length: COLS }, () => []);
+  const vWalls: number[][] = Array.from({ length: ROWS }, () => []);
+
+  for (const wall of walls) {
+    if (wall.orientation === "horizontal") hWalls[wall.x].push(wall.y);
+    else vWalls[wall.y].push(wall.x);
+  }
+
+  return { hWalls, vWalls };
+}
+
+/**
+ * Initialised the indexed board state
+ */
+function initState(board: Board): Uint8Array {
+  const puck = board.pieces.find((p) => p.type === "puck")!;
+  const blockers = board.pieces
+    .filter((piece) => piece.type === "blocker")
+    .map((piece) => piece.y * COLS + piece.x)
+    .sort((a, b) => a - b);
+  return new Uint8Array([puck.y * COLS + puck.x, ...blockers]);
+}
+
+function reconstructPath(
+  metadata: {
+    parentIndexes: Int32Array;
+    fromPositions: Uint8Array;
+    toPositions: Uint8Array;
+  },
+  goalIdx: number,
+): Move[] {
+  const path: Array<[number, number]> = [];
+  let idx = goalIdx;
+
+  while (metadata.parentIndexes[idx] !== -1) {
+    path.push([metadata.fromPositions[idx], metadata.toPositions[idx]]);
+    idx = metadata.parentIndexes[idx];
+  }
+
+  path.reverse();
+
+  return path.map(([from, to]) => [
+    { x: from % COLS, y: (from / COLS) | 0 },
+    { x: to % COLS, y: (to / COLS) | 0 },
+  ]);
+}
+
+/**
+ * Get packed integer key — safe for up to 8 pieces (64^8 < Number.MAX_SAFE_INTEGER).
+ */
+function stateKeyAt(pool: Uint8Array, config: Config, offset: number): number {
+  let key = 0;
+
+  for (let pieceIdx = 0; pieceIdx < config.pieceCount; pieceIdx++) {
+    key = key * 64 + pool[offset + pieceIdx];
+  }
+
+  return key;
 }

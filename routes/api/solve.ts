@@ -1,42 +1,43 @@
 import { define } from "#/core.ts";
-import { solve } from "#/game/solver.ts";
+import type { SolverEvent } from "#/game/solver.ts";
 import type { Board } from "#/game/types.ts";
 
+// Resolves to a file:// URL at runtime, bypassing Deno Deploy's
+// --cached-only restriction (which only blocks HTTP module fetches).
+// The Vite plugin copies solver-worker.js to _fresh/server/assets/
+// alongside this compiled route so the relative path resolves correctly.
+const workerUrl = new URL("./solver-worker.js", import.meta.url);
+
+const encoder = new TextEncoder();
+const encode = encoder.encode.bind(encoder);
+
 export const handler = define.handlers({
-  POST(ctx) {
-    const encode = new TextEncoder().encode.bind(new TextEncoder());
+  async POST(ctx) {
+    const board = await ctx.req.json() as Board;
+
+    const worker = new Worker(workerUrl, { type: "module" });
 
     const stream = new ReadableStream({
-      async start(controller) {
-        let board: Board;
-
-        try {
-          board = await ctx.req.json() as Board;
-        } catch {
-          controller.enqueue(
-            encode(
-              `data: ${
-                JSON.stringify({ type: "error", message: "Invalid JSON" })
-              }\n\n`,
-            ),
-          );
-          controller.close();
-          return;
-        }
-
-        try {
-          for (const event of solve(board, {})) {
-            controller.enqueue(encode(`data: ${JSON.stringify(event)}\n\n`));
-            if (event.type === "solution") break;
+      start(controller) {
+        worker.onmessage = (e: MessageEvent<SolverEvent>) => {
+          controller.enqueue(encode(`data: ${JSON.stringify(e.data)}\n\n`));
+          if (e.data.type === "solution" || e.data.type === "error") {
+            worker.terminate();
+            controller.close();
           }
-        } catch (err) {
-          const message = err instanceof Error ? err.message : "Solver failed";
-          controller.enqueue(
-            encode(`data: ${JSON.stringify({ type: "error", message })}\n\n`),
-          );
-        }
+        };
 
-        controller.close();
+        worker.onerror = (e) => {
+          const event: SolverEvent = { type: "error", message: e.message };
+          controller.enqueue(encode(`data: ${JSON.stringify(event)}\n\n`));
+          worker.terminate();
+          controller.close();
+        };
+
+        worker.postMessage(board);
+      },
+      cancel() {
+        worker.terminate();
       },
     });
 

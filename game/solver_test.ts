@@ -109,8 +109,7 @@ Deno.test("solve() yields progress then solution", () => {
     if (event.type === "solution") solution = event.moves;
   }
 
-  // IDA* reports threshold as depth; initial threshold is 2 (h for unaligned puck)
-  assertObjectMatch(lastProgress!, { depth: 2 });
+  assertObjectMatch(lastProgress!, { depth: 1 });
   assertExists(solution);
 });
 
@@ -186,5 +185,39 @@ Deno.test("solveSync() solves complex puzzle with many pieces", () => {
 
   // Solution is optimal and valid (IDA* may find a different path of equal length)
   assertEquals(result.length, 9);
+  assertEquals(isValidSolution(resolveMoves(board, result)), true);
+});
+
+Deno.test("solveSync() finds 8-move solution for sara puzzle", () => {
+  const board: Board = {
+    destination: { x: 4, y: 5 },
+    pieces: [
+      { x: 2, y: 0, type: "blocker" },
+      { x: 0, y: 1, type: "puck" },
+      { x: 5, y: 1, type: "blocker" },
+      { x: 7, y: 3, type: "blocker" },
+      { x: 1, y: 4, type: "blocker" },
+      { x: 5, y: 6, type: "blocker" },
+      { x: 3, y: 7, type: "blocker" },
+    ],
+    walls: [
+      { x: 4, y: 0, orientation: "vertical" },
+      { x: 1, y: 2, orientation: "horizontal" },
+      { x: 4, y: 1, orientation: "vertical" },
+      { x: 6, y: 2, orientation: "horizontal" },
+      { x: 1, y: 2, orientation: "vertical" },
+      { x: 7, y: 2, orientation: "vertical" },
+      { x: 4, y: 5, orientation: "vertical" },
+      { x: 2, y: 6, orientation: "vertical" },
+      { x: 1, y: 7, orientation: "horizontal" },
+      { x: 6, y: 6, orientation: "vertical" },
+      { x: 6, y: 7, orientation: "horizontal" },
+      { x: 1, y: 7, orientation: "vertical" },
+      { x: 7, y: 7, orientation: "vertical" },
+    ],
+  };
+  const result = solveSync(board);
+
+  assertEquals(result.length, 8);
   assertEquals(isValidSolution(resolveMoves(board, result)), true);
 });

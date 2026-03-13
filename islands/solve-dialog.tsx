@@ -53,6 +53,11 @@ export function SolveDialog({ puzzle, href }: Props) {
     [gameState.moves, gameState.cursor],
   );
 
+  const board = useMemo(
+    () => resolveMoves(puzzle.value.board, moves),
+    [puzzle.value.board, moves],
+  );
+
   const totalMoves = useMemo(() => {
     if (solveState?.status !== "done") return 0;
     return moves.length + solveState.moves.length;
@@ -92,14 +97,12 @@ export function SolveDialog({ puzzle, href }: Props) {
       return;
     }
 
-    const board = resolveMoves(puzzle.value.board, moves);
-    const isSolved = isValidSolution(board);
-
-    if (isSolved) {
+    if (isValidSolution(board)) {
       queueSolveState({ status: "done", moves: [] }, { immediate: true });
       return;
     }
 
+    clearSolveState();
     queueSolveState({ status: "starting" }, { immediate: true });
     startSolve(board);
 
