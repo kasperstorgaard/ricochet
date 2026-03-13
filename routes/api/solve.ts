@@ -6,7 +6,7 @@ export const handler = define.handlers({
   async POST(ctx) {
     const board = await ctx.req.json() as Board;
 
-    const workerUrl = new URL("../../game/solver-worker.ts", import.meta.url);
+    const workerUrl = import.meta.resolve("#/game/solver-worker.ts");
     const worker = new Worker(workerUrl, { type: "module" });
 
     const encode = new TextEncoder().encode.bind(new TextEncoder());
