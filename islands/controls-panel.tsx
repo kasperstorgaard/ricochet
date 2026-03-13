@@ -36,7 +36,7 @@ export function ControlsPanel(
   { puzzle, href, isDev, hintCount, isPreview, onboarding = "done", className }:
     ControlsPanelProps,
 ) {
-  const hintLimit = puzzle.value.difficulty === "easy" ? 3 : 1;
+  const hintLimit = 1;
   const hintDisabled = !isDev && !isPreview && onboarding === "done" &&
     hintCount >= hintLimit;
 
@@ -160,6 +160,7 @@ export function ControlsPanel(
                 onClick={(event) => {
                   if (hintDisabled) event.preventDefault();
                 }}
+                className="noscript:hidden"
               >
                 {!hintDisabled
                   ? "Get a hint"

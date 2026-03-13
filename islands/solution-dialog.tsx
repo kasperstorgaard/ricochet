@@ -52,7 +52,7 @@ export function SolutionDialog(
   return (
     <Dialog open={hasSolution} className="max-w-md!">
       <div className="flex flex-col gap-fl-2 text-text-2">
-        <h2 className="text-fl-2 leading-flat text-text-1">
+        <h2 className="text-fl-2 font-semibold text-text-1">
           Solved in <span className="text-ui-2">{moves.length}</span> moves
         </h2>
 

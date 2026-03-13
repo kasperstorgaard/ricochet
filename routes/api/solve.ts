@@ -1,31 +1,50 @@
 import { define } from "#/core.ts";
-import { validateBoard } from "#/game/board.ts";
-import { solveSync } from "#/game/solver.ts";
+import { solve } from "#/game/solver.ts";
 import type { Board } from "#/game/types.ts";
 
-// POST endpoint that returns a solve for the board, if possible.
-// Used by the puzzle editor — does not persist results.
 export const handler = define.handlers({
-  async POST(ctx) {
-    let board: Board;
+  POST(ctx) {
+    const encode = new TextEncoder().encode.bind(new TextEncoder());
 
-    try {
-      board = await ctx.req.json();
-    } catch {
-      return new Response("Invalid JSON", { status: 400 });
-    }
+    const stream = new ReadableStream({
+      async start(controller) {
+        let board: Board;
 
-    try {
-      validateBoard(board);
-    } catch {
-      return new Response("Invalid Board", { status: 400 });
-    }
+        try {
+          board = await ctx.req.json() as Board;
+        } catch {
+          controller.enqueue(
+            encode(
+              `data: ${
+                JSON.stringify({ type: "error", message: "Invalid JSON" })
+              }\n\n`,
+            ),
+          );
+          controller.close();
+          return;
+        }
 
-    try {
-      const solution = solveSync(board, { maxDepth: 20 });
-      return Response.json({ moves: solution });
-    } catch {
-      return new Response("Unsolvable", { status: 400 });
-    }
+        try {
+          for (const event of solve(board, {})) {
+            controller.enqueue(encode(`data: ${JSON.stringify(event)}\n\n`));
+            if (event.type === "solution") break;
+          }
+        } catch (err) {
+          const message = err instanceof Error ? err.message : "Solver failed";
+          controller.enqueue(
+            encode(`data: ${JSON.stringify({ type: "error", message })}\n\n`),
+          );
+        }
+
+        controller.close();
+      },
+    });
+
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+      },
+    });
   },
 });
