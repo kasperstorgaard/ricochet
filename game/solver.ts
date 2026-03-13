@@ -15,14 +15,6 @@ const DEFAULT_MAX_DEPTH = 15;
  */
 const BFS_STATE_LIMIT = 10_000_000;
 
-/**
- * Solver configuration options.
- */
-type SolverOptions = {
-  // Maximum search depth in moves (default: 15)
-  maxDepth?: number;
-};
-
 // Error thrown when the solver exceeds the maximum search depth or state limit
 export class SolverDepthExceededError extends Error {
   constructor(depth: number) {
@@ -48,28 +40,55 @@ type Config = {
   pieceCount: number;
 } & WallLookup;
 
-function reconstructPath(
-  metadata: {
-    parentIndexes: Int32Array;
-    fromPositions: Uint8Array;
-    toPositions: Uint8Array;
-  },
-  goalIdx: number,
-): Move[] {
-  const path: Array<[number, number]> = [];
-  let idx = goalIdx;
+/**
+ * Solver configuration options.
+ */
+type SolverOptions = {
+  // Maximum search depth in moves (default: 15)
+  maxDepth?: number;
+};
 
-  while (metadata.parentIndexes[idx] !== -1) {
-    path.push([metadata.fromPositions[idx], metadata.toPositions[idx]]);
-    idx = metadata.parentIndexes[idx];
+/**
+ * Solves a board using BFS, yielding a progress event then the solution.
+ *
+ * BFS visits each unique board state once — no repeated passes like IDA*.
+ * Compact state representation (Uint8Array + numeric key) and parent-pointer
+ * path reconstruction keep memory well under the BFS_STATE_LIMIT for typical
+ * medium-difficulty puzzles.
+ *
+ * Throws SolverDepthExceededError when no solution is found within maxDepth
+ * or when the state count exceeds BFS_STATE_LIMIT.
+ */
+export function* solve(
+  puzzleOrBoard: Board | Puzzle,
+  options: SolverOptions = {},
+): Generator<SolverEvent> {
+  const board = "board" in puzzleOrBoard ? puzzleOrBoard.board : puzzleOrBoard;
+  const maxDepth = options.maxDepth ?? DEFAULT_MAX_DEPTH;
+
+  const solver = bfsSolve(board, maxDepth);
+  let result = solver.next();
+  while (!result.done) {
+    yield { type: "progress", depth: result.value };
+    result = solver.next();
+  }
+  yield { type: "solution", moves: result.value };
+}
+
+/**
+ * Solves a puzzle synchronously using BFS to find the minimum move solution.
+ */
+export function solveSync(
+  puzzleOrBoard: Puzzle | Board,
+  options: SolverOptions = {},
+): Move[] {
+  const board = "board" in puzzleOrBoard ? puzzleOrBoard.board : puzzleOrBoard;
+
+  for (const event of solve(board, options)) {
+    if (event.type === "solution") return event.moves;
   }
 
-  path.reverse();
-
-  return path.map(([from, to]) => [
-    { x: from % COLS, y: (from / COLS) | 0 },
-    { x: to % COLS, y: (to / COLS) | 0 },
-  ]);
+  throw new Error("Unsolvable puzzle");
 }
 
 /**
@@ -82,7 +101,7 @@ function reconstructPath(
  * Throws SolverDepthExceededError if the state count exceeds BFS_STATE_LIMIT
  * (very deep or wall-sparse boards) or if maxDepth is reached without solution.
  */
-function bfsSolve(board: Board, maxDepth: number): Move[] {
+function* bfsSolve(board: Board, maxDepth: number): Generator<number, Move[]> {
   const destPos = board.destination.y * COLS + board.destination.x;
   const initialState = initState(board);
 
@@ -114,6 +133,7 @@ function bfsSolve(board: Board, maxDepth: number): Move[] {
 
   let tail = 1; // next free slot (write end of the queue)
   let head = 0; // next state to process (read end of the queue)
+  let lastDepth = 0;
   let hitMaxDepth = false;
 
   while (head < tail) {
@@ -125,6 +145,11 @@ function bfsSolve(board: Board, maxDepth: number): Move[] {
     const depth = metadata.depths[head];
     const parentIdx = head;
     head++;
+
+    if (depth > lastDepth) {
+      lastDepth = depth;
+      yield depth;
+    }
 
     if (depth >= maxDepth) {
       hitMaxDepth = true;
@@ -162,46 +187,6 @@ function bfsSolve(board: Board, maxDepth: number): Move[] {
   }
 
   if (hitMaxDepth) throw new SolverDepthExceededError(maxDepth);
-  throw new Error("Unsolvable puzzle");
-}
-
-/**
- * Solves a board using BFS, yielding a progress event then the solution.
- *
- * BFS visits each unique board state once — no repeated passes like IDA*.
- * Compact state representation (Uint8Array + numeric key) and parent-pointer
- * path reconstruction keep memory well under the BFS_STATE_LIMIT for typical
- * medium-difficulty puzzles.
- *
- * Throws SolverDepthExceededError when no solution is found within maxDepth
- * or when the state count exceeds BFS_STATE_LIMIT.
- */
-export function* solve(
-  puzzleOrBoard: Board | Puzzle,
-  options: SolverOptions = {},
-): Generator<SolverEvent> {
-  const board = "board" in puzzleOrBoard ? puzzleOrBoard.board : puzzleOrBoard;
-  const maxDepth = options.maxDepth ?? DEFAULT_MAX_DEPTH;
-
-  yield { type: "progress", depth: 1 };
-
-  const moves = bfsSolve(board, maxDepth);
-  yield { type: "solution", moves };
-}
-
-/**
- * Solves a puzzle synchronously using BFS to find the minimum move solution.
- */
-export function solveSync(
-  puzzleOrBoard: Puzzle | Board,
-  options: SolverOptions = {},
-): Move[] {
-  const board = "board" in puzzleOrBoard ? puzzleOrBoard.board : puzzleOrBoard;
-
-  for (const event of solve(board, options)) {
-    if (event.type === "solution") return event.moves;
-  }
-
   throw new Error("Unsolvable puzzle");
 }
 
@@ -363,6 +348,30 @@ function initState(board: Board): Uint8Array {
     .map((piece) => piece.y * COLS + piece.x)
     .sort((a, b) => a - b);
   return new Uint8Array([puck.y * COLS + puck.x, ...blockers]);
+}
+
+function reconstructPath(
+  metadata: {
+    parentIndexes: Int32Array;
+    fromPositions: Uint8Array;
+    toPositions: Uint8Array;
+  },
+  goalIdx: number,
+): Move[] {
+  const path: Array<[number, number]> = [];
+  let idx = goalIdx;
+
+  while (metadata.parentIndexes[idx] !== -1) {
+    path.push([metadata.fromPositions[idx], metadata.toPositions[idx]]);
+    idx = metadata.parentIndexes[idx];
+  }
+
+  path.reverse();
+
+  return path.map(([from, to]) => [
+    { x: from % COLS, y: (from / COLS) | 0 },
+    { x: to % COLS, y: (to / COLS) | 0 },
+  ]);
 }
 
 /**
