@@ -107,7 +107,7 @@ export function SolveDialog({ puzzle, href }: Props) {
     startSolve(board);
 
     return cancelSolve;
-  }, [open, board]);
+  }, [open]);
 
   return (
     <Dialog open={open} className="w-sm!">
