@@ -87,21 +87,27 @@ numeric keys, no game-specific logic.
 TypeScript worker that imports `solve` from `solver.ts` and posts `SolverEvent`
 messages back to the main thread.
 
+### `plugins/solver-worker.ts` (new)
+
+Vite plugin that bundles `game/solver-worker.ts` → `static/solver-worker.js` via
+esbuild (`@deno/esbuild-plugin`). Runs at `buildStart` (dev + prod). Also writes the
+bundle to `routes/api/solver-worker.js` so the dev-mode `import.meta.url` path resolves
+correctly. After a production build (`closeBundle`), copies the file to
+`_fresh/server/assets/` alongside the compiled route.
+
 ### `routes/api/solve.ts`
 
-Worker URL changed from static JS to TypeScript:
+Worker URL uses `import.meta.url` so it resolves to a `file://` path at runtime:
 
 ```ts
-const workerUrl = new URL("../../game/solver-worker.ts", import.meta.url);
+const workerUrl = new URL("./solver-worker.js", import.meta.url);
 ```
 
-`import.meta.url` is correct here: `routes/api/solve.ts` is server-side code executed
-directly by Deno — not bundled by Vite — so the URL resolves to the source file on
-both local Deno and Deno Deploy.
-
-### `static/solver-worker.js` (deleted)
-
-Replaced by `game/solver-worker.ts`.
+On Deno Deploy, `import.meta.url` is a `file://` URL pointing to the compiled module on
+the deployment's local filesystem. A `file://` worker URL reads directly from disk —
+bypassing Deploy's `--cached-only` restriction, which only blocks HTTP module fetches.
+Constructing a URL from `ctx.url` (the request URL) produces an `https://` URL that
+Deploy refuses to fetch at runtime.
 
 ## Solve dialog (`islands/solve-dialog.tsx`)
 
