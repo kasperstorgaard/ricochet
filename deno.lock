@@ -13,11 +13,13 @@
     "jsr:@std/assert@^1.0.17": "1.0.19",
     "jsr:@std/async@^1.1.1": "1.1.1",
     "jsr:@std/bytes@^1.0.6": "1.0.6",
+    "jsr:@std/cli@^1.0.28": "1.0.28",
     "jsr:@std/collections@^1.1.3": "1.1.4",
     "jsr:@std/dotenv@~0.225.5": "0.225.6",
     "jsr:@std/encoding@^1.0.10": "1.0.10",
     "jsr:@std/fmt@^1.0.7": "1.0.9",
     "jsr:@std/fmt@^1.0.8": "1.0.9",
+    "jsr:@std/fmt@^1.0.9": "1.0.9",
     "jsr:@std/front-matter@*": "1.0.9",
     "jsr:@std/front-matter@^1.0.9": "1.0.9",
     "jsr:@std/fs@^1.0.19": "1.0.22",
@@ -144,6 +146,13 @@
     },
     "@std/bytes@1.0.6": {
       "integrity": "f6ac6adbd8ccd99314045f5703e23af0a68d7f7e58364b47d2c7f408aeb5820a"
+    },
+    "@std/cli@1.0.28": {
+      "integrity": "74ef9b976db59ca6b23a5283469c9072be6276853807a83ec6c7ce412135c70a",
+      "dependencies": [
+        "jsr:@std/fmt@^1.0.9",
+        "jsr:@std/internal"
+      ]
     },
     "@std/collections@1.1.4": {
       "integrity": "90a7acae07652b0f7227db9b22116ddf4b7cfb0886f8e409c1d7f0c39c526bc1"
@@ -1821,6 +1830,7 @@
       "jsr:@fresh/plugin-vite@^1.0.8",
       "jsr:@std/assert@^1.0.17",
       "jsr:@std/async@^1.1.1",
+      "jsr:@std/cli@^1.0.28",
       "jsr:@std/front-matter@^1.0.9",
       "jsr:@std/http@^1.0.24",
       "jsr:@std/text@^1.0.17",

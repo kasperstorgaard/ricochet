@@ -1,8 +1,13 @@
+import { parseArgs } from "@std/cli/parse-args";
 import { chromium, devices } from "playwright";
 
-const device = devices["iPhone 14"];
-const base = "http://localhost:5173";
-const pages = [
+const args = parseArgs(Deno.args, {
+  boolean: ["mobile", "desktop"],
+  string: ["pages"],
+  default: { mobile: true, desktop: false },
+});
+
+const defaultPages = [
   "/",
   "/puzzles",
   "/puzzles/eik",
@@ -10,32 +15,38 @@ const pages = [
   "/profile",
 ];
 
+const pages = args.pages ? args.pages.split(",") : defaultPages;
+const viewports = args.desktop
+  ? [{ name: "desktop", device: devices["Desktop Chrome"] }]
+  : [{ name: "mobile", device: devices["iPhone 14"] }];
+
+const base = "http://localhost:5173";
 const browser = await chromium.launch();
-const ctx = await browser.newContext({ ...device });
 
-// Dismiss cookie banner by presetting tracking_id=declined
-await ctx.addCookies([{
-  name: "tracking_id",
-  value: "declined",
-  domain: "localhost",
-  path: "/",
-}]);
+for (const { name: viewport, device } of viewports) {
+  const ctx = await browser.newContext({ ...device });
 
-const page = await ctx.newPage();
+  await ctx.addCookies([{
+    name: "tracking_id",
+    value: "declined",
+    domain: "localhost",
+    path: "/",
+  }]);
 
-for (const path of pages) {
-  const url = new URL(path, base);
-  await page.goto(url.href);
+  const page = await ctx.newPage();
 
-  const pathname = url.pathname.slice(1).replace(/\//g, "-");
-  const filename = pathname || "home";
+  for (const path of pages) {
+    const url = new URL(path, base);
+    await page.goto(url.href, { waitUntil: "networkidle" });
 
-  await page.screenshot({
-    path: `screenshots/${filename}.png`,
-    fullPage: true,
-  });
+    const slug = url.pathname.slice(1).replace(/\//g, "-") || "home";
+    const file = `screenshots/${slug}-${viewport}.png`;
 
-  console.log(`screenshots/${filename}.png`);
+    await page.screenshot({ path: file, fullPage: true });
+    console.log(file);
+  }
+
+  await ctx.close();
 }
 
 await browser.close();
