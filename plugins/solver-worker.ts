@@ -26,12 +26,8 @@ export function solverWorker(): Plugin {
 
       const content = new TextDecoder().decode(result.outputFiles[0].contents);
 
-      // Write to static/ (served as a static asset) and routes/api/ (dev mode:
-      // import.meta.url resolves relative to the source file's directory).
-      await Promise.all([
-        Deno.writeTextFile("./static/solver-worker.js", content),
-        Deno.writeTextFile("./routes/api/solver-worker.js", content),
-      ]);
+      // Write to static/ (served as a static asset)
+      await Deno.writeTextFile("./static/solver-worker.js", content);
     },
     async closeBundle() {
       // Prod mode: import.meta.url resolves relative to the compiled route in

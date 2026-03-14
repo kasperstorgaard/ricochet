@@ -1,12 +1,14 @@
 import { define } from "#/core.ts";
 import type { SolverEvent } from "#/game/solver.ts";
 import type { Board } from "#/game/types.ts";
+import { isDev } from "#/lib/env.ts";
 
 // Resolves to a file:// URL at runtime, bypassing Deno Deploy's
 // --cached-only restriction (which only blocks HTTP module fetches).
 // The Vite plugin copies solver-worker.js to _fresh/server/assets/
-// alongside this compiled route so the relative path resolves correctly.
-const workerUrl = new URL("./solver-worker.js", import.meta.url);
+const workerUrl = isDev
+  ? new URL("../../game/solver-worker.ts", import.meta.url).href
+  : new URL("./solver-worker.js", import.meta.url);
 
 const encoder = new TextEncoder();
 const encode = encoder.encode.bind(encoder);
