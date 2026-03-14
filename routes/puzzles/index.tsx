@@ -94,20 +94,20 @@ export default define.page<typeof handler>(
             )}
           >
             <div className="flex flex-col gap-0">
-              <span className="text-fl-3 text-brand leading-flat font-4">
+              <span className="text-5 text-brand leading-flat font-4">
                 {pagination.totalItems}
               </span>
-              <span className="text-fl-0 text-text-2">Puzzles</span>
+              <span className="text-2 text-text-2">Puzzles</span>
             </div>
           </div>
 
           <div
             className={clsx(
-              "col-[2/3] flex flex-col items-start text-fl-0 text-text-2 mt-auto gap-fl-1",
+              "col-[2/3] flex flex-col items-start text-2 text-text-2 mt-auto gap-fl-1",
               "lg:col-auto lg:row-start-3",
             )}
           >
-            <span className="text-text-2 text-fl-0">Feeling creative?</span>
+            <span className="text-text-2 text-2">Feeling creative?</span>
             <a
               href="/puzzles/new"
               className="btn"

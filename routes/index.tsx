@@ -68,12 +68,14 @@ export default define.page<typeof handler>(function Home(ctx) {
         <Header url={url} share />
 
         <div className="flex flex-col gap-1 py-fl-1 pt-fl-2">
-          <h1 className="text-fl-3 leading-flat text-brand flex items-baseline gap-fl-1">
+          <h1 className="text-fl-4 leading-flat text-brand flex items-baseline gap-fl-1">
             Skub
-            <span className="text-fl-0 text-text-3 font-normal">[ˈsgɔb]</span>
+            <span className="text-fl-1 text-text-3 font-normal lg:text-fl-0">
+              [ˈsgɔb]
+            </span>
           </h1>
 
-          <p className="text-text-2 text-fl-0">
+          <p className="text-text-2 text-fl-1">
             Slide pieces to reach the target. No stops, no turns.<br />Fewest
             moves wins.
           </p>
@@ -145,7 +147,13 @@ export default define.page<typeof handler>(function Home(ctx) {
       </Main>
 
       <Panel className="max-lg:gap-fl-3">
-        <p className="col-[2/3] text-fl-0 text-text-2 lg:col-auto lg:row-start-1">
+        <p
+          className={clsx(
+            "col-[2/3]",
+            "text-text-2 text-fl-1",
+            "lg:col-auto lg:row-start-1 lg:text-fl-0",
+          )}
+        >
           Inspired by{" "}
           <a href="https://boardgamegeek.com/boardgame/51/ricochet-robots">
             Ricochet Robots

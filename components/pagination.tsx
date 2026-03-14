@@ -41,7 +41,7 @@ export function Pagination({ page, totalPages, baseUrl, className }: Props) {
         <Icon icon={CaretLeft} />
       </a>
 
-      <span className="text-fl-0 text-text-2">
+      <span className="text-2 text-text-2">
         Page {page} of {totalPages}
       </span>
 

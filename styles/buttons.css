@@ -5,6 +5,7 @@
     justify-content: center;
     flex-wrap: nowrap;
     gap: calc(var(--size-fluid-1) - 4px);
+    min-height: 44px;
     padding-inline: var(--size-3);
     padding-block: var(--size-1);
 
@@ -27,6 +28,7 @@
     align-items: center;
     justify-content: center;
     min-width: 48px;
+    min-height: 44px;
 
     font-size: var(--font-size-fluid-1);
     font-weight: var(--font-weight-7);

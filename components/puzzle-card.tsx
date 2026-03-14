@@ -62,7 +62,7 @@ export function PuzzleCard({
         <div
           class={clsx(
             "absolute bottom-0 right-0 px-fl-1 py-0.5 bg-surface-2",
-            "text-current text-0 uppercase border-t-1 border-t-transparent",
+            "text-current text-0 uppercase tracking-[0.05em] border-t-1 border-t-transparent",
             "[clip-path:polygon(10%_0,100%_0,100%_100%,0_100%)]",
           )}
         >
@@ -87,7 +87,7 @@ export function PuzzleCard({
         )}
       </div>
 
-      <div className="flex flex-col gap-0.5">
+      <div className="flex flex-col gap-1">
         {tagline && (
           <span
             className={clsx(
@@ -98,7 +98,7 @@ export function PuzzleCard({
             {tagline}
           </span>
         )}
-        <span className="flex items-center flex-wrap leading-tight font-4">
+        <span className="text-2 flex items-center flex-wrap leading-tight font-4">
           #{puzzle.number} {puzzle.name}
         </span>
       </div>

@@ -1,3 +1,5 @@
+import clsx from "clsx/lite";
+
 import { ArrowLeft, Icon, UserCircle } from "#/components/icons.tsx";
 import { ShareButton } from "#/islands/share-button.tsx";
 
@@ -14,9 +16,9 @@ export function Header({ url, back, share, hideProfile }: Props) {
     : url.origin + url.pathname;
 
   return (
-    <header className="print:hidden flex items-center justify-between">
+    <header className="print:hidden flex items-center justify-between text-3">
       {back && (
-        <a href={back.href} className="text-fl-1 no-underline leading-none">
+        <a href={back.href} className="icon-btn" aria-label="Back">
           <Icon icon={ArrowLeft} />
         </a>
       )}
@@ -25,7 +27,7 @@ export function Header({ url, back, share, hideProfile }: Props) {
         {!hideProfile && (
           <a
             href="/profile"
-            className="p-0 leading-none text-fl-1 text-text-2 no-underline hover:text-link"
+            className="icon-btn"
             aria-label="Profile and settings"
           >
             <Icon icon={UserCircle} />
