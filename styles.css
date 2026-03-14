@@ -757,6 +757,7 @@
   a, .link {
     color: var(--color-link);
     font-weight: 400;
+    font-size: var(--text-2);
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 3px;
