@@ -30,7 +30,6 @@ export function solverWorker(): Plugin {
       // import.meta.url resolves relative to the source file's directory).
       await Promise.all([
         Deno.writeTextFile("./static/solver-worker.js", content),
-        Deno.writeTextFile("./routes/api/solver-worker.js", content),
       ]);
     },
     async closeBundle() {
