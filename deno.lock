@@ -13,11 +13,13 @@
     "jsr:@std/assert@^1.0.17": "1.0.19",
     "jsr:@std/async@^1.1.1": "1.1.1",
     "jsr:@std/bytes@^1.0.6": "1.0.6",
+    "jsr:@std/cli@^1.0.28": "1.0.28",
     "jsr:@std/collections@^1.1.3": "1.1.4",
     "jsr:@std/dotenv@~0.225.5": "0.225.6",
     "jsr:@std/encoding@^1.0.10": "1.0.10",
     "jsr:@std/fmt@^1.0.7": "1.0.9",
     "jsr:@std/fmt@^1.0.8": "1.0.9",
+    "jsr:@std/fmt@^1.0.9": "1.0.9",
     "jsr:@std/front-matter@*": "1.0.9",
     "jsr:@std/front-matter@^1.0.9": "1.0.9",
     "jsr:@std/fs@^1.0.19": "1.0.22",
@@ -58,6 +60,7 @@
     "npm:idb-keyval@6.2.1": "6.2.1",
     "npm:jose@5": "5.10.0",
     "npm:open-props@^1.7.23": "1.7.23",
+    "npm:playwright@1": "1.58.2",
     "npm:posthog-js@^1.341.0": "1.341.0_@opentelemetry+api@1.9.0",
     "npm:posthog-node@^5.24.9": "5.24.9",
     "npm:preact-render-to-string@^6.6.3": "6.6.6_preact@10.28.3",
@@ -143,6 +146,13 @@
     },
     "@std/bytes@1.0.6": {
       "integrity": "f6ac6adbd8ccd99314045f5703e23af0a68d7f7e58364b47d2c7f408aeb5820a"
+    },
+    "@std/cli@1.0.28": {
+      "integrity": "74ef9b976db59ca6b23a5283469c9072be6276853807a83ec6c7ce412135c70a",
+      "dependencies": [
+        "jsr:@std/fmt@^1.0.9",
+        "jsr:@std/internal"
+      ]
     },
     "@std/collections@1.1.4": {
       "integrity": "90a7acae07652b0f7227db9b22116ddf4b7cfb0886f8e409c1d7f0c39c526bc1"
@@ -1467,6 +1477,11 @@
     "fflate@0.4.8": {
       "integrity": "sha512-FJqqoDBR00Mdj9ppamLa/Y7vxm+PRmNWA67N846RvsoYVMKB4q3y/de5PA7gUmRMYK/8CMz2GDZQmCRN1wBcWA=="
     },
+    "fsevents@2.3.2": {
+      "integrity": "sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==",
+      "os": ["darwin"],
+      "scripts": true
+    },
     "fsevents@2.3.3": {
       "integrity": "sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==",
       "os": ["darwin"],
@@ -1616,6 +1631,20 @@
     "picomatch@4.0.3": {
       "integrity": "sha512-5gTmgEY/sqK6gFXLIsQNH19lWb4ebPDLA4SdLP7dsWkIXHWlG66oPuVvXSGFPppYZz8ZDZq0dYYrbHfBCVUb1Q=="
     },
+    "playwright-core@1.58.2": {
+      "integrity": "sha512-yZkEtftgwS8CsfYo7nm0KE8jsvm6i/PTgVtB8DL726wNf6H2IMsDuxCpJj59KDaxCtSnrWan2AeDqM7JBaultg==",
+      "bin": true
+    },
+    "playwright@1.58.2": {
+      "integrity": "sha512-vA30H8Nvkq/cPBnNw4Q8TWz1EJyqgpuinBcHET0YVJVFldr8JDNiU9LaWAE1KqSkRYazuaBhTpB5ZzShOezQ6A==",
+      "dependencies": [
+        "playwright-core"
+      ],
+      "optionalDependencies": [
+        "fsevents@2.3.2"
+      ],
+      "bin": true
+    },
     "postcss@8.5.6": {
       "integrity": "sha512-3Ybi1tAuwAP9s0r1UQ2J4n5Y0G05bJkpUIO0/bI9MhwmD70S5aTWbXGBwxHrelT+XM1k6dM0pk+SwNkpTRN7Pg==",
       "dependencies": [
@@ -1709,7 +1738,7 @@
         "@rollup/rollup-win32-ia32-msvc",
         "@rollup/rollup-win32-x64-gnu",
         "@rollup/rollup-win32-x64-msvc",
-        "fsevents"
+        "fsevents@2.3.3"
       ],
       "bin": true
     },
@@ -1768,7 +1797,7 @@
         "tinyglobby"
       ],
       "optionalDependencies": [
-        "fsevents"
+        "fsevents@2.3.3"
       ],
       "bin": true
     },
@@ -1801,6 +1830,7 @@
       "jsr:@fresh/plugin-vite@^1.0.8",
       "jsr:@std/assert@^1.0.17",
       "jsr:@std/async@^1.1.1",
+      "jsr:@std/cli@^1.0.28",
       "jsr:@std/front-matter@^1.0.9",
       "jsr:@std/http@^1.0.24",
       "jsr:@std/text@^1.0.17",
@@ -1815,6 +1845,7 @@
       "npm:idb-keyval@6.2.1",
       "npm:jose@5",
       "npm:open-props@^1.7.23",
+      "npm:playwright@1",
       "npm:posthog-js@^1.341.0",
       "npm:posthog-node@^5.24.9",
       "npm:preact-render-to-string@^6.6.6",
