@@ -91,14 +91,14 @@ export function PuzzleCard({
         {tagline && (
           <span
             className={clsx(
-              "text-0 text-text-2 tracking-wide leading-flat mt-1.5 -mb-0.5",
+              "text-1 text-text-2 tracking-wide leading-flat mt-1.5 -mb-0.5",
               "group-hover:text-current",
             )}
           >
             {tagline}
           </span>
         )}
-        <span className="text-2 flex items-center flex-wrap leading-tight font-4">
+        <span className="flex text-3 items-center flex-wrap">
           #{puzzle.number} {puzzle.name}
         </span>
       </div>

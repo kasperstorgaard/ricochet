@@ -58,15 +58,20 @@ export default define.page<typeof handler>(
 
     return (
       <>
-        <Main className="max-lg:row-span-full items-stretch place-content-stretch lg:pb-fl-4">
+        <Main
+          className={clsx(
+            "max-lg:row-span-full items-stretch place-content-stretch lg:pb-fl-4",
+            "lg:max-w-xl lg:px-0",
+          )}
+        >
           <Header url={url} back={{ href: "/" }} share />
 
-          <h1 className="text-5 text-brand -mb-fl-1">Puzzle archives</h1>
+          <h1 className="text-brand text-6">Puzzle archives</h1>
 
           <ul
             className={clsx(
               "p-0 grid grid-cols-[repeat(2,1fr)] gap-x-fl-2 gap-y-fl-1",
-              "md:grid-cols-[repeat(3,1fr)] max-lg:max-w-120 max-lg:mt-fl-2",
+              "md:grid-cols-[repeat(3,1fr)] max-md:max-w-120",
             )}
           >
             {items.map((puzzle) => (

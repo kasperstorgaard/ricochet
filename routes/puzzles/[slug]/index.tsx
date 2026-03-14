@@ -199,7 +199,7 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
         <Header url={url} back={{ href: "/" }} share />
 
         <div className="flex items-center justify-between gap-fl-1 mt-2 flex-wrap">
-          <h1 className="text-5 text-brand leading-tight">
+          <h1 className="text-brand leading-tight">
             #{props.data.puzzle.number} {props.data.puzzle.name}
           </h1>
 

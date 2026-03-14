@@ -26,7 +26,8 @@ export function Pagination({ page, totalPages, baseUrl, className }: Props) {
   return (
     <nav
       className={clsx(
-        "flex items-center justify-center gap-fl-2 self-end max-lg:w-full",
+        "flex items-center justify-center gap-fl-2 self-end uppercase",
+        "max-lg:w-full",
         className,
       )}
       aria-label="Pagination"
@@ -41,8 +42,8 @@ export function Pagination({ page, totalPages, baseUrl, className }: Props) {
         <Icon icon={CaretLeft} />
       </a>
 
-      <span className="text-2 text-text-2">
-        Page {page} of {totalPages}
+      <span className="text-4 text-text-2">
+        {page} / {totalPages}
       </span>
 
       <a

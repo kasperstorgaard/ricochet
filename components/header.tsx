@@ -16,18 +16,22 @@ export function Header({ url, back, share, hideProfile }: Props) {
     : url.origin + url.pathname;
 
   return (
-    <header className="print:hidden flex items-center justify-between text-3">
+    <header className="print:hidden flex items-center justify-between text-4 text-text-2">
       {back && (
-        <a href={back.href} className="icon-btn" aria-label="Back">
+        <a
+          href={back.href}
+          className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] no-underline text-inherit hover:text-link"
+          aria-label="Back"
+        >
           <Icon icon={ArrowLeft} />
         </a>
       )}
-      <div className="flex items-center gap-2 ml-auto">
+      <div className="flex items-center ml-auto">
         {share && <ShareButton url={shareUrl} />}
         {!hideProfile && (
           <a
             href="/profile"
-            className="icon-btn"
+            className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] no-underline text-inherit hover:text-link"
             aria-label="Profile and settings"
           >
             <Icon icon={UserCircle} />

@@ -40,7 +40,7 @@ export default define.page<typeof handler>(function ProfilePage(props) {
         <Header url={url} back={{ href: "/" }} hideProfile />
 
         <div className="flex flex-col gap-fl-4 mt-fl-2">
-          <h1 className="text-5 text-brand leading-tight">
+          <h1 className="text-brand leading-tight">
             Profile
           </h1>
 
@@ -61,10 +61,10 @@ export default define.page<typeof handler>(function ProfilePage(props) {
               : (
                 <div className="flex flex-col gap-fl-2 p-fl-3 border border-surface-4 rounded-2">
                   <div className="flex flex-col gap-fl-1">
-                    <h2 className="text-fl-1 text-text-1 leading-flat">
+                    <h2 className="text-text-1 leading-flat">
                       Sync your progress
                     </h2>
-                    <p className="text-fl-0 text-text-2">
+                    <p className="text-text-2">
                       Log in to keep your solved puzzles and best scores across
                       all your devices.
                     </p>
@@ -111,8 +111,8 @@ export default define.page<typeof handler>(function ProfilePage(props) {
           {/* Theme */}
           <section className="flex flex-col gap-fl-2">
             <h2 className="flex flex-col gap-0.5">
-              <span className="text-fl-1">Theme</span>
-              <span className="text-fl-0 text-text-2 font-4">
+              <span>Theme</span>
+              <span className="text-1 text-text-2 font-4">
                 {THEMES.find((t) => t.key === activeTheme)?.label}
               </span>
             </h2>
@@ -137,7 +137,6 @@ export default define.page<typeof handler>(function ProfilePage(props) {
         </div>
       </Main>
 
-      <Panel />
     </>
   );
 });
@@ -151,7 +150,7 @@ type ThemeGroupProps = {
 function ThemeGroup({ label, themes, active }: ThemeGroupProps) {
   return (
     <div className="flex flex-col gap-fl-1">
-      <p className="text-fl-0 text-text-2">
+      <p className="text-text-2">
         {label}
       </p>
       <div className="flex gap-x-fl-1 gap-y-2 flex-wrap">

@@ -68,14 +68,14 @@ export default define.page<typeof handler>(function Home(ctx) {
         <Header url={url} share />
 
         <div className="flex flex-col gap-1 py-fl-1 pt-fl-2">
-          <h1 className="text-fl-4 leading-flat text-brand flex items-baseline gap-fl-1">
+          <h1 className="text-fl-3 leading-flat text-brand flex items-baseline gap-fl-1">
             Skub
-            <span className="text-fl-1 text-text-3 font-normal lg:text-fl-0">
+            <span className="text-1 text-text-3 font-normal">
               [ˈsgɔb]
             </span>
           </h1>
 
-          <p className="text-text-2 text-fl-1">
+          <p className="text-text-2">
             Slide pieces to reach the target. No stops, no turns.<br />Fewest
             moves wins.
           </p>
@@ -134,9 +134,9 @@ export default define.page<typeof handler>(function Home(ctx) {
             <a
               href="/puzzles"
               className={clsx(
-                "group flex gap-fl-1 p-fl-2 place-content-start place-items-center",
-                "text-text-2 leading-snug border border-link no-underline",
-                "lg:aspect-square lg:flex-col lg:justify-center lg:place-items-start lg:gap-fl-1 lg:w-full",
+                "group flex gap-fl-1 p-fl-2 px-fl-3 place-content-start place-items-center",
+                "text-text-2 leading-snug border border-link no-underline rounded-1",
+                "lg:aspect-square lg:flex-col lg:justify-center lg:place-items-start lg:gap-fl-1 lg:w-full lg:rounded-none",
                 "hover:filter-[lighten(1.3)] hover:no-underline",
               )}
             >

@@ -141,8 +141,8 @@ export function ControlsPanel(
 
           <div
             className={clsx(
-              "flex gap-fl-1 justify-center flex-wrap text-1",
-              "lg:text-fl-0 lg:justify-self-center",
+              "flex gap-fl-1 justify-center flex-wrap",
+              "lg:justify-self-center",
             )}
           >
             {

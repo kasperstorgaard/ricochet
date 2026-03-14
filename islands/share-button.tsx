@@ -23,8 +23,8 @@ export function ShareButton({ url }: ShareButtonProps) {
     <button
       type="button"
       onClick={onShare}
-      className="icon-btn"
       aria-label="Share"
+      className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] bg-transparent border-0 cursor-pointer text-inherit hover:text-link transition-colors"
     >
       <Icon icon={ShareNetwork} />
     </button>

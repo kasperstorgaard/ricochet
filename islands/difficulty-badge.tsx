@@ -10,11 +10,14 @@ import type { Board, Puzzle } from "#/game/types.ts";
 
 type DifficultyBadgeProps = {
   puzzle: Signal<Puzzle>;
+  solverEnabled?: boolean;
   className?: string;
 };
 
 // Displays the shortest solution length, updated on a 3s debounce with fade transition.
-export function DifficultyBadge({ puzzle, className }: DifficultyBadgeProps) {
+export function DifficultyBadge(
+  { puzzle, solverEnabled, className }: DifficultyBadgeProps,
+) {
   const ref = useRef<HTMLSpanElement>(null);
 
   const [minMoves, setMinMoves] = useState<number | null>(
@@ -23,11 +26,13 @@ export function DifficultyBadge({ puzzle, className }: DifficultyBadgeProps) {
   const [solving, setSolving] = useState<{ depth: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const { start: startSolve } = useSolveStream((event) => {
+  const { start: startSolve, cancel: cancelSolve } = useSolveStream((event) => {
     if (event.type === "progress") {
+      console.log("progress");
       setSolving({ depth: event.depth });
     } else if (event.type === "solution") {
       setMinMoves(event.moves.length);
+      console.log("solved");
       setSolving(null);
     } else if (event.type === "error") {
       setError(event.message);
@@ -36,14 +41,17 @@ export function DifficultyBadge({ puzzle, className }: DifficultyBadgeProps) {
   });
 
   const fetchSolution = useDebouncedCallback((board: Board) => {
+    cancelSolve();
     setSolving({ depth: 0 });
+
+    console.log("starting");
     startSolve(board);
   }, 3000);
 
   useEffect(() => {
     const { board, minMoves } = puzzle.value;
 
-    if (minMoves) {
+    if (!solverEnabled || minMoves) {
       setMinMoves(minMoves);
       setError(null);
       setSolving(null);
@@ -64,7 +72,7 @@ export function DifficultyBadge({ puzzle, className }: DifficultyBadgeProps) {
     }
 
     fetchSolution(board);
-  }, [puzzle.value.board]);
+  }, [solverEnabled, puzzle.value.board, puzzle.value.minMoves]);
 
   return (
     <span
@@ -77,21 +85,21 @@ export function DifficultyBadge({ puzzle, className }: DifficultyBadgeProps) {
       title={error ? error : undefined}
     >
       <span
-        className="text-center text-fl-0 px-fl-1 uppercase cursor-help"
+        className="text-center px-fl-1 uppercase cursor-help"
         title={error ?? "puzzle difficulty"}
       >
         {error ? "error" : puzzle.value.difficulty ?? "unknown"}
       </span>
 
       {error && (
-        <span className="px-1 bg-surface-3 text-fl-0 -ml-1 text-text-2">
+        <span className="px-1 py-1 bg-surface-3 -ml-1 text-text-2">
           <Icon icon={Warning} className="m-1" />
         </span>
       )}
 
       {!error && solving && (
         <span
-          className="px-fl-1 pl-fl-1 bg-surface-3 text-fl-0 min-w-[3ch] -ml-1 text-text-2 tabular-nums animate-blink"
+          className="px-fl-1 pl-fl-1 py-1 bg-surface-3 min-w-[3ch] -ml-1 text-text-2 tabular-nums animate-blink"
           title={`searching depth ${solving.depth}`}
         >
           {solving.depth ? solving.depth : "?"}
@@ -101,7 +109,7 @@ export function DifficultyBadge({ puzzle, className }: DifficultyBadgeProps) {
       {!error && !solving && (
         <span
           className={clsx(
-            "px-fl-1 pl-fl-1 bg-surface-3 text-fl-0 min-w-[3ch] -ml-1",
+            "px-fl-1 pl-fl-1 py-1 bg-surface-3 min-w-[3ch] -ml-1",
             "cursor-help",
             "[clip-path:polygon(20%_0,100%_0,100%_100%,0_100%)]",
           )}
