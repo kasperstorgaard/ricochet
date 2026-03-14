@@ -60,35 +60,37 @@ export default define.page<typeof handler>(
       <>
         <Main
           className={clsx(
-            "max-lg:row-span-full items-stretch place-content-stretch lg:pb-fl-4",
+            "max-lg:row-span-full items-stretch place-content-stretch",
             "lg:max-w-xl lg:px-0",
           )}
         >
           <Header url={url} back={{ href: "/" }} share />
 
-          <h1 className="text-brand text-6">Puzzle archives</h1>
+          <h1 className="text-brand text-6">Archives</h1>
 
-          <ul
-            className={clsx(
-              "p-0 grid grid-cols-[repeat(2,1fr)] gap-x-fl-2 gap-y-fl-1",
-              "md:grid-cols-[repeat(3,1fr)] max-md:max-w-120",
-            )}
-          >
-            {items.map((puzzle) => (
-              <li className="list-none pl-0 min-w-0" key={puzzle.slug}>
-                <PuzzleCard
-                  puzzle={puzzle}
-                  bestMoves={bestMoves[puzzle.slug]}
-                />
-              </li>
-            ))}
-          </ul>
+          <section className="grid gap-fl-4 content-start">
+            <ul
+              className={clsx(
+                "p-0 grid grid-cols-[repeat(2,1fr)] gap-fl-3 gap-y-fl-2 content-start",
+                "md:grid-cols-[repeat(3,1fr)] max-md:max-w-120",
+              )}
+            >
+              {items.map((puzzle) => (
+                <li className="list-none pl-0 min-w-0" key={puzzle.slug}>
+                  <PuzzleCard
+                    puzzle={puzzle}
+                    bestMoves={bestMoves[puzzle.slug]}
+                  />
+                </li>
+              ))}
+            </ul>
 
-          <Pagination
-            {...pagination}
-            baseUrl={props.url.href}
-            className="max-sm:mb-fl-1 max-sm:mt-fl-3 self-start"
-          />
+            <Pagination
+              {...pagination}
+              baseUrl={props.url.href}
+              className="max-sm:mb-fl-1 max-sm:mt-fl-3 self-start"
+            />
+          </section>
         </Main>
 
         <Panel className="max-lg:gap-y-fl-2">
@@ -99,10 +101,10 @@ export default define.page<typeof handler>(
             )}
           >
             <div className="flex flex-col gap-0">
-              <span className="text-5 text-brand leading-flat font-medium">
+              <span className="text-7 text-text-1 leading-flat font-medium tracking-wide">
                 {pagination.totalItems}
               </span>
-              <span className="text-2 text-text-2">Puzzles</span>
+              <span className="text-3 text-text-2">Puzzles</span>
             </div>
           </div>
 

@@ -53,12 +53,12 @@ export default define.page<typeof handler>(function EditorPage(props) {
             <EditableName
               puzzle={puzzle}
               defaultValue="Untitled"
-              className="text-5 text-brand pr-1 leading-tight"
+              className="text-5 text-brand pr-1 leading-flat"
             />
 
             <p
               className={clsx(
-                "text-fl-0 text-text-3 leading-tight italic -mb-[.6lh] -mt-[.4lh]",
+                "text-text-3 leading-tight ml-1",
                 "group-focus-within:opacity-0 transition-opacity",
               )}
             >

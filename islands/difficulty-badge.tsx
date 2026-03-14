@@ -110,7 +110,7 @@ export function DifficultyBadge(
       {!error && !solving && (
         <span
           className={clsx(
-            "px-2 bg-surface-3 min-w-[3ch]",
+            "px-2 bg-surface-3 min-w-[3ch] text-center",
             "cursor-help",
           )}
           title="shortest possible solution"

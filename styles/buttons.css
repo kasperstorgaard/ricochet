@@ -48,7 +48,7 @@
 
   .icon-btn[data-size="lg"] {
     padding: var(--size-2);
-    font-size: var(--text-6);
+    font-size: var(--text-5);
   }
 
   .icon-btn[data-size="sm"] {

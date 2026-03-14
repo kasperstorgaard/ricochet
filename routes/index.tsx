@@ -67,7 +67,7 @@ export default define.page<typeof handler>(function Home(ctx) {
 
   return (
     <>
-      <Main className="max-lg:row-span-full items-stretch place-content-stretch lg:pb-fl-4">
+      <Main className="max-lg:row-span-full items-stretch place-content-stretch">
         <Header url={url} share />
 
         <div className="flex flex-col">

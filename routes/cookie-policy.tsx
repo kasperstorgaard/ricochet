@@ -76,7 +76,7 @@ export default define.page(function CookiePolicyPage() {
             </li>
           </ul>
 
-          <p className="mt-fl-2 pt-fl-2 border-t border-surface-3 text-text-3 text-0">
+          <p className="mt-fl-2 mt-fl-2 border-t border-surface-3 text-text-3 text-0">
             Last updated: February 2026
           </p>
         </article>

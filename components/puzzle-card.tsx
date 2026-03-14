@@ -99,7 +99,8 @@ export function PuzzleCard({
           </span>
         )}
         <span className="text-3 font-semibold leading-flat">
-          #{puzzle.number} {puzzle.name}
+          <span className="tracking-wide">#{puzzle.number}</span>{" "}
+          <span>{puzzle.name}</span>
         </span>
       </div>
     </a>
