@@ -99,7 +99,7 @@ export default define.page<typeof handler>(
             )}
           >
             <div className="flex flex-col gap-0">
-              <span className="text-5 text-brand leading-flat font-4">
+              <span className="text-5 text-brand leading-flat font-medium">
                 {pagination.totalItems}
               </span>
               <span className="text-2 text-text-2">Puzzles</span>

@@ -112,7 +112,7 @@ export default define.page<typeof handler>(function ProfilePage(props) {
           <section className="flex flex-col gap-fl-2">
             <h2 className="flex flex-col gap-0.5">
               <span>Theme</span>
-              <span className="text-1 text-text-2 font-4">
+              <span className="text-1 text-text-2">
                 {THEMES.find((t) => t.key === activeTheme)?.label}
               </span>
             </h2>

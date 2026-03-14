@@ -78,28 +78,29 @@ export function DifficultyBadge(
     <span
       ref={ref}
       className={clsx(
-        "flex items-center justify-center",
-        "bg-surface-2 cursor-help",
+        "flex items-center pl-1 justify-center text-2",
+        "bg-surface-2 cursor-help tracking-wider",
+        "[clip-path:polygon(5%_0,100%_0,100%_100%,0_100%)]",
         className,
       )}
       title={error ? error : undefined}
     >
       <span
-        className="text-center px-fl-1 uppercase cursor-help"
+        className="text-center px-2 uppercase cursor-help"
         title={error ?? "puzzle difficulty"}
       >
         {error ? "error" : puzzle.value.difficulty ?? "unknown"}
       </span>
 
       {error && (
-        <span className="px-1 py-1 bg-surface-3 -ml-1 text-text-2">
+        <span className="px-1 bg-surface-3 text-text-2">
           <Icon icon={Warning} className="m-1" />
         </span>
       )}
 
       {!error && solving && (
         <span
-          className="px-fl-1 pl-fl-1 py-1 bg-surface-3 min-w-[3ch] -ml-1 text-text-2 tabular-nums animate-blink"
+          className="px-2 bg-surface-3 min-w-[3ch] text-text-2 tabular-nums animate-blink"
           title={`searching depth ${solving.depth}`}
         >
           {solving.depth ? solving.depth : "?"}
@@ -109,9 +110,8 @@ export function DifficultyBadge(
       {!error && !solving && (
         <span
           className={clsx(
-            "px-fl-1 pl-fl-1 py-1 bg-surface-3 min-w-[3ch] -ml-1",
+            "px-2 bg-surface-3 min-w-[3ch]",
             "cursor-help",
-            "[clip-path:polygon(20%_0,100%_0,100%_100%,0_100%)]",
           )}
           title="shortest possible solution"
         >

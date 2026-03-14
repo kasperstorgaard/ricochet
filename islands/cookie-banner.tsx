@@ -50,11 +50,11 @@ export function CookieBanner({ open }: Props) {
       </svg>
 
       <div className="grid gap-fl-1 relative z-10">
-        <h2 className="text-2 font-semibold flex items-center gap-1">
+        <h2 className="font-semibold flex items-center gap-1">
           One quick thing
         </h2>
 
-        <p className="text-1">
+        <p className="leading-normal">
           We don't share or sell your data, but if you want, we'd like to see
           how people play Skub. <a href="/cookie-policy">Learn more</a>
         </p>

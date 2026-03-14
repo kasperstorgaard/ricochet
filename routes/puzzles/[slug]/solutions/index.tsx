@@ -96,7 +96,7 @@ export default define.page<typeof handler>(function SolutionsListPage(props) {
 
   return (
     <>
-      <Main className="justify-stretch">
+      <Main className="justify-stretch min-h-96">
         <Header
           url={url}
           back={{ href: "/" }}
@@ -124,11 +124,15 @@ export default define.page<typeof handler>(function SolutionsListPage(props) {
           Tabs rendered as nav links at the top of Main, active tab highlighted.
         */
         }
-        <div>
+        <div className="pt-fl-2">
           {visibleGroups.length === 0
-            ? <p className="text-text-3">No solutions posted yet.</p>
+            ? (
+              <p className="text-3 text-text-2">
+                No solutions posted yet.
+              </p>
+            )
             : (
-              <ol className="m-0 p-0 list-none flex flex-col gap-y-1 w-full lg:min-h-96">
+              <ol className="m-0 p-0 list-none flex flex-col gap-y-1 w-full">
                 {visibleGroups.map((group) =>
                   group === null
                     ? (
@@ -235,7 +239,7 @@ function SolutionRow(
           <p className="text-xs text-text-3 leading-snug">{metaLine}</p>
         </div>
 
-        <span className="text-fl-0 text-text-link leading-tight whitespace-nowrap hover:text-link">
+        <span className="text-fl-0 text-link leading-tight whitespace-nowrap">
           <Icon icon={Play} className="text-sm leading-flat" />{" "}
           <span className="max-md:hidden">Watch</span>
         </span>

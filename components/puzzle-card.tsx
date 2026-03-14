@@ -40,7 +40,7 @@ export function PuzzleCard({
     <a
       href={`/puzzles/${puzzle.slug}`}
       class={clsx(
-        "group flex flex-col gap-1 text-text-1 no-underline",
+        "group flex flex-col gap-2 text-text-1 no-underline",
         !isSolved && "visited:svg-dim",
         className,
       )}
@@ -48,7 +48,7 @@ export function PuzzleCard({
     >
       <div
         class={clsx(
-          "relative flex border-1 border-link",
+          "relative flex border-2 border-link rounded-1",
           "group-hover:filter-[lighten(1.3)] transition-colors",
           !isOptimal && "group-visited:link-border-dim",
           isOptimal && "border-ui-2",
@@ -61,8 +61,8 @@ export function PuzzleCard({
 
         <div
           class={clsx(
-            "absolute bottom-0 right-0 px-fl-1 py-0.5 bg-surface-2",
-            "text-current text-0 uppercase tracking-[0.05em] border-t-1 border-t-transparent",
+            "absolute bottom-0 right-0 px-3 bg-surface-2",
+            "text-current leading-relaxed text-1 uppercase tracking-wider",
             "[clip-path:polygon(10%_0,100%_0,100%_100%,0_100%)]",
           )}
         >
@@ -91,14 +91,14 @@ export function PuzzleCard({
         {tagline && (
           <span
             className={clsx(
-              "text-1 text-text-2 tracking-wide leading-flat mt-1.5 -mb-0.5",
+              "text-1 text-text-2 tracking-wide leading-tight",
               "group-hover:text-current",
             )}
           >
             {tagline}
           </span>
         )}
-        <span className="flex text-3 items-center flex-wrap">
+        <span className="text-3 font-semibold leading-flat">
           #{puzzle.number} {puzzle.name}
         </span>
       </div>

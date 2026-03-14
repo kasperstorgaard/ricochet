@@ -4,9 +4,12 @@ import { HttpError, page } from "fresh";
 import { Header } from "#/components/header.tsx";
 import {
   ArrowRight,
+  ChalkboardTeacher,
   GithubLogo,
   Icon,
   LinkedinLogo,
+  Play,
+  Student,
 } from "#/components/icons.tsx";
 import { Main } from "#/components/main.tsx";
 import { Panel } from "#/components/panel.tsx";
@@ -67,10 +70,12 @@ export default define.page<typeof handler>(function Home(ctx) {
       <Main className="max-lg:row-span-full items-stretch place-content-stretch lg:pb-fl-4">
         <Header url={url} share />
 
-        <div className="flex flex-col gap-1 py-fl-1 pt-fl-2">
-          <h1 className="text-fl-3 leading-flat text-brand flex items-baseline gap-fl-1">
-            Skub
-            <span className="text-1 text-text-3 font-normal">
+        <div className="flex flex-col">
+          <h1 className="text-8 leading-tight text-brand flex items-baseline gap-fl-1">
+            <span>
+              Skub
+            </span>
+            <span className="text-1 text-text-3">
               [ˈsgɔb]
             </span>
           </h1>
@@ -81,88 +86,84 @@ export default define.page<typeof handler>(function Home(ctx) {
           </p>
         </div>
 
-        <ul
-          className={clsx(
-            "p-0 grid grid-cols-[repeat(2,1fr)] gap-fl-2 gap-y-fl-3 list-none",
-            "md:grid-cols-[repeat(3,1fr)] max-lg:max-w-120",
-          )}
-        >
-          <li className="list-none pl-0 min-w-0">
-            <PuzzleCard
-              puzzle={dailyPuzzle}
-              tagline="Daily puzzle"
-              bestMoves={bestMoves[dailyPuzzle.slug]}
-            />
-          </li>
+        <div className="grid">
+          <ul className="grid grid-cols-[repeat(2,1fr)] gap-fl-3 gap-y-fl-4 list-none pl-0 max-w-120">
+            <li className="list-none pl-0 min-w-0">
+              <PuzzleCard
+                puzzle={dailyPuzzle}
+                tagline="Daily puzzle"
+                bestMoves={bestMoves[dailyPuzzle.slug]}
+              />
+            </li>
 
-          <li className="list-none pl-0 min-w-0">
-            {user.onboarding === "new"
-              ? (
-                <div className="flex flex-col gap-0.5">
+            <li className="list-none pl-0 min-w-0">
+              {user.onboarding === "new"
+                ? (
                   <a
                     href="/puzzles/tutorial"
-                    className={clsx(
-                      "group flex gap-fl-1 p-fl-2 place-content-start place-items-center",
-                      "text-text-2 leading-snug border border-link no-underline",
-                      "aspect-square lg:flex-col lg:justify-center lg:place-items-start lg:gap-fl-1 lg:w-full",
-                      "hover:filter-[lighten(1.3)] hover:no-underline",
-                    )}
+                    className="flex flex-col gap-2 text-text-1 no-underline"
                   >
-                    Tutorial
-                    <Icon icon={ArrowRight} />
-                  </a>
-                  <span className="text-0 text-text-2 tracking-wide leading-flat mt-1.5 -mb-0.5">
-                    New here?
-                  </span>
-                  <span className="flex items-center flex-wrap leading-tight font-4">
-                    Learn the basics
-                  </span>
-                </div>
-              )
-              : (
-                <PuzzleCard
-                  puzzle={randomPuzzle!}
-                  tagline={user.onboarding === "started"
-                    ? "Warm-up puzzle"
-                    : "Random puzzle"}
-                  bestMoves={bestMoves[randomPuzzle.slug]}
-                />
-              )}
-          </li>
+                    <div
+                      className={clsx(
+                        "group flex gap-fl-1 p-fl-3 place-content-center place-items-center",
+                        "text-3 text-text-2 border-2 border-link rounded-1 no-underline",
+                        "aspect-square lg:flex-col lg:gap-fl-1 lg:w-full",
+                        "hover:filter-[lighten(1.3)] hover:no-underline",
+                      )}
+                    >
+                      <span className="flex gap-2 text-6">
+                        <Icon icon={ChalkboardTeacher} />
+                      </span>
+                    </div>
 
-          <li className="list-none pl-0 min-w-0 max-lg:col-span-2 max-lg:place-self-start">
-            <a
-              href="/puzzles"
-              className={clsx(
-                "group flex gap-fl-1 p-fl-2 px-fl-3 place-content-start place-items-center",
-                "text-text-2 leading-snug border border-link no-underline rounded-1",
-                "lg:aspect-square lg:flex-col lg:justify-center lg:place-items-start lg:gap-fl-1 lg:w-full lg:rounded-none",
-                "hover:filter-[lighten(1.3)] hover:no-underline",
-              )}
-            >
-              Archives <Icon icon={ArrowRight} />
-            </a>
-          </li>
-        </ul>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-1 text-text-2 tracking-wide leading-tight">
+                        New here?
+                      </span>
+                      <span className="text-text-1 text-3 font-semibold leading-flat items-center">
+                        Learn the basics
+                      </span>
+                    </div>
+                  </a>
+                )
+                : (
+                  <PuzzleCard
+                    puzzle={randomPuzzle!}
+                    tagline={user.onboarding === "started"
+                      ? "Warm-up puzzle"
+                      : "Random puzzle"}
+                    bestMoves={bestMoves[randomPuzzle.slug]}
+                  />
+                )}
+            </li>
+          </ul>
+
+          <a href="/puzzles" className="btn place-self-start" data-size="lg">
+            Archives <Icon icon={ArrowRight} />
+          </a>
+        </div>
       </Main>
 
       <Panel className="max-lg:gap-fl-3">
         <p
           className={clsx(
             "col-[2/3]",
-            "text-text-2 text-fl-1",
+            "text-text-1 text-fl-1",
             "lg:col-auto lg:row-start-1 lg:text-fl-0",
           )}
         >
-          Inspired by{" "}
-          <a href="https://boardgamegeek.com/boardgame/51/ricochet-robots">
+          Inspired by <br />
+          <a
+            href="https://boardgamegeek.com/boardgame/51/ricochet-robots"
+            className="text-2 text-text-2"
+          >
             Ricochet Robots
           </a>
         </p>
 
         <div
           className={clsx(
-            "col-[2/3] flex flex-col gap-fl-1 justify-between items-start flex-wrap text-text-2",
+            "col-[2/3] flex flex-col gap-fl-1 justify-between items-start flex-wrap text-2 text-text-2",
             "sm:flex-row sm:items-center",
             "lg:col-auto lg:row-start-3 lg:flex-col lg:self-end lg:items-start",
           )}

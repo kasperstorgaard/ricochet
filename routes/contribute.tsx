@@ -41,8 +41,8 @@ export default define.page<typeof handler>(function ContributePage(props) {
             <table className="text-fl-0 border-collapse w-full max-w-sm">
               <thead>
                 <tr className="text-left text-text-3 uppercase tracking-wide text-fl-00">
-                  <th className="pb-1 pr-4 font-4">Key</th>
-                  <th className="pb-1 font-4">Action</th>
+                  <th className="pb-1 pr-4">Key</th>
+                  <th className="pb-1">Action</th>
                 </tr>
               </thead>
               <tbody className="text-text-2">
@@ -99,12 +99,12 @@ export default define.page<typeof handler>(function ContributePage(props) {
             <h2 className="text-3 text-text-1">2. Download the puzzle</h2>
             <p className="text-text-2">
               Once you're happy with your puzzle, click{" "}
-              <strong className="text-text-1 font-4">Download</strong>{" "}
+              <strong className="text-text-1">Download</strong>{" "}
               in the editor panel.<br /> This saves the puzzle as a{" "}
               <code className="bg-surface-3 px-1 rounded text-fl-0">.md</code>
               {" "}
               file ready to be added to the repo. You can also use{" "}
-              <strong className="text-text-1 font-4">Import</strong>{" "}
+              <strong className="text-text-1">Import</strong>{" "}
               to load it back into the editor later.
             </p>
           </section>

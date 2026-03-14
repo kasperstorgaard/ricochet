@@ -679,6 +679,7 @@
   body {
     color: var(--color-text-1);
     font-family: var(--font-sans);
+    font-weight: 400;
     background: var(--color-surface-1);
     /* normalize defaults to 1.5 (prose), tighten for a game UI */
     line-height: var(--font-lineheight-2); /* 1.375 */
@@ -696,7 +697,7 @@
   } /* 1.25rem → 17.5px/20px */
 
   :where(h1, h2, h3, h4, h5, h6) {
-    font-weight: 500;
+    font-weight: 300;
     color: var(--color-brand);
   }
 
@@ -755,6 +756,7 @@
   /* Global link defaults */
   a, .link {
     color: var(--color-link);
+    font-weight: 400;
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 3px;
