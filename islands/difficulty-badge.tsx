@@ -28,11 +28,9 @@ export function DifficultyBadge(
 
   const { start: startSolve, cancel: cancelSolve } = useSolveStream((event) => {
     if (event.type === "progress") {
-      console.log("progress");
       setSolving({ depth: event.depth });
     } else if (event.type === "solution") {
       setMinMoves(event.moves.length);
-      console.log("solved");
       setSolving(null);
     } else if (event.type === "error") {
       setError(event.message);
@@ -43,8 +41,6 @@ export function DifficultyBadge(
   const fetchSolution = useDebouncedCallback((board: Board) => {
     cancelSolve();
     setSolving({ depth: 0 });
-
-    console.log("starting");
     startSolve(board);
   }, 3000);
 

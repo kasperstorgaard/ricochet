@@ -128,6 +128,7 @@ export default define.page<typeof handler>(function SolutionsListPage(props) {
         <div className="mt-fl-2">
           {visibleGroups.length === 0
             ? (
+              // TODO: improve empty state — currently too sparse with Remix isolated in corner
               <p className="text-3 text-text-2">
                 No solutions posted yet.
               </p>
