@@ -40,7 +40,7 @@ export default define.page<typeof handler>(function ProfilePage(props) {
         <Header url={url} back={{ href: "/" }} hideProfile />
 
         <div className="flex flex-col gap-fl-4 mt-fl-2">
-          <h1 className="text-brand leading-tight">
+          <h1 className="text-6">
             Profile
           </h1>
 
@@ -55,7 +55,15 @@ export default define.page<typeof handler>(function ProfilePage(props) {
                     </a>
                   </div>
 
-                  {/* TODO: stats (solved count, day streak) and solved puzzles list */}
+                  {/*
+                    TODO: personal stats section
+                    - solved / total puzzles (e.g. "12 of 73 solved")
+                    - optimal solves count (trophy icon + count)
+                    - solved puzzles list with best move counts
+                    Data: listUserSolutions already fetched on archive page — same query works here.
+                    Note: these stats are only shown when logged in (email present), which ties
+                    naturally into the "sync your progress" login pitch for anonymous users.
+                  */}
                 </>
               )
               : (
@@ -80,7 +88,7 @@ export default define.page<typeof handler>(function ProfilePage(props) {
 
             <form method="post" action="/profile">
               <div className="flex flex-col gap-1 place-content-end">
-                <label for="name" className="text-text-2">
+                <label for="name" className="text-text-2 text-3 font-5">
                   Username
                 </label>
 
@@ -110,9 +118,9 @@ export default define.page<typeof handler>(function ProfilePage(props) {
 
           {/* Theme */}
           <section className="flex flex-col gap-fl-2">
-            <h2 className="flex flex-col gap-0.5">
+            <h2 className="flex flex-col gap-0.5 text-5">
               <span>Theme</span>
-              <span className="text-1 text-text-2">
+              <span className="text-2 text-text-2">
                 {THEMES.find((t) => t.key === activeTheme)?.label}
               </span>
             </h2>
@@ -136,7 +144,6 @@ export default define.page<typeof handler>(function ProfilePage(props) {
           </section>
         </div>
       </Main>
-
     </>
   );
 });
@@ -150,7 +157,7 @@ type ThemeGroupProps = {
 function ThemeGroup({ label, themes, active }: ThemeGroupProps) {
   return (
     <div className="flex flex-col gap-fl-1">
-      <p className="text-text-2">
+      <p className="text-text-2 font-5 text-3">
         {label}
       </p>
       <div className="flex gap-x-fl-1 gap-y-2 flex-wrap">
