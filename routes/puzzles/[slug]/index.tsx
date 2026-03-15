@@ -199,8 +199,12 @@ export default define.page<typeof handler>(function PuzzleDetails(props) {
         <Header url={url} back={{ href: "/" }} share />
 
         <div className="flex items-center justify-between gap-fl-1 mt-2 flex-wrap">
-          <h1 className="text-5 text-brand leading-tight">
-            #{props.data.puzzle.number} {props.data.puzzle.name}
+          <h1 className="text-6 text-brand leading-tight">
+            <span className="font-4 tracking-wide">
+              #{props.data.puzzle.number}
+              {" "}
+            </span>
+            <span className="font-5">{props.data.puzzle.name}</span>
           </h1>
 
           <DifficultyBadge puzzle={puzzle} className="lg:mt-1" />

@@ -5,11 +5,12 @@
     justify-content: center;
     flex-wrap: nowrap;
     gap: calc(var(--size-fluid-1) - 4px);
+    min-height: 44px;
     padding-inline: var(--size-3);
     padding-block: var(--size-1);
 
     white-space: nowrap;
-    font-size: var(--font-size-1);
+    font-size: var(--font-size-2);
     font-weight: var(--font-weight-semibold);
     text-decoration: none;
     color: var(--color-text-1);
@@ -20,6 +21,12 @@
     background-color: color-mix(in srgb, var(--color-link) 12%, transparent);
   }
 
+  .btn[data-size="lg"] {
+    padding-block: calc(var(--size-2) + 2px);
+    padding-inline: var(--size-4);
+    font-size: var(--font-size-3);
+  }
+
   .icon-btn {
     display: inline-flex;
     padding: calc(var(--size-fluid-1) - 6px);
@@ -27,6 +34,7 @@
     align-items: center;
     justify-content: center;
     min-width: 48px;
+    min-height: 44px;
 
     font-size: var(--font-size-fluid-1);
     font-weight: var(--font-weight-7);
@@ -39,7 +47,8 @@
   }
 
   .icon-btn[data-size="lg"] {
-    padding: calc(var(--size-fluid-1) - 4px);
+    padding: calc(var(--size-3) - 6px);
+    font-size: var(--text-5);
   }
 
   .icon-btn[data-size="sm"] {
@@ -75,17 +84,6 @@
   .btn:active:not(:focus-visible),
   .icon-btn:active:not(:focus-visible) {
     position: relative;
-  }
-
-  @media (width < 64rem /* 1024px */) {
-    .btn:not([data-size]) {
-      padding-inline: calc(var(--size-3) - 2px);
-    }
-
-    .icon-btn[data-size="lg"] {
-      padding: calc(var(--size-fluid-1) + 3px);
-      font-size: var(--font-size-4);
-    }
   }
 
   @media (prefers-reduced-motion: no-preference) {

@@ -23,9 +23,10 @@ export function ShareButton({ url }: ShareButtonProps) {
     <button
       type="button"
       onClick={onShare}
+      aria-label="Share"
       className={clsx(
-        "p-0 bg-transparent border-0 cursor-pointer text-fl-1 leading-none text-text-2 transition-colors",
-        "hover:text-link",
+        "inline-flex items-center justify-center min-w-[44px] min-h-[44px] bg-transparent border-0",
+        "cursor-pointer text-inherit text-5 hover:text-link transition-colors",
       )}
     >
       <Icon icon={ShareNetwork} />

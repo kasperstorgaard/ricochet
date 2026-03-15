@@ -96,7 +96,7 @@ export default define.page<typeof handler>(function SolutionsListPage(props) {
 
   return (
     <>
-      <Main className="justify-stretch">
+      <Main className="justify-stretch min-h-96">
         <Header
           url={url}
           back={{ href: "/" }}
@@ -104,10 +104,11 @@ export default define.page<typeof handler>(function SolutionsListPage(props) {
 
         <div className="flex items-center justify-between mt-2 flex-wrap gap-fl-1">
           <div className="flex flex-col">
-            <h1 className="text-5 text-brand leading-tight">
+            <h1 className="text-5 text-brand leading-flat">
               #{props.data.puzzle.number} {props.data.puzzle.name}
             </h1>
-            <p className="text-fl-0 text-text-3 leading-tight italic -mb-[.6lh] -mt-[.4lh]">
+
+            <p className="text-text-3 ml-1">
               solutions
             </p>
           </div>
@@ -124,11 +125,16 @@ export default define.page<typeof handler>(function SolutionsListPage(props) {
           Tabs rendered as nav links at the top of Main, active tab highlighted.
         */
         }
-        <div>
+        <div className="mt-fl-2">
           {visibleGroups.length === 0
-            ? <p className="text-text-3">No solutions posted yet.</p>
+            ? (
+              // TODO: improve empty state — currently too sparse with Remix isolated in corner
+              <p className="text-3 text-text-2">
+                No solutions posted yet.
+              </p>
+            )
             : (
-              <ol className="m-0 p-0 list-none flex flex-col gap-y-1 w-full lg:min-h-96">
+              <ol className="m-0 p-0 list-none flex flex-col gap-y-2 w-full">
                 {visibleGroups.map((group) =>
                   group === null
                     ? (
@@ -209,22 +215,22 @@ function SolutionRow(
         data-found={isFound ? true : undefined}
       >
         <div className="flex flex-col items-center">
-          <span className="text-fl-1 font-bold tabular-nums leading-none text-text-1">
+          <span className="font-5 text-4 text-text-1 leading-flat">
             {group.firstSolution.moves.length}
           </span>
-          <span className="text-xs text-text-3 mt-0.5">moves</span>
+          <span className="text-0 text-text-3 mt-0.5">moves</span>
         </div>
 
-        <div className="flex flex-col min-w-0 lg:gap-1">
-          <div className="flex items-center gap-fl-1">
-            <span className="text-fl-1 text-text-2 overflow-hidden leading-snug text-ellipsis whitespace-nowrap lg:text-fl-0">
+        <div className="flex flex-col min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="text-3 text-text-2 overflow-hidden text-ellipsis whitespace-nowrap">
               {group.firstSolution.name}
             </span>
 
             {isOptimal && (
               <span
                 className={clsx(
-                  "flex items-center shrink-0 gap-0.5 text-xs px-1 py-px",
+                  "flex items-center shrink-0 gap-0.5 text-0 px-1 py-px",
                   "rounded-1 bg-ui-2/10 border border-ui-2/20 text-ui-2 whitespace-nowrap leading-tight",
                 )}
               >
@@ -232,12 +238,12 @@ function SolutionRow(
               </span>
             )}
           </div>
-          <p className="text-xs text-text-3 leading-snug">{metaLine}</p>
+          <p className="text-text-3 text-1 leading-snug">{metaLine}</p>
         </div>
 
-        <span className="text-fl-0 text-text-link leading-tight whitespace-nowrap hover:text-link">
-          <Icon icon={Play} className="text-sm leading-flat" />{" "}
+        <span className="flex gap-1 items-center text-link">
           <span className="max-md:hidden">Watch</span>
+          <Icon icon={Play} />
         </span>
       </a>
     </li>

@@ -1,3 +1,5 @@
+import clsx from "clsx/lite";
+
 import { ArrowLeft, Icon, UserCircle } from "#/components/icons.tsx";
 import { ShareButton } from "#/islands/share-button.tsx";
 
@@ -14,18 +16,28 @@ export function Header({ url, back, share, hideProfile }: Props) {
     : url.origin + url.pathname;
 
   return (
-    <header className="print:hidden flex items-center justify-between">
+    <header className="print:hidden flex items-center justify-between text-5 text-text-2">
       {back && (
-        <a href={back.href} className="text-fl-1 no-underline leading-none">
+        <a
+          href={back.href}
+          className={clsx(
+            "inline-flex items-center justify-center min-w-[44px] min-h-[44px]",
+            "text-5 no-underline text-inherit hover:text-link",
+          )}
+          aria-label="Back"
+        >
           <Icon icon={ArrowLeft} />
         </a>
       )}
-      <div className="flex items-center gap-2 ml-auto">
+      <div className="flex items-center ml-auto">
         {share && <ShareButton url={shareUrl} />}
         {!hideProfile && (
           <a
             href="/profile"
-            className="p-0 leading-none text-fl-1 text-text-2 no-underline hover:text-link"
+            className={clsx(
+              "inline-flex items-center justify-center min-w-[44px] min-h-[44px]",
+              "no-underline text-inherit text-5 hover:text-link",
+            )}
             aria-label="Profile and settings"
           >
             <Icon icon={UserCircle} />

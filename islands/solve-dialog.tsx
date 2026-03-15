@@ -114,7 +114,7 @@ export function SolveDialog({ puzzle, href }: Props) {
       <div class="flex flex-col gap-fl-2 text-text-2">
         {solveState?.status === "starting" && (
           <>
-            <h2 class="text-fl-1 text-text-1 font-semibold leading-tight">
+            <h2 class="text-4 text-text-1 font-semibold leading-tight">
               Warming up the solver…
             </h2>
 
@@ -137,7 +137,7 @@ export function SolveDialog({ puzzle, href }: Props) {
 
         {solveState?.status === "solving" && (
           <>
-            <p class="text-fl-1 text-text-1 font-semibold leading-tight">
+            <p class="text-4 text-text-1 font-semibold leading-tight">
               Finding the shortest path…
             </p>
 
@@ -160,7 +160,7 @@ export function SolveDialog({ puzzle, href }: Props) {
 
         {solveState?.status === "done" && (
           <>
-            <h2 class="text-fl-1 leading-tight text-text-1">
+            <h2 class="text-4 leading-tight text-text-1">
               Found it - {totalMoves} {totalMoves === 1 ? "move" : "moves"}{" "}
               total
             </h2>
@@ -184,7 +184,7 @@ export function SolveDialog({ puzzle, href }: Props) {
 
         {solveState?.status === "error" && (
           <>
-            <h2 class="text-fl-1 text-text-1 font-semibold leading-tight">
+            <h2 class="text-4 text-text-1 font-semibold leading-tight">
               Something went wrong
             </h2>
 

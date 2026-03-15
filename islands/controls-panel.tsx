@@ -91,14 +91,14 @@ export function ControlsPanel(
     <Panel className={className}>
       <div
         className={clsx(
-          "grid max-lg:col-[2/3] grid-cols-subgrid place-content-center items-center w-full max-lg:gap-fl-4",
-          "lg:grid lg:row-[3/4] lg:items-start lg:grid-rows-[1fr_auto] lg:gap-fl-3",
+          "grid max-lg:col-[2/3] grid-cols-subgrid place-content-center items-center w-full max-lg:gap-8",
+          "lg:grid lg:row-[3/4] lg:items-start lg:grid-rows-[1fr_auto] gap-fl-3",
         )}
       >
-        <div className="flex flex-col gap-fl-1 justify-start">
+        <div className="flex flex-col gap-fl-2 justify-start">
           <div
             className={clsx(
-              "flex place-items-center justify-center gap-fl-1 w-full",
+              "flex place-items-center justify-center gap-3 w-full",
               "lg:place-self-center",
             )}
           >
@@ -115,10 +115,8 @@ export function ControlsPanel(
 
             <div
               className={clsx(
-                "flex items-center justify-center min-w-[2ch]",
-                "text-center font-3 leading-flat",
-                "max-lg:text-7",
-                "lg:text-fl-2",
+                "flex items-center justify-center min-w-[2ch] font-3",
+                "text-center leading-flat font-3 tracking-wide text-8 tabular-nums",
               )}
             >
               {count < 10 ? `0${count}` : count}
@@ -141,8 +139,8 @@ export function ControlsPanel(
 
           <div
             className={clsx(
-              "flex gap-fl-1 justify-center flex-wrap text-1",
-              "lg:text-fl-0 lg:justify-self-center",
+              "flex gap-2 justify-center flex-wrap",
+              "lg:justify-self-center",
             )}
           >
             {

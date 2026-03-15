@@ -377,8 +377,8 @@
   --animate-float: var(--animation-float);
   --animate-bounce: var(--animation-bounce);
   --animate-pulse: var(--animation-pulse);
-  --animate-sneak-in-bottom: sneak-in-bottom 2s ease 500ms both;
-  --animate-sneak-in-left: sneak-in-left 2s ease 500ms both;
+  --animate-sneak-in-bottom: sneak-in-bottom 1.4s ease 500ms both;
+  --animate-sneak-in-left: sneak-in-left 1.4s ease 500ms both;
 
   @keyframes sneak-in-bottom {
     0% {
@@ -643,10 +643,16 @@
 }
 
 :root {
-  font-size: 20px;
+  font-size: 14px;
   --font-sans: "Chakra Petch", system-ui, sans-serif;
   /* Default for system dark / no theme selected — overridden per theme in themes.css */
   --hover-brightness: 1.4;
+}
+
+@media (min-width: 768px) {
+  :root {
+    font-size: 16px;
+  }
 }
 
 @media (prefers-color-scheme: light) {
@@ -673,11 +679,26 @@
   body {
     color: var(--color-text-1);
     font-family: var(--font-sans);
+    font-weight: 400;
     background: var(--color-surface-1);
+    /* normalize defaults to 1.5 (prose), tighten for a game UI */
+    line-height: var(--font-lineheight-2); /* 1.375 */
   }
 
+  /* App-scale headings — normalize defaults are editorial (h1=3.5rem), too large for a game UI */
+  h1, .h1 {
+    font-size: var(--font-size-5);
+  } /* 2rem   → 28px/32px */
+  h2, .h2 {
+    font-size: var(--font-size-4);
+  } /* 1.5rem → 21px/24px */
+  h3, .h3 {
+    font-size: var(--font-size-3);
+  } /* 1.25rem → 17.5px/20px */
+
   :where(h1, h2, h3, h4, h5, h6) {
-    font-weight: 400;
+    color: var(--color-brand);
+    font-weight: 500;
   }
 
   dialog {
@@ -735,6 +756,8 @@
   /* Global link defaults */
   a, .link {
     color: var(--color-link);
+    font-weight: 500;
+    font-size: var(--text-2);
     text-decoration: underline;
     text-decoration-thickness: 1px;
     text-underline-offset: 3px;

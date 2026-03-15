@@ -26,7 +26,8 @@ export function Pagination({ page, totalPages, baseUrl, className }: Props) {
   return (
     <nav
       className={clsx(
-        "flex items-center justify-center gap-fl-2 self-end max-lg:w-full",
+        "flex items-center justify-center gap-fl-2 self-end uppercase",
+        "max-lg:w-full",
         className,
       )}
       aria-label="Pagination"
@@ -35,14 +36,14 @@ export function Pagination({ page, totalPages, baseUrl, className }: Props) {
         href={hasPrevious ? getPageUrl(page - 1) : "#"}
         className="icon-btn"
         data-size="sm"
-        aria-disabled={!hasNext ? true : undefined}
+        aria-disabled={!hasPrevious ? true : undefined}
         aria-label="Previous page"
       >
         <Icon icon={CaretLeft} />
       </a>
 
-      <span className="text-fl-0 text-text-2">
-        Page {page} of {totalPages}
+      <span className="text-4 text-text-2">
+        {page} / {totalPages}
       </span>
 
       <a

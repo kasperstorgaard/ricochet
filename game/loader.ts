@@ -114,6 +114,20 @@ export async function listPuzzles(
 }
 
 /**
+ * Counts available puzzles by difficulty. Uses the cached manifest so it's cheap.
+ */
+export async function getDifficultyBreakdown(): Promise<
+  Record<Difficulty, number>
+> {
+  const entries = await getAvailableEntries();
+  const breakdown: Record<Difficulty, number> = { easy: 0, medium: 0, hard: 0 };
+  for (const entry of entries) {
+    breakdown[entry.difficulty]++;
+  }
+  return breakdown;
+}
+
+/**
  * Gets the latest puzzle — the puzzle of the day
  */
 export async function getLatestPuzzle() {

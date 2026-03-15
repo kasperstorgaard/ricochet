@@ -59,7 +59,7 @@ export function SolutionDialog(
         {isGraduating &&
           (
             <p>
-              You've found your feet — the full puzzle archive is yours now.
+              Well done - you're good at this!
             </p>
           )}
 
@@ -148,7 +148,7 @@ export function SolutionDialog(
         {!isPreview && !error && (
           <button
             form="solution"
-            className="btn md:ml-auto max-md:w-full"
+            className="btn"
             type="submit"
             disabled={!hasSolution || isSubmitting}
           >

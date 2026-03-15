@@ -15,7 +15,7 @@ export function CookieBanner({ open }: Props) {
   return (
     <div
       className={clsx(
-        "fixed top-auto bottom-0 left-0 max-w-screen right-0 p-fl-2 m-0 z-5",
+        "fixed top-auto bottom-1 left-0 max-w-screen right-0 p-5 py-4 m-0 z-5",
         "rounded-cond-2 overflow-hidden bg-surface-2",
         "sm:max-w-88 max-lg:shadow-3",
         "md:bottom-fl-2 md:left-fl-2 md:right-auto",
@@ -49,15 +49,18 @@ export function CookieBanner({ open }: Props) {
         />
       </svg>
 
-      <div className="grid gap-fl-1 relative z-10">
-        <h2 className="text-2 font-semibold flex items-center gap-1">
-          One quick thing
-        </h2>
+      <div className="grid gap-3 relative z-10">
+        <div className="flex flex-col gap-1">
+          <h2 className="font-semibold text-4">
+            One quick thing
+          </h2>
 
-        <p className="text-1">
-          We don't share or sell your data, but if you want, we'd like to see
-          how people play Skub. <a href="/cookie-policy">Learn more</a>
-        </p>
+          <p className="leading-normal max-w-[36ch]">
+            We don't share or sell your data, but if you want, we'd like to see
+            how people play Skub. <br />
+            <a href="/cookie-policy">Learn more</a>
+          </p>
+        </div>
 
         <form
           action="/api/consent"
@@ -67,19 +70,19 @@ export function CookieBanner({ open }: Props) {
           <button
             type="submit"
             name="action"
-            value="accept"
+            value="decline"
             className="btn text-1"
           >
-            sure, why not
+            No thanks
           </button>
 
           <button
             type="submit"
             name="action"
-            value="decline"
+            value="accept"
             className="btn text-1"
           >
-            nah, I'm good
+            Sounds good
           </button>
         </form>
       </div>

@@ -15,7 +15,17 @@ const defaultPages = [
   "/profile",
 ];
 
-const pages = args.pages ? args.pages.split(",") : defaultPages;
+const pageAliases: Record<string, string> = {
+  home: "/",
+  puzzles: "/puzzles",
+  profile: "/profile",
+};
+
+const resolvePageAlias = (page: string) => pageAliases[page] ?? page;
+
+const pages = args.pages
+  ? args.pages.split(",").map(resolvePageAlias)
+  : defaultPages;
 const viewports = args.desktop
   ? [{ name: "desktop", device: devices["Desktop Chrome"] }]
   : [{ name: "mobile", device: devices["iPhone 14"] }];
