@@ -128,10 +128,7 @@ export function HintDialog({ puzzle, href }: Props) {
   }, [solveState]);
 
   return (
-    <Dialog
-      open={open}
-      className="max-w-sm!"
-    >
+    <Dialog open={open}>
       <div class="flex flex-col gap-fl-2 text-text-2">
         {solveState?.status === "starting" && (
           <>
