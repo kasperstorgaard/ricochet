@@ -8,8 +8,6 @@ import {
   GithubLogo,
   Icon,
   LinkedinLogo,
-  Play,
-  Student,
 } from "#/components/icons.tsx";
 import { Main } from "#/components/main.tsx";
 import { Panel } from "#/components/panel.tsx";

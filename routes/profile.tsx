@@ -3,10 +3,10 @@ import clsx from "clsx/lite";
 import { Header } from "#/components/header.tsx";
 import { EnvelopeSimple, Icon } from "#/components/icons.tsx";
 import { Main } from "#/components/main.tsx";
+import { Panel } from "#/components/panel.tsx";
 import { define } from "#/core.ts";
 import { setUser } from "#/db/user.ts";
 import { THEMES } from "#/lib/themes.ts";
-import { Panel } from "../components/panel.tsx";
 
 export const handler = define.handlers({
   async POST(ctx) {
