@@ -55,7 +55,8 @@ export default define.page<typeof handler>(function ProfilePage(props) {
                     </a>
                   </div>
 
-                  {/*
+                  {
+                    /*
                     TODO: personal stats section
                     - solved / total puzzles (e.g. "12 of 73 solved")
                     - optimal solves count (trophy icon + count)
@@ -63,7 +64,8 @@ export default define.page<typeof handler>(function ProfilePage(props) {
                     Data: listUserSolutions already fetched on archive page — same query works here.
                     Note: these stats are only shown when logged in (email present), which ties
                     naturally into the "sync your progress" login pitch for anonymous users.
-                  */}
+                  */
+                  }
                 </>
               )
               : (
@@ -118,12 +120,7 @@ export default define.page<typeof handler>(function ProfilePage(props) {
 
           {/* Theme */}
           <section className="flex flex-col gap-fl-2">
-            <h2 className="flex flex-col gap-0.5 text-5">
-              <span>Theme</span>
-              <span className="text-2 text-text-2">
-                {THEMES.find((t) => t.key === activeTheme)?.label}
-              </span>
-            </h2>
+            <h2 className="flex flex-col gap-0.5 text-5">Theme</h2>
 
             <form
               method="post"

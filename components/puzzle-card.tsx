@@ -103,7 +103,7 @@ export function PuzzleCard({
             {tagline}
           </span>
         )}
-        <span className="text-3 font-semibold leading-flat">
+        <span className="text-4 font-semibold leading-flat">
           <span className="tracking-wide font-normal">#{puzzle.number}</span>
           {" "}
           <span>{puzzle.name}</span>

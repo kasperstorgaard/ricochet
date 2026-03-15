@@ -20,7 +20,10 @@ export function Header({ url, back, share, hideProfile }: Props) {
       {back && (
         <a
           href={back.href}
-          className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] no-underline text-inherit hover:text-link"
+          className={clsx(
+            "inline-flex items-center justify-center min-w-[44px] min-h-[44px]",
+            "text-5 no-underline text-inherit hover:text-link",
+          )}
           aria-label="Back"
         >
           <Icon icon={ArrowLeft} />

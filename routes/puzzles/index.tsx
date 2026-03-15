@@ -9,14 +9,19 @@ import { Panel } from "#/components/panel.tsx";
 import { PuzzleCard } from "#/components/puzzle-card.tsx";
 import { define } from "#/core.ts";
 import { getBestMoves, listUserSolutions } from "#/db/solutions.ts";
-import { getLatestPuzzle, listPuzzles } from "#/game/loader.ts";
-import { PaginatedData, Puzzle } from "#/game/types.ts";
+import {
+  getDifficultyBreakdown,
+  getLatestPuzzle,
+  listPuzzles,
+} from "#/game/loader.ts";
+import { Difficulty, PaginatedData, Puzzle } from "#/game/types.ts";
 import { getPage } from "#/game/url.ts";
 
 const ITEMS_PER_PAGE = 6;
 
 type PageData = PaginatedData<Puzzle> & {
   bestMoves: Record<string, number>;
+  difficultyBreakdown: Record<Difficulty, number>;
 };
 
 export const handler = define.handlers<PageData>({
@@ -27,17 +32,18 @@ export const handler = define.handlers<PageData>({
 
     if (!dailyPuzzle) throw new HttpError(500, "Unable to get daily puzzle");
 
-    const { items, pagination } = await listPuzzles({
-      sortBy: "number",
-      sortOrder: "descending",
-      page: currentPage,
-      excludeSlugs: ["tutorial", dailyPuzzle.slug],
-      itemsPerPage: ITEMS_PER_PAGE,
-    });
-
-    const userSolutions = await listUserSolutions(ctx.state.userId, {
-      limit: 500,
-    });
+    const [{ items, pagination }, userSolutions, difficultyBreakdown] =
+      await Promise.all([
+        listPuzzles({
+          sortBy: "number",
+          sortOrder: "descending",
+          page: currentPage,
+          excludeSlugs: ["tutorial", dailyPuzzle.slug],
+          itemsPerPage: ITEMS_PER_PAGE,
+        }),
+        listUserSolutions(ctx.state.userId, { limit: 500 }),
+        getDifficultyBreakdown(),
+      ]);
 
     // TODO: use db filtering based on current page of items
     const bestMoves = getBestMoves(userSolutions);
@@ -46,13 +52,14 @@ export const handler = define.handlers<PageData>({
       items,
       pagination,
       bestMoves,
+      difficultyBreakdown,
     });
   },
 });
 
 export default define.page<typeof handler>(
   function PuzzlesPage(props) {
-    const { items, pagination, bestMoves } = props.data;
+    const { items, pagination, bestMoves, difficultyBreakdown } = props.data;
 
     const url = new URL(props.req.url);
 
@@ -101,10 +108,33 @@ export default define.page<typeof handler>(
             )}
           >
             <div className="flex flex-col gap-0">
-              <span className="text-7 text-text-1 leading-flat font-medium tracking-wide">
+              <span className="text-6 text-text-1 leading-flat font-medium tracking-wide">
                 {pagination.totalItems}
               </span>
               <span className="text-3 text-text-2">Puzzles</span>
+            </div>
+
+            <div className="flex lg:flex-col gap-fl-2">
+              <div className="flex flex-col gap-0">
+                <span className="text-4 text-text-1 leading-flat font-medium tracking-wide">
+                  {difficultyBreakdown.hard}
+                </span>
+                <span className="text-3 text-text-2">Hard</span>
+              </div>
+
+              <div className="flex flex-col gap-0">
+                <span className="text-4 text-text-1 leading-flat font-medium tracking-wide">
+                  {difficultyBreakdown.medium}
+                </span>
+                <span className="text-3 text-text-2">Medium</span>
+              </div>
+
+              <div className="flex flex-col gap-0">
+                <span className="text-4 text-text-1 leading-flat font-medium tracking-wide">
+                  {difficultyBreakdown.easy}
+                </span>
+                <span className="text-3 text-text-2">Easy</span>
+              </div>
             </div>
           </div>
 
