@@ -38,7 +38,7 @@ User-agent: *
 Allow: /
 
 # Disallow crawling of puzzle pages with game state and hint endpoints
-Disallow: /puzzles/*?moves=*
+Disallow: /puzzles/*?*
 Disallow: /puzzles/*/hint
 Disallow: /puzzles/*/clone
 
