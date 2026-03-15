@@ -95,7 +95,7 @@ export function ControlsPanel(
           "lg:grid lg:row-[3/4] lg:items-start lg:grid-rows-[1fr_auto] lg:gap-fl-3",
         )}
       >
-        <div className="flex flex-col gap-2 justify-start">
+        <div className="flex flex-col gap-fl-1 justify-start">
           <div
             className={clsx(
               "flex place-items-center justify-center gap-2 w-full",

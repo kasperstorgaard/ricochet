@@ -78,9 +78,8 @@ export function DifficultyBadge(
     <span
       ref={ref}
       className={clsx(
-        "flex items-center pl-1 justify-center text-2",
+        "flex items-center pl-1 leading-loose justify-center text-2",
         "bg-surface-2 cursor-help tracking-wider",
-        "[clip-path:polygon(5%_0,100%_0,100%_100%,0_100%)]",
         className,
       )}
       title={error ? error : undefined}

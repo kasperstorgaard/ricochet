@@ -31,7 +31,10 @@ export function Header({ url, back, share, hideProfile }: Props) {
         {!hideProfile && (
           <a
             href="/profile"
-            className="inline-flex items-center justify-center min-w-[44px] min-h-[44px] no-underline text-inherit hover:text-link"
+            className={clsx(
+              "inline-flex items-center justify-center min-w-[44px] min-h-[44px]",
+              "no-underline text-inherit text-5 hover:text-link",
+            )}
             aria-label="Profile and settings"
           >
             <Icon icon={UserCircle} />

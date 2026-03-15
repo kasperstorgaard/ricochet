@@ -377,8 +377,8 @@
   --animate-float: var(--animation-float);
   --animate-bounce: var(--animation-bounce);
   --animate-pulse: var(--animation-pulse);
-  --animate-sneak-in-bottom: sneak-in-bottom 2s ease 500ms both;
-  --animate-sneak-in-left: sneak-in-left 2s ease 500ms both;
+  --animate-sneak-in-bottom: sneak-in-bottom 1.4s ease 500ms both;
+  --animate-sneak-in-left: sneak-in-left 1.4s ease 500ms both;
 
   @keyframes sneak-in-bottom {
     0% {
@@ -697,8 +697,8 @@
   } /* 1.25rem → 17.5px/20px */
 
   :where(h1, h2, h3, h4, h5, h6) {
-    font-weight: 300;
     color: var(--color-brand);
+    font-weight: 500;
   }
 
   dialog {
@@ -756,7 +756,7 @@
   /* Global link defaults */
   a, .link {
     color: var(--color-link);
-    font-weight: 400;
+    font-weight: 500;
     font-size: var(--text-2);
     text-decoration: underline;
     text-decoration-thickness: 1px;

@@ -76,7 +76,12 @@ export function PuzzleCard({
               isOptimal ? "text-ui-2" : "text-brand",
             )}
           >
-            <span class="flex items-center gap-0.5 text-xs px-1 py-px rounded-1 bg-surface-1 border border-current/60 whitespace-nowrap leading-tight">
+            <span
+              class={clsx(
+                "flex items-center gap-0.5 px-1 py-px rounded-1 bg-surface-1 border border-current/60",
+                "whitespace-nowrap leading-tight text-1",
+              )}
+            >
               <Icon
                 icon={isOptimal ? Trophy : Check}
                 aria-label={isOptimal ? "Perfect" : "Solved"}
@@ -99,7 +104,8 @@ export function PuzzleCard({
           </span>
         )}
         <span className="text-3 font-semibold leading-flat">
-          <span className="tracking-wide">#{puzzle.number}</span>{" "}
+          <span className="tracking-wide font-normal">#{puzzle.number}</span>
+          {" "}
           <span>{puzzle.name}</span>
         </span>
       </div>

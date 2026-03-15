@@ -241,7 +241,8 @@ function SolutionRow(
         </div>
 
         <span className="flex gap-1 items-center text-link">
-          <Icon icon={Play} /> <span className="max-md:hidden">Watch</span>
+          <span className="max-md:hidden">Watch</span>
+          <Icon icon={Play} />
         </span>
       </a>
     </li>
