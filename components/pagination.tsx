@@ -36,7 +36,7 @@ export function Pagination({ page, totalPages, baseUrl, className }: Props) {
         href={hasPrevious ? getPageUrl(page - 1) : "#"}
         className="icon-btn"
         data-size="sm"
-        aria-disabled={!hasNext ? true : undefined}
+        aria-disabled={!hasPrevious ? true : undefined}
         aria-label="Previous page"
       >
         <Icon icon={CaretLeft} />
